@@ -1,0 +1,77 @@
+services:
+  
+  mock-oauth:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/csfeerauth
+      KC_DB_USERNAME: csfeer
+      KC_DB_PASSWORD: secret123
+      KC_HTTP_PORT: 8081
+    command: start-dev --import-realm
+    hostname: oauth.csfeer
+    healthcheck:
+      test: "/bin/true"
+    volumes:
+      - ./devops/mocks/keycloak:/opt/keycloak/data/import
+    depends_on:
+      - db
+    ports:
+      - "127.0.0.1:8081:8081"
+    cap_drop:
+      - all
+    security_opt:
+      - "no-new-privileges:true"
+
+  db:
+    image: postgres:16
+    healthcheck:
+      test: "/bin/true"
+    security_opt:
+      - "no-new-privileges:true"
+    ports:
+      - "0.0.0.0:5432:5432"
+    hostname: db.csfeer
+    environment:
+      POSTGRES_PASSWORD: secret123
+      POSTGRES_USER: csfeer
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - "./devops/postgresql/initdb.d:/docker-entrypoint-initdb.d"
+    cap_add:
+      - DAC_OVERRIDE
+      - FOWNER
+      - SYS_CHROOT
+      - SETGID
+      - SETFCAP
+      - SETPCAP
+      - SETUID
+    cap_drop:
+      - all
+
+  app:
+    build:
+      target: dev
+    env_file:
+      - ./ui/.env
+    hostname: ui.csfeer
+    post_start:
+      - command: "uv run python csfeer/manage.py migrate"
+    security_opt:
+      - "no-new-privileges:true"
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: "/bin/true"
+    volumes:
+      - ./:/app
+      - /app/.venv
+    depends_on:
+      - db
+    cap_drop:
+      - all
+
+volumes:
+  pgdata:

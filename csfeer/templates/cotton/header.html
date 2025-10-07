@@ -1,0 +1,55 @@
+{% load static %}
+<header class="bg-primary-darker text-white padding-y-2">
+  <div class="grid-container">
+    <div class="grid-row grid-gap-2 flex-align-center padding-y-2">
+      <div class="grid-col-auto">
+        <img
+          src="{% static 'img/dos_seal.svg' %}"
+          alt="US State Department Seal"
+          class="width-6 height-6"
+        />
+      </div>
+      <div class="grid-col-fill">
+        <h1 class="margin-0 font-serif-xl text-bold">CSFEER</h1>
+        <p class="margin-0 text-light font-serif-xs">
+          Community Services Form Engine
+        </p>
+      </div>
+      <div class="grid-col-auto">
+        <div class="display-flex flex-align-center gap-2">
+          <button
+            class="usa-button usa-button--outline font-sans-xs usa-button--inverse margin-0 margin-right-3"
+          >
+            Get Next Case
+          </button>
+          {% if user.is_authenticated %}
+          <nav aria-label="User navigation" class="usa-nav user-nav">
+            <ul class="usa-nav__primary usa-accordion">
+              <li class="usa-nav__primary-item">
+                <button
+                  type="button"
+                  class="usa-accordion__button usa-nav__link text-white"
+                  aria-expanded="false"
+                  aria-controls="agent-nav-section"
+                >
+                  <span>{{ agent_name }}</span>
+                </button>
+                <ul id="agent-nav-section" class="usa-nav__submenu" hidden>
+                  <li class="usa-nav__submenu-item">
+                    <a
+                      href="/oidc/logout?next=http://ui.csfeer:8000/logged-out&fail=http://ui.csfeer:8000/logged-out"
+                      class="usa-nav__link"
+                    >
+                      <span>Sign Out</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </nav>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

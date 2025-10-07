@@ -1,0 +1,36 @@
+{
+  "name": "csfeer",
+  "version": "0.1.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:sass": "node build-sass.js",
+    "build:sass:prod": "NODE_ENV=production node build-sass.js",
+    "watch:sass": "node build-sass.js --watch",
+    "dev": "npm run watch:sass",
+    "build": "npm run build:sass:prod",
+    "build:styles": "npm run build:sass",
+    "postinstall": "npm run build:styles"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/focusconsulting/csfeer.git"
+  },
+  "author": "mkalish",
+  "bugs": {
+    "url": "https://github.com/focusconsulting/csfeer/issues"
+  },
+  "license": "UNLICENSED",
+  "homepage": "https://github.com/focusconsulting/csfeer#readme",
+  "description": "",
+  "dependencies": {
+    "@uswds/uswds": "^3.13.0",
+    "alpinejs": "^3.15.0",
+    "htmx-ext-sse": "^2.2.3",
+    "htmx.org": "^2.0.7"
+  },
+  "devDependencies": {
+    "chokidar": "^4.0.3",
+    "sass": "^1.93.2"
+  }
+}

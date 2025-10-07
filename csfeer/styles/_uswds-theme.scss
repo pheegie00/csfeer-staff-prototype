@@ -1,0 +1,19 @@
+/*
+----------------------------------------
+USWDS settings overrides
+----------------------------------------
+See https://designsystem.digital.gov/documentation/settings/
+for a full list of available settings.
+----------------------------------------
+*/
+
+@use "uswds-core" with (
+  // Disable scary but mostly irrelevant warnings:
+  $theme-show-notifications: false,
+  $theme-image-path: "/static/@uswds/uswds/dist/img",
+  $theme-font-path: "/static/@uswds/uswds/dist/fonts",
+
+  $theme-accordion-button-background-color: "primary",
+  $theme-card-border-color: "gray-warm-10",
+  $theme-table-border-color: "gray-warm-10"
+);

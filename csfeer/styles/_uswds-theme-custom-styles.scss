@@ -1,0 +1,177 @@
+@use "uswds-core" as *;
+
+/* ========================================
+   Temporary Extra Styles
+   ======================================== */
+
+.layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.layout-content {
+  flex: 1;
+}
+
+/* ========================================
+   USWDS Form Customizations
+   ======================================== */
+
+/* Form Container Styling */
+.fieldset {
+  border: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+}
+
+/* Field Holders */
+.holder {
+  margin-bottom: 1.5rem;
+
+  &.checkbox {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Label Styling */
+.holder label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  display: block;
+
+  &.required::after {
+    content: " *";
+    color: color("red-warm-50");
+  }
+}
+
+.required::after {
+  content: "*";
+  color: color("red-warm-50");
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+.asterisk {
+  color: color("red-warm-50");
+  font-weight: bold;
+}
+
+/* Error Styling */
+.form-error {
+  color: color("red-warm-50");
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+  display: block;
+
+  &.is-visible {
+    display: block;
+  }
+
+  &.compact {
+    margin-bottom: 0.25rem;
+  }
+}
+
+.is-invalid-label {
+  color: color("red-warm-50");
+}
+
+/* Help Text */
+.help-text {
+  color: #5c5c5c;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
+/* Button Styling */
+.button-holder {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Multiple Fields (for formsets) */
+.multiple-fields {
+  border: 1px solid #dfe1e2;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.25rem;
+}
+
+/* Switch/Toggle Custom Styling */
+.switch-class {
+  position: relative;
+}
+
+.switch-paddle {
+  background-color: #f0f0f0;
+  border-radius: 2rem;
+  cursor: pointer;
+  display: inline-block;
+  height: 2rem;
+  position: relative;
+  width: 3.5rem;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #e6e6e6;
+  }
+}
+
+/* Form Validation States */
+.usa-input--error {
+  border-color: color("red-warm-50");
+  border-width: 2px;
+}
+
+.usa-input--success {
+  border-color: #00a91c;
+  border-width: 2px;
+}
+
+/* Responsive Form Improvements */
+@media (max-width: 640px) {
+  .button-holder {
+    flex-direction: column;
+  }
+
+  .multiple-fields {
+    padding: 1rem;
+  }
+}
+
+/* Custom Form Overrides for CSFEER */
+.csfeer-form {
+  max-width: 100%;
+
+  .fieldset {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #dfe1e2;
+  }
+}
+
+/* ========================================
+   User Nav (Header) Overrides
+   ======================================== */
+.user-nav .usa-accordion__button.usa-nav__link {
+  color: color("white");
+}
+
+.user-nav .usa-accordion__button.usa-nav__link:hover {
+  color: color("white");
+}
+
+/* USWDS places the icon on span::after for nav buttons */
+.user-nav .usa-accordion__button.usa-nav__link[aria-expanded] span::after {
+  background-color: color("white");
+}
+
+.user-nav .usa-accordion__button.usa-nav__link:hover span::after {
+  background-color: color("white");
+}
