@@ -1,0 +1,56 @@
+{{- if .Values.mockImage.deploy }}
+---
+# Service account for Mock API
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "csfeer.fullname" . }}-mock-apis
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "csfeer.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mock-apis
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/sync-wave: "0"
+automountServiceAccountToken: false
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "csfeer.fullname" . }}-mock-apis
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "csfeer.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mock-apis
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/sync-wave: "0"
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["get"]
+
+---
+# Mock API RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "csfeer.fullname" . }}-mock-apis
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "csfeer.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mock-apis
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/sync-wave: "0"
+subjects:
+- kind: ServiceAccount
+  name: {{ include "csfeer.fullname" . }}-mock-apis
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ include "csfeer.fullname" . }}-mock-apis
+  apiGroup: rbac.authorization.k8s.io
+
+{{- end }}

@@ -1,0 +1,125 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "csfeer.fullname" . }}-app
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "csfeer.labels" . | nindent 4 }}
+spec:
+  revisionHistoryLimit: 2 # Keep at least 2 revisions of the deployment
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "csfeer.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name | quote }}
+  template:
+    metadata:
+      # annotations:
+      #   instrumentation.opentelemetry.io/inject-python: "true" # This this for Application Signal with CloudWatch
+      labels:
+        {{- include "csfeer.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: app
+    spec:
+      serviceAccountName: {{ include "csfeer.fullname" . }}
+      securityContext:
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: csfeer-app-static
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          image: "{{ .Values.staticImage.repository }}:{{ .Values.staticImage.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 15
+            failureThreshold: 1
+            periodSeconds: 30
+          startupProbe:
+            tcpSocket:
+              port: 8080
+            failureThreshold: 10 # This results in the pod given 200 seconds to start up
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+            limits:
+              memory: {{ .Values.resources.limits.memory }}
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
+            - name: nginx-run
+              mountPath: /var/run
+            - name: nginx-tmp
+              mountPath: /tmp
+        - name: csfeer-app
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          livenessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 15
+            failureThreshold: 1
+            periodSeconds: 30
+          startupProbe:
+            tcpSocket:
+              port: 8000
+            failureThreshold: 10 # This results in the pod given 200 seconds to start up
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+            limits:
+              memory: {{ .Values.resources.limits.memory }}
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          env:
+            - name: APP_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: api_secret_key
+            - name: OIDC_CONFIG__CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: oidc_client_secret
+          envFrom:
+            - configMapRef:
+                name: {{ include "csfeer.fullname" . }}-app-config
+            - configMapRef:
+                name: {{ include "csfeer.fullname" . }}-shared-config
+          volumeMounts:
+            - name: tmp-volume
+              mountPath: /tmp
+      volumes:
+        - name: tmp-volume
+          emptyDir:
+            medium: Memory
+        - name: nginx-cache
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+        - name: nginx-tmp
+          emptyDir: {} 

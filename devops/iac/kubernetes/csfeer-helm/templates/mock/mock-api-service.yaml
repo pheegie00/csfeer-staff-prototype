@@ -1,0 +1,22 @@
+{{- if .Values.mockImage.deploy -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "csfeer.name" . }}-mock-apis-service
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "csfeer.name" . }}-mock-apis
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    helm.sh/chart: {{ include "csfeer.chart" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+spec:
+  type: {{ .Values.mockImage.service.type | default "ClusterIP" }}
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "csfeer.fullname" . }}-mock-apis
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+{{- end }} 

@@ -31,4 +31,3 @@ class DatabaseWrapper(base.DatabaseWrapper):
             params["password"] = config.db_config.pgpassword
 
         return params
-        return params
