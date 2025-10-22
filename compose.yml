@@ -10,6 +10,8 @@ services:
       KC_DB_USERNAME: csfeer
       KC_DB_PASSWORD: secret123
       KC_HTTP_PORT: 8081
+      KC_BOOTSTRAP_ADMIN_CLIENT_ID: csfeer-auth
+      KC_BOOTSTRAP_ADMIN_CLIENT_SECRET: shhhhhhhh
     command: start-dev --import-realm
     hostname: oauth.csfeer
     healthcheck:
@@ -24,7 +26,35 @@ services:
       - all
     security_opt:
       - "no-new-privileges:true"
-
+  oauth-setup:
+    image: quay.io/keycloak/keycloak:latest
+    entrypoint: []
+    command: bash -c "
+      sleep 5 && \
+      /opt/keycloak/bin/kcadm.sh config credentials \
+        --server http://oauth.csfeer:8081 \
+        --realm master \
+        --user admin \
+        --password admin && \
+      /opt/keycloak/bin/kcadm.sh create users \
+        -r csfeer \
+        -s username=admin \
+        -s enabled=true \
+        -o --fields id,username \
+        -s email=test@gmail.com \
+        -s emailVerified=true \
+        -s firstName=test \
+        -s lastName=test || true && \
+      /opt/keycloak/bin/kcadm.sh set-password \
+        -r csfeer \
+        --username admin \
+        --new-password admin && \
+      /opt/keycloak/bin/kcadm.sh update clients/83ab17ea-566c-43b4-abc5-847346d7485a \
+        -r csfeer \
+        -s "secret=shhhhhhhh"
+      "
+    depends_on:
+      - mock-oauth
   db:
     image: postgres:16
     healthcheck:
@@ -32,7 +62,7 @@ services:
     security_opt:
       - "no-new-privileges:true"
     ports:
-      - "0.0.0.0:5432:5432"
+      - "5432:5432"
     hostname: db.csfeer
     environment:
       POSTGRES_PASSWORD: secret123
@@ -54,15 +84,20 @@ services:
   app:
     build:
       target: dev
-    env_file:
-      - ./ui/.env
+    environment:
+      OIDC_CONFIG__CLIENT_SECRET: shhhhhhhh
+      DB_CONFIG__SSL_MODE: disable
+      OIDC_CONFIG__CLIENT_ID: csfeer-auth
+      OIDC_CONFIG__DOCUMENT_URL: http://oauth.csfeer:8081/realms/csfeer/.well-known/openid-configuration
+      DJANGO_SETTINGS_MODULE: csfeer.settings
+      DB_CONFIG__PGHOST: csfeer-db-1
     hostname: ui.csfeer
     post_start:
-      - command: "uv run python csfeer/manage.py migrate"
+      - command: "uv run python manage.py migrate"
     security_opt:
       - "no-new-privileges:true"
     ports:
-      - "127.0.0.1:8000:8000"
+      - "8000:8000"
     healthcheck:
       test: "/bin/true"
     volumes:
