@@ -1,4 +1,4 @@
-FROM docker/library/python:3.12.10-slim AS build
+FROM python:3.12.10-slim AS build
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -25,7 +25,7 @@ RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /
 USER appuser
 RUN uv sync --frozen --no-install-project --quiet
 
-CMD ["uv", "run","python", "csfeer/manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["uv", "run","python", "manage.py", "runserver", "0.0.0.0:8000"]
 
 
 # Non-dev build
