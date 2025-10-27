@@ -68,7 +68,7 @@ ROOT_URLCONF = "csfeer.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "DIRS": [os.path.join(BASE_DIR, "csfeer", "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -91,17 +91,18 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 STATICFILES_DIRS = [
-    BASE_DIR / "static",  # Where Django looks for static files
+    BASE_DIR / "csfeer" / "static",  # Where Django looks for static files
+    BASE_DIR / "static",
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-NPM_ROOT_PATH = str(BASE_DIR)  # Where your package.json is located
+NPM_ROOT_PATH = str(BASE_DIR / "csfeer")  # Where your package.json is located
 NPM_FILE_PATTERNS = {
     "@uswds/uswds": [
         "dist/css/*.css",
         "dist/js/*.js",
         "dist/js/*.map",
-        "dist/fonts/*",
-        "dist/img/*",
+        "dist/fonts/**/*",
+        "dist/img/**/*",
     ],
     "alpinejs": ["dist/*.js"],
     "htmx.org": ["dist/*.js"],
@@ -144,6 +145,7 @@ OIDC_RP_CLIENT_SECRET = settings.oidc_config.client_secret
 OIDC_RP_FORCE_SECRET_WITH_PKCE = settings.oidc_config.force_secret_with_pkce
 OIDC_RP_SCOPES = settings.oidc_config.scopes
 OIDC_MIDDLEWARE_NO_AUTH_URL_PATTERNS = settings.oidc_config.no_auth_urls
+OIDC_EXTEND_USER = "csfeer.auth.extend_user_with_roles"
 
 PATTERN_LIBRARY = {
     "SECTIONS": (
