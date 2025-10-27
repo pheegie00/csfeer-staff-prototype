@@ -49,9 +49,14 @@ services:
         -r csfeer \
         --username admin \
         --new-password admin && \
+      /opt/keycloak/bin/kcadm.sh add-roles \
+        -r csfeer \
+        --uusername admin \
+        --rolename csfeer_admin \
+        --rolename csfeer_user && \
       /opt/keycloak/bin/kcadm.sh update clients/83ab17ea-566c-43b4-abc5-847346d7485a \
         -r csfeer \
-        -s "secret=shhhhhhhh"
+        -s \"secret=shhhhhhhh\"
       "
     depends_on:
       - mock-oauth

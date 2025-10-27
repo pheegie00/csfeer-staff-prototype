@@ -85,6 +85,24 @@
         "clientRole": false,
         "containerId": "c55a12d3-a06b-43f4-b990-28390a55a7af",
         "attributes": {}
+      },
+      {
+        "id": "a1b2c3d4-e5f6-4789-a012-3456789abcde",
+        "name": "csfeer_admin",
+        "description": "CSFEER Administrator Role",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "c55a12d3-a06b-43f4-b990-28390a55a7af",
+        "attributes": {}
+      },
+      {
+        "id": "b2c3d4e5-f6a7-4890-b123-456789abcdef",
+        "name": "csfeer_user",
+        "description": "CSFEER User Role",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "c55a12d3-a06b-43f4-b990-28390a55a7af",
+        "attributes": {}
       }
     ],
     "client": {
@@ -723,13 +741,13 @@
         "profile",
         "roles",
         "basic",
-        "email"
+        "email",
+        "offline_access"
       ],
       "optionalClientScopes": [
         "address",
         "phone",
         "organization",
-        "offline_access",
         "microprofile-jwt"
       ]
     },
@@ -957,6 +975,7 @@
           "config": {
             "user.attribute": "foo",
             "introspection.token.claim": "true",
+            "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "realm_access.roles",
             "jsonType.label": "String",
