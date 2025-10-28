@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Submission History: {{ current.form_definition.title }}</h1>
+<p>Organization: {{ current.organization.name }}</p>
+<p>Current version: v{{ current.version_number }} ({{ current.status }})</p>
+
+<h2>Submissions</h2>
+<ul>
+  {% for a in events %}
+    <li>
+      {{ a.action|title }} at {{ a.timestamp }}
+      - <a href="{% url 'form_snapshot' current.pk a.pk %}">Preview snapshot</a>
+    </li>
+  {% empty %}
+    <li>No submissions recorded yet.</li>
+  {% endfor %}
+</ul>
+<p><a href="{% url 'form_edit' current.pk %}">Back to current</a> | <a href="{% url 'form_list' %}">Back to list</a></p>
+{% endblock %}

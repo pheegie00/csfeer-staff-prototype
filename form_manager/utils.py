@@ -7,6 +7,26 @@ from django import forms
 from .models import FormAuditDetail, UserOrganizationMembership
 
 
+def try_parse_json(value: str):
+    """Try to parse a string as JSON, return original value on failure."""
+    try:
+        return json.loads(value)
+    except Exception:
+        return value
+
+
+def reconstruct_state(entry, upto=None):
+    """Reconstruct form entry state from audit details up to a given timestamp."""
+    qs = FormAuditDetail.objects.filter(form_entry=entry)
+    if upto is not None:
+        qs = qs.filter(timestamp__lte=upto)
+    qs = qs.order_by("timestamp", "id")
+    state = {}
+    for d in qs:
+        state[d.field_name] = try_parse_json(d.new_value)
+    return state
+
+
 def build_dynamic_form(form_definition, data=None, initial=None, disabled=False):
     fields = {}
     schema_fields = []

@@ -52,7 +52,6 @@ class FormAuditTrailAdmin(admin.ModelAdmin):
 
 @admin.register(FormAuditDetail)
 class FormAuditDetailAdmin(admin.ModelAdmin):
-    list_display = ("form_entry", "user", "field_name", "timestamp")
+    list_display = ("form_entry", "user", "user__email", "field_name", "timestamp")
     search_fields = ("field_name",)
-    search_fields = ("field_name",)
-    search_fields = ("field_name",)
+    list_filter = ("form_entry__form_definition__title",)

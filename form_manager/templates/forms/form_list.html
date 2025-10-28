@@ -14,6 +14,7 @@
     <li>{{ e.form_definition.title }} - v{{ e.version_number }} - {{ e.status }}
         - <a href="{% url 'form_edit' e.pk %}">Edit</a>
         - <a href="{% url 'form_preview' e.pk %}">Preview</a>
+        - <a href="{% url 'form_history' e.pk %}">History</a>
         {% if not e.locked %}- <a href="{% url 'form_lock' e.pk %}">Lock</a>{% else %}- <a href="{% url 'form_unlock' e.pk %}">Unlock</a>{% endif %}
         - <a href="{% url 'form_archive' e.pk %}">Archive</a>
     </li>

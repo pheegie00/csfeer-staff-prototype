@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>Preview: {{ entry.form_definition.title }} (v{{ entry.version_number }})</h1>
+{% if snapshot_at %}
+<p><em>Snapshot as of {{ snapshot_at }} ({{ snapshot_action }})</em></p>
+{% endif %}
 <form>
   {{ form.as_p }}
-  <p>Submitted at: {{ entry.submitted_at }}</p>
+  {% if not snapshot_at %}<p>Submitted at: {{ entry.submitted_at }}</p>{% endif %}
   <p>
     <a href="{% url 'form_edit' entry.pk %}">Edit</a> |
+    <a href="{% url 'form_history' entry.pk %}">All submissions</a> |
     <a href="{% url 'form_list' %}">Back to list</a>
   </p>
 </form>

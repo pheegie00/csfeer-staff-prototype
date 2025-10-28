@@ -6,6 +6,7 @@ from django.utils import timezone
 from .models import FormAuditTrail, FormDefinition, FormEntry, OrganizationProfile
 from .utils import (
     build_dynamic_form,
+    reconstruct_state,
     record_field_diffs,
     to_jsonable,
     user_can_edit,
@@ -91,6 +92,45 @@ def form_preview(request, pk: int):
         return redirect("form_list")
     form = build_dynamic_form(entry.form_definition, initial=entry.data, disabled=True)
     return render(request, "forms/form_preview.html", {"form": form, "entry": entry})
+
+
+@login_required
+def form_history(request, pk: int):
+    """Show submission events for this entry and allow previewing snapshots at each submit/amend."""
+    entry = get_object_or_404(FormEntry, pk=pk)
+    if not user_can_view(request.user, entry.organization):
+        messages.error(request, "No permission to view.")
+        return redirect("form_list")
+
+    events = (
+        FormAuditTrail.objects.filter(form_entry=entry, action__in=["submit", "amend"])  # type: ignore[arg-type]
+        .order_by("-timestamp")
+        .all()
+    )
+
+    return render(
+        request,
+        "forms/form_history.html",
+        {"current": entry, "events": events},
+    )
+
+
+@login_required
+def form_snapshot(request, pk: int, audit_id: int):
+    entry = get_object_or_404(FormEntry, pk=pk)
+    if not user_can_view(request.user, entry.organization):
+        messages.error(request, "No permission to view.")
+        return redirect("form_list")
+    audit = get_object_or_404(FormAuditTrail, pk=audit_id, form_entry=entry)
+    data = reconstruct_state(entry, upto=audit.timestamp)
+    form = build_dynamic_form(entry.form_definition, initial=data, disabled=True)
+    context = {
+        "form": form,
+        "entry": entry,
+        "snapshot_at": audit.timestamp,
+        "snapshot_action": audit.action,
+    }
+    return render(request, "forms/form_preview.html", context)
 
 
 @login_required
