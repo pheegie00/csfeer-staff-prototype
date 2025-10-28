@@ -42,10 +42,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Third-party
     "oauth2_authcodeflow",
+    "pattern_library",
     "crispy_forms",
     "django_cotton",
-    "pattern_library",
+    "django_extensions",
+    # Local
+    "form_manager",
 ]
 
 MIDDLEWARE = [

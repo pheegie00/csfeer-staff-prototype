@@ -7,7 +7,6 @@ requires-python = ">=3.12"
 authors = [
     {name = "Michael Kalish", email = "michael.kalish@focusconsulting.io"},
 ]
-
 dependencies = [
     "boto3>=1.40.46",
     "django>=5.2.7",
@@ -27,10 +26,12 @@ dependencies = [
 dev = [
     "black>=25.9.0",
     "coverage>=7.10.7",
+    "django-extensions>=3.2.3",
     "django-types>=0.22.0",
     "flake8>=7.3.0",
     "freezegun>=1.5.5",
     "isort>=6.1.0",
+    "pydotplus>=2.0.2",
     "pyright[nodejs]>=1.1.406",
     "pytest-django>=4.11.1",
     "types-requests>=2.32.4.20250913",
@@ -47,6 +48,8 @@ use_parentheses = true
 line_length = 100
 
 [tool.pyright]
+venvPath = "."
+venv = ".venv"
 color_output = true
 error_summary = true
 namespace_packages = true
@@ -80,3 +83,4 @@ markers = [
     "integration: marks tests as integration tests",
     "unit: marks tests as unit tests",
 ]
+

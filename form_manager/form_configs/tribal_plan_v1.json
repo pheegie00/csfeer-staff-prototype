@@ -1,0 +1,95 @@
+{
+  "title": "CSBG Tribal Plan and Application",
+  "code": "tribal_plan",
+  "version": "1.0",
+  "description": "Tribal Plan Form for CSBG Grant Year",
+  "schema": {
+    "sections": [
+      {
+        "title": "Section 1: Administrative Information",
+        "fields": [
+          {
+            "name": "tribal_name",
+            "label": "Name of Tribe or Tribal Organization",
+            "type": "text",
+            "required": true,
+            "max_length": 200
+          },
+          {
+            "name": "coverage_period",
+            "label": "Plan Coverage Period",
+            "type": "radio",
+            "choices": [
+              "One Year",
+              "Two-Year"
+            ],
+            "required": true
+          },
+          {
+            "name": "official_name",
+            "label": "Authorized Official Name",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "title": "Section 5: Use of Funds",
+        "fields": [
+          {
+            "name": "admin_funds_pct",
+            "label": "Administrative Funds (%)",
+            "type": "number",
+            "min": 0,
+            "max": 5,
+            "help_text": "Cannot exceed 5%"
+          },
+          {
+            "name": "program_funds_pct",
+            "label": "Program Funds (%)",
+            "type": "number",
+            "min": 95,
+            "max": 100
+          }
+        ]
+      }
+    ],
+    "fields": [
+      {
+        "name": "tribal_name",
+        "label": "Name of Tribe or Tribal Organization",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "coverage_period",
+        "label": "Plan Coverage Period",
+        "type": "radio",
+        "choices": [
+          "One Year",
+          "Two-Year"
+        ],
+        "required": true
+      },
+      {
+        "name": "official_name",
+        "label": "Authorized Official Name",
+        "type": "text"
+      },
+      {
+        "name": "admin_funds_pct",
+        "label": "Administrative Funds (%)",
+        "type": "number",
+        "min": 0,
+        "max": 5,
+        "help_text": "Cannot exceed 5%"
+      },
+      {
+        "name": "program_funds_pct",
+        "label": "Program Funds (%)",
+        "type": "number",
+        "min": 95,
+        "max": 100
+      }
+    ]
+  }
+}

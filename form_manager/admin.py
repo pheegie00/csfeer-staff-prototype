@@ -1,0 +1,58 @@
+from django.contrib import admin
+
+from .models import (
+    FormAuditDetail,
+    FormAuditTrail,
+    FormDefinition,
+    FormEntry,
+    OrganizationProfile,
+    UserOrganizationMembership,
+)
+
+
+@admin.register(OrganizationProfile)
+class OrganizationProfileAdmin(admin.ModelAdmin):
+    list_display = ("name", "contact_email", "contact_phone", "created_at")
+    search_fields = ("name", "contact_email")
+
+
+@admin.register(UserOrganizationMembership)
+class UserOrganizationMembershipAdmin(admin.ModelAdmin):
+    list_display = ("user", "organization", "role")
+    list_filter = ("role",)
+    search_fields = ("user__username", "organization__name")
+
+
+@admin.register(FormDefinition)
+class FormDefinitionAdmin(admin.ModelAdmin):
+    list_display = ("code", "title", "version", "is_active", "created_at")
+    list_filter = ("is_active",)
+    search_fields = ("code", "title")
+
+
+@admin.register(FormEntry)
+class FormEntryAdmin(admin.ModelAdmin):
+    list_display = (
+        "organization",
+        "form_definition",
+        "version_number",
+        "status",
+        "locked",
+        "updated_at",
+    )
+    list_filter = ("status", "locked")
+    search_fields = ("organization__name", "form_definition__title")
+
+
+@admin.register(FormAuditTrail)
+class FormAuditTrailAdmin(admin.ModelAdmin):
+    list_display = ("form_entry", "user", "action", "timestamp")
+    list_filter = ("action",)
+
+
+@admin.register(FormAuditDetail)
+class FormAuditDetailAdmin(admin.ModelAdmin):
+    list_display = ("form_entry", "user", "field_name", "timestamp")
+    search_fields = ("field_name",)
+    search_fields = ("field_name",)
+    search_fields = ("field_name",)

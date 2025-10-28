@@ -208,3 +208,7 @@ __marimo__/
 
 csfeer/node_modules
 .DS_Store
+
+# static files
+staticfiles/
+static

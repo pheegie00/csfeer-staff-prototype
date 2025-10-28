@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Preview: {{ entry.form_definition.title }} (v{{ entry.version_number }})</h1>
+<form>
+  {{ form.as_p }}
+  <p>Submitted at: {{ entry.submitted_at }}</p>
+  <p>
+    <a href="{% url 'form_edit' entry.pk %}">Edit</a> |
+    <a href="{% url 'form_list' %}">Back to list</a>
+  </p>
+</form>
+{% endblock %}

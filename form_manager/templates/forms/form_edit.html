@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ entry.form_definition.title }} (v{{ entry.version_number }}) - Status: {{ entry.status }}</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  {% if can_edit %}
+  <button name="save">Save Draft</button>
+  {% endif %}
+  {% if can_submit %}
+  <button name="submit">Submit</button>
+  {% endif %}
+  <a href="{% url 'form_list' %}">Back to list</a>
+</form>
+<p><a href="{% url 'form_preview' entry.pk %}">Preview (read-only)</a></p>
+{% endblock %}

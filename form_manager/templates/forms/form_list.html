@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Available Forms</h1>
+<ul>
+  {% for d in definitions %}
+    <li>{{ d.title }} (v{{ d.version }}) - <a href="{% url 'form_start' d.code %}">Start</a></li>
+  {% empty %}
+    <li>No forms available.</li>
+  {% endfor %}
+  </ul>
+<h2>Your Entries</h2>
+<ul>
+  {% for e in entries %}
+    <li>{{ e.form_definition.title }} - v{{ e.version_number }} - {{ e.status }}
+        - <a href="{% url 'form_edit' e.pk %}">Edit</a>
+        - <a href="{% url 'form_preview' e.pk %}">Preview</a>
+        {% if not e.locked %}- <a href="{% url 'form_lock' e.pk %}">Lock</a>{% else %}- <a href="{% url 'form_unlock' e.pk %}">Unlock</a>{% endif %}
+        - <a href="{% url 'form_archive' e.pk %}">Archive</a>
+    </li>
+  {% empty %}
+    <li>No entries yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
