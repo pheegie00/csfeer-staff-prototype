@@ -1,0 +1,13 @@
+<div class="usa-date-picker">
+  <input
+    class="usa-input"
+    type="text"
+    name="{{ widget.name }}"
+    {% if widget.value %}value="{{ widget.value|date:'m/d/Y' }}"{% endif %}
+    {% if widget.attrs.id %}id="{{ widget.attrs.id }}"{% endif %}
+    {% for key, value in widget.attrs.items %}
+      {% if key|slice:":5" == "aria-" %}{{ key }}="{{ value }}"{% endif %}
+    {% endfor %}
+    {% if widget.is_required %}required{% endif %}
+  />
+</div>

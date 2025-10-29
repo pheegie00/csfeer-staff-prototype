@@ -20,57 +20,139 @@
         <form method="post" class="usa-form usa-form--large">
           {% csrf_token %}
           
-          {% for field in form %}
-            {% if field.field.widget.input_type == 'radio' %}
-              {# Radio buttons need fieldset wrapper #}
-              <fieldset class="usa-fieldset margin-top-4{% if field.errors %} usa-form-group--error{% endif %}">
-                <legend class="usa-legend">
-                  {{ field.label }}
-                  {% if field.field.required %}
-                    <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
-                  {% endif %}
-                </legend>
-                
-                {% if field.help_text %}
-                  <div class="usa-hint" id="{{ field.id_for_label }}-hint">
-                    {{ field.help_text }}
+          {% if form.sections %}
+            {# Render form with sections #}
+            {% for section in form.sections %}
+              <div class="margin-top-5 padding-top-3{% if not forloop.first %} border-top-2px border-base-lighter{% endif %}">
+                <h2 class="margin-top-0 margin-bottom-1">{{ section.title }}</h2>
+                {% if section.description %}
+                    <div class="usa-summary-box mb-2 ">
+                      <div class="usa-summary-box__body">
+                        <div class="usa-summary-box__text">
+                          <h4 class="usa-summary-box__heading" id="summary-box-key-information">{{ section.description }}</h4>
+                        </div>
+                      </div>
+                    </div>
+                {% endif %}
+                {% if section.instructional_note %}
+                  <div class="usa-alert usa-alert--info usa-alert--slim margin-bottom-3">
+                    <div class="usa-alert__body">
+                      <p class="usa-alert__text" style="white-space: pre-line;">{{ section.instructional_note }}</p>
+                    </div>
                   </div>
                 {% endif %}
                 
-                {% if field.errors %}
-                  <span class="usa-error-message" id="{{ field.id_for_label }}-error" role="alert">
-                    {% for error in field.errors %}{{ error }}{% endfor %}
-                  </span>
-                {% endif %}
-                
-                {{ field }}
-              </fieldset>
-            {% else %}
-              {# Regular input fields #}
-              <div class="usa-form-group margin-top-4{% if field.errors %} usa-form-group--error{% endif %}">
-                <label class="usa-label" for="{{ field.id_for_label }}">
-                  {{ field.label }}
-                  {% if field.field.required %}
-                    <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
-                  {% endif %}
-                </label>
-                
-                {% if field.help_text %}
-                  <div class="usa-hint" id="{{ field.id_for_label }}-hint">
-                    {{ field.help_text }}
-                  </div>
-                {% endif %}
-                
-                {% if field.errors %}
-                  <span class="usa-error-message" id="{{ field.id_for_label }}-error" role="alert">
-                    {% for error in field.errors %}{{ error }}{% endfor %}
-                  </span>
-                {% endif %}
-                
-                {{ field }}
+                {% for field_name in section.fields %}
+                  {% for field in form %}
+                    {% if field.name == field_name %}
+                      {% if field.field.widget.input_type == 'radio' %}
+                        {# Radio buttons need fieldset wrapper #}
+                        <fieldset class="usa-fieldset margin-top-4{% if field.errors %} usa-form-group--error{% endif %}">
+                          <legend class="usa-legend">
+                            {{ field.label }}
+                            {% if field.field.required %}
+                              <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
+                            {% endif %}
+                          </legend>
+                          
+                          {% if field.help_text %}
+                            <div class="usa-hint" id="{{ field.id_for_label }}-hint">
+                              {{ field.help_text }}
+                            </div>
+                          {% endif %}
+                          
+                          {% if field.errors %}
+                            <span class="usa-error-message" id="{{ field.id_for_label }}-error" role="alert">
+                              {% for error in field.errors %}{{ error }}{% endfor %}
+                            </span>
+                          {% endif %}
+                          
+                          {{ field }}
+                        </fieldset>
+                      {% else %}
+                        {# Regular input fields #}
+                        <div class="usa-form-group margin-top-4{% if field.errors %} usa-form-group--error{% endif %}">
+                          <label class="usa-label" for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                            {% if field.field.required %}
+                              <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
+                            {% endif %}
+                          </label>
+                          
+                          {% if field.help_text %}
+                            <div class="usa-hint" id="{{ field.id_for_label }}-hint">
+                              {{ field.help_text }}
+                            </div>
+                          {% endif %}
+                          
+                          {% if field.errors %}
+                            <span class="usa-error-message" id="{{ field.id_for_label }}-error" role="alert">
+                              {% for error in field.errors %}{{ error }}{% endfor %}
+                            </span>
+                          {% endif %}
+                          
+                          {{ field }}
+                        </div>
+                      {% endif %}
+                    {% endif %}
+                  {% endfor %}
+                {% endfor %}
               </div>
-            {% endif %}
-          {% endfor %}
+            {% endfor %}
+          {% else %}
+            {# Fallback: render flat field list #}
+            {% for field in form %}
+              {% if field.field.widget.input_type == 'radio' %}
+                {# Radio buttons need fieldset wrapper #}
+                <fieldset class="usa-fieldset margin-top-4{% if field.errors %} usa-form-group--error{% endif %}">
+                  <legend class="usa-legend">
+                    {{ field.label }}
+                    {% if field.field.required %}
+                      <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
+                    {% endif %}
+                  </legend>
+                  
+                  {% if field.help_text %}
+                    <div class="usa-hint" id="{{ field.id_for_label }}-hint">
+                      {{ field.help_text }}
+                    </div>
+                  {% endif %}
+                  
+                  {% if field.errors %}
+                    <span class="usa-error-message" id="{{ field.id_for_label }}-error" role="alert">
+                      {% for error in field.errors %}{{ error }}{% endfor %}
+                    </span>
+                  {% endif %}
+                  
+                  {{ field }}
+                </fieldset>
+              {% else %}
+                {# Regular input fields #}
+                <div class="usa-form-group margin-top-4{% if field.errors %} usa-form-group--error{% endif %}">
+                  <label class="usa-label" for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                    {% if field.field.required %}
+                      <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
+                    {% endif %}
+                  </label>
+                  
+                  {% if field.help_text %}
+                    <div class="usa-hint" id="{{ field.id_for_label }}-hint">
+                      {{ field.help_text }}
+                    </div>
+                  {% endif %}
+                  
+                  {% if field.errors %}
+                    <span class="usa-error-message" id="{{ field.id_for_label }}-error" role="alert">
+                      {% for error in field.errors %}{{ error }}{% endfor %}
+                    </span>
+                  {% endif %}
+                  
+                  {{ field }}
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
 
           <!-- Form Actions -->
           <div class="margin-top-4 padding-top-2 border-top-1px border-base-lighter">
@@ -120,4 +202,14 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Initialize USWDS date pickers
+  document.addEventListener('DOMContentLoaded', function() {
+    const datePickers = document.querySelectorAll('.usa-date-picker');
+    datePickers.forEach(function(picker) {
+      // USWDS date picker will auto-initialize
+    });
+  });
+</script>
 {% endblock %}

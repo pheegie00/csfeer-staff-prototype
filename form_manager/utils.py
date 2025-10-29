@@ -7,6 +7,21 @@ from django import forms
 from .models import FormAuditDetail, UserOrganizationMembership
 
 
+def normalize_choices(choices):
+    """Normalize choice format to Django's (value, label) tuples."""
+    normalized = []
+    for choice in choices:
+        if isinstance(choice, list) and len(choice) == 2:
+            # [value, label] format
+            normalized.append(tuple(choice))
+        elif isinstance(choice, str):
+            # Simple string, use same for value and label
+            normalized.append((choice, choice))
+        else:
+            normalized.append((choice, choice))
+    return normalized
+
+
 def try_parse_json(value: str):
     """Try to parse a string as JSON, return original value on failure."""
     try:
@@ -29,73 +44,108 @@ def reconstruct_state(entry, upto=None):
 
 def build_dynamic_form(form_definition, data=None, initial=None, disabled=False):
     fields = {}
-    schema_fields = []
+    sections = []
+
+    # Build sections metadata
     if isinstance(form_definition.schema.get("sections"), list):
-        for s in form_definition.schema.get("sections", []):
-            schema_fields.extend(s.get("fields", []))
-    schema_fields.extend(form_definition.schema.get("fields", []))
+        for section in form_definition.schema.get("sections", []):
+            section_fields = []
+            for field in section.get("fields", []):
+                section_fields.append(field["name"])
+                # Build the field
+                name = field["name"]
+                label = field.get("label", name)
+                required = field.get("required", False)
+                help_text = field.get("help_text", "")
+                field_type = field.get("type", "text")
+                max_length = field.get("max_length")
+                min_value = field.get("min")
+                max_value = field.get("max")
 
-    for field in schema_fields:
-        name = field["name"]
-        label = field.get("label", name)
-        required = field.get("required", False)
-        help_text = field.get("help_text", "")
-        field_type = field.get("type", "text")
-        max_length = field.get("max_length")
-        min_value = field.get("min")
-        max_value = field.get("max")
+                if field_type == "text":
+                    fields[name] = forms.CharField(
+                        label=label,
+                        required=required,
+                        help_text=help_text,
+                        max_length=max_length,
+                        widget=forms.TextInput(attrs={"class": "usa-input"}),
+                    )
+                elif field_type == "email":
+                    fields[name] = forms.EmailField(
+                        label=label,
+                        required=required,
+                        help_text=help_text,
+                        widget=forms.EmailInput(attrs={"class": "usa-input", "type": "email"}),
+                    )
+                elif field_type == "number":
+                    fields[name] = forms.DecimalField(
+                        label=label,
+                        required=required,
+                        help_text=help_text,
+                        min_value=min_value,
+                        max_value=max_value,
+                        widget=forms.NumberInput(attrs={"class": "usa-input"}),
+                    )
+                elif field_type == "radio":
+                    choices = field.get("choices", [])
+                    choices = normalize_choices(choices)
+                    widget = forms.RadioSelect(attrs={"class": "usa-radio__input"})
+                    widget.template_name = "widgets/uswds_radio.html"
+                    widget.option_template_name = "widgets/uswds_radio_option.html"
+                    fields[name] = forms.ChoiceField(
+                        label=label,
+                        choices=choices,
+                        widget=widget,
+                        required=required,
+                        help_text=help_text,
+                    )
+                elif field_type == "select":
+                    choices = field.get("choices", [])
+                    choices = normalize_choices(choices)
+                    fields[name] = forms.ChoiceField(
+                        label=label,
+                        choices=choices,
+                        widget=forms.Select(attrs={"class": "usa-select"}),
+                        required=required,
+                        help_text=help_text,
+                    )
+                elif field_type == "textarea":
+                    fields[name] = forms.CharField(
+                        label=label,
+                        required=required,
+                        help_text=help_text,
+                        widget=forms.Textarea(attrs={"class": "usa-textarea"}),
+                    )
+                elif field_type == "date":
+                    widget = forms.DateInput(
+                        attrs={
+                            "class": "usa-input",
+                            "aria-describedby": f"{name}-hint" if help_text else None,
+                        }
+                    )
+                    widget.template_name = "widgets/uswds_date.html"
+                    fields[name] = forms.DateField(
+                        label=label,
+                        required=required,
+                        help_text=help_text or "mm/dd/yyyy",
+                        widget=widget,
+                        input_formats=["%m/%d/%Y", "%Y-%m-%d"],
+                    )
+                else:
+                    fields[name] = forms.CharField(
+                        label=label,
+                        required=required,
+                        help_text=help_text,
+                        widget=forms.TextInput(attrs={"class": "usa-input"}),
+                    )
 
-        if field_type == "text":
-            fields[name] = forms.CharField(
-                label=label,
-                required=required,
-                help_text=help_text,
-                max_length=max_length,
-                widget=forms.TextInput(attrs={"class": "usa-input"}),
-            )
-        elif field_type == "email":
-            fields[name] = forms.EmailField(
-                label=label,
-                required=required,
-                help_text=help_text,
-                widget=forms.EmailInput(attrs={"class": "usa-input", "type": "email"}),
-            )
-        elif field_type == "number":
-            fields[name] = forms.DecimalField(
-                label=label,
-                required=required,
-                help_text=help_text,
-                min_value=min_value,
-                max_value=max_value,
-                widget=forms.NumberInput(attrs={"class": "usa-input"}),
-            )
-        elif field_type == "radio":
-            choices = field.get("choices", [])
-            # Create custom RadioSelect widget with USWDS classes
-            widget = forms.RadioSelect(attrs={"class": "usa-radio__input"})
-            # Set template name for USWDS radio rendering
-            widget.template_name = "widgets/uswds_radio.html"
-            widget.option_template_name = "widgets/uswds_radio_option.html"
-            fields[name] = forms.ChoiceField(
-                label=label,
-                choices=[(c, c) for c in choices],
-                widget=widget,
-                required=required,
-                help_text=help_text,
-            )
-        elif field_type == "textarea":
-            fields[name] = forms.CharField(
-                label=label,
-                required=required,
-                help_text=help_text,
-                widget=forms.Textarea(attrs={"class": "usa-textarea"}),
-            )
-        else:
-            fields[name] = forms.CharField(
-                label=label,
-                required=required,
-                help_text=help_text,
-                widget=forms.TextInput(attrs={"class": "usa-input"}),
+            sections.append(
+                {
+                    "title": section.get("title"),
+                    "description": section.get("description"),
+                    "instructional_note": section.get("instructional_note"),
+                    "fields": section_fields,
+                }
             )
 
     FormClass = type("DynamicForm", (forms.Form,), fields)
@@ -103,6 +153,9 @@ def build_dynamic_form(form_definition, data=None, initial=None, disabled=False)
     if disabled:
         for f in form.fields.values():
             f.disabled = True
+
+    # Attach sections metadata to form
+    setattr(form, "sections", sections)
     return form
 
 

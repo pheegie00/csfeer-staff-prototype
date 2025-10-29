@@ -6,7 +6,13 @@ PATH := /opt/homebrew/bin:/usr/local/bin:$(PATH)
 create-erds:
 	$(UV) run python manage.py generate_er_diagram
 
-down:
+start:
+	docker compose up -d
+
+start-local:
+	docker compose up -d db mock-oauth
+
+stop:
 	docker compose down
 
 reset-all:
