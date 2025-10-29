@@ -1,19 +1,103 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
-<h1>Submission History: {{ current.form_definition.title }}</h1>
-<p>Organization: {{ current.organization.name }}</p>
-<p>Current version: v{{ current.version_number }} ({{ current.status }})</p>
+<div class="grid-container">
+  <div class="grid-row">
+    <div class="grid-col-12">
+      <!-- Page Header -->
+      <div class="margin-bottom-4">
+        <h1 class="margin-bottom-2">Submission History</h1>
+        <p class="usa-intro">{{ current.form_definition.title }}</p>
+      </div>
 
-<h2>Submissions</h2>
-<ul>
-  {% for a in events %}
-    <li>
-      {{ a.action|title }} at {{ a.timestamp }}
-      - <a href="{% url 'form_snapshot' current.pk a.pk %}">Preview snapshot</a>
-    </li>
-  {% empty %}
-    <li>No submissions recorded yet.</li>
-  {% endfor %}
-</ul>
-<p><a href="{% url 'form_edit' current.pk %}">Back to current</a> | <a href="{% url 'form_list' %}">Back to list</a></p>
+      <!-- Form Information Card -->
+      <c-card title="Form Information">
+        <div class="usa-prose">
+          <dl>
+            <div class="grid-row margin-bottom-2">
+              <dt class="grid-col-4 text-bold">Organization:</dt>
+              <dd class="grid-col-8">{{ current.organization.name }}</dd>
+            </div>
+            <div class="grid-row margin-bottom-2">
+              <dt class="grid-col-4 text-bold">Current Version:</dt>
+              <dd class="grid-col-8">v{{ current.version_number }}</dd>
+            </div>
+            <div class="grid-row">
+              <dt class="grid-col-4 text-bold">Status:</dt>
+              <dd class="grid-col-8">
+                <span class="usa-tag {% if current.status == 'draft' %}bg-base-lighter text-ink{% elif current.status == 'submitted' %}bg-success{% elif current.status == 'locked' %}bg-warning{% else %}bg-info{% endif %}">
+                  {{ current.status|upper }}
+                </span>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </c-card>
+
+      <!-- Submissions History -->
+      <div class="margin-top-4">
+        <h2 class="margin-bottom-2">Submission Events</h2>
+        
+        {% if events %}
+          <div class="usa-table-container--scrollable" tabindex="0">
+            <table class="usa-table usa-table--striped">
+              <caption class="usa-sr-only">
+                Form submission history for {{ current.form_definition.title }}
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Action</th>
+                  <th scope="col">Timestamp</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for event in events %}
+                  <tr>
+                    <td data-label="Action">
+                      <span class="text-bold">{{ event.action|title }}</span>
+                    </td>
+                    <td data-label="Timestamp">
+                      {{ event.timestamp|date:"M d, Y g:i A" }}
+                    </td>
+                    <td data-label="Actions">
+                      <a 
+                        href="{% url 'form_snapshot' current.pk event.pk %}" 
+                        class="usa-button usa-button--outline usa-button--unstyled"
+                        aria-label="Preview snapshot from {{ event.timestamp }}"
+                      >
+                        Preview Snapshot
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <c-card>
+            <div class="usa-alert usa-alert--info usa-alert--slim">
+              <div class="usa-alert__body">
+                <p class="usa-alert__text">
+                  No submission events recorded yet.
+                </p>
+              </div>
+            </div>
+          </c-card>
+        {% endif %}
+      </div>
+
+      <!-- Navigation Actions -->
+      <div class="margin-top-4 display-flex flex-justify">
+        <a href="{% url 'form_edit' current.pk %}" class="usa-button usa-button--outline">
+          <img src="{% static '@uswds/uswds/dist/img/usa-icons/arrow_back.svg' %}" class="usa-icon" aria-hidden="true" alt="">
+          Back to Current Form
+        </a>
+        <a href="{% url 'form_list' %}" class="usa-button">
+          View All Forms
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

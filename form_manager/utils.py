@@ -47,10 +47,19 @@ def build_dynamic_form(form_definition, data=None, initial=None, disabled=False)
 
         if field_type == "text":
             fields[name] = forms.CharField(
-                label=label, required=required, help_text=help_text, max_length=max_length
+                label=label,
+                required=required,
+                help_text=help_text,
+                max_length=max_length,
+                widget=forms.TextInput(attrs={"class": "usa-input"}),
             )
         elif field_type == "email":
-            fields[name] = forms.EmailField(label=label, required=required, help_text=help_text)
+            fields[name] = forms.EmailField(
+                label=label,
+                required=required,
+                help_text=help_text,
+                widget=forms.EmailInput(attrs={"class": "usa-input", "type": "email"}),
+            )
         elif field_type == "number":
             fields[name] = forms.DecimalField(
                 label=label,
@@ -58,18 +67,36 @@ def build_dynamic_form(form_definition, data=None, initial=None, disabled=False)
                 help_text=help_text,
                 min_value=min_value,
                 max_value=max_value,
+                widget=forms.NumberInput(attrs={"class": "usa-input"}),
             )
         elif field_type == "radio":
             choices = field.get("choices", [])
+            # Create custom RadioSelect widget with USWDS classes
+            widget = forms.RadioSelect(attrs={"class": "usa-radio__input"})
+            # Set template name for USWDS radio rendering
+            widget.template_name = "widgets/uswds_radio.html"
+            widget.option_template_name = "widgets/uswds_radio_option.html"
             fields[name] = forms.ChoiceField(
                 label=label,
                 choices=[(c, c) for c in choices],
-                widget=forms.RadioSelect,
+                widget=widget,
                 required=required,
                 help_text=help_text,
             )
+        elif field_type == "textarea":
+            fields[name] = forms.CharField(
+                label=label,
+                required=required,
+                help_text=help_text,
+                widget=forms.Textarea(attrs={"class": "usa-textarea"}),
+            )
         else:
-            fields[name] = forms.CharField(label=label, required=required, help_text=help_text)
+            fields[name] = forms.CharField(
+                label=label,
+                required=required,
+                help_text=help_text,
+                widget=forms.TextInput(attrs={"class": "usa-input"}),
+            )
 
     FormClass = type("DynamicForm", (forms.Form,), fields)
     form = FormClass(data=data, initial=initial)

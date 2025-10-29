@@ -1,25 +1,127 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
-<h1>Available Forms</h1>
-<ul>
-  {% for d in definitions %}
-    <li>{{ d.title }} (v{{ d.version }}) - <a href="{% url 'form_start' d.code %}">Start</a></li>
-  {% empty %}
-    <li>No forms available.</li>
-  {% endfor %}
-  </ul>
-<h2>Your Entries</h2>
-<ul>
-  {% for e in entries %}
-    <li>{{ e.form_definition.title }} - v{{ e.version_number }} - {{ e.status }}
-        - <a href="{% url 'form_edit' e.pk %}">Edit</a>
-        - <a href="{% url 'form_preview' e.pk %}">Preview</a>
-        - <a href="{% url 'form_history' e.pk %}">History</a>
-        {% if not e.locked %}- <a href="{% url 'form_lock' e.pk %}">Lock</a>{% else %}- <a href="{% url 'form_unlock' e.pk %}">Unlock</a>{% endif %}
-        - <a href="{% url 'form_archive' e.pk %}">Archive</a>
-    </li>
-  {% empty %}
-    <li>No entries yet.</li>
-  {% endfor %}
-</ul>
+<div class="grid-container">
+  <div class="grid-row">
+    <div class="grid-col-12">
+      <!-- Page Header -->
+      <div class="margin-bottom-4">
+        <h1 class="margin-bottom-2">Forms</h1>
+        <p class="usa-intro">Manage and track your form submissions</p>
+      </div>
+
+      <!-- Available Forms Section -->
+      <div class="margin-bottom-5">
+        <h2 class="margin-bottom-2">Available Forms</h2>
+        
+        {% if definitions %}
+          <div class="grid-row grid-gap">
+            {% for d in definitions %}
+              <div class="grid-col-12 tablet:grid-col-6 desktop:grid-col-4">
+                <c-card title="{{ d.title }}">
+                  <div class="margin-bottom-2">
+                    <span class="usa-tag bg-info-lighter text-ink">Version {{ d.version }}</span>
+                  </div>
+                  <div class="padding-bottom-1">
+                    <a href="{% url 'form_start' d.code %}" class="usa-button width-full display-flex flex-align-center flex-justify-center">
+                      <img src="{% static '@uswds/uswds/dist/img/usa-icons/add_circle.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="" style="filter: brightness(0) invert(1);">
+                      Start New Form
+                    </a>
+                  </div>
+                </c-card>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <c-card>
+            <div class="usa-alert usa-alert--info usa-alert--slim">
+              <div class="usa-alert__body">
+                <p class="usa-alert__text">No forms available at this time.</p>
+              </div>
+            </div>
+          </c-card>
+        {% endif %}
+      </div>
+
+      <!-- Your Entries Section -->
+      <div class="margin-top-5">
+        <h2 class="margin-bottom-2">Your Form Entries</h2>
+        
+        {% if entries %}
+          <div class="usa-table-container--scrollable" tabindex="0">
+            <table class="usa-table usa-table--striped">
+              <caption class="usa-sr-only">Your form entries</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Form Title</th>
+                  <th scope="col">Version</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for e in entries %}
+                  <tr>
+                    <td data-label="Form Title">
+                      <span class="text-bold">{{ e.form_definition.title }}</span>
+                    </td>
+                    <td data-label="Version">
+                      v{{ e.version_number }}
+                    </td>
+                    <td data-label="Status">
+                      <span class="usa-tag {% if e.status == 'draft' %}bg-base-lighter text-ink{% elif e.status == 'submitted' %}bg-success{% elif e.status == 'locked' %}bg-warning{% else %}bg-info{% endif %}">
+                        {{ e.status|upper }}
+                      </span>
+                    </td>
+                    <td data-label="Actions">
+                      <div class="display-flex flex-wrap gap-1">
+                        <a href="{% url 'form_edit' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="Edit {{ e.form_definition.title }}">
+                          <img src="{% static '@uswds/uswds/dist/img/usa-icons/edit.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
+                          Edit
+                        </a>
+                        <a href="{% url 'form_preview' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="Preview {{ e.form_definition.title }}">
+                          <img src="{% static '@uswds/uswds/dist/img/usa-icons/visibility.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
+                          Preview
+                        </a>
+                        <a href="{% url 'form_history' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="View history for {{ e.form_definition.title }}">
+                          <img src="{% static '@uswds/uswds/dist/img/usa-icons/history.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
+                          History
+                        </a>
+                        {% if not e.locked %}
+                          <a href="{% url 'form_lock' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="Lock {{ e.form_definition.title }}">
+                            <img src="{% static '@uswds/uswds/dist/img/usa-icons/lock.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
+                            Lock
+                          </a>
+                        {% else %}
+                          <a href="{% url 'form_unlock' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="Unlock {{ e.form_definition.title }}">
+                            <img src="{% static '@uswds/uswds/dist/img/usa-icons/lock_open.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
+                            Unlock
+                          </a>
+                        {% endif %}
+                        <a href="{% url 'form_archive' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center text-secondary-dark" aria-label="Archive {{ e.form_definition.title }}">
+                          <img src="{% static '@uswds/uswds/dist/img/usa-icons/folder.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
+                          Archive
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <c-card>
+            <div class="usa-alert usa-alert--info usa-alert--slim">
+              <div class="usa-alert__body">
+                <p class="usa-alert__text">
+                  You haven't started any forms yet. Select a form above to get started.
+                </p>
+              </div>
+            </div>
+          </c-card>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
