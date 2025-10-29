@@ -30,7 +30,7 @@ services:
     image: quay.io/keycloak/keycloak:latest
     entrypoint: []
     command: bash -c "
-      sleep 5 && \
+      sleep 10 && \
       /opt/keycloak/bin/kcadm.sh config credentials \
         --server http://oauth.csfeer:8081 \
         --realm master \
@@ -51,7 +51,7 @@ services:
         --new-password admin && \
       /opt/keycloak/bin/kcadm.sh add-roles \
         -r csfeer \
-        --username admin \
+        --uusername admin \
         --rolename csfeer_admin \
         --rolename csfeer_user && \
       /opt/keycloak/bin/kcadm.sh update clients/83ab17ea-566c-43b4-abc5-847346d7485a \
