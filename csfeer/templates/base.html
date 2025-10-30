@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CSFEER</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}" />
-    <script src="{% static 'alpinejs/dist/cdn.min.js' %}" defer></script>
+    <link rel="stylesheet" href="{% static 'frontend/styles.css' %}" />
+    <!-- <script src="{% static 'alpinejs/dist/cdn.min.js' %}" defer></script> -->
   </head>
   <body>
     <div class="layout-wrapper">
@@ -16,7 +16,7 @@
       </c-app_shell>
     </div>
   </body>
-  <script src="{% static '@uswds/uswds/dist/js/uswds.min.js' %}"></script>
-  <script src="{% static 'htmx.org/dist/htmx.min.js' %}"></script>
-  <script src="{% static 'htmx-ext-sse/dist/sse.min.js' %}"></script>
+  <script src="{% static 'frontend/global.bundle.js' %}"></script>
+  <!-- <script src="{% static 'htmx.org/dist/htmx.min.js' %}"></script> -->
+  <!-- <script src="{% static 'htmx-ext-sse/dist/sse.min.js' %}"></script> -->
 </html>

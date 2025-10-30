@@ -106,8 +106,8 @@ services:
     healthcheck:
       test: "/bin/true"
     volumes:
-      - ./:/app
-      - /app/.venv
+      - ./csfeer/:/app/csfeer/
+      - ./frontend/built/:/app/csfeer/static/frontend/
     depends_on:
       - db
     cap_drop:

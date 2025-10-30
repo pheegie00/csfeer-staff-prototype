@@ -14,12 +14,10 @@ RUN apt-get update && apt-get upgrade --yes \
 # Non-dev build
 FROM library/node:18.20-slim AS static
 
-COPY csfeer/package.json csfeer/package-lock.json ./app/csfeer/ 
-COPY csfeer/styles ./app/csfeer/styles
-COPY csfeer/build-sass.js ./app/csfeer/
-WORKDIR /app/csfeer
+WORKDIR /app
+COPY . /app
 RUN npm i
-RUN npm run build:sass:prod
+RUN npm run build
 
 
 # DEV Build
@@ -35,8 +33,6 @@ COPY . /app
 RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
 USER appuser
 RUN uv sync --frozen --no-install-project --quiet
-COPY --chown=python:python --from=static /app/csfeer/node_modules /app/node_modules
-COPY --chown=python:python --from=static /app/csfeer/static /app/static
 RUN uv run python manage.py collectstatic --noinput
 
 CMD ["uv", "run","python", "manage.py", "runserver", "0.0.0.0:8000"]
