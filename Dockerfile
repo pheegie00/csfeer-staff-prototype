@@ -11,6 +11,17 @@ RUN apt-get update && apt-get upgrade --yes \
     && apt-get install --no-install-recommends --yes \
     postgresql=15+* libpq-dev=15.* gnupg=2.2.40-* build-essential=12.9
 
+# Non-dev build
+FROM library/node:18.20-slim AS static
+
+COPY csfeer/package.json csfeer/package-lock.json ./app/csfeer/ 
+COPY csfeer/styles ./app/csfeer/styles
+COPY csfeer/build-sass.js ./app/csfeer/
+WORKDIR /app/csfeer
+RUN npm i
+RUN npm run build:sass:prod
+
+
 # DEV Build
 FROM build AS dev
 
@@ -24,19 +35,13 @@ COPY . /app
 RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
 USER appuser
 RUN uv sync --frozen --no-install-project --quiet
+COPY --chown=python:python --from=static /app/csfeer/node_modules /app/node_modules
+COPY --chown=python:python --from=static /app/csfeer/static /app/static
+RUN uv run python manage.py collectstatic --noinput
 
 CMD ["uv", "run","python", "manage.py", "runserver", "0.0.0.0:8000"]
 
 
-# Non-dev build
-FROM docker/library/node:18.20-slim AS static
-
-COPY csfeer/package.json csfeer/package-lock.json ./app/csfeer/ 
-COPY csfeer/styles ./app/csfeer/styles
-COPY csfeer/build-sass.js ./app/csfeer/
-WORKDIR /app/csfeer
-RUN npm i
-RUN npm run build:sass:prod
 
 FROM build AS app-build
 
