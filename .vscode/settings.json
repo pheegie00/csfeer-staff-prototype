@@ -24,6 +24,9 @@
   "python.testing.cwd": "${workspaceFolder}/csfeer",
   "python.REPL.enableREPLSmartSend": false,
   "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.envFile": "${workspaceFolder}/.env",
+  "python.terminal.activateEnvironment": true,
+
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
@@ -39,5 +42,13 @@
   },
   "[javascript]": {
     "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
-  }
+  },
+  "python-envs.pythonProjects": [
+    {
+      "path": "",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:uv pip"
+    }
+  ]
+  
 }

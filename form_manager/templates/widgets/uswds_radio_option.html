@@ -1,0 +1,4 @@
+<div class="usa-radio">
+  <input class="usa-radio__input" type="{{ widget.type }}" name="{{ widget.name }}"{% if widget.value.value %} value="{{ widget.value.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}{% if widget.value.selected %} checked{% endif %}>
+  <label class="usa-radio__label" for="{{ widget.attrs.id }}">{{ widget.label }}</label>
+</div>
