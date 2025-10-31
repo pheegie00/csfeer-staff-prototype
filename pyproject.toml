@@ -31,10 +31,12 @@ dev = [
     "flake8>=7.3.0",
     "freezegun>=1.5.5",
     "isort>=6.1.0",
+    "playwright>=1.49.0",
     "pre-commit>=4.0.0",
     "pydotplus>=2.0.2",
     "pyright[nodejs]>=1.1.406",
     "pytest-django>=4.11.1",
+    "pytest-playwright>=0.6.2",
     "types-requests>=2.32.4.20250913",
 ]
 
@@ -83,5 +85,6 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
     "unit: marks tests as unit tests",
+    "e2e: marks tests as end-to-end tests",
 ]
 
