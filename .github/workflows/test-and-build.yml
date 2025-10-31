@@ -1,0 +1,15 @@
+name: Docker Image CI
+
+on:
+  pull_request:
+    branches:
+      - main
+env:
+  BUILDKIT_PROGRESS: plain
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Ensure the docker image can be built and run successfully
+      run: docker compose build && docker compose up -d && docker compose down
