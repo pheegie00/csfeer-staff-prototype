@@ -5,6 +5,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 module.exports = {
   entry: {
     global: "js/global.js",
+    'interview-example': "js/interview-example.js",
     styles: "scss/styles.scss",
   },
   output: {

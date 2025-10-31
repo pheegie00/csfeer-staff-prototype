@@ -26,6 +26,7 @@ urlpatterns = [
     path("", TemplateView.as_view(template_name="index.html"), name="index"),
     path("admin/", admin.site.urls),
     path("oidc/", include("oauth2_authcodeflow.urls")),
+    path("interview-example/", TemplateView.as_view(template_name="interview_example.html"), name="interview-example"),
 ]
 
 if apps.is_installed("pattern_library"):
