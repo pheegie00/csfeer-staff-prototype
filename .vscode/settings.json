@@ -40,6 +40,9 @@
   "[xml]": {
     "editor.defaultFormatter": "redhat.vscode-xml"
   },
+  "[javascript]": {
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+  },
   "python-envs.pythonProjects": [
     {
       "path": "",

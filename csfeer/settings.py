@@ -90,7 +90,6 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = ("uni_form", "uswds")
 
 STATIC_URL = "/static/"
 STATICFILES_FINDERS = [
-    "npm.finders.NpmFinder",
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
