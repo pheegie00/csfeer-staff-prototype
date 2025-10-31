@@ -26,40 +26,29 @@ services:
       - all
     security_opt:
       - "no-new-privileges:true"
+    networks:
+      default:
+        aliases:
+          - oauth.csfeer
   oauth-setup:
     image: quay.io/keycloak/keycloak:latest
     entrypoint: []
-    command: bash -c "
-      sleep 10 && \
-      /opt/keycloak/bin/kcadm.sh config credentials \
-        --server http://oauth.csfeer:8081 \
-        --realm master \
-        --user admin \
-        --password admin && \
-      /opt/keycloak/bin/kcadm.sh create users \
-        -r csfeer \
-        -s username=admin \
-        -s enabled=true \
-        -o --fields id,username \
-        -s email=test@gmail.com \
-        -s emailVerified=true \
-        -s firstName=test \
-        -s lastName=test || true && \
-      /opt/keycloak/bin/kcadm.sh set-password \
-        -r csfeer \
-        --username admin \
-        --new-password admin && \
-      /opt/keycloak/bin/kcadm.sh add-roles \
-        -r csfeer \
-        --uusername admin \
-        --rolename csfeer_admin \
-        --rolename csfeer_user && \
-      /opt/keycloak/bin/kcadm.sh update clients/83ab17ea-566c-43b4-abc5-847346d7485a \
-        -r csfeer \
-        -s \"secret=shhhhhhhh\"
-      "
+    command: bash -c "sleep 5 && bash /opt/keycloak/setup-keycloak.sh"
     depends_on:
       - mock-oauth
+    environment:
+      KC_URL: http://oauth.csfeer:8081
+      REALM: csfeer
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      OIDC_CLIENT_ID: csfeer-auth
+      OIDC_CLIENT_SECRET: shhhhhhhh
+      # CSV file is required; users will be seeded from this file.
+      USERS_CSV: /opt/keycloak/users.csv
+    volumes:
+      - ./devops/mocks/keycloak:/opt/keycloak/data/import
+      - ./devops/mocks/keycloak/users.csv:/opt/keycloak/users.csv:ro
+      - ./devops/mocks/keycloak/setup-keycloak.sh:/opt/keycloak/setup-keycloak.sh:ro
   db:
     image: postgres:16
     healthcheck:
@@ -85,6 +74,10 @@ services:
       - SETUID
     cap_drop:
       - all
+    networks:
+      default:
+        aliases:
+          - db.csfeer
 
   app:
     build:
@@ -95,7 +88,7 @@ services:
       OIDC_CONFIG__CLIENT_ID: csfeer-auth
       OIDC_CONFIG__DOCUMENT_URL: http://oauth.csfeer:8081/realms/csfeer/.well-known/openid-configuration
       DJANGO_SETTINGS_MODULE: csfeer.settings
-      DB_CONFIG__PGHOST: csfeer-db-1
+      DB_CONFIG__PGHOST: db
     hostname: ui.csfeer
     post_start:
       - command: "uv run python manage.py migrate"
@@ -110,6 +103,8 @@ services:
       - ./frontend/built/:/app/csfeer/static/frontend/
     depends_on:
       - db
+      - mock-oauth
+      - oauth-setup
     cap_drop:
       - all
 

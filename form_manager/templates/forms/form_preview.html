@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="grid-container">
+  <div class="grid-row">
+    <div class="grid-col-12">
+      <!-- Page Header -->
+      <div class="margin-bottom-4">
+        <h1 class="margin-bottom-1">Preview: {{ entry.form_definition.title }}</h1>
+        <div class="display-flex flex-align-center flex-gap-1 margin-bottom-2">
+          <span class="usa-tag bg-base-lighter text-ink">Version {{ entry.version_number }}</span>
+          {% if snapshot_at %}
+            <span class="usa-tag bg-warning">Snapshot View</span>
+          {% endif %}
+        </div>
+        
+        {% if snapshot_at %}
+          <div class="usa-alert usa-alert--info usa-alert--slim">
+            <div class="usa-alert__body">
+              <p class="usa-alert__text">
+                <img src="{% static '@uswds/uswds/dist/img/usa-icons/info.svg' %}" class="usa-icon" aria-hidden="true" alt="">
+                <strong>Snapshot:</strong> Viewing form as of {{ snapshot_at|date:"M d, Y g:i A" }} ({{ snapshot_action }})
+              </p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Form Preview Container -->
+      <c-card title="Form Data">
+        <form class="usa-form usa-form--large">
+          <fieldset class="usa-fieldset" disabled>
+            <legend class="usa-sr-only">Form preview - read only</legend>
+            
+            {% for field in form %}
+              {% if field.field.widget.input_type == 'radio' %}
+                {# Radio buttons need their own fieldset #}
+                <fieldset class="usa-fieldset margin-top-4">
+                  <legend class="usa-legend">{{ field.label }}</legend>
+                  
+                  {% if field.help_text %}
+                    <div class="usa-hint" id="{{ field.id_for_label }}-hint">
+                      {{ field.help_text }}
+                    </div>
+                  {% endif %}
+                  
+                  {{ field }}
+                </fieldset>
+              {% else %}
+                {# Regular input fields #}
+                <div class="usa-form-group margin-top-4">
+                  <label class="usa-label" for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                  </label>
+                  
+                  {% if field.help_text %}
+                    <div class="usa-hint" id="{{ field.id_for_label }}-hint">
+                      {{ field.help_text }}
+                    </div>
+                  {% endif %}
+                  
+                  {{ field }}
+                </div>
+              {% endif %}
+            {% endfor %}
+            
+            {% if not snapshot_at and entry.submitted_at %}
+              <div class="margin-top-3 padding-top-2 border-top-1px border-base-lighter">
+                <dl>
+                  <div class="grid-row">
+                    <dt class="grid-col-4 text-bold">Submitted at:</dt>
+                    <dd class="grid-col-8">{{ entry.submitted_at|date:"M d, Y g:i A" }}</dd>
+                  </div>
+                </dl>
+              </div>
+            {% endif %}
+          </fieldset>
+        </form>
+      </c-card>
+
+      <!-- Navigation Actions -->
+      <div class="margin-top-4">
+        <div class="display-flex flex-justify flex-wrap flex-gap-1">
+          <div class="display-flex flex-gap-1">
+            <a href="{% url 'form_edit' entry.pk %}" class="usa-button">
+              <img src="{% static '@uswds/uswds/dist/img/usa-icons/edit.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="">
+              Edit Form
+            </a>
+            <a href="{% url 'form_history' entry.pk %}" class="usa-button usa-button--outline">
+              <img src="{% static '@uswds/uswds/dist/img/usa-icons/history.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="">
+              View History
+            </a>
+          </div>
+          <a href="{% url 'form_list' %}" class="usa-button usa-button--unstyled">
+            Back to List
+          </a>
+        </div>
+      </div>
+
+      <!-- Info Box -->
+      <div class="margin-top-3">
+        <div class="usa-alert usa-alert--info usa-alert--no-icon usa-alert--slim">
+          <div class="usa-alert__body">
+            <p class="usa-alert__text">
+              This is a read-only preview. Form fields are disabled and cannot be edited in this view.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
