@@ -56,7 +56,7 @@ def test_regular_user_cannot_access_admin_pages(demo_page: Page, base_url: str) 
 
     # Should be redirected or show 403
     # Adjust assertion based on actual implementation
-    assert page.url != f"{base_url}/admin/" or "403" in page.content()
+    assert page.url != f"{base_url}/admin/" and "403" in page.content()
 
 
 @pytest.mark.e2e

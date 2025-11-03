@@ -48,6 +48,12 @@ def admin_page(page: Page, base_url: str) -> Generator[Page, None, None]:
 
     yield page
 
+    # Cleanup: logout after test
+    try:
+        login_page.logout()
+    except Exception as e:
+        print(f"Error during logout: {e}")
+
 
 @pytest.fixture
 def demo_page(page: Page, base_url: str) -> Generator[Page, None, None]:
@@ -62,6 +68,12 @@ def demo_page(page: Page, base_url: str) -> Generator[Page, None, None]:
     login_page.login(demo["username"], demo["password"])
 
     yield page
+
+    # Cleanup: logout after test
+    try:
+        login_page.logout()
+    except Exception:
+        pass
 
 
 def login_as(page: Page, base_url: str, username: str) -> None:

@@ -40,6 +40,7 @@ def base_url() -> str:
 def context(
     browser: Browser,
     browser_context_args: dict,
+    request: pytest.FixtureRequest,
 ) -> Generator[BrowserContext, None, None]:
     """
     Create a new browser context for each test.
@@ -56,8 +57,10 @@ def context(
 
     yield context
 
-    # Save trace on failure or when needed
-    context.tracing.stop(path="tests/traces/trace.zip")
+    # Save trace with a unique filename per test
+    test_name = request.node.name.replace("/", "_").replace("\\", "_")
+    trace_path = f"tests/traces/trace_{test_name}.zip"
+    context.tracing.stop(path=trace_path)
     context.close()
 
 
@@ -110,11 +113,15 @@ def setup_test_directories() -> None:
     os.makedirs("tests/screenshots", exist_ok=True)
 
 
+# The django_db_setup fixture is intentionally left as a placeholder for future database setup needs.
+# Remove this fixture if not required, or implement setup logic as needed.
 @pytest.fixture(scope="session")
 def django_db_setup() -> None:
     """
     Setup Django test database.
     This works with pytest-django to manage database state.
+
+    Placeholder: implement database setup logic here if needed.
     """
     pass
 

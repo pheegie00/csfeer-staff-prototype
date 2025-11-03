@@ -37,26 +37,4 @@ TRACE_CONFIG = {
     "sources": True,
 }
 
-# Test users (from devops/mocks/keycloak/users.csv)
-TEST_USERS = {
-    "admin": {
-        "username": "admin",
-        "password": "admin",  # Default password from Keycloak setup
-        "roles": ["csfeer_admin", "csfeer_user"],
-    },
-    "demo": {
-        "username": "demo",
-        "password": "demo",
-        "roles": ["csfeer_user"],
-    },
-    "demo-1": {
-        "username": "demo-1",
-        "password": "demo-1",
-        "roles": ["csfeer_user"],
-    },
-    "demo-2": {
-        "username": "demo-2",
-        "password": "demo-2",
-        "roles": ["csfeer_user"],
-    },
-}
+# Test users (imported from tests/fixtures/users.py)

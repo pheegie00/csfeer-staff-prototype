@@ -2,6 +2,8 @@
 Page Object Model for login and authentication flows.
 """
 
+import os
+
 from playwright.sync_api import Page, expect
 
 from tests.pages.base_page import BasePage
@@ -10,10 +12,12 @@ from tests.pages.base_page import BasePage
 class LoginPage(BasePage):
     """Page object for login and authentication."""
 
+    USER_MENU_SELECTOR = "button.usa-nav__link[aria-controls='agent-nav-section']"
+
     def __init__(self, page: Page, base_url: str) -> None:
         """Initialize the login page."""
         super().__init__(page, base_url)
-        self.oauth_url = "http://oauth.csfeer:8081"
+        self.oauth_url = os.getenv("OAUTH_URL", "http://oauth.csfeer:8081")
 
     def navigate_to_login(self) -> None:
         """Navigate to login page via the login link."""
@@ -55,14 +59,12 @@ class LoginPage(BasePage):
     def logout(self) -> None:
         """Perform logout."""
         # Click the user menu button to expand submenu
-        user_menu_button = self.page.locator(
-            "button.usa-nav__link[aria-controls='agent-nav-section']"
-        )
-        if user_menu_button.is_visible():
-            user_menu_button.click()
+        user_menu_button = self.page.locator(self.USER_MENU_SELECTOR)
+        user_menu_button.click()
 
-        # Click the Sign Out link in the submenu
+        # Wait for Sign Out link to become visible
         logout_link = self.page.get_by_role("link", name="Sign Out")
+        logout_link.wait_for(state="visible", timeout=5000)
         logout_link.click()
 
     def is_logged_in(self) -> bool:
@@ -72,9 +74,9 @@ class LoginPage(BasePage):
         Returns:
             True if logged in, False otherwise
         """
-        # Check for user menu button presence (indicates logged in)
-        user_menu = self.page.locator("button.usa-nav__link[aria-controls='agent-nav-section']")
-        return user_menu.is_visible()
+        # Check for user navigation menu presence (indicates logged in)
+        user_nav = self.page.locator("nav.user-nav")
+        return user_nav.is_visible()
 
     def expect_logged_in(self) -> None:
         """Assert that user is logged in."""

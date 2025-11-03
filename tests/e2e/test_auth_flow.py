@@ -54,8 +54,8 @@ def test_login_with_invalid_credentials(page: Page, base_url: str) -> None:
     # Try to login with invalid credentials (don't expect success)
     login_page.login("invalid_user", "wrong_password", expect_success=False)
 
-    # Wait a moment for error to appear
-    login_page.page.wait_for_timeout(2000)
+    # Wait for error message to appear
+    login_page.page.wait_for_selector("text=Invalid username or password")
 
     # Assert error message is shown
     login_page.expect_login_error()
