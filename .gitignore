@@ -213,3 +213,10 @@ node_modules
 frontend/built
 staticfiles/
 static
+
+# E2E test artifacts
+tests/screenshots/
+tests/videos/
+tests/traces/
+test-results/
+playwright-report/
