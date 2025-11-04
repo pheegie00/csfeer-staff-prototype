@@ -80,7 +80,7 @@ def form_edit(request, pk: int):
     return render(
         request,
         "forms/form_edit.html",
-        {"form": form, "entry": entry, "can_edit": can_edit, "can_submit": can_submit},
+        {"form": form, "entry": entry, "can_edit": can_edit, "can_submit": can_submit, "form_schema": entry.form_definition.schema},
     )
 
 

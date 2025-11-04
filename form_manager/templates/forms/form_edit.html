@@ -203,6 +203,13 @@
   </div>
 </div>
 
+
+{{ form_schema | json_script:"form-schema" }}
+
+<script src="{% static 'frontend/interview-example.bundle.js' %}"></script>
+
+
+
 <script>
   // Initialize USWDS date pickers
   document.addEventListener('DOMContentLoaded', function() {
