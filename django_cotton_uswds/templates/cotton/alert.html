@@ -1,0 +1,34 @@
+<c-vars
+    type="info"
+    heading=""
+    actions=""
+    extra_classes=""
+    role=""
+/>
+
+<div class="usa-alert usa-alert--{{ type }} {{ extra_classes }}"
+     role="{% if type == 'error' or type == 'emergency' %}alert{% else %}{{ role }}{% endif %}"
+     {{ attrs }}>
+  
+  <div class="usa-alert__body">
+
+    {# Optional heading #}
+    {% if heading %}
+      <h4 class="usa-alert__heading">{{ heading }}</h4>
+    {% endif %}
+
+    {# Body content (variable or slot) #}
+    <p class="usa-alert__text">
+      {{ slot|safe }}
+    </p>
+
+  </div>
+
+  {# Optional actions #}
+  {% if actions %}
+    <div class="usa-alert__actions">
+      {{ actions|safe }}
+    </div>
+  {% endif %}
+
+</div>

@@ -24,7 +24,7 @@
                   </div>
                   <div class="padding-bottom-1">
                     <a href="{% url 'form_start' d.code %}" class="usa-button width-full display-flex flex-align-center flex-justify-center">
-                      <img src="{% static '@uswds/uswds/dist/img/usa-icons/add_circle.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="" style="filter: brightness(0) invert(1);">
+                      <img src="{% static 'frontend/uswds/img/usa-icons/add_circle.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="" style="filter: brightness(0) invert(1);">
                       Start New Form
                     </a>
                   </div>
@@ -76,30 +76,30 @@
                     <td data-label="Actions">
                       <div class="display-flex flex-wrap gap-1">
                         <a href="{% url 'form_edit' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="Edit {{ e.form_definition.title }}">
-                          <img src="{% static '@uswds/uswds/dist/img/usa-icons/edit.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
+                          <img src="{% static 'frontend/uswds/img/usa-icons/edit.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
                           Edit
                         </a>
                         <a href="{% url 'form_preview' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="Preview {{ e.form_definition.title }}">
-                          <img src="{% static '@uswds/uswds/dist/img/usa-icons/visibility.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
+                          <img src="{% static 'frontend/uswds/img/usa-icons/visibility.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
                           Preview
                         </a>
                         <a href="{% url 'form_history' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="View history for {{ e.form_definition.title }}">
-                          <img src="{% static '@uswds/uswds/dist/img/usa-icons/history.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
+                          <img src="{% static 'frontend/uswds/img/usa-icons/history.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
                           History
                         </a>
                         {% if not e.locked %}
                           <a href="{% url 'form_lock' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="Lock {{ e.form_definition.title }}">
-                            <img src="{% static '@uswds/uswds/dist/img/usa-icons/lock.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
+                            <img src="{% static 'frontend/uswds/img/usa-icons/lock.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
                             Lock
                           </a>
                         {% else %}
                           <a href="{% url 'form_unlock' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="Unlock {{ e.form_definition.title }}">
-                            <img src="{% static '@uswds/uswds/dist/img/usa-icons/lock_open.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
+                            <img src="{% static 'frontend/uswds/img/usa-icons/lock_open.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
                             Unlock
                           </a>
                         {% endif %}
                         <a href="{% url 'form_archive' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center text-secondary-dark" aria-label="Archive {{ e.form_definition.title }}">
-                          <img src="{% static '@uswds/uswds/dist/img/usa-icons/folder.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
+                          <img src="{% static 'frontend/uswds/img/usa-icons/folder.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
                           Archive
                         </a>
                       </div>

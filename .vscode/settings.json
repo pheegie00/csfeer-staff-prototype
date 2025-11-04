@@ -21,7 +21,6 @@
   "python.analysis.inlayHints.callArgumentNames": "all",
   "python.analysis.inlayHints.functionReturnTypes": true,
   "python.analysis.inlayHints.variableTypes": true,
-  "python.testing.cwd": "${workspaceFolder}/csfeer",
   "python.REPL.enableREPLSmartSend": false,
   "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
   "python.envFile": "${workspaceFolder}/.env",
@@ -49,6 +48,10 @@
       "envManager": "ms-python.python:venv",
       "packageManager": "ms-python.python:uv pip"
     }
+  ],
+  "python.testing.cwd": "${workspaceFolder}",
+  "python.testing.pytestArgs": [
+    "tests"
   ]
   
 }
