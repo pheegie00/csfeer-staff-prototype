@@ -1,23 +1,11 @@
-<c-vars extra_classes="" heading_level="h4" title="" body="" actions="" />
-
-<div class="usa-summary-box {{ extra_classes }}" role="region" aria-labelledby="summary-box-{{ title|slugify }}">
-  <div class="usa-summary-box__body">
-
-    {% if title %}
-      <{{ heading_level }} class="usa-summary-box__heading" id="summary-box-{{ title|slugify }}">
-        {{ title }}
-      </{{ heading_level }}>
-    {% endif %}
-
-    <div class="usa-summary-box__text">
-      {{ body|safe }}
-    </div>
-
-    {% if actions %}
-      <div class="usa-summary-box__actions">
-        {{ actions|safe }}
-      </div>
-    {% endif %}
-
-  </div>
-</div>
+{% with uswds_summary_box_extra_classes=extra_classes %}
+  {% with uswds_summary_box_title=title %}
+    {% with uswds_summary_box_body=body %}
+      {% with uswds_summary_box_actions=actions %}
+        {% with uswds_summary_box_heading_level=heading_level %}
+          {% include "uswds/summary_box.html" %}
+        {% endwith %}
+      {% endwith %}
+    {% endwith %}
+  {% endwith %}
+{% endwith %}

@@ -1,0 +1,26 @@
+<div class="usa-alert usa-alert--{% block uswds_alert_type %}{% endblock %} {% block uswds_alert_extra_classes %}{% endblock %}"
+     role="{% block uswds_alert_role %}{% endblock %} {% block uswds_alert_extra_attrs %}{% endblock %}">
+  
+  <div class="usa-alert__body">
+
+    {# Optional heading #}
+    {% if heading %}
+      <h4 class="usa-alert__heading">
+        {% block uswds_alert_heading %}{% endblock %}
+      </h4>
+    {% endif %}
+
+    {# Body content (variable or slot) #}
+    <p class="usa-alert__text">
+      {% block uswds_alert_text %}{% endblock %}
+    </p>
+
+  </div>
+
+  {# Optional actions #}
+  {% if actions %}
+    <div class="usa-alert__actions">
+      {% block uswds_alert_actions %}{% endblock %}
+    </div>
+  {% endif %}
+</div>

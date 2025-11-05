@@ -1,34 +1,17 @@
-<c-vars
-    type="info"
-    heading=""
-    actions=""
-    extra_classes=""
-    role=""
-/>
+{% extends "uswds/alert.html" %}
 
-<div class="usa-alert usa-alert--{{ type }} {{ extra_classes }}"
-     role="{% if type == 'error' or type == 'emergency' %}alert{% else %}{{ role }}{% endif %}"
-     {{ attrs }}>
-  
-  <div class="usa-alert__body">
+{% block uswds_alert_role %}{{ role|default:"info" }}{% endblock %}
 
-    {# Optional heading #}
-    {% if heading %}
-      <h4 class="usa-alert__heading">{{ heading }}</h4>
-    {% endif %}
+{% block extra_classes %}{{ extra_classes }}{% endblock %}
 
-    {# Body content (variable or slot) #}
-    <p class="usa-alert__text">
-      {{ slot|safe }}
-    </p>
+{% block uswds_alert_type %}{{ type }}{% endblock %}
 
-  </div>
+{% block uswds_alert_heading %}{{ heading }}{% endblock %}
 
-  {# Optional actions #}
-  {% if actions %}
-    <div class="usa-alert__actions">
-      {{ actions|safe }}
-    </div>
-  {% endif %}
+{% block uswds_alert_text %}
+  {{ slot|safe }}
+{% endblock %}
 
-</div>
+{% block uswds_alert_actions %}
+  {{ actions|safe }}
+{% endblock %}

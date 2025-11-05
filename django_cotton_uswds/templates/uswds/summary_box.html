@@ -1,0 +1,21 @@
+<div class="usa-summary-box {{ uswds_summary_box_extra_classes }}" role="region" aria-labelledby="summary-box-{{ uswds_summary_box_title|slugify }}">
+  <div class="usa-summary-box__body">
+
+    {% if title %}
+      <{{ uswds_summary_box_heading_level| default:"h4" }} class="usa-summary-box__heading" id="summary-box-{{ uswds_summary_box_title|slugify }}">
+        {{ title }}
+      </{{ uswds_summary_box_heading_level| default:"h4" }}>
+    {% endif %}
+
+    <div class="usa-summary-box__text">
+      {{ uswds_summary_box_body|safe }}
+    </div>
+
+    {% if actions %}
+      <div class="usa-summary-box__actions">
+        {{ uswds_summary_box_actions|safe }}
+      </div>
+    {% endif %}
+
+  </div>
+</div>
