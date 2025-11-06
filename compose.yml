@@ -96,6 +96,22 @@ services:
       - "no-new-privileges:true"
     ports:
       - "8000:8000"
+    develop:
+      watch:
+        - path: ./csfeer/
+          action: sync
+          target: /app/csfeer/
+          initial_sync: true
+          ignore:
+            - __pycache__/
+        - path: ./form_manager/
+          action: sync
+          target: /app/form_manager/
+          initial_sync: true
+          ignore:
+            - __pycache__/
+        - action: rebuild
+          path: package.json
     healthcheck:
       test: "/bin/true"
     volumes:
