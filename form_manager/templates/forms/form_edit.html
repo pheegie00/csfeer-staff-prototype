@@ -26,20 +26,14 @@
               <div class="margin-top-5 padding-top-3{% if not forloop.first %} border-top-2px border-base-lighter{% endif %}">
                 <h2 class="margin-top-0 margin-bottom-1">{{ section.title }}</h2>
                 {% if section.description %}
-                    <div class="usa-summary-box mb-2 ">
-                      <div class="usa-summary-box__body">
-                        <div class="usa-summary-box__text">
-                          <h4 class="usa-summary-box__heading" id="summary-box-key-information">{{ section.description }}</h4>
-                        </div>
-                      </div>
-                    </div>
+                  <c-summary-box extra_classes="mb-2">
+                    <c-slot name="title">{{ section.description }}</c-slot>
+                  </c-summary-box>
                 {% endif %}
                 {% if section.instructional_note %}
-                  <div class="usa-alert usa-alert--info usa-alert--slim margin-bottom-3">
-                    <div class="usa-alert__body">
-                      <p class="usa-alert__text" style="white-space: pre-line;">{{ section.instructional_note }}</p>
-                    </div>
-                  </div>
+                  <c-alert type="info" extra_classes="margin-bottom-3">
+                    <c-slot name="body">{{ section.instructional_note }}</c-slot>
+                  </c-alert>
                 {% endif %}
                 
                 {% for field_name in section.fields %}

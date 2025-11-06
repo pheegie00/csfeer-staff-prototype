@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "pattern_library",
     "crispy_forms",
     "django_cotton",
+    "django_cotton_uswds",
     "django_extensions",
     # Local
     "form_manager",
@@ -80,7 +81,10 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
-            "builtins": ["pattern_library.loader_tags"],
+            "builtins": [
+                "pattern_library.loader_tags",
+                "django_cotton_uswds.templatetags.cotton_aliases",
+            ],
         },
     },
 ]
