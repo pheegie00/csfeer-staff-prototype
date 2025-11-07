@@ -1,10 +1,12 @@
 import datetime as _dt
 import decimal
 import json
+from inspect import isclass
 
 from django import forms
 
 from .models import FormAuditDetail, UserOrganizationMembership
+from .schema import forms as form_schemas
 
 
 def normalize_choices(choices):
@@ -212,3 +214,22 @@ def to_jsonable(value):
     if isinstance(value, (list, tuple)):
         return [to_jsonable(v) for v in value]
     return value
+
+
+def get_form_definitions() -> list[form_schemas.BaseFormSchema]:
+    """Returns a list of form definition classes"""
+
+    ret = []
+
+    for attr_name in form_schemas.__dir__():  # type: ignore
+
+        form_class = getattr(form_schemas, attr_name)
+
+        if (
+            isclass(form_class)
+            and issubclass(form_class, form_schemas.BaseFormSchema)
+            and form_class != form_schemas.BaseFormSchema
+        ):
+            ret.append(form_class)
+
+    return ret

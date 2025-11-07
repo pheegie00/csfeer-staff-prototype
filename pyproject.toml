@@ -20,6 +20,7 @@ dependencies = [
     "psycopg2-binary>=2.9.10",
     "pydantic-settings>=2.11.0",
     "whitenoise>=6.11.0",
+    "pydantic[email]>=2.12.4",
 ]
 
 [dependency-groups]
@@ -87,4 +88,7 @@ markers = [
     "unit: marks tests as unit tests",
     "e2e: marks tests as end-to-end tests",
 ]
+
+[tool.setuptools]
+py-modules = []
 
