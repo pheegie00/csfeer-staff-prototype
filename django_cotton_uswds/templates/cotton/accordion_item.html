@@ -1,0 +1,21 @@
+<c-vars
+    heading=""
+    is_expanded="false"
+    control_id=""
+/>
+
+<h4 class="usa-accordion__heading {{ extra_classes }}">
+  <button
+    type="button"
+    class="usa-accordion__button"
+    aria-expanded="{{ is_expanded }}"
+    aria-controls="{{ control_id }}"
+  >
+    {% if heading %}{{ heading }}{% endif %}
+  </button>
+</h4>
+<div id="{{ control_id }}" class="usa-accordion__content usa-prose {{ extra_classes }}">
+  <p>
+    {{ slot }}
+  </p>
+</div>

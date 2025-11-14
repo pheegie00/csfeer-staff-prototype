@@ -1,21 +1,9 @@
 <c-vars
-    heading=""
-    is_expanded="false"
-    control_id=""
-/>
+    type=""
+ />
 
-<h4 class="usa-accordion__heading">
-  <button
-    type="button"
-    class="usa-accordion__button"
-    aria-expanded="{{ is_expanded }}"
-    aria-controls="{{ control_id }}"
-  >
-    {{ heading }}
-  </button>
-</h4>
-<div id="{{ control_id }}" class="usa-accordion__content usa-prose">
-  <p>
+ <!-- Type Options: borderless (leave blank), bordered, multiselectable -->
+
+<div class="usa-accordion{% if type == 'bordered' %} usa-accordion--bordered{% endif %}{% if type == 'multiselectable' %} usa-accordion--multiselectable{% endif %} {{ extra_classes }}"{% if type == 'multiselectable' %} data-allow-multiple{% endif %}>
     {{ slot }}
-  </p>
 </div>
