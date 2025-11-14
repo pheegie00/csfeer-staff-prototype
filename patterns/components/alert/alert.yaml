@@ -1,0 +1,51 @@
+name: Alert
+context:
+  variants:
+    - title: "Informative status"
+      type: "info"
+      heading: "Informative status"
+      role: ""
+      extra_classes: ""
+      content: 'Lorem ipsum dolor sit amet, <a class="usa-link" href="javascript:void(0);">consectetur adipiscing</a> elit, sed do eiusmod.'
+    
+    - title: "Warning status"
+      type: "warning"
+      heading: "Warning status"
+      role: ""
+      extra_classes: ""
+      content: 'Lorem ipsum dolor sit amet, <a class="usa-link" href="javascript:void(0);">consectetur adipiscing</a> elit, sed do eiusmod.'
+    
+    - title: "Success status"
+      type: "success"
+      heading: "Success status"
+      role: ""
+      extra_classes: ""
+      content: 'Lorem ipsum dolor sit amet, <a class="usa-link" href="javascript:void(0);">consectetur adipiscing</a> elit, sed do eiusmod.'
+    
+    - title: "Error status"
+      type: "error"
+      heading: "Error status"
+      role: "alert"
+      extra_classes: ""
+      content: 'Lorem ipsum dolor sit amet, <a class="usa-link" href="javascript:void(0);">consectetur adipiscing</a> elit, sed do eiusmod.'
+    
+    - title: "Emergency status"
+      type: "emergency"
+      heading: "Emergency status"
+      role: ""
+      extra_classes: ""
+      content: 'Lorem ipsum dolor sit amet, <a class="usa-link" href="javascript:void(0);">consectetur adipiscing</a> elit, sed do eiusmod.'
+    
+    - title: "Slim alert"
+      type: "info"
+      heading: ""
+      role: ""
+      extra_classes: "usa-alert--slim"
+      content: 'Lorem ipsum dolor sit amet, <a class="usa-link" href="javascript:void(0);">consectetur adipiscing</a> elit, sed do eiusmod.'
+    
+    - title: "Alert with no icon"
+      type: "info"
+      heading: ""
+      role: ""
+      extra_classes: "usa-alert--no-icon"
+      content: 'No icon example'

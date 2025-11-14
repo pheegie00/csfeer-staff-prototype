@@ -1,0 +1,22 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Accordion Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+        
+        <c-accordion type="{{ variant.type }}">
+            {% for item in variant.items %}
+            <c-accordion-item 
+                heading="{{ item.heading }}"
+                control_id="{{ item.control_id }}" 
+                is_expanded="{{ item.is_expanded }}">
+                {{ item.content }}
+            </c-accordion-item>
+            {% endfor %}
+        </c-accordion>
+    </div>
+    {% endfor %}
+</div>

@@ -212,6 +212,10 @@ uv run pre-commit autoupdate
 git commit --no-verify
 ```
 
+## Component Library
+
+See [patterns/README.md](patterns/README.md) for component library documentation.
+
 ## Testing
 
 See [docs/E2E_TESTING.md](docs/E2E_TESTING.md) for detailed testing documentation.
