@@ -1,0 +1,8 @@
+{% load static %}
+<div class="usa-combo-box {{ class|default:'' }}" data-enhanced="true">
+  <select class="usa-select" name="{{ name }}" aria-hidden="true" tabindex="-1" {% if disabled == "true" %}disabled{% endif %}>
+    {% for option in options %}
+    <option value="{{ option.value }}" {% if option.value == default_value %}selected{% endif %}>{{ option.label }}</option>
+    {% endfor %}
+  </select>
+</div>

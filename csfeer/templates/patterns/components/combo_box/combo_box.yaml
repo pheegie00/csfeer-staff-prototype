@@ -1,0 +1,45 @@
+name: Combo Box
+context:
+  variants:
+    - name: Basic Combo Box
+      id: "fruit-select"
+      name_attr: "fruit"
+      options:
+        - value: "apple"
+          label: "Apple"
+        - value: "banana"
+          label: "Banana"
+        - value: "cherry"
+          label: "Cherry"
+      default_value: ""
+      disabled: "false"
+      assistive_hint: "Start typing to filter fruits"
+      class: ""
+    - name: Combo Box with Default Value
+      id: "fruit-default"
+      name_attr: "fruit_default"
+      options:
+        - value: "apple"
+          label: "Apple"
+        - value: "banana"
+          label: "Banana"
+        - value: "cherry"
+          label: "Cherry"
+      default_value: "banana"
+      disabled: "false"
+      assistive_hint: "Start typing to filter fruits"
+      class: ""
+    - name: Disabled Combo Box
+      id: "fruit-disabled"
+      name_attr: "fruit_disabled"
+      options:
+        - value: "apple"
+          label: "Apple"
+        - value: "banana"
+          label: "Banana"
+        - value: "cherry"
+          label: "Cherry"
+      default_value: ""
+      disabled: "true"
+      assistive_hint: "Start typing to filter fruits"
+      class: ""
