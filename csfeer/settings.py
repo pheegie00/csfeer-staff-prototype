@@ -73,7 +73,9 @@ ROOT_URLCONF = "csfeer.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "csfeer", "templates")],
+        "DIRS": [
+            os.path.join(BASE_DIR, "csfeer", "templates"),
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CSFEER Component Library</title>
+    
+    <!-- USWDS CSS from CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@uswds/uswds@3.13.0/dist/css/uswds.min.css">
+    <!-- Custom styles for component showcase -->
+    <style>
+        body {
+            padding: 2rem;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .component-variants {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .component-variant {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: #ffffff;
+        }
+        .variant-title {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1b1b1b;
+        }
+        h1 {
+            margin-top: 0;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}
+        {{ pattern_library_rendered_pattern }}
+    {% endblock %}
+    
+    <!-- USWDS JS from CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@uswds/uswds@3.13.0/dist/js/uswds.min.js"></script>
+</body>
+</html>
