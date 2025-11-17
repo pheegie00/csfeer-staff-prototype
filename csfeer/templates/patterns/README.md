@@ -6,9 +6,9 @@ The project uses [django-pattern-library](https://github.com/torchbox/django-pat
 
 ## Adding New Components
 
-1. Create a directory under `patterns/components/`:
+1. Create a directory under `csfeer/templates/patterns/components/`:
    ```bash
-   mkdir -p patterns/components/my-component
+   mkdir -p csfeer/templates/patterns/components/my-component
    ```
 
 2. Create the template file (`my-component.html`):
@@ -53,9 +53,9 @@ The component will automatically appear in the pattern library navigation.
 ## Directory Structure
 
 ```
-patterns/
+csfeer/templates/patterns/
 ├── README.md                  # This file
-├── pattern_base.html          # Base template with USWDS styling
+├── base.html                  # Base template with USWDS styling
 └── components/
     ├── accordion/
     │   ├── accordion.html     # Renders 3 variants
@@ -75,22 +75,37 @@ patterns/
 Pattern library is configured in `csfeer/settings.py`:
 
 ```python
+# Django templates configuration
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
+            os.path.join(BASE_DIR, "csfeer", "templates"),
+        ],
+        # ... other settings
+    },
+]
+
+# Pattern library configuration
 PATTERN_LIBRARY = {
     "SECTIONS": (
-        ("Components", ["components"]),
-        ("Pages", ["pages"]),
+        ("Components", ["patterns/components"]),
+        ("Pages", ["patterns/pages"]),
     ),
     "TEMPLATE_SUFFIX": ".html",
-    "PATTERN_BASE_TEMPLATE_NAME": "pattern_base.html",
+    "PATTERN_BASE_TEMPLATE_NAME": "patterns/base.html",
 }
 ```
 
+The patterns live in `csfeer/templates/patterns/` (a subdirectory of the main templates directory). The `patterns/` prefix in `PATTERN_LIBRARY` paths allows Django to find them relative to `csfeer/templates/`.
+
 ### Key Learnings
 
-1. **Template Name Conflicts**: Use unique names (e.g., `pattern_base.html`) to avoid conflicts with Django's template loader
-2. **Cotton Component Syntax**: Cannot use Django template tags inside Cotton component opening tags
-3. **Template Paths**: Use relative paths from DIRS entry in PATTERN_LIBRARY settings
+1. **Template Location**: Pattern templates are in `csfeer/templates/patterns/` subdirectory of main templates
+2. **Path Resolution**: Use `patterns/` prefix in PATTERN_LIBRARY settings so Django resolves paths correctly
+3. **Cotton Component Syntax**: Cannot use Django template tags inside Cotton component opening tags
 4. **Component Attributes**: Different components handle content differently (slots vs attributes)
+5. **YAML Context**: Each component needs a matching `.yaml` file with context data for rendering
 
 ### Resources
 

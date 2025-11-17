@@ -214,7 +214,7 @@ git commit --no-verify
 
 ## Component Library
 
-See [patterns/README.md](patterns/README.md) for component library documentation.
+See [csfeer/templates/patterns/README.md](csfeer/templates/patterns/README.md) for component library documentation.
 
 ## Testing
 

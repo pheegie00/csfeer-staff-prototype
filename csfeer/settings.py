@@ -75,7 +75,6 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
             os.path.join(BASE_DIR, "csfeer", "templates"),
-            os.path.join(BASE_DIR, "patterns"),
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -159,11 +158,11 @@ OIDC_EXTEND_USER = "csfeer.auth.extend_user_with_roles"
 
 PATTERN_LIBRARY = {
     "SECTIONS": (
-        ("Components", ["components"]),
-        ("Pages", ["pages"]),
+        ("Components", ["patterns/components"]),
+        ("Pages", ["patterns/pages"]),
     ),
     "TEMPLATE_SUFFIX": ".html",
-    "PATTERN_BASE_TEMPLATE_NAME": "pattern_base.html",
+    "PATTERN_BASE_TEMPLATE_NAME": "patterns/base.html",
 }
 
 if DEBUG:
