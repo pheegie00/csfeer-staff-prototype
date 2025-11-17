@@ -1,0 +1,23 @@
+name: Link
+context:
+  variants:
+    - name: Basic Link
+      href: "#"
+      text: "Basic link"
+    - name: External Link
+      href: "https://www.example.com"
+      text: "External link"
+      external: true
+    - name: Link with Target
+      href: "#"
+      text: "Link with target"
+      target: "_blank"
+    - name: Link with Custom Class
+      href: "#"
+      text: "Custom class link"
+      class: "usa-link--visited"
+    - name: Link on Dark Background
+      href: "https://www.example.com"
+      text: "Link on dark background"
+      inverse: true
+      external: true
