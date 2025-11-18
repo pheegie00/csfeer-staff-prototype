@@ -1,0 +1,27 @@
+{% load cotton %}
+{% load cotton_aliases %}
+
+<div class="component-variants">
+    <h1>Link Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.name }}</h2>
+        
+        {% if variant.inverse %}
+        <div class="usa-dark-background" style="padding: 10px;">
+        {% endif %}
+        <c-link 
+            href="{{ variant.href }}"
+            text="{{ variant.text }}"
+            external="{{ variant.external }}"
+            inverse="{{ variant.inverse }}"
+            target="{{ variant.target }}"
+            class="{{ variant.class }}">
+        </c-link>
+        {% if variant.inverse %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
