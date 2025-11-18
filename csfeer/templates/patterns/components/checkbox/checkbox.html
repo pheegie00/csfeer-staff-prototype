@@ -1,0 +1,44 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Checkbox Component</h1>
+
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        {% if variant.checkboxes %}
+        {% for cb in variant.checkboxes %}
+        <c-checkbox
+            id="{{ cb.id }}"
+            name="{{ cb.name }}"
+            label="{{ cb.label }}"
+            tile="{{ cb.tile }}"
+            label_description="{{ cb.label_description }}"
+            indeterminate="{{ cb.indeterminate }}"
+            checked="{{ cb.checked }}"
+            value="{{ cb.value }}"
+            disabled="{{ cb.disabled }}"
+            required="{{ cb.required }}"
+            extra_classes="{{ cb.extra_classes }}">
+        </c-checkbox>
+        {% endfor %}
+        {% else %}
+        <c-checkbox
+            id="{{ variant.id }}"
+            name="{{ variant.name }}"
+            label="{{ variant.label }}"
+            tile="{{ variant.tile }}"
+            label_description="{{ variant.label_description }}"
+            indeterminate="{{ variant.indeterminate }}"
+            checked="{{ variant.checked }}"
+            value="{{ variant.value }}"
+            disabled="{{ variant.disabled }}"
+            required="{{ variant.required }}"
+            extra_classes="{{ variant.extra_classes }}">
+        </c-checkbox>
+        {% endif %}                
+    </div>
+    {% endfor %}
+    
+</div>
