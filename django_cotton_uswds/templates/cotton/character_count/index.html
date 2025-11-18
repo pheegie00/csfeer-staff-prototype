@@ -1,0 +1,33 @@
+{% load static %}
+<div class="usa-character-count {{ class|default:'' }}" data-maxlength="{{ maxlength }}">
+  {% if is_textarea == "true" %}
+  <textarea
+    id="{{ id }}"
+    name="{{ name }}"
+    class="usa-character-count__field usa-textarea"
+    maxlength="{{ maxlength }}"
+    aria-describedby="{{ id }}-info {{ id }}-counter"
+    {% if disabled == "true" %}disabled{% endif %}
+    {% if readonly == "true" %}readonly{% endif %}
+    {% if rows %}rows="{{ rows }}"{% endif %}
+    {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+    {% if required == "true" %}required{% endif %}
+  >{{ default_value }}</textarea>
+  {% else %}
+  <input
+    id="{{ id }}"
+    name="{{ name }}"
+    class="usa-character-count__field usa-input"
+    type="{{ type|default:'text' }}"
+    maxlength="{{ maxlength }}"
+    aria-describedby="{{ id }}-info {{ id }}-counter"
+    {% if disabled == "true" %}disabled{% endif %}
+    {% if readonly == "true" %}readonly{% endif %}
+    {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+    {% if default_value %}value="{{ default_value }}"{% endif %}
+    {% if required == "true" %}required{% endif %}
+  />
+  {% endif %}
+  <span class="usa-sr-only" id="{{ id }}-info">You can enter up to {{ maxlength }} characters</span>
+  <span id="{{ id }}-counter" class="usa-hint usa-character-count__message" aria-live="polite">{{ maxlength }} characters allowed</span>
+</div>
