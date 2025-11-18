@@ -1,0 +1,18 @@
+name: Banner
+context:
+  variants:
+    - title: ".gov (Default)"
+      items:
+      - banner_type: ""
+    
+    - title: ".mil"
+      items:
+      - banner_type: "mil"
+
+    - title: ".gov (ES)"
+      items:
+      - banner_type: "gov-es"
+
+    - title: ".mil (ES)"
+      items:
+      - banner_type: "mil-es"
