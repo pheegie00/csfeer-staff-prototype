@@ -1,0 +1,11 @@
+<c-vars
+    control_id=""
+/>
+
+  <select class="usa-select" name="{{ control_id }}" id="{{ control_id }}">
+    {{ slot }}
+    <option value>- Select -</option>
+    <option value="value1">Option A</option>
+    <option value="value2">Option B</option>
+    <option value="value3">Option C</option>
+  </select>
