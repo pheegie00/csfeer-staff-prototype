@@ -1,0 +1,16 @@
+name: Select
+context:
+  variants:
+    - title: "Select Default"
+      control_id: "select-1"
+      label_text: "Select Dropdown"
+      options:
+        - display: "Select an option"
+          value: "option0"
+        - display: "Option 1"
+          value: "option1"
+        - display: "Option 2"
+          value: "option2"
+        - display: "Option 3"
+          value: "option3"
+          
