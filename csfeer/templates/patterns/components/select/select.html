@@ -11,13 +11,9 @@
             control_id="{{ variant.control_id }}"
             label_title="{{ variant.label_title }}"
         />
-        <c-select
+        <c-select :options="{{ variant.options|safe }}"
             control_id="{{ variant.control_id }}"
-        >
-            {% for option in variant.options %}
-            <option value="{{ option.value }}">{{ option.display }}</option>
-            {% endfor %}
-        </c-select>
+        />
     </div>
     {% endfor %}
 </div>

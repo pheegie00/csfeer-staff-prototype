@@ -1,7 +1,10 @@
 <c-vars
     control_id=""
+    options=""
 />
 
 <select class="usa-select" name="{{ control_id }}" id="{{ control_id }}">
-    {{ slot }}
+    {% for option in options %}
+        <option value="{{ option.value }}">{{ option.display }}</option>
+    {% endfor %}
 </select>
