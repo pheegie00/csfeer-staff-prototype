@@ -1,0 +1,10 @@
+{% load static %}
+
+<a href="{{ href }}" class="{% if inverse %}usa-link--inverse {% endif %} {% if external %}usa-link--external{% else %}usa-link{% endif %} {{ class|default:'' }}" {% if target %}target="{{ target }}"{% endif %} {% if rel %}rel="{{ rel }}"{% endif %} {% if attrs %}{{ attrs }}{% endif %}>
+  {{ text }}
+  {% if external %}
+    <svg class="usa-icon" aria-hidden="true" role="img">
+      <use xlink:href="{% static 'frontend/external-link.svg' %}"></use>
+    </svg>
+  {% endif %}
+</a>

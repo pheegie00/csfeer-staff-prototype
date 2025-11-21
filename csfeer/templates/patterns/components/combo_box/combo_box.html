@@ -1,0 +1,21 @@
+{% load cotton %}
+{% load cotton_aliases %}
+
+<div class="component-variants">
+    <h1>Combo Box Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.name }}</h2>
+        
+        <c-combo_box :options="{{ variant.options|safe }}"
+            id="{{ variant.id }}"
+            name="{{ variant.name_attr }}"
+            default_value="{{ variant.default_value }}"
+            disabled="{{ variant.disabled }}"
+            assistive_hint="{{ variant.assistive_hint }}"
+            class="{{ variant.class }}">
+        </c-combo_box>
+    </div>
+    {% endfor %}
+</div>

@@ -1,0 +1,13 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Label Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-label control_id="{{ variant.control_id }}" label_title="{{ variant.label_title }}" />
+    </div>
+    {% endfor %}
+</div>

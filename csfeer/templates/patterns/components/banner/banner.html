@@ -1,0 +1,21 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Banner Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-banner
+            header_text="{{ variant.header_text }}"
+            header_action="{{ variant.header_action }}"
+            control_id="{{ variant.control_id }}"
+            is_gov="{{ variant.is_gov }}"
+            content_primary="{{ variant.content_primary }}"
+            content_secondary="{{ variant.content_secondary }}"
+            custom_content="{{ variant.custom_content }}"
+        />
+    </div>
+    {% endfor %}
+</div>

@@ -1,0 +1,31 @@
+{% load cotton %}
+{% load cotton_aliases %}
+
+<div class="component-variants">
+    <h1>Character Count Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.name }}</h2>
+        {% if variant.label %}
+        <label class="usa-label" for="{{ variant.id }}">{{ variant.label }}</label>
+        {% endif %}
+        {% if variant.hint %}
+        <span class="usa-hint" id="{{ variant.id }}-hint">{{ variant.hint }}</span>
+        {% endif %}
+        <c-character_count
+            id="{{ variant.id }}"
+            name="{{ variant.name_attr }}"
+            maxlength="{{ variant.maxlength }}"
+            is_textarea="{{ variant.is_textarea }}"
+            default_value="{{ variant.default_value }}"
+            disabled="{{ variant.disabled }}"
+            required="{{ variant.required }}"
+            rows="{{ variant.rows }}"
+            placeholder="{{ variant.placeholder }}"
+            type="{{ variant.type }}"
+            class="{{ variant.class }}">
+        </c-character_count>
+    </div>
+    {% endfor %}
+</div>

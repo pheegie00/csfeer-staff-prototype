@@ -1,0 +1,6 @@
+name: Label
+context:
+  variants:            
+    - title: "Label"
+      control_id: "label-1"
+      label_title: "This is a label"
