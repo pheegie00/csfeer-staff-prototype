@@ -1,0 +1,11 @@
+<c-vars 
+  error="" 
+  success=""
+  width=""
+  class=""
+/>
+<div 
+  class="usa-input-group{% if error %} usa-input-group--error{% endif %}{% if success %} usa-input-group--success{% endif %}{% if width %} usa-input-group--{{ width }}{% endif %} {{ class }}"
+  {{ attrs }}>
+  {{ slot }}
+</div>

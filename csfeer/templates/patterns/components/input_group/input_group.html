@@ -1,25 +1,19 @@
 {% load cotton %}
 
 <div class="component-variants">
-    <h1>Text Input Component</h1>
+    <h1>Input Group Component</h1>
+    <p class="usa-intro">Use input groups to combine prefixes and suffixes, helping users understand the context and format of the input. This component wraps an input with optional prefix and/or suffix elements.</p>
 
     {% for variant in variants %}
     <div class="component-variant">
         <h2 class="variant-title">{{ variant.title }}</h2>
-        <c-label 
-            id="{{ variant.id }}" 
-            label="{{ variant.label }}" 
-            hint="{{ variant.hint }}" 
-            error="{{ variant.error }}"
-            required="{{ variant.required }}"
-            />
-        <c-text_input
+
+        <c-text-input
             id="{{ variant.id }}"
             name="{{ variant.name }}"
-            label="{{ variant.label }}"
             type="{{ variant.type }}"
             value="{{ variant.value }}"
-            placeholder="{{ variant.placeholder }}"
+            label="{{ variant.label }}"
             hint="{{ variant.hint }}"
             error="{{ variant.error }}"
             success="{{ variant.success }}"
@@ -27,15 +21,13 @@
             readonly="{{ variant.readonly }}"
             required="{{ variant.required }}"
             width="{{ variant.width }}"
-            maxlength="{{ variant.maxlength }}"
             pattern="{{ variant.pattern }}"
-            input_classes="{{ variant.input_classes }}"
-            placeholder="{{ variant.placeholder }}"
             inputmode="{{ variant.inputmode }}"
-            aria-describedby="{{ variant.aria_describedby }}"
-            data-charset="{{ variant.data_charset }}"
-            >
-        </c-text_input>
+            prefix="{{ variant.prefix }}"
+            prefix_icon="{{ variant.prefix_icon }}"
+            suffix="{{ variant.suffix }}"
+            suffix_icon="{{ variant.suffix_icon }}"
+        />
     </div>
     {% endfor %}
     

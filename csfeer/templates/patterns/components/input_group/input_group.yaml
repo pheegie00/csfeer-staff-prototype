@@ -1,0 +1,112 @@
+name: Input Group (Prefix & Suffix)
+context:
+  variants:
+    - title: "Currency Input (Dollar)"
+      id: "group-currency-usd"
+      name: "price_usd"
+      label: "Price"
+      type: "text"
+      hint: "Enter price in US dollars"
+      prefix: "$"
+      suffix: "USD"
+      inputmode: "numeric"
+
+
+    - title: "Currency Input (Euro)"
+      id: "group-currency-eur"
+      name: "price_eur"
+      label: "Price"
+      type: "text"
+      hint: "Enter price in euros"
+      prefix: "€"
+      suffix: "EUR"
+      inputmode: "numeric"
+
+
+    - title: "Temperature Range"
+      id: "group-temp-range"
+      name: "temperature"
+      label: "Temperature"
+      type: "text"
+      hint: "Enter temperature"
+      prefix: "From"
+      suffix: "°F"
+      inputmode: "numeric"
+
+
+    - title: "Discount Percentage"
+      id: "group-discount"
+      name: "discount"
+      label: "Discount"
+      type: "text"
+      hint: "Enter discount amount"
+      prefix: "-"
+      suffix: "%"
+      inputmode: "numeric"
+
+
+    - title: "Website URL"
+      id: "group-url"
+      name: "website"
+      label: "Website"
+      type: "url"
+      hint: "Enter your website URL"
+      prefix: "https://"
+      suffix: ".com"
+
+
+    - title: "Social Media Handle"
+      id: "group-social"
+      name: "twitter"
+      label: "Twitter handle"
+      type: "text"
+      hint: "Enter your Twitter username"
+      prefix: "@"
+      suffix_icon: "launch"
+
+
+    - title: "Search with Context"
+      id: "group-search"
+      name: "search_query"
+      label: "Search products"
+      type: "search"
+      hint: "Enter product name or SKU"
+      prefix_icon: "search"
+      suffix: "in Stock"
+
+
+    - title: "With Error State"
+      id: "group-error"
+      name: "amount_error"
+      label: "Amount"
+      type: "text"
+      hint: "Enter the amount"
+      prefix: "$"
+      suffix: "USD"
+      error: "Please enter a valid amount"
+      inputmode: "numeric"
+
+
+    - title: "With Success State"
+      id: "group-success"
+      name: "amount_success"
+      label: "Amount"
+      type: "text"
+      value: "1,250.00"
+      prefix: "$"
+      suffix: "USD"
+      success: "true"
+      inputmode: "numeric"
+
+
+    - title: "Small Width Group"
+      id: "group-small"
+      name: "zip_ext"
+      label: "ZIP+4"
+      type: "text"
+      hint: "Last 4 digits"
+      prefix: "-"
+      suffix: ""
+      width: "sm"
+      inputmode: "numeric"
+      pattern: "\\d{4}"

@@ -1,0 +1,32 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Input Suffix Component</h1>
+    <p class="usa-intro">Use input suffixes to show symbols or abbreviations that help users enter the right type of information after the input field.</p>
+
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+        <c-label id="{{ variant.id }}" label="{{ variant.label }}" />
+        <c-input-group>
+            <c-text-input
+                id="{{ variant.id }}"
+                name="{{ variant.name }}"
+                type="{{ variant.type }}"
+                value="{{ variant.value }}"
+                label="{{ variant.label }}"
+                hint="{{ variant.hint }}"
+                error="{{ variant.error }}"
+                success="{{ variant.success }}"
+                disabled="{{ variant.disabled }}"
+                readonly="{{ variant.readonly }}"
+                required="{{ variant.required }}"
+                width="{{ variant.width }}"
+                inputmode="{{ variant.inputmode }}"
+            />
+            <c-input-suffix>{% if variant.suffix_text %}{{ variant.suffix_text }}{% endif %}{% if variant.suffix_icon %}<c-icon icon="{{ variant.suffix_icon }}" />{% endif %}</c-input-suffix>
+        </c-input-group>
+    </div>
+    {% endfor %}
+    
+</div>
