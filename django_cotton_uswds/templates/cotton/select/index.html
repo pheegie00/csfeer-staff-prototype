@@ -3,9 +3,10 @@
     options=""
     default_option=""
     default_value=""
+    disabled=""
 />
 
-<select class="usa-select {{ extra_classes }}" name="{{ control_id }}" id="{{ control_id }}">
+<select class="usa-select {{ extra_classes }}" {% if disabled %}disabled{% endif %} name="{{ control_id }}" id="{{ control_id }}">
     {% if default_option %}
         <option selected value="{{ default_value }}">{{ default_option }}</option>
     {% endif %}
