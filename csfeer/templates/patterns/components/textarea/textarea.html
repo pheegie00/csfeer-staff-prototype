@@ -1,0 +1,27 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Textarea Component</h1>
+
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-textarea
+            id="{{ variant.id }}"
+            name="{{ variant.name }}"
+            label="{{ variant.label }}"
+            value="{{ variant.value }}"
+            hint="{{ variant.hint }}"
+            error="{{ variant.error }}"
+            success="{{ variant.success }}"
+            disabled="{{ variant.disabled }}"
+            readonly="{{ variant.readonly }}"
+            required="{{ variant.required }}"
+            rows="{{ variant.rows }}"
+            maxlength="{{ variant.maxlength }}">
+        </c-textarea>
+    </div>
+    {% endfor %}
+    
+</div>

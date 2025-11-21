@@ -1,0 +1,41 @@
+<c-vars
+    error=""
+    success=""
+    disabled=""
+    readonly=""
+    required=""
+    aria_describedby=""
+    aria_disabled=""
+    extra_classes=""
+    input_classes=""
+    label_classes=""
+/>
+
+{% if error %}<div class="usa-form-group usa-form-group--error {{ extra_classes }}"{% else %}<div class="usa-form-group {{ extra_classes }}"{% endif %} {{ attrs }}>
+  
+  {# Label #}
+  <label class="usa-label{% if error %} usa-label--error{% endif %} {{ label_classes }}" for="{{ id }}">
+    {{ label|safe }}
+  </label>
+  
+  {# Optional hint text #}
+  {% if hint %}
+    <div class="usa-hint" id="{{ id }}-hint">{{ hint|safe }}</div>
+  {% endif %}
+  
+  {# Error message #}
+  {% if error %}
+    <span class="usa-error-message" id="{{ id }}-error-message" role="alert">{{ error|safe }}</span>
+  {% endif %}
+  
+  {# Textarea field #}
+  <textarea
+    class="usa-textarea{{ input_classes }}{% if error %} usa-input--error{% endif %}{% if success %} usa-input--success{% endif %}"
+    {{ attrs }}
+    {% if disabled %}disabled{% endif %}
+    {% if readonly %}readonly{% endif %}
+    {% if required %}required{% endif %}
+    {% if error %}aria-describedby="{{ id }}-error-message{% if hint %} {{ id }}-hint{% endif %}{% if aria_describedby %} {{ aria_describedby }}{% endif %}"{% elif hint or aria_describedby %}aria-describedby="{% if hint %}{{ id }}-hint{% endif %}{% if aria_describedby %} {{ aria_describedby }}{% endif %}"{% endif %}
+  >{{ value }}</textarea>
+  
+</div>
