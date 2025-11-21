@@ -1,6 +1,22 @@
 <c-vars
-    control_id=""
-    label_title=""
+    id=""
+    label=""
+    hint=""
+    required=""
+    error=""
 />
 
-<label class="usa-label" for="{{ control_id }}">{{ label_title }}</label>
+
+{# Label #}
+  <label class="usa-label{% if error %} usa-label--error{% endif %} {{ label_classes }}" for="{{ id }}">
+    {{ label|safe }}
+    {% if required %}
+        <c-label.required-marker />
+    {% endif %}
+  </label>
+  
+  {# Optional hint text #}
+  {% if hint %}
+    <div class="usa-hint" id="{{ id }}-hint">{{ hint|safe }}</div>
+  {% endif %}
+  

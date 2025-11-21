@@ -1,0 +1,32 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Input Prefix Component</h1>
+    <p class="usa-intro">Use input prefixes to show symbols or abbreviations that help users enter the right type of information before the input field.</p>
+
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+        <c-label id="{{ variant.id }}" label="{{ variant.label }}" />
+        <c-input-group>
+            <c-input-prefix>{% if variant.prefix_text %}{{ variant.prefix_text }}{% endif %}{% if variant.prefix_icon %}<c-icon icon="{{ variant.prefix_icon }}" />{% endif %}</c-input-prefix>
+            <c-text-input
+                id="{{ variant.id }}"
+                name="{{ variant.name }}"
+                type="{{ variant.type }}"
+                value="{{ variant.value }}"
+                label="{{ variant.label }}"
+                hint="{{ variant.hint }}"
+                error="{{ variant.error }}"
+                success="{{ variant.success }}"
+                disabled="{{ variant.disabled }}"
+                readonly="{{ variant.readonly }}"
+                required="{{ variant.required }}"
+                width="{{ variant.width }}"
+                inputmode="{{ variant.inputmode }}"
+            />
+        </c-input-group>
+    </div>
+    {% endfor %}
+    
+</div>

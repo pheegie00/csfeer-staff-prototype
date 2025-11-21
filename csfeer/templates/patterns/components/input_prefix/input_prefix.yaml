@@ -1,0 +1,21 @@
+name: Input Prefix
+context:
+  variants:
+    - title: "Dollar Sign Prefix"
+      id: "prefix-dollar"
+      name: "price"
+      label: "Item price"
+      type: "text"
+      hint: "Enter the dollar amount"
+      prefix_text: "$"
+      inputmode: "numeric"
+
+
+    - title: "Credit Card Prefix"
+      id: "prefix-credit-card"
+      name: "cc_number"
+      label: "Credit card number"
+      type: "text"
+      hint: "Enter your 16-digit card number"
+      prefix_icon: "credit_card"
+      inputmode: "numeric"

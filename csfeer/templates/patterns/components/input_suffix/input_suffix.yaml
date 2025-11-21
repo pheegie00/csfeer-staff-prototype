@@ -1,0 +1,23 @@
+name: Input Suffix
+context:
+  variants:
+    - title: "Pounds Weight Suffix"
+      id: "suffix-lbs"
+      name: "weight"
+      label: "Weight"
+      type: "text"
+      hint: "Enter weight in pounds"
+      suffix_text: "lbs"
+      inputmode: "numeric"
+
+
+    - title: "Search Icon Suffix"
+      id: "suffix-search-icon"
+      name: "search"
+      label: "Search"
+      type: "search"
+      hint: "Enter search terms"
+      suffix_icon: "search"
+
+
+    
