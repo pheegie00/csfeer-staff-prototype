@@ -2,19 +2,18 @@
 
 <div class="component-variants">
     <h1>Text Input Component</h1>
+    <p>{{ description }}</p><br />
 
     {% for variant in variants %}
     <div class="component-variant">
         <h2 class="variant-title">{{ variant.title }}</h2>
 
-        <c-text_input
+        <c-text-input
             id="{{ variant.id }}"
             name="{{ variant.name }}"
-            label="{{ variant.label }}"
             type="{{ variant.type }}"
             value="{{ variant.value }}"
             placeholder="{{ variant.placeholder }}"
-            hint="{{ variant.hint }}"
             error="{{ variant.error }}"
             success="{{ variant.success }}"
             disabled="{{ variant.disabled }}"
@@ -22,8 +21,8 @@
             required="{{ variant.required }}"
             width="{{ variant.width }}"
             maxlength="{{ variant.maxlength }}"
-            >
-        </c-text_input>
+        />
+       
     </div>
     {% endfor %}
     

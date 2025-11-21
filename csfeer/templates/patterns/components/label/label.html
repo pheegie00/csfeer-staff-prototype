@@ -2,12 +2,13 @@
 
 <div class="component-variants">
     <h1>Label Component</h1>
+    <p>{{ description }}</p>
     
     {% for variant in variants %}
     <div class="component-variant">
         <h2 class="variant-title">{{ variant.title }}</h2>
 
-        <c-label control_id="{{ variant.control_id }}" label_title="{{ variant.label_title }}" />
+        <c-label for="{{ variant.control_id }}" text="{{ variant.label_title }}" error="{{variant.error}}" />
     </div>
     {% endfor %}
 </div>

@@ -1,6 +1,11 @@
 name: Label
 context:
+  description: An HTML label element
   variants:            
     - title: "Label"
       control_id: "label-1"
       label_title: "This is a label"
+    - title: Lable with error
+      control_id: foo
+      label_title: Label with Error
+      error: true

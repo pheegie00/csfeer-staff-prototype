@@ -1,0 +1,9 @@
+<c-vars
+  error=""
+  extra_classes=""
+/>
+
+
+<div class="usa-form-group {% if error %}usa-form-group--error{% endif %} {{ extra_classes }}">
+  {{ slot }}
+</div>

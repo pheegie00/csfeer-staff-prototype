@@ -1,6 +1,10 @@
 <c-vars
-    control_id=""
-    label_title=""
+    for=""
+    text=""
+    error=""
+    extra_classes=""
 />
 
-<label class="usa-label" for="{{ control_id }}">{{ label_title }}</label>
+<label class="usa-label{% if error %} usa-label--error{% endif %} {{ extra_classes }}" for="{{ for }}">{{ text }}</label>
+
+

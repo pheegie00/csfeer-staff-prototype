@@ -1,12 +1,13 @@
-name: Text Input
+name: Text Field
 context:
-  description: An HTML text input HTML element
+  description: An HTML element comprising a label, html input element and hint.
   variants:
     - title: "Basic Text Input Field"
       id: "input-basic"
       name: "basic"
       label: "Text input label"
       type: "text"
+      name: "some-id"
 
     - title: "Text Input with Error"
       id: "input-error"
@@ -112,8 +113,7 @@ context:
       required: "true"
       width: ""
 
-
-    - title: "Input with Maxlength"
+    - title: "Input with Maxlength and hint"
       id: "input-maxlength"
       name: "maxlength"
       label: "Text input with max length"
@@ -127,4 +127,3 @@ context:
       required: ""
       width: ""
       maxlength: "10"
-

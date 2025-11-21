@@ -11,7 +11,7 @@
     label_classes=""
 />
 
-{% if error %}<div class="usa-form-group usa-form-group--error {{ extra_classes }}"{% else %}<div class="usa-form-group {{ extra_classes }}"{% endif %} {{ attrs }}>
+<c-form-group error="{{ error }}" extra_classes="{{ extra_classes }}">
   
   {# Label #}
   <label class="usa-label{% if error %} usa-label--error{% endif %} {{ label_classes }}" for="{{ id }}">
@@ -38,4 +38,4 @@
     {% if error %}aria-describedby="{{ id }}-error-message{% if hint %} {{ id }}-hint{% endif %}{% if aria_describedby %} {{ aria_describedby }}{% endif %}"{% elif hint or aria_describedby %}aria-describedby="{% if hint %}{{ id }}-hint{% endif %}{% if aria_describedby %} {{ aria_describedby }}{% endif %}"{% endif %}
   >{{ value }}</textarea>
   
-</div>
+</c-form-group>

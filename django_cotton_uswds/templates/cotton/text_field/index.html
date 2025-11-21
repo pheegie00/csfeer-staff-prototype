@@ -1,0 +1,30 @@
+<c-vars
+    error=""
+    success=""
+    disabled=""
+    readonly=""
+    required=""
+    input_classes=""
+    name=""
+    hint=""
+    name=""
+/>
+
+<c-form_group error="{{ error }}" extra_classes="{{ extra_classes }}">
+  {# Label #}
+  <c-label class="usa-label{% if error %} usa-label--error{% endif %} {{ label_classes }}" for="{{id}}">{{ label|safe }}</c-label>
+  
+  {# Optional hint text #}
+  {% if hint %}
+    <div class="usa-hint" id="{{ id }}-hint">{{ hint|safe }}</div>
+  {% endif %}
+  
+  {# Error message #}
+  {% if error %}
+    <span class="usa-error-message" id="{{ id }}-error-message" role="alert">{{ error|safe }}</span>
+  {% endif %}
+  
+  {# Text input field #}
+  <c-text_input name="{{ name }}" error="{{ error }}" success="{{success}}" disabled="{{disabled}}" readonly="{{readonly}}" extra_classes="{{ input_classes}}"></c-text_input>
+</c-form_group>
+
