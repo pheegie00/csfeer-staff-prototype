@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "django_extensions",
     # Local
     "form_manager",
+    "django.forms",
 ]
 
 MIDDLEWARE = [

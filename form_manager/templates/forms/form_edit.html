@@ -16,137 +16,9 @@
       </div>
 
       <!-- Form Container -->
-      <c-card>
         <form method="post" class="usa-form usa-form--large">
           {% csrf_token %}
-          
-          {% if form.sections %}
-            {# Render form with sections #}
-            {% for section in form.sections %}
-              <div class="margin-top-5 padding-top-3{% if not forloop.first %} border-top-2px border-base-lighter{% endif %}">
-                <h2 class="margin-top-0 margin-bottom-1">{{ section.title }}</h2>
-                {% if section.description %}
-                  <c-summary-box extra_classes="mb-2">
-                    <c-slot name="title">{{ section.description }}</c-slot>
-                  </c-summary-box>
-                {% endif %}
-                {% if section.instructional_note %}
-                  <c-alert type="info" extra_classes="margin-bottom-3">
-                    <c-slot name="body">{{ section.instructional_note }}</c-slot>
-                  </c-alert>
-                {% endif %}
-                
-                {% for field_name in section.fields %}
-                  {% for field in form %}
-                    {% if field.name == field_name %}
-                      {% if field.field.widget.input_type == 'radio' %}
-                        {# Radio buttons need fieldset wrapper #}
-                        <fieldset class="usa-fieldset margin-top-4{% if field.errors %} usa-form-group--error{% endif %}">
-                          <legend class="usa-legend">
-                            {{ field.label }}
-                            {% if field.field.required %}
-                              <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
-                            {% endif %}
-                          </legend>
-                          
-                          {% if field.help_text %}
-                            <div class="usa-hint" id="{{ field.id_for_label }}-hint">
-                              {{ field.help_text }}
-                            </div>
-                          {% endif %}
-                          
-                          {% if field.errors %}
-                            <span class="usa-error-message" id="{{ field.id_for_label }}-error" role="alert">
-                              {% for error in field.errors %}{{ error }}{% endfor %}
-                            </span>
-                          {% endif %}
-                          
-                          {{ field }}
-                        </fieldset>
-                      {% else %}
-                        {# Regular input fields #}
-                        <div class="usa-form-group margin-top-4{% if field.errors %} usa-form-group--error{% endif %}">
-                          <label class="usa-label" for="{{ field.id_for_label }}">
-                            {{ field.label }}
-                            {% if field.field.required %}
-                              <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
-                            {% endif %}
-                          </label>
-                          
-                          {% if field.help_text %}
-                            <div class="usa-hint" id="{{ field.id_for_label }}-hint">
-                              {{ field.help_text }}
-                            </div>
-                          {% endif %}
-                          
-                          {% if field.errors %}
-                            <span class="usa-error-message" id="{{ field.id_for_label }}-error" role="alert">
-                              {% for error in field.errors %}{{ error }}{% endfor %}
-                            </span>
-                          {% endif %}
-                          
-                          {{ field }}
-                        </div>
-                      {% endif %}
-                    {% endif %}
-                  {% endfor %}
-                {% endfor %}
-              </div>
-            {% endfor %}
-          {% else %}
-            {# Fallback: render flat field list #}
-            {% for field in form %}
-              {% if field.field.widget.input_type == 'radio' %}
-                {# Radio buttons need fieldset wrapper #}
-                <fieldset class="usa-fieldset margin-top-4{% if field.errors %} usa-form-group--error{% endif %}">
-                  <legend class="usa-legend">
-                    {{ field.label }}
-                    {% if field.field.required %}
-                      <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
-                    {% endif %}
-                  </legend>
-                  
-                  {% if field.help_text %}
-                    <div class="usa-hint" id="{{ field.id_for_label }}-hint">
-                      {{ field.help_text }}
-                    </div>
-                  {% endif %}
-                  
-                  {% if field.errors %}
-                    <span class="usa-error-message" id="{{ field.id_for_label }}-error" role="alert">
-                      {% for error in field.errors %}{{ error }}{% endfor %}
-                    </span>
-                  {% endif %}
-                  
-                  {{ field }}
-                </fieldset>
-              {% else %}
-                {# Regular input fields #}
-                <div class="usa-form-group margin-top-4{% if field.errors %} usa-form-group--error{% endif %}">
-                  <label class="usa-label" for="{{ field.id_for_label }}">
-                    {{ field.label }}
-                    {% if field.field.required %}
-                      <abbr title="required" class="usa-hint usa-hint--required">*</abbr>
-                    {% endif %}
-                  </label>
-                  
-                  {% if field.help_text %}
-                    <div class="usa-hint" id="{{ field.id_for_label }}-hint">
-                      {{ field.help_text }}
-                    </div>
-                  {% endif %}
-                  
-                  {% if field.errors %}
-                    <span class="usa-error-message" id="{{ field.id_for_label }}-error" role="alert">
-                      {% for error in field.errors %}{{ error }}{% endfor %}
-                    </span>
-                  {% endif %}
-                  
-                  {{ field }}
-                </div>
-              {% endif %}
-            {% endfor %}
-          {% endif %}
+          {{ form }}
 
           <!-- Form Actions -->
           <div class="margin-top-4 padding-top-2 border-top-1px border-base-lighter">
@@ -173,7 +45,6 @@
             </div>
           </div>
         </form>
-      </c-card>
 
       <!-- Quick Actions -->
       <div class="margin-top-4 padding-3 bg-base-lightest radius-md">

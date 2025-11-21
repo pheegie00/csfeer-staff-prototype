@@ -1,89 +1,99 @@
 """Form field definitions."""
 
+from __future__ import annotations
+
 from enum import Enum
-from typing import Annotated
+from typing import Annotated, Any
 
-from pydantic import EmailStr, Field
+from pydantic import (
+    EmailStr,
+    Field,
+    WithJsonSchema,
+)
 from pydantic.config import JsonDict
-
-BASE_FIELD_OPTIONS: JsonDict = {"subtype": ""}
-
-type BaseTextField = Annotated[
-    str,
-    Field(json_schema_extra=BASE_FIELD_OPTIONS),
-]
-type BaseFloatField = Annotated[float, Field(json_schema_extra=BASE_FIELD_OPTIONS)]
-type BaseEnumField = Annotated[Enum, Field(json_schema_extra=BASE_FIELD_OPTIONS)]
+from pydantic_extra_types.phone_numbers import PhoneNumber
 
 
-type TextField = Annotated[
+def SpecificTypedField(field_type: str, *args, **kwargs) -> Any:
+    """A field with a specific field type in its JSON schema"""
+
+    json_schema_extra = kwargs.get("json_schema_extra", {})
+    json_schema_extra.update({"fieldType": field_type})
+
+    kwargs = kwargs | {"json_schema_extra": json_schema_extra}
+
+    return Field(*args, **kwargs)
+
+
+BaseTextField = Annotated[str, SpecificTypedField("TextField", min_length=0, max_length=255)]
+BaseFloatField = Annotated[float, SpecificTypedField("FloatField")]
+BaseEnumField = Annotated[Enum, SpecificTypedField("EnumField")]
+
+
+TextField = BaseTextField
+
+TextareaField = Annotated[
     BaseTextField,
-    Field(
-        json_schema_extra={
-            "minLength": 0,
-            "maxLength": 255,
-        }
+    SpecificTypedField(
+        "TextareaField",
+        min_length=0,
+        max_length=0,
     ),
 ]
 
-type TextareaField = Annotated[
-    str,
-    Field(
-        json_schema_extra={
-            "minLength": 0,
-            "maxLength": 0,
-            "pattern": None,
-            "subtype": "longText",
-        }
-    ),
-]
-
-type MoneyField = Annotated[
+CurrencyField = Annotated[
     BaseFloatField,
-    Field(
+    SpecificTypedField(
+        "CurrencyField",
         json_schema_extra={
             "currencySymbol": "$",
             "currencyCode": "USD",
-            "subtype": "currency",
-        }
+        },
     ),
 ]
 
-type PhoneNumberField = Annotated[
-    str,
-    Field(
+
+class USPhoneFieldType(PhoneNumber):
+    default_region_code = "US"
+    supported_regions = ["US"]
+    phone_format = "NATIONAL"
+
+
+PhoneNumberField = Annotated[
+    USPhoneFieldType,
+    SpecificTypedField(
+        "PhoneNumberField",
         json_schema_extra={
-            "subtype": "telephone",
             "pattern": "\\d{3}-\\d{3}-\\d{4}",
-        }
+        },
     ),
 ]
 
-type EmailField = Annotated[
+EmailField = Annotated[
     EmailStr,
-    Field(
+    SpecificTypedField(
+        "EmailField",
         json_schema_extra={
-            "subtype": "email",
             "pattern": "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$",
-        }
+        },
     ),
 ]
 
 
-type BooleanField = Annotated[bool, Field()]
+BooleanField = Annotated[bool, Field()]
 
 
-type ComputedField = Annotated[
-    BaseFloatField, Field(json_schema_extra={"subType": "computed", "fields": []})
+ComputedField = Annotated[
+    BaseFloatField, SpecificTypedField("ComputedField", json_schema_extra={"fields": []})
 ]
 
-type ChoiceField = Annotated[Enum, Field()]
+ChoiceField = Annotated[Enum, Field()]
 
 
 ALL_FIELD_TYPES = (
     TextField
     | TextareaField
-    | MoneyField
+    | CurrencyField
     | PhoneNumberField
     | EmailField
     | BooleanField

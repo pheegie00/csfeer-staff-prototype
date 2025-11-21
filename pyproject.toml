@@ -21,6 +21,8 @@ dependencies = [
     "pydantic-settings>=2.11.0",
     "whitenoise>=6.11.0",
     "pydantic[email]>=2.12.4",
+    "pydantic_extra_types>=2.10.6",
+    "phonenumbers==9.0.18",
 ]
 
 [dependency-groups]
@@ -39,6 +41,7 @@ dev = [
     "pytest-django>=4.11.1",
     "pytest-playwright>=0.6.2",
     "types-requests>=2.32.4.20250913",
+    "ipdb",
 ]
 
 [tool.black]

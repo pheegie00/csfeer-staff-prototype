@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .models import FormAuditTrail, FormDefinition, FormEntry, OrganizationProfile
+from .schema.forms import BaseFormSchema
 from .utils import (
     build_dynamic_form,
     reconstruct_state,
@@ -77,10 +78,16 @@ def form_edit(request, pk: int):
             record_field_diffs(entry, old, entry.data, user=request.user)
             messages.success(request, "Submitted.")
             return redirect("form_list")
+
     return render(
         request,
         "forms/form_edit.html",
-        {"form": form, "entry": entry, "can_edit": can_edit, "can_submit": can_submit},
+        {
+            "form": form,
+            "entry": entry,
+            "can_edit": can_edit,
+            "can_submit": can_submit,
+        },
     )
 
 

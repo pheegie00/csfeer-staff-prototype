@@ -1,5 +1,6 @@
 """The Tribal Short Form definition"""
 
+from asyncio import constants
 from typing import Annotated, Literal
 
 from pydantic import Field
@@ -8,8 +9,8 @@ from form_manager.schema.layout import FieldBlock, SectionBlock
 
 from ..fields import (
     ComputedField,
+    CurrencyField,
     EmailField,
-    MoneyField,
     PhoneNumberField,
     TextareaField,
     TextField,
@@ -23,40 +24,40 @@ class TribalShortFormFields(BaseFormFields):
         TextField, Field(title="A.1a.", description="Name of Tribe or Tribal Organization")
     ]
     contact_name: Annotated[TextField, Field(title="Name")]
-    contact_title: Annotated[TextField, Field(title="Social Services Director")]
+    contact_title: Annotated[TextField, Field(title="Title")]
     phone: Annotated[
         PhoneNumberField,
         Field(title="A.1c", description="Work Telephone number and extension (if applicable)"),
     ]
     email: Annotated[EmailField, Field(title="A.1d", description="Email address")]
-    employment_expenditure: Annotated[MoneyField, Field(title="A.2a.", description="Employment")]
+    employment_expenditure: Annotated[CurrencyField, Field(title="A.2a.", description="Employment")]
     childcare_expenditure: Annotated[
-        MoneyField,
+        CurrencyField,
         Field(
             title="A.2b",
             description="Childcare, Early Childhood, Youth Development, and Adult Education",
         ),
     ]
     asset_building_expenditure: Annotated[
-        MoneyField, Field(title="A.2c.", description="Income and Asset Building")
+        CurrencyField, Field(title="A.2c.", description="Income and Asset Building")
     ]
-    housing_expenditure: Annotated[MoneyField, Field(title="A.2d", description="Housing")]
+    housing_expenditure: Annotated[CurrencyField, Field(title="A.2d", description="Housing")]
     health_expenditure: Annotated[
-        MoneyField, Field(title="A.2e", description="Health and Nutrition")
+        CurrencyField, Field(title="A.2e", description="Health and Nutrition")
     ]
     civic_expenditure: Annotated[
-        MoneyField,
+        CurrencyField,
         Field(title="A.2f.", description="Civic Engagement and Community Involvement"),
     ]
     transportation_expenditure: Annotated[
-        MoneyField, Field(title="A.2g.", description="Transportation")
+        CurrencyField, Field(title="A.2g.", description="Transportation")
     ]
     partnerships_expenditure: Annotated[
-        MoneyField, Field(title="A.2h", description="Partnerships, Linkages, and Coordination")
+        CurrencyField, Field(title="A.2h", description="Partnerships, Linkages, and Coordination")
     ]
-    other_expenditure: Annotated[MoneyField, Field(title="A.2i.", description="Other")]
+    other_expenditure: Annotated[CurrencyField, Field(title="A.2i.", description="Other")]
     administration_expenditure: Annotated[
-        MoneyField,
+        CurrencyField,
         Field(title="A.3.", description="Report the total amount used for Administration."),
     ]
 
@@ -193,57 +194,104 @@ class TribalShortFormFields(BaseFormFields):
     ]
 
 
+type UIDefinition = list[SectionBlock | FieldBlock]
+
+
 class TribalShortForm(BaseFormSchema):
 
-    id: Literal["0970-0492"]
-    name: str = "CSBG Annual Report Tribal Report"
-    version: Literal["3.0"]
+    id: str = Field("0970-0492", frozen=True)
+    name: str = Field("CSBG Annual Report Tribal Report", frozen=True)
+    version: str = Field("3.0", frozen=True)
     form_fields: TribalShortFormFields
-    ui: list[SectionBlock | FieldBlock] = [
-        SectionBlock(
-            title="A.1",
-            description=(
-                "Provide the following information in relation to the tribe or "
-                "tribal organization designated to administer CSBG as required in "
-                "Sections 676 and 677 of the CSBG Act, the Human Services Reauthorization "
-                "Act of 1998 (P.L.105-285), and relevant federal policy guidance. "
-                "The following information should mirror the information provided on the "
-                "Application for Federal Assistance, SF-424M."
+    ui: UIDefinition = Field(
+        frozen=True,
+        default=[
+            SectionBlock(
+                title="A.1",
+                description=(
+                    "Provide the following information in relation to the tribe or "
+                    "tribal organization designated to administer CSBG as required in "
+                    "Sections 676 and 677 of the CSBG Act, the Human Services Reauthorization "
+                    "Act of 1998 (P.L.105-285), and relevant federal policy guidance. "
+                    "The following information should mirror the information provided on the "
+                    "Application for Federal Assistance, SF-424M."
+                ),
+                children=[
+                    FieldBlock(field_name="org_name"),
+                    FieldBlock(field_name="contact_name"),
+                    FieldBlock(field_name="contact_title"),
+                    FieldBlock(field_name="phone"),
+                    FieldBlock(field_name="email"),
+                    FieldBlock(field_name="contact_title"),
+                    FieldBlock(field_name="contact_title"),
+                    FieldBlock(field_name="contact_title"),
+                ],
             ),
-            children=[
-                FieldBlock(field_name="org_name"),
-                FieldBlock(field_name="contact_name"),
-                FieldBlock(field_name="contact_title"),
-                FieldBlock(field_name="phone"),
-                FieldBlock(field_name="email"),
-                FieldBlock(field_name="contact_title"),
-                FieldBlock(field_name="contact_title"),
-                FieldBlock(field_name="contact_title"),
-            ],
-        ),
-        SectionBlock(
-            title="Section A: Tribal CSBG Expenditures",
-            children=[
-                FieldBlock(field_name="employment_expenditure"),
-                FieldBlock(field_name="childcare_expenditure"),
-                FieldBlock(field_name="asset_building_expenditure"),
-                FieldBlock(field_name="housing_expenditure"),
-                FieldBlock(field_name="health_expenditure"),
-                FieldBlock(field_name="civic_expenditure"),
-                FieldBlock(field_name="transportation_expenditure"),
-                FieldBlock(field_name="partnerships_expenditure"),
-                FieldBlock(field_name="other_expenditure"),
-                FieldBlock(field_name="total_expenditures"),
-                FieldBlock(field_name="administration_expenditure"),
-                FieldBlock(field_name="employment_related_services_description"),
-                FieldBlock(field_name="education_related_service_description"),
-                FieldBlock(field_name="income_services_description"),
-                FieldBlock(field_name="housing_services_description"),
-                FieldBlock(field_name="health_services_description"),
-                FieldBlock(field_name="civic_services_description"),
-                FieldBlock(field_name="health_services_description"),
-                FieldBlock(field_name="transportation_services_description"),
-                FieldBlock(field_name="poverty_coordination_description"),
-            ],
-        ),
-    ]
+            SectionBlock(
+                title="Section A: Tribal CSBG Expenditures",
+                children=[
+                    FieldBlock(field_name="employment_expenditure"),
+                    FieldBlock(field_name="childcare_expenditure"),
+                    FieldBlock(field_name="asset_building_expenditure"),
+                    FieldBlock(field_name="housing_expenditure"),
+                    FieldBlock(field_name="health_expenditure"),
+                    FieldBlock(field_name="civic_expenditure"),
+                    FieldBlock(field_name="transportation_expenditure"),
+                    FieldBlock(field_name="partnerships_expenditure"),
+                    FieldBlock(field_name="other_expenditure"),
+                    FieldBlock(field_name="total_expenditures"),
+                    FieldBlock(field_name="administration_expenditure"),
+                    FieldBlock(field_name="employment_related_services_description"),
+                    FieldBlock(field_name="education_related_service_description"),
+                    FieldBlock(field_name="income_services_description"),
+                    FieldBlock(field_name="housing_services_description"),
+                    FieldBlock(field_name="health_services_description"),
+                    FieldBlock(field_name="civic_services_description"),
+                    FieldBlock(field_name="health_services_description"),
+                    FieldBlock(field_name="transportation_services_description"),
+                    FieldBlock(field_name="poverty_coordination_description"),
+                ],
+            ),
+        ],
+    )
+
+    # def get_form_fields(self):
+
+    #     def get_def_of_ref(ref: str):
+    #         path = ref.split("/")[1:]
+
+    #         current = self.schema
+
+    #         for part in path:
+    #             current = current.get(part)
+
+    #         return current
+
+    #     form_fields_ref = self.schema.get("properties").get("form_fields").get("$ref")
+    #     form_fields = get_def_of_ref(form_fields_ref)
+
+    #     def merge_recursively(_field: dict) -> dict:
+
+    #         while "$ref" in _field:
+
+    #             # get the ref
+    #             ref = _field["$ref"]
+
+    #             # del the ref key
+    #             del _field["$ref"]
+
+    #             # ge the def
+    #             _def = get_def_of_ref(ref)
+
+    #             # update the dict
+    #             _field = _def | _field
+
+    #         return _field
+
+    #     for name, field in form_fields.get("properties", {}).items():
+
+    #         _field = merge_recursively(field)
+
+    #         form_fields["properties"][name].update(_field)
+
+    #     return form_fields["properties"]
