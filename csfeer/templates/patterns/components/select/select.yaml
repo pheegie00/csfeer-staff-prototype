@@ -1,7 +1,7 @@
 name: Select
 context:
   variants:
-    - title: "Select Default"
+    - title: "Select"
       control_id: "select-1"
       label_text: "Select Dropdown"
       options:
@@ -13,4 +13,17 @@ context:
           value: "option2"
         - display: "Option 3"
           value: "option3"
-          
+    - title: "Select with default option"
+      control_id: "select-1"
+      label_text: "Select Dropdown"
+      default_option: "Option 4"
+      default_value: "option4"
+      options:
+        - display: "Option 0"
+          value: "option0"
+        - display: "Option 1"
+          value: "option1"
+        - display: "Option 2"
+          value: "option2"
+        - display: "Option 3"
+          value: "option3"

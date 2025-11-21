@@ -13,6 +13,8 @@
         />
         <c-select :options="{{ variant.options|safe }}"
             control_id="{{ variant.control_id }}"
+            default_option="{{ variant.default_option }}"
+            default_value="{{ variant.default_value }}"
         />
     </div>
     {% endfor %}

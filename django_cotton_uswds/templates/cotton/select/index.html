@@ -1,9 +1,14 @@
 <c-vars
     control_id=""
     options=""
+    default_option=""
+    default_value=""
 />
 
-<select class="usa-select" name="{{ control_id }}" id="{{ control_id }}">
+<select class="usa-select {{ extra_classes }}" name="{{ control_id }}" id="{{ control_id }}">
+    {% if default_option %}
+        <option selected value="{{ default_value }}">{{ default_option }}</option>
+    {% endif %}
     {% for option in options %}
         <option value="{{ option.value }}">{{ option.display }}</option>
     {% endfor %}
