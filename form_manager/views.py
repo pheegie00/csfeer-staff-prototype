@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .models import FormAuditTrail, FormDefinition, FormEntry, OrganizationProfile
+from .schema.forms import BaseFormSchema
 from .utils import (
     build_dynamic_form,
     reconstruct_state,
@@ -55,9 +56,11 @@ def form_edit(request, pk: int):
         return redirect("form_list")
     can_edit = user_can_edit(request.user, org) and not entry.locked
     can_submit = user_can_submit(request.user, org) and not entry.locked
+
     form = build_dynamic_form(
         entry.form_definition, data=request.POST or None, initial=entry.data, disabled=not can_edit
     )
+
     if request.method == "POST" and can_edit:
         if "save" in request.POST and form.is_valid():
             old = entry.data.copy() if entry.data else {}
@@ -77,10 +80,16 @@ def form_edit(request, pk: int):
             record_field_diffs(entry, old, entry.data, user=request.user)
             messages.success(request, "Submitted.")
             return redirect("form_list")
+
     return render(
         request,
         "forms/form_edit.html",
-        {"form": form, "entry": entry, "can_edit": can_edit, "can_submit": can_submit},
+        {
+            "form": form,
+            "entry": entry,
+            "can_edit": can_edit,
+            "can_submit": can_submit,
+        },
     )
 
 

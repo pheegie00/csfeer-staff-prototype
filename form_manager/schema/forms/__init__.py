@@ -5,4 +5,5 @@ from .tribal_short_form import TribalShortForm
 __all__ = [
     "TribalPlanApplication",
     "TribalShortForm",
+    "BaseFormSchema",
 ]

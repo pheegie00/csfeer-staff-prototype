@@ -44,6 +44,10 @@ class FormDefinition(models.Model):
     version = models.CharField(max_length=10, default="1.0")
     description = models.TextField(blank=True, null=True)
     schema = models.JSONField(default=dict)
+    schema_class = models.CharField(
+        max_length=255,
+        help_text="The name of the pydantic form schema class",
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

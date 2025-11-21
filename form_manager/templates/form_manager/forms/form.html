@@ -1,0 +1,12 @@
+{{ errors }}
+{% if errors and not fields %}
+  <div>{% for field in hidden_fields %}{{ field }}{% endfor %}</div>
+{% endif %}
+
+{% for component in ui_components %}
+    {% if component.type == "section" %}
+        {% include "form_manager/forms/ui_component.html" with component=component %}
+    {% elif component.type == "field" %}
+        {{ field }}
+    {% endif %}
+{% endfor %}
