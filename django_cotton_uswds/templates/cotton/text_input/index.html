@@ -29,12 +29,12 @@
   
   {# Text input field #}
   <input
-    class="usa-input{{ input_classes }}{% if width %} usa-input--{{ width }}{% endif %}{% if error %} usa-input--error{% endif %}{% if success %} usa-input--success{% endif %}"
+    class="usa-input {{ input_classes }}{% if width %} usa-input--{{ width }}{% endif %}{% if error %} usa-input--error{% endif %}{% if success %} usa-input--success{% endif %}"
     {{ attrs }}
     {% if disabled %}disabled{% endif %}
     {% if readonly %}readonly{% endif %}
     {% if required %}required{% endif %}
-    {% if error %}aria-describedby="{{ id }}-error-message{% if hint %} {{ id }}-hint{% endif %}{% if aria_describedby %} {{ aria_describedby }}{% endif %}"{% elif hint or aria_describedby %}aria-describedby="{% if hint %}{{ id }}-hint{% endif %}{% if aria_describedby %} {{ aria_describedby }}{% endif %}"{% endif %}
+    {% if error %}aria-describedby="{{ id }}-error-message{% if hint %} {{ id }}-hint{% endif %}"{% elif hint %}aria-describedby="{{ id }}-hint"{% endif %}
   />
   
 </div>
