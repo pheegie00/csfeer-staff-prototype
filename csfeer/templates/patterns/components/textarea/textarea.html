@@ -6,21 +6,28 @@
     {% for variant in variants %}
     <div class="component-variant">
         <h2 class="variant-title">{{ variant.title }}</h2>
+        
+        <c-form-group error="{{ variant.error }}">
 
-        <c-textarea
-            id="{{ variant.id }}"
-            name="{{ variant.name }}"
-            label="{{ variant.label }}"
-            value="{{ variant.value }}"
-            hint="{{ variant.hint }}"
-            error="{{ variant.error }}"
-            success="{{ variant.success }}"
-            disabled="{{ variant.disabled }}"
-            readonly="{{ variant.readonly }}"
-            required="{{ variant.required }}"
-            rows="{{ variant.rows }}"
-            maxlength="{{ variant.maxlength }}">
-        </c-textarea>
+            <c-label error="{{ variant.error }}" for="{{ id }}">
+                {{ label|safe }}
+            </c-label>
+  
+            <c-textarea
+                id="{{ variant.id }}"
+                name="{{ variant.name }}"
+                label="{{ variant.label }}"
+                value="{{ variant.value }}"
+                hint="{{ variant.hint }}"
+                error="{{ variant.error }}"
+                success="{{ variant.success }}"
+                disabled="{{ variant.disabled }}"
+                readonly="{{ variant.readonly }}"
+                required="{{ variant.required }}"
+                rows="{{ variant.rows }}"
+                maxlength="{{ variant.maxlength }}"
+            />
+        </c-form-group>
     </div>
     {% endfor %}
     
