@@ -2,8 +2,10 @@ name: Select
 context:
   variants:
     - title: "Select"
-      control_id: "select-1"
+      id: "select-1"
       label_text: "Select Dropdown"
+      name: "Select 1"
+      required: "false"
       options:
         - display: "Select an option"
           value: "option0"
@@ -14,8 +16,10 @@ context:
         - display: "Option 3"
           value: "option3"
     - title: "Select disabled"
-      control_id: "select-2"
+      id: "select-2"
       label_text: "Select Dropdown"
+      name: "Select 2"
+      required: "false"
       options:
         - display: "Select an option"
           value: "option0a"
@@ -27,8 +31,10 @@ context:
           value: "option3d"
       disabled: "true"
     - title: "Select with default option"
-      control_id: "select-3"
+      id: "select-3"
       label_text: "Select Dropdown"
+      name: "Select 3"
+      required: "false"
       default_option: "Option 4"
       default_value: "option4"
       options:

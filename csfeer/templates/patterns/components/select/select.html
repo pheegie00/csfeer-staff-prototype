@@ -12,10 +12,12 @@
             label_title="{{ variant.label_title }}"
         />
         <c-select :options="{{ variant.options|safe }}"
-            control_id="{{ variant.control_id }}"
+            id="{{ variant.id }}"
             default_option="{{ variant.default_option }}"
             default_value="{{ variant.default_value }}"
             disabled="{{ variant.disabled }}"
+            required="{{ variant.required }}"
+            name="{{ variant.name }}"
         />
     </div>
     {% endfor %}

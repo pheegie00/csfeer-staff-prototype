@@ -1,12 +1,14 @@
 <c-vars
-    control_id=""
+    id=""
     options=""
     default_option=""
     default_value=""
     disabled=""
+    required=""
+    name=""
 />
 
-<select class="usa-select {{ extra_classes }}" {% if disabled %}disabled{% endif %} name="{{ control_id }}" id="{{ control_id }}">
+<select class="usa-select {{ extra_classes }}" {% if required %}required{% endif %} {% if disabled %}disabled{% endif %} name="{{ name }}" id="{{ id }}">
     {% if default_option %}
         <option selected value="{{ default_value }}">{{ default_option }}</option>
     {% endif %}
