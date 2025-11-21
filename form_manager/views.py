@@ -56,11 +56,9 @@ def form_edit(request, pk: int):
         return redirect("form_list")
     can_edit = user_can_edit(request.user, org) and not entry.locked
     can_submit = user_can_submit(request.user, org) and not entry.locked
-
     form = build_dynamic_form(
         entry.form_definition, data=request.POST or None, initial=entry.data, disabled=not can_edit
     )
-
     if request.method == "POST" and can_edit:
         if "save" in request.POST and form.is_valid():
             old = entry.data.copy() if entry.data else {}

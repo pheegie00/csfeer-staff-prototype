@@ -1,6 +1,6 @@
 """Base form class definitions"""
 
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Generic, Optional, Tuple, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -50,7 +50,7 @@ class BaseFormSchema(
     @classmethod
     def dump_form_fields_from_json_schema(
         cls, json_schema: Optional[dict[str, Any]] = None
-    ) -> dict | None:
+    ) -> Tuple[dict | None, list[str]]:
         """Dump the form fields as a dictionary"""
 
         if not json_schema:
@@ -60,7 +60,7 @@ class BaseFormSchema(
             json_schema["properties"]["form_fields"]["$ref"], json_schema
         )
 
-        return _def.get("properties", None)
+        return _def.get("properties", None), _def.get("required", [])
 
     @classmethod
     def dump_ui_definition_from_json_schema(

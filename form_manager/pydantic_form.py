@@ -3,21 +3,33 @@ from typing import cast
 
 from django import forms
 from django.forms.forms import DeclarativeFieldsMetaclass
-from django.forms.renderers import DjangoTemplates
+from django.forms.renderers import TemplatesSetting
+from django.forms.utils import ErrorList
 
 from .schema.forms.base import BaseFormSchema
 
 logger = logging.getLogger(__name__)
 
 
-class PydantiJSONSchemaFormRenderer(DjangoTemplates):
+class PydanticErrorList(ErrorList):
+    """A custom error renderer"""
+
+    template_name = "form_manager/forms/error_list.html"
+    template_name_text = "form_manager/forms/error_list_text.txt"
+    template_name_ul = "form_manager/forms/error_list_ul.html"
+
+
+class PydantiJSONSchemaFormRenderer(TemplatesSetting):
+    """A custom renderer"""
+
     form_template_name = "form_manager/forms/form.html"
     formset_template_name = "form_manager/forms/formset.html"
     field_template_name = "form_manager/forms/field.html"
 
 
 class PyddanticDeclarativeFieldsMetaclass(DeclarativeFieldsMetaclass):
-    """A metaclass for Pydantic-based Django forms"""
+    """This is a metaclass that creates and attaches django form fields
+    to a django form class from a pydantic schema."""
 
     _schema = None
 
@@ -35,7 +47,7 @@ class PyddanticDeclarativeFieldsMetaclass(DeclarativeFieldsMetaclass):
     def _generate_django_form_fields(cls, _schema: dict | None):
         form_attrs = {}
 
-        form_fields = BaseFormSchema.dump_form_fields_from_json_schema(_schema)
+        form_fields, required_fields = BaseFormSchema.dump_form_fields_from_json_schema(_schema)
 
         if not form_fields:
             return form_attrs
@@ -43,12 +55,12 @@ class PyddanticDeclarativeFieldsMetaclass(DeclarativeFieldsMetaclass):
         for name, field in form_fields.items():
             # Build the field
             label = field.get("title", name)
-            required = field.get("required", False)
+            required = name in required_fields
             help_text = field.get("description", "")
             # field_type = field_def.get("type", "text")
             max_length = field.get("maxLength")
             min_length = field.get("minLength")
-            field_type = field.get("field_type", None)
+            field_type = field.get("fieldType", None)
             field_object = None
 
             if field_type == "TextField":
@@ -102,12 +114,17 @@ class PyddanticDeclarativeFieldsMetaclass(DeclarativeFieldsMetaclass):
 
 
 class PydanticJSONSchemaForm(forms.BaseForm, metaclass=PyddanticDeclarativeFieldsMetaclass):
-    """A Django form generated from a Pydantic model"""
+    """A Django form generated from a Pydantic json schema"""
 
     _schema = None
 
     def __init__(self, *args, **kwargs):
-        kwargs.update({"renderer": PydantiJSONSchemaFormRenderer()})
+        kwargs.update(
+            {
+                "renderer": PydantiJSONSchemaFormRenderer(),
+                "error_class": PydanticErrorList,
+            }
+        )
         super().__init__(*args, **kwargs)
 
     def get_context(self):

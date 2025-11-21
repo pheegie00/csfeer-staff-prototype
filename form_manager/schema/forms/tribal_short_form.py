@@ -24,7 +24,7 @@ class TribalShortFormFields(BaseFormFields):
         TextField, Field(title="A.1a.", description="Name of Tribe or Tribal Organization")
     ]
     contact_name: Annotated[TextField, Field(title="Name")]
-    contact_title: Annotated[TextField, Field(title="Social Services Director")]
+    contact_title: Annotated[TextField, Field(title="Title")]
     phone: Annotated[
         PhoneNumberField,
         Field(title="A.1c", description="Work Telephone number and extension (if applicable)"),
