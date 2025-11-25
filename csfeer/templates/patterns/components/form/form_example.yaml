@@ -1,0 +1,19 @@
+name: Form example
+context:
+  fields:
+    - label: First Name
+      id: first-name
+    - label: Last Name
+      id: last-name
+    - label: Email
+      id: email
+      type: email
+    - label: Street Address
+      id: street-address
+    - label: City
+      id: city
+    - label: State
+      id: state
+    - label: ZIP Code
+      id: zip-code
+
