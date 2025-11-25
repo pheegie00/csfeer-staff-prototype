@@ -6,9 +6,11 @@
 {% for component in ui_components %}
     {% if component.type == "section" %}
     <c-card title="{{ component.title }}">
+        {% if component.description %}
         <p>
             {{ component.description }}
         </p>
+        {% endif %}
 
         {% for child in component.children %}
             {{ child.django_field.as_field_group }}
