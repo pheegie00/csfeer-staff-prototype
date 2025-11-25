@@ -1,0 +1,24 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Select Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-label
+            control_id="{{ variant.control_id }}"
+            label_title="{{ variant.label_title }}"
+        />
+        <c-select :options="{{ variant.options|safe }}"
+            id="{{ variant.id }}"
+            default_option="{{ variant.default_option }}"
+            default_value="{{ variant.default_value }}"
+            disabled="{{ variant.disabled }}"
+            required="{{ variant.required }}"
+            name="{{ variant.name }}"
+        />
+    </div>
+    {% endfor %}
+</div>
