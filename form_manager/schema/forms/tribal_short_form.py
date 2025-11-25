@@ -1,12 +1,13 @@
 """The Tribal Short Form definition"""
 
-from asyncio import constants
 from typing import Annotated, Literal
 
-from pydantic import Field
+from pydantic import ConfigDict, Field
+from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.schema.layout import FieldBlock, SectionBlock
 
+from ...constants import CSBGAnnualReportForms, FormFamilies
 from ..fields import (
     ComputedField,
     CurrencyField,
@@ -199,9 +200,11 @@ type UIDefinition = list[SectionBlock | FieldBlock]
 
 class TribalShortForm(BaseFormSchema):
 
-    id: str = Field("0970-0492", frozen=True)
-    name: str = Field("CSBG Annual Report Tribal Report", frozen=True)
-    version: str = Field("3.0", frozen=True)
+    family: FormFamilies = Field(FormFamilies.CSBG_ANNUAL_REPORT, frozen=True)
+    name: CSBGAnnualReportForms = Field(
+        CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT, frozen=True
+    )
+    variant: SemanticVersion = Field(SemanticVersion(3, 0, 0), frozen=True)
     form_fields: TribalShortFormFields
     ui: UIDefinition = Field(
         frozen=True,
@@ -255,43 +258,4 @@ class TribalShortForm(BaseFormSchema):
         ],
     )
 
-    # def get_form_fields(self):
-
-    #     def get_def_of_ref(ref: str):
-    #         path = ref.split("/")[1:]
-
-    #         current = self.schema
-
-    #         for part in path:
-    #             current = current.get(part)
-
-    #         return current
-
-    #     form_fields_ref = self.schema.get("properties").get("form_fields").get("$ref")
-    #     form_fields = get_def_of_ref(form_fields_ref)
-
-    #     def merge_recursively(_field: dict) -> dict:
-
-    #         while "$ref" in _field:
-
-    #             # get the ref
-    #             ref = _field["$ref"]
-
-    #             # del the ref key
-    #             del _field["$ref"]
-
-    #             # ge the def
-    #             _def = get_def_of_ref(ref)
-
-    #             # update the dict
-    #             _field = _def | _field
-
-    #         return _field
-
-    #     for name, field in form_fields.get("properties", {}).items():
-
-    #         _field = merge_recursively(field)
-
-    #         form_fields["properties"][name].update(_field)
-
-    #     return form_fields["properties"]
+    model_config = ConfigDict(use_enum_values=True)

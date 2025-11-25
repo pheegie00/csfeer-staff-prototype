@@ -25,9 +25,9 @@ class UserOrganizationMembershipAdmin(admin.ModelAdmin):
 
 @admin.register(FormDefinition)
 class FormDefinitionAdmin(admin.ModelAdmin):
-    list_display = ("code", "title", "version", "is_active", "created_at")
+    list_display = ("family", "name", "variant", "is_active", "created_at")
     list_filter = ("is_active",)
-    search_fields = ("code", "title")
+    search_fields = ("name", "variant", "family")
 
 
 @admin.register(FormEntry)
@@ -41,7 +41,7 @@ class FormEntryAdmin(admin.ModelAdmin):
         "updated_at",
     )
     list_filter = ("status", "locked")
-    search_fields = ("organization__name", "form_definition__title")
+    search_fields = ("organization__name", "form_definition__name")
 
 
 @admin.register(FormAuditTrail)
@@ -54,4 +54,4 @@ class FormAuditTrailAdmin(admin.ModelAdmin):
 class FormAuditDetailAdmin(admin.ModelAdmin):
     list_display = ("form_entry", "user", "user__email", "field_name", "timestamp")
     search_fields = ("field_name",)
-    list_filter = ("form_entry__form_definition__title",)
+    list_filter = ("form_entry__form_definition__name",)

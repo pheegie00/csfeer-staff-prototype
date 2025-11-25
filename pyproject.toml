@@ -23,6 +23,7 @@ dependencies = [
     "pydantic[email]>=2.12.4",
     "pydantic_extra_types>=2.10.6",
     "phonenumbers==9.0.18",
+    "semver>=3.0.4",
 ]
 
 [dependency-groups]

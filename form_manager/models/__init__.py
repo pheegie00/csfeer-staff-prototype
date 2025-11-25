@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from ..constants import ALL_FORM_NAME_CHOICES, FormFamilies
+from .fields import SemVerField
+
 User = get_user_model()
 
 
@@ -34,14 +37,18 @@ class UserOrganizationMembership(models.Model):
 
 
 class FormDefinition(models.Model):
-    code = models.CharField(
-        max_length=100,
-        unique=True,
-        db_index=True,
-        help_text="A unique identifier for this form definition, like an OMB form number.",
+    family = models.CharField(
+        null=False,
+        blank=False,
+        choices=FormFamilies.choices,
+        help_text="The name of the form family",
     )
-    title = models.CharField(max_length=255)
-    version = models.CharField(max_length=10, default="1.0")
+    name = models.CharField(
+        max_length=255, help_text="The official name of the form.", choices=ALL_FORM_NAME_CHOICES
+    )
+    variant = SemVerField(
+        max_length=20, default="1.0.0", help_text="The internal variant number of a form definition"
+    )
     description = models.TextField(blank=True, null=True)
     schema = models.JSONField(default=dict)
     schema_class = models.CharField(
@@ -52,10 +59,10 @@ class FormDefinition(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("code", "version")
+        unique_together = ("name", "variant")
 
     def __str__(self) -> str:  # pragma: no cover - trivial
-        return f"{self.title} (v{self.version})"
+        return f"{self.name} (v{self.variant})"
 
 
 class FormEntry(models.Model):
@@ -82,7 +89,7 @@ class FormEntry(models.Model):
         ordering = ["-updated_at"]
 
     def __str__(self) -> str:  # pragma: no cover - trivial
-        return f"{self.organization.name} - {self.form_definition.title} (v{self.version_number})"
+        return f"{self.organization.name} - {self.form_definition.name} (v{self.version_number})"
 
 
 class FormAuditTrail(models.Model):
