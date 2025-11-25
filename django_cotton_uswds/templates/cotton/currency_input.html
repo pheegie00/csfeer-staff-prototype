@@ -1,0 +1,34 @@
+<c-vars
+    id=""
+    name=""
+    value=""
+    label=""
+    hint=""
+    error=""
+    success=""
+    disabled=""
+    readonly=""
+    required=""
+    width=""
+    inputmode=""
+/>
+
+    
+<c-input-group>
+    <c-input-prefix>$</c-input-prefix>
+    <c-text-input
+        id="{{ id }}"
+        name="{{ name }}"
+        type="number"
+        value="{{ value }}"
+        hint="{{ hint }}"
+        error="{{ error }}"
+        success="{{ success }}"
+        disabled="{{ disabled }}"
+        readonly="{{ readonly }}"
+        required="{{ required }}"
+        width="{{ width }}"
+        inputmode="numeric"
+        step="0.01"
+    />
+</c-input-group>

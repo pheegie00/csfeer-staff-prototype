@@ -1,0 +1,5 @@
+### Usage:
+
+```
+<c-currency-input />
+```
