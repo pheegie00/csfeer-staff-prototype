@@ -15,8 +15,9 @@
       <c-textarea
         id="{{ field.id_for_label }}"
         name="{{ field.html_name }}"
-        required="{{field.required }}"
-        value="{{ field.initial }}"
+        required="{{field.field.required }}"
+        value="{% if field.initial %}{{ field.initial }}{% endif %}"
+        readonly="{% if field.field.disabled %}true{% endif %}"
       />
     {% else %}
       <c-text-input
@@ -24,7 +25,8 @@
           name="{{ field.html_name }}"
           required="{{ field.field.required }}"
           type="{{ field.type|default:'text'}}"
-          value="{{ field.initial }}
+          value="{% if field.initial %}{{ field.initial }}{% endif %}"
+          readonly="{% if field.field.disabled %}true{% endif %}"
       />
     {% endif %}
 </c-form-group>

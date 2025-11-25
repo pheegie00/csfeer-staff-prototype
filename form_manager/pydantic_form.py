@@ -57,7 +57,6 @@ class PyddanticDeclarativeFieldsMetaclass(DeclarativeFieldsMetaclass):
             label = field.get("title", name)
             required = name in required_fields
             help_text = field.get("description", "")
-            # field_type = field_def.get("type", "text")
             max_length = field.get("maxLength")
             min_length = field.get("minLength")
             field_type = field.get("fieldType", None)
@@ -105,7 +104,7 @@ class PyddanticDeclarativeFieldsMetaclass(DeclarativeFieldsMetaclass):
             elif field_type == "ComputedField":
                 field_object = forms.CharField(
                     label=label,
-                    required=required,
+                    required=False,
                     help_text=help_text,
                     disabled=True,
                     template_name=PydanticJSONSchemaFormRenderer.field_template_name,  # pyright: ignore
@@ -128,7 +127,6 @@ class PydanticJSONSchemaForm(forms.BaseForm, metaclass=PyddanticDeclarativeField
     def __init__(self, *args, **kwargs):
         kwargs.update(
             {
-                # "renderer": PydanticJSONSchemaFormRenderer(),
                 "error_class": PydanticErrorList,
             }
         )
