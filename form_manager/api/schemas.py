@@ -21,9 +21,9 @@ class FormDefinitionSchema(Schema):
     model_config = ConfigDict(populate_by_name=True)
 
     id: int
-    code: str
-    title: str
-    version: str
+    family: str
+    name: str
+    variant: str
     description: Optional[str] = None
     form_schema: dict = Field(..., alias="schema")
     schema_class: str
@@ -35,9 +35,9 @@ class FormDefinitionListSchema(Schema):
     """Simplified schema for listing forms."""
 
     id: int
-    code: str
-    title: str
-    version: str
+    family: str
+    name: str
+    variant: str
     description: Optional[str] = None
     is_active: bool
 
@@ -60,8 +60,8 @@ class FormEntryListSchema(Schema):
     """Simplified schema for listing entries."""
 
     id: int
-    form_definition_code: str
-    form_definition_title: str
+    form_definition_name: str
+    form_definition_variant: str
     organization_name: str
     version_number: int
     status: str

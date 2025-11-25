@@ -61,17 +61,17 @@ def check_view_permission(request, entry: FormEntry) -> None:
 @api.get("/forms/definitions", response=List[FormDefinitionListSchema], tags=["Forms"])
 def list_form_definitions(request):
     """List all active form definitions."""
-    return FormDefinition.objects.filter(is_active=True).order_by("title")
+    return FormDefinition.objects.filter(is_active=True).order_by("name", "variant")
 
 
 @api.get(
-    "/forms/definitions/{code}",
+    "/forms/definitions/{definition_id}",
     response=FormDefinitionSchema,
     tags=["Forms"],
 )
-def get_form_definition(request, code: str):
-    """Get a specific form definition by code."""
-    definition = get_object_or_404(FormDefinition, code=code, is_active=True)
+def get_form_definition(request, definition_id: int):
+    """Get a specific form definition by ID."""
+    definition = get_object_or_404(FormDefinition, pk=definition_id, is_active=True)
     return definition
 
 
@@ -82,7 +82,7 @@ def get_form_definition(request, code: str):
 def list_form_entries(
     request,
     status: Optional[str] = None,
-    form_code: Optional[str] = None,
+    form_name: Optional[str] = None,
     include_archived: bool = False,
 ):
     """
@@ -90,7 +90,7 @@ def list_form_entries(
 
     Filters:
     - status: Filter by entry status (draft, submitted, amended, archived)
-    - form_code: Filter by form definition code
+    - form_name: Filter by form definition name
     - include_archived: Include archived entries (default: false)
     """
     org = get_user_organization(request)
@@ -105,16 +105,16 @@ def list_form_entries(
     if status:
         queryset = queryset.filter(status=status)
 
-    if form_code:
-        queryset = queryset.filter(form_definition__code=form_code)
+    if form_name:
+        queryset = queryset.filter(form_definition__name=form_name)
 
     entries = queryset.order_by("-updated_at")
 
     return [
         {
-            "id": entry.pk,
-            "form_definition_code": entry.form_definition.code,
-            "form_definition_title": entry.form_definition.title,
+            "id": entry.pk,  # Use pk (primary key) - works with type checker
+            "form_definition_name": entry.form_definition.name,
+            "form_definition_variant": str(entry.form_definition.variant),
             "organization_name": entry.organization.name,
             "version_number": entry.version_number,
             "status": entry.status,
