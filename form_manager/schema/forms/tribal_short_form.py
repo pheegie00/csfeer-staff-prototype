@@ -226,8 +226,6 @@ class TribalShortForm(BaseFormSchema):
                     FieldBlock(field_name="phone"),
                     FieldBlock(field_name="email"),
                     FieldBlock(field_name="contact_title"),
-                    FieldBlock(field_name="contact_title"),
-                    FieldBlock(field_name="contact_title"),
                 ],
             ),
             SectionBlock(

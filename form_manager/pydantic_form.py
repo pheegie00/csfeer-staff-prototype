@@ -19,7 +19,7 @@ class PydanticErrorList(ErrorList):
     template_name_ul = "form_manager/forms/error_list_ul.html"
 
 
-class PydantiJSONSchemaFormRenderer(TemplatesSetting):
+class PydanticJSONSchemaFormRenderer(TemplatesSetting):
     """A custom renderer"""
 
     form_template_name = "form_manager/forms/form.html"
@@ -69,12 +69,14 @@ class PyddanticDeclarativeFieldsMetaclass(DeclarativeFieldsMetaclass):
                     required=required,
                     help_text=help_text,
                     max_length=max_length,
+                    template_name=PydanticJSONSchemaFormRenderer.field_template_name,  # pyright: ignore
                 )
             elif field_type == "EmailField":
                 field_object = forms.EmailField(
                     label=label,
                     required=required,
                     help_text=help_text,
+                    template_name=PydanticJSONSchemaFormRenderer.field_template_name,  # pyright: ignore
                 )
             elif field_type == "PhoneNumberField":
                 field_object = forms.CharField(
@@ -83,12 +85,14 @@ class PyddanticDeclarativeFieldsMetaclass(DeclarativeFieldsMetaclass):
                     help_text=help_text,
                     max_length=max_length,
                     min_length=min_length,
+                    template_name=PydanticJSONSchemaFormRenderer.field_template_name,  # pyright: ignore
                 )
             elif field_type == "CurrencyField":
                 field_object = forms.FloatField(
                     label=label,
                     required=required,
                     help_text=help_text,
+                    template_name=PydanticJSONSchemaFormRenderer.field_template_name,  # pyright: ignore
                 )
             elif field_type == "TextareaField":
                 field_object = forms.CharField(
@@ -96,6 +100,7 @@ class PyddanticDeclarativeFieldsMetaclass(DeclarativeFieldsMetaclass):
                     required=required,
                     help_text=help_text,
                     widget=forms.Textarea,
+                    template_name=PydanticJSONSchemaFormRenderer.field_template_name,  # pyright: ignore
                 )
             elif field_type == "ComputedField":
                 field_object = forms.CharField(
@@ -103,6 +108,7 @@ class PyddanticDeclarativeFieldsMetaclass(DeclarativeFieldsMetaclass):
                     required=required,
                     help_text=help_text,
                     disabled=True,
+                    template_name=PydanticJSONSchemaFormRenderer.field_template_name,  # pyright: ignore
                 )
             else:
                 logger.warning(f"Unsupported field type: {field_type} for field {name}")
@@ -117,11 +123,12 @@ class PydanticJSONSchemaForm(forms.BaseForm, metaclass=PyddanticDeclarativeField
     """A Django form generated from a Pydantic json schema"""
 
     _schema = None
+    default_renderer = PydanticJSONSchemaFormRenderer
 
     def __init__(self, *args, **kwargs):
         kwargs.update(
             {
-                "renderer": PydantiJSONSchemaFormRenderer(),
+                # "renderer": PydanticJSONSchemaFormRenderer(),
                 "error_class": PydanticErrorList,
             }
         )
