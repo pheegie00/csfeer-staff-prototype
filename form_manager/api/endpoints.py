@@ -1,0 +1,180 @@
+"""
+REST API endpoints for form_manager using Django Ninja.
+Read-only (GET) endpoints only.
+"""
+
+from typing import List, Optional
+
+from django.shortcuts import get_object_or_404
+from ninja import NinjaAPI
+from ninja.errors import HttpError
+from ninja.security import django_auth
+from ninja.security.http import HttpAuthBase
+
+from ..models import (
+    FormAuditDetail,
+    FormAuditTrail,
+    FormDefinition,
+    FormEntry,
+    OrganizationProfile,
+)
+from ..utils import user_can_view
+from .schemas import (
+    AuditDetailSchema,
+    AuditTrailSchema,
+    FormDefinitionListSchema,
+    FormDefinitionSchema,
+    FormEntryListSchema,
+    FormEntrySchema,
+    OrganizationSchema,
+)
+
+# Initialize API with Django session authentication
+api = NinjaAPI(
+    title="Form Manager API",
+    version="1.0.0",
+    description="Read-only API for accessing form definitions, entries, and audit trails",
+    auth=django_auth,
+)
+
+
+# ==================== Helper Functions ====================
+
+
+def get_user_organization(request) -> OrganizationProfile:
+    """Get the user's organization or raise 404."""
+    org = OrganizationProfile.objects.filter(userorganizationmembership__user=request.user).first()
+    if not org:
+        raise HttpError(404, "No organization found for user")
+    return org
+
+
+def check_view_permission(request, entry: FormEntry) -> None:
+    """Check if user can view the entry."""
+    if not user_can_view(request.user, entry.organization):
+        raise HttpError(403, "Permission denied")
+
+
+# ==================== Form Definitions Endpoints ====================
+
+
+@api.get("/forms/definitions", response=List[FormDefinitionListSchema], tags=["Forms"])
+def list_form_definitions(request):
+    """List all active form definitions."""
+    return FormDefinition.objects.filter(is_active=True).order_by("title")
+
+
+@api.get(
+    "/forms/definitions/{code}",
+    response=FormDefinitionSchema,
+    tags=["Forms"],
+)
+def get_form_definition(request, code: str):
+    """Get a specific form definition by code."""
+    definition = get_object_or_404(FormDefinition, code=code, is_active=True)
+    return definition
+
+
+# ==================== Form Entries Endpoints ====================
+
+
+@api.get("/forms/entries", response=List[FormEntryListSchema], tags=["Forms"])
+def list_form_entries(
+    request,
+    status: Optional[str] = None,
+    form_code: Optional[str] = None,
+    include_archived: bool = False,
+):
+    """
+    List form entries for the user's organization.
+
+    Filters:
+    - status: Filter by entry status (draft, submitted, amended, archived)
+    - form_code: Filter by form definition code
+    - include_archived: Include archived entries (default: false)
+    """
+    org = get_user_organization(request)
+
+    queryset = FormEntry.objects.filter(organization=org).select_related(
+        "form_definition", "organization"
+    )
+
+    if not include_archived:
+        queryset = queryset.filter(is_archived=False)
+
+    if status:
+        queryset = queryset.filter(status=status)
+
+    if form_code:
+        queryset = queryset.filter(form_definition__code=form_code)
+
+    entries = queryset.order_by("-updated_at")
+
+    return [
+        {
+            "id": entry.pk,
+            "form_definition_code": entry.form_definition.code,
+            "form_definition_title": entry.form_definition.title,
+            "organization_name": entry.organization.name,
+            "version_number": entry.version_number,
+            "status": entry.status,
+            "submitted_at": entry.submitted_at,
+            "updated_at": entry.updated_at,
+            "locked": entry.locked,
+        }
+        for entry in entries
+    ]
+
+
+@api.get("/forms/entries/{entry_id}", response=FormEntrySchema, tags=["Forms"])
+def get_form_entry(request, entry_id: int):
+    """Get a specific form entry with full details."""
+    entry = get_object_or_404(
+        FormEntry.objects.select_related("form_definition", "organization"),
+        pk=entry_id,
+    )
+    check_view_permission(request, entry)
+    return entry
+
+
+# ==================== Audit Trail Endpoints ====================
+
+
+@api.get(
+    "/forms/entries/{entry_id}/audit-trail",
+    response=List[AuditTrailSchema],
+    tags=["Forms"],
+)
+def get_audit_trail(request, entry_id: int):
+    """Get audit trail for a form entry."""
+    entry = get_object_or_404(FormEntry, pk=entry_id)
+    check_view_permission(request, entry)
+
+    audits = FormAuditTrail.objects.filter(form_entry=entry).order_by("-timestamp")
+
+    return audits
+
+
+@api.get(
+    "/forms/entries/{entry_id}/audit-details",
+    response=List[AuditDetailSchema],
+    tags=["Forms"],
+)
+def get_audit_details(request, entry_id: int):
+    """Get detailed field-level changes for a form entry."""
+    entry = get_object_or_404(FormEntry, pk=entry_id)
+    check_view_permission(request, entry)
+
+    details = FormAuditDetail.objects.filter(form_entry=entry).order_by("-timestamp")
+
+    return details
+
+
+# ==================== Organization Endpoint ====================
+
+
+@api.get("/forms/organizations/me", response=OrganizationSchema, tags=["Forms"])
+def get_my_organization(request):
+    """Get the current user's organization."""
+    org = get_user_organization(request)
+    return org
