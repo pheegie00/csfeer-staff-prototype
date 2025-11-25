@@ -8,9 +8,7 @@ from typing import Annotated, Any
 from pydantic import (
     EmailStr,
     Field,
-    WithJsonSchema,
 )
-from pydantic.config import JsonDict
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
 

@@ -4,7 +4,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .models import FormAuditTrail, FormDefinition, FormEntry, OrganizationProfile
-from .schema.forms import BaseFormSchema
 from .utils import (
     build_dynamic_form,
     reconstruct_state,
@@ -25,12 +24,12 @@ def form_list(request):
 
 
 @login_required
-def form_start(request, code: str):
+def form_start(request, form_id: str):
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=request.user).first()
     if not org or not user_can_edit(request.user, org):
         messages.error(request, "No permission to create forms.")
         return redirect("form_list")
-    form_def = get_object_or_404(FormDefinition, code=code, is_active=True)
+    form_def = get_object_or_404(FormDefinition, id=form_id, is_active=True)
     last = (
         FormEntry.objects.filter(organization=org, form_definition=form_def)
         .order_by("-version_number")

@@ -1,9 +1,12 @@
 """Base form class definitions"""
 
-from typing import Any, Generic, Optional, Tuple, TypeVar
+from enum import Enum
+from typing import Annotated, Any, Generic, Optional, Tuple, TypeVar
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
+from pydantic_extra_types.semantic_version import SemanticVersion
 
+from ...constants import AllFormNames, FormFamilies
 from ..layout import FieldBlock, SectionBlock
 
 
@@ -34,18 +37,40 @@ FormId = TypeVar("FormId", bound=str)
 FormVersion = TypeVar("FormVersion", bound=str)
 
 
+class SchemaValidationError(Exception):
+    form_class = None
+
+    def __init__(self, message: str, form_class: Optional[object] = None):
+        self.form_class = form_class
+        super().__init__(message)
+
+
 class BaseFormSchema(
     BaseModel, Generic[FormFields, FormId, FormVersion], arbitrary_types_allowed=True
 ):
     """The official schema for CSFEER form definitions."""
 
-    id: FormId = Field(description="A unique slug for the form.")
-    name: str = Field(description="The name of the form")
-    version: FormVersion = Field(description="The form version")
+    family: FormFamilies = Field(description="The family of the form")
+    name: Annotated[AllFormNames, Field(description="The name of the form")]
+    variant: Annotated[
+        SemanticVersion, Field(description="The version of the form", default="1.0.0")
+    ]
     form_fields: FormFields = Field(
         description="Form field definitions. This should be a class that inherits BaseFormFields."
     )
     ui: list[SectionBlock | FieldBlock] = Field(description="The Form UI definition")
+
+    @classmethod
+    def model_json_schema(cls, *args, **kwargs):
+        """Overload this method to perform some schema validation."""
+
+        for field in ["family", "name", "variant"]:
+            if not cls.model_fields[field].frozen:
+                raise SchemaValidationError(
+                    f"Field {field} in {cls.__name__} must have frozen=True", form_class=cls
+                )
+
+        return super().model_json_schema()
 
     @classmethod
     def dump_form_fields_from_json_schema(

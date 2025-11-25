@@ -18,12 +18,9 @@
           <div class="grid-row grid-gap">
             {% for d in definitions %}
               <div class="grid-col-12 tablet:grid-col-6 desktop:grid-col-4">
-                <c-card title="{{ d.title }}">
-                  <div class="margin-bottom-2">
-                    <span class="usa-tag bg-info-lighter text-ink">Version {{ d.version }}</span>
-                  </div>
+                <c-card title="{{ d.name }}">
                   <div class="padding-bottom-1">
-                    <a href="{% url 'form_start' d.code %}" class="usa-button width-full display-flex flex-align-center flex-justify-center">
+                    <a href="{% url 'form_start' d.id %}" class="usa-button width-full display-flex flex-align-center flex-justify-center">
                       <img src="{% static 'frontend/uswds/img/usa-icons/add_circle.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="" style="filter: brightness(0) invert(1);">
                       Start New Form
                     </a>
