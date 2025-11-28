@@ -1,39 +1,40 @@
 <c-vars
-    id=""
+    input_type=""
+    accepted_types=""
     label=""
-    required=""
+    isMultiple=""
     error=""
 />
 
 <h3 class="site-preview-heading">Input accepts a single file</h3>
 <div class="usa-form-group">
-  <label class="usa-label" for="file-input-single"
-    >Input accepts a single file</label
+  <label class="usa-label" for="file-input-{{ input_type }}"
+    >{{ label }}</label
   >
   <input
-    id="file-input-single"
+    id="file-input-{{ input_type }}"
     class="usa-file-input"
     type="file"
-    name="file-input-single"
+    name="file-input-{{ input_type }}"
   />
 </div>
 
 <h3 class="site-preview-heading">Input accepts only specific file types</h3>
 <div class="usa-form-group">
-  <label class="usa-label" for="file-input-specific"
-    >Input accepts only specific file types</label
+  <label class="usa-label" for="file-input-{{ input_type }}"
+    >{{ label }}</label
   >
-  <span class="usa-hint" id="file-input-specific-hint"
+  <span class="usa-hint" id="file-input-{{ input_type }}-hint"
     >Select PDF or TXT files</span
   >
   <input
-    id="file-input-specific"
+    id="file-input-{{ input_type }}"
     class="usa-file-input"
     type="file"
-    name="file-input-specific"
-    aria-describedby="file-input-specific-hint"
-    accept=".pdf,.txt"
-    multiple="multiple"
+    name="file-input-{{ input_type }}"
+    aria-describedby="file-input-{{ input_type }}-hint"
+    accept="{{accepted_types}}"
+    multiple="{$ if isMultiple == 'true' $}multiple{$ endif $}"
   />
 </div>
 
