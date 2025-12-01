@@ -9,7 +9,7 @@ from form_manager.schema.layout import FieldBlock, SectionBlock
 
 from ...constants import CSBGAnnualReportForms, FormFamilies
 from ..fields import (
-    ComputedField,
+    CalculatedCurrencyField,
     CurrencyField,
     EmailField,
     PhoneNumberField,
@@ -178,7 +178,7 @@ class TribalShortFormFields(BaseFormFields):
     ]
 
     total_expenditures: Annotated[
-        ComputedField,
+        CalculatedCurrencyField,
         Field(
             json_schema_extra={
                 "fields": [
@@ -204,7 +204,7 @@ class TribalShortForm(BaseFormSchema):
     name: CSBGAnnualReportForms = Field(
         CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT, frozen=True
     )
-    variant: SemanticVersion = Field(SemanticVersion(3, 0, 0), frozen=True)
+    variant: SemanticVersion = Field(SemanticVersion(3, 0, 1), frozen=True)
     form_fields: TribalShortFormFields
     ui: UIDefinition = Field(
         frozen=True,

@@ -81,8 +81,12 @@ EmailField = Annotated[
 BooleanField = Annotated[bool, Field()]
 
 
-ComputedField = Annotated[
-    BaseFloatField, SpecificTypedField("ComputedField", json_schema_extra={"fields": []})
+CalculatedField = Annotated[
+    BaseFloatField, SpecificTypedField("CalculatedField", json_schema_extra={"fields": []})
+]
+
+CalculatedCurrencyField = Annotated[
+    BaseFloatField, SpecificTypedField("CalculatedCurrencyField", json_schema_extra={"fields": []})
 ]
 
 ChoiceField = Annotated[Enum, Field()]
@@ -96,5 +100,6 @@ ALL_FIELD_TYPES = (
     | EmailField
     | BooleanField
     | ChoiceField
-    | ComputedField
+    | CalculatedCurrencyField
+    | CalculatedField
 )

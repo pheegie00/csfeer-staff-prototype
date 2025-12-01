@@ -15,15 +15,27 @@
       <c-textarea
         id="{{ field.id_for_label }}"
         name="{{ field.html_name }}"
-        required="{{field.field.required }}"
         value="{% if field.initial %}{{ field.initial }}{% endif %}"
         readonly="{% if field.field.disabled %}true{% endif %}"
+      />
+    {% elif field.widget_type == "currency" %}
+      <c-currency-input
+        id="{{ field.id_for_label }}"
+        name="{{ field.html_name }}"
+        value="{% if field.initial %}{{ field.initial }}{% endif %}"
+        readonly="{% if field.field.disabled %}true{% endif %}"
+      />
+    {% elif field.widget_type == "calculatedcurrency" %}
+      <c-currency-input
+        id="{{ field.id_for_label }}"
+        name="{{ field.html_name }}"
+        value="{% if field.initial %}{{ field.initial }}{% endif %}"
+        readonly="true"
       />
     {% else %}
       <c-text-input
           id="{{ field.id_for_label }}"
           name="{{ field.html_name }}"
-          required="{{ field.field.required }}"
           type="{{ field.type|default:'text'}}"
           value="{% if field.initial %}{{ field.initial }}{% endif %}"
           readonly="{% if field.field.disabled %}true{% endif %}"

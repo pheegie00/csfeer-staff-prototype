@@ -5,7 +5,7 @@ import logging
 from inspect import isclass
 
 from .models import FormAuditDetail, UserOrganizationMembership
-from .pydantic_form import PydanticJSONSchemaForm
+from .rendering.pydantic_form import PydanticJSONSchemaForm
 from .schema import forms as form_schemas
 
 logger = logging.getLogger(__name__)

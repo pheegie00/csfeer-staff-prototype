@@ -6,7 +6,8 @@ from django.forms.forms import DeclarativeFieldsMetaclass
 from django.forms.renderers import TemplatesSetting
 from django.forms.utils import ErrorList
 
-from .schema.forms.base import BaseFormSchema
+from ..schema.forms.base import BaseFormSchema
+from .utils import generate_django_form_field_from_schema
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,7 @@ class PyddanticDeclarativeFieldsMetaclass(DeclarativeFieldsMetaclass):
 
     @classmethod
     def _generate_django_form_fields(cls, _schema: dict | None):
+        """Loop over the JSON schema fields and generate django form fields for rendering."""
         form_attrs = {}
 
         form_fields, required_fields = BaseFormSchema.dump_form_fields_from_json_schema(_schema)
@@ -53,67 +55,14 @@ class PyddanticDeclarativeFieldsMetaclass(DeclarativeFieldsMetaclass):
             return form_attrs
 
         for name, field in form_fields.items():
-            # Build the field
-            label = field.get("title", name)
-            required = name in required_fields
-            help_text = field.get("description", "")
-            max_length = field.get("maxLength")
-            min_length = field.get("minLength")
-            field_type = field.get("fieldType", None)
-            field_object = None
-
-            if field_type == "TextField":
-                field_object = forms.CharField(
-                    label=label,
-                    required=required,
-                    help_text=help_text,
-                    max_length=max_length,
-                    template_name=PydanticJSONSchemaFormRenderer.field_template_name,  # pyright: ignore
-                )
-            elif field_type == "EmailField":
-                field_object = forms.EmailField(
-                    label=label,
-                    required=required,
-                    help_text=help_text,
-                    template_name=PydanticJSONSchemaFormRenderer.field_template_name,  # pyright: ignore
-                )
-            elif field_type == "PhoneNumberField":
-                field_object = forms.CharField(
-                    label=label,
-                    required=required,
-                    help_text=help_text,
-                    max_length=max_length,
-                    min_length=min_length,
-                    template_name=PydanticJSONSchemaFormRenderer.field_template_name,  # pyright: ignore
-                )
-            elif field_type == "CurrencyField":
-                field_object = forms.FloatField(
-                    label=label,
-                    required=required,
-                    help_text=help_text,
-                    template_name=PydanticJSONSchemaFormRenderer.field_template_name,  # pyright: ignore
-                )
-            elif field_type == "TextareaField":
-                field_object = forms.CharField(
-                    label=label,
-                    required=required,
-                    help_text=help_text,
-                    widget=forms.Textarea,
-                    template_name=PydanticJSONSchemaFormRenderer.field_template_name,  # pyright: ignore
-                )
-            elif field_type == "ComputedField":
-                field_object = forms.CharField(
-                    label=label,
-                    required=False,
-                    help_text=help_text,
-                    disabled=True,
-                    template_name=PydanticJSONSchemaFormRenderer.field_template_name,  # pyright: ignore
-                )
-            else:
-                logger.warning(f"Unsupported field type: {field_type} for field {name}")
+            field_object = generate_django_form_field_from_schema(
+                name, field, required=name in required_fields
+            )
 
             if field_object:
                 form_attrs[name] = field_object
+            else:
+                logger.warning(f"Unsupported field type: {field.get("fieldType")} for field {name}")
 
         return form_attrs
 
