@@ -1,0 +1,24 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Radio Button Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+        <c-fieldset legend="{{ variant.legend }}" legend_type="{{ variant.legend_type }}" required="{{ variant.required }}">
+            {% for item in variant.items %}
+            <c-radio-button
+                id="{{ item.id }}"
+                label="{{ item.label }}"
+                label_description="{{ item.label_description }}"
+                radio_type="{{ item.radio_type }}"
+                name="{{ item.name }}"
+                value="{{ item.value }}"
+                checked="{{ item.checked }}"
+            />
+            {% endfor %}
+        </c-fieldset>
+    </div>
+    {% endfor %}
+</div>
