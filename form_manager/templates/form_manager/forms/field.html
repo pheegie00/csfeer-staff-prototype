@@ -13,6 +13,7 @@
 
     {% if field.widget_type == "textarea" %}
       <c-textarea
+        error="{% if field.errors %}true{% endif %}"
         id="{{ field.id_for_label }}"
         name="{{ field.html_name }}"
         value="{% if field.initial %}{{ field.initial }}{% endif %}"
@@ -22,15 +23,17 @@
       <c-currency-input
         id="{{ field.id_for_label }}"
         name="{{ field.html_name }}"
-        value="{% if field.initial %}{{ field.initial }}{% endif %}"
+        value="{% if field.initial %}{{ field.initial|floatformat:2 }}{% endif %}"
         readonly="{% if field.field.disabled %}true{% endif %}"
+        error="{% if field.errors %}true{% endif %}"
       />
     {% elif field.widget_type == "calculatedcurrency" %}
       <c-currency-input
         id="{{ field.id_for_label }}"
         name="{{ field.html_name }}"
-        value="{% if field.initial %}{{ field.initial }}{% endif %}"
+        value="{% if field.initial %}{{ field.initial|floatformat:2 }}{% endif %}"
         readonly="true"
+        error="{% if field.errors %}true{% endif %}"
       />
     {% else %}
       <c-text-input
@@ -39,6 +42,7 @@
           type="{{ field.type|default:'text'}}"
           value="{% if field.initial %}{{ field.initial }}{% endif %}"
           readonly="{% if field.field.disabled %}true{% endif %}"
+          error="{% if field.errors %}true{% endif %}"
       />
     {% endif %}
 </c-form-group>
