@@ -6,6 +6,12 @@ PATH := /opt/homebrew/bin:/usr/local/bin:$(PATH)
 create-erds:
 	$(UV) run python manage.py generate_er_diagram
 
+migrate:
+	$(UV) run python manage.py migrate
+
+load-form:
+	$(UV) run python manage.py load_initial_forms
+	
 start:
 	docker compose up -d
 
