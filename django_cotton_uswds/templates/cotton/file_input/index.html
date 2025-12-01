@@ -1,93 +1,35 @@
 <c-vars
     input_type=""
-    accepted_types=""
+    hint=""
+    accept=""
     label=""
-    isMultiple=""
-    error=""
+    multiple=""
+    error_message=""
+    disabled=""
 />
 
-<h3 class="site-preview-heading">Input accepts a single file</h3>
-<div class="usa-form-group">
-  <label class="usa-label" for="file-input-{{ input_type }}"
+<div class="usa-form-group {% if input_type == 'error' %} usa-form-group--error{% endif %}">
+  <label class="usa-label {% if input_type == 'error' %} usa-label--error{% endif %}" for="file-input-{{ input_type }}"
     >{{ label }}</label
   >
-  <input
-    id="file-input-{{ input_type }}"
-    class="usa-file-input"
-    type="file"
-    name="file-input-{{ input_type }}"
-  />
-</div>
-
-<h3 class="site-preview-heading">Input accepts only specific file types</h3>
-<div class="usa-form-group">
-  <label class="usa-label" for="file-input-{{ input_type }}"
-    >{{ label }}</label
-  >
+{% if hint %}
   <span class="usa-hint" id="file-input-{{ input_type }}-hint"
-    >Select PDF or TXT files</span
+    >{{ hint }}</span
   >
+{% endif %}
+{% if input_type == 'error' %}
+    <span class="usa-error-message" id="file-input-{{ input_type }}-alert"
+      >{{ error_message }}</span
+    >
+{% endif %}
   <input
     id="file-input-{{ input_type }}"
     class="usa-file-input"
     type="file"
     name="file-input-{{ input_type }}"
     aria-describedby="file-input-{{ input_type }}-hint"
-    accept="{{accepted_types}}"
-    multiple="{$ if isMultiple == 'true' $}multiple{$ endif $}"
-  />
-</div>
-
-<h3 class="site-preview-heading">Input accepts any kind of image</h3>
-<div class="usa-form-group">
-  <label class="usa-label" for="file-input-wildcard"
-    >Input accepts any kind of image</label
-  >
-  <span class="usa-hint" id="file-input-wildcard-hint"
-    >Select any type of image format</span
-  >
-  <input
-    id="file-input-wildcard"
-    class="usa-file-input"
-    type="file"
-    name="file-input-wildcard"
-    aria-describedby="file-input-wildcard-hint"
-    accept="image/*"
-    multiple="multiple"
-  />
-</div>
-
-<h3 class="site-preview-heading">Input accepts multiple files</h3>
-<div class="usa-form-group">
-  <label class="usa-label" for="file-input-multiple"
-    >Input accepts multiple files</label
-  >
-  <span class="usa-hint" id="file-input-multiple-hint"
-    >Select one or more files</span
-  >
-  <input
-    id="file-input-multiple"
-    class="usa-file-input"
-    type="file"
-    name="file-input-multiple"
-    aria-describedby="file-input-multiple-hint"
-    multiple="multiple"
-  />
-</div>
-
-<h3 class="site-preview-heading">Input has an error</h3>
-<div class="usa-form-group usa-form-group--error">
-  <label class="usa-label usa-label--error" for="file-input-error"
-    >Input has an error</label
-  >
-  <span class="usa-hint" id="file-input-error-hint">Select any valid file</span>
-  <span class="usa-error-message" id="file-input-error-alert"
-    >Display a helpful error message </span
-  ><input
-    id="file-input-error"
-    class="usa-file-input"
-    type="file"
-    name="file-input-error"
-    aria-describedby="file-input-error-hint"
+    accept="{{ accept }}"
+    multiple="{$ if multiple == 'true' $}multiple{$ endif $}"
+    {% if disabled %}disabled{% endif %}
   />
 </div>
