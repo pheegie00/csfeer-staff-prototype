@@ -1,0 +1,36 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Button Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+        {% for options in variant.options %}
+        <c-button 
+            text="{{ options.text }}" 
+            state="{{ options.state }}" 
+            variant="{{ options.variant }}" 
+            disabled="{{ options.disabled }}" 
+            aria_disabled="{{ options.aria_disabled }}" 
+        />
+        {% endfor %}
+    </div>
+    {% endfor %}
+    {% for variant in inverted_variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+        <div class="bg-base-darkest padding-1" style="max-width: fit-content">
+            {% for options in variant.options %}
+                <c-button 
+                    text="{{ options.text }}" 
+                    state="{{ options.state }}" 
+                    variant="{{ options.variant }}" 
+                    disabled="{{ options.disabled }}" 
+                    aria_disabled="{{ options.aria_disabled }}" 
+                />
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
