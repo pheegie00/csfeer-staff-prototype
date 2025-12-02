@@ -1,18 +1,20 @@
+from functools import lru_cache
+from typing import Any, cast
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from .models import FormAuditTrail, FormDefinition, FormEntry, OrganizationProfile
-from .utils import (
-    build_dynamic_form,
+from form_manager.models import FormAuditTrail, FormDefinition, FormEntry, OrganizationProfile
+from form_manager.utils import (
     reconstruct_state,
     record_field_diffs,
     to_jsonable,
     user_can_edit,
-    user_can_submit,
     user_can_view,
 )
+from form_manager.views.base import BaseSingleFormView, FormPermissionMixin
 
 
 @login_required
@@ -43,63 +45,88 @@ def form_start(request, form_id: str):
     return redirect("form_edit", pk=entry.pk)
 
 
-@login_required
-def form_edit(request, pk: int):
-    entry = get_object_or_404(FormEntry, pk=pk)
-    org = entry.organization
-    if entry.is_archived:
-        messages.error(request, "This entry is archived (soft deleted).")
-        return redirect("form_list")
-    if not user_can_view(request.user, org):
-        messages.error(request, "No permission to view.")
-        return redirect("form_list")
-    can_edit = user_can_edit(request.user, org) and not entry.locked
-    can_submit = user_can_submit(request.user, org) and not entry.locked
-    form = build_dynamic_form(
-        entry.form_definition, data=request.POST or None, initial=entry.data, disabled=not can_edit
-    )
-    form.is_valid()
-    if request.method == "POST" and can_edit:
-        if "save" in request.POST:
-            form.is_valid()
-            old = entry.data.copy() if entry.data else {}
-            entry.data = to_jsonable(form.cleaned_data)
-            entry.save()
-            FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="save")
-            record_field_diffs(entry, old, entry.data, user=request.user)
-            messages.success(request, "Draft saved.")
-            return redirect("form_edit", pk=pk)
-        if "submit" in request.POST and can_submit and form.is_valid():
-            old = entry.data.copy() if entry.data else {}
-            entry.data = to_jsonable(form.cleaned_data)
-            entry.status = "submitted"
+class FormEditView(BaseSingleFormView, FormPermissionMixin):
+    template_name = "forms/form_edit.html"
+
+    def save_form_entry(self, form, status=None):
+        form.is_valid()
+        entry = self.object
+        old = entry.data.copy() if entry.data else {}
+        entry.data = to_jsonable(form.cleaned_data)
+        FormAuditTrail.objects.create(form_entry=entry, user=self.request.user, action="save")
+        record_field_diffs(entry, old, entry.data, user=self.request.user)
+
+        if status:
+            entry.status = status
+
+        if status == "submitted":
             entry.submitted_at = timezone.now()
-            entry.save()
-            FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="submit")
-            record_field_diffs(entry, old, entry.data, user=request.user)
-            messages.success(request, "Submitted.")
-            return redirect("form_list")
 
-    return render(
-        request,
-        "forms/form_edit.html",
-        {
-            "form": form,
-            "entry": entry,
-            "can_edit": can_edit,
-            "can_submit": can_submit,
-        },
-    )
+        entry.save()
 
-
-@login_required
-def form_preview(request, pk: int):
-    entry = get_object_or_404(FormEntry, pk=pk)
-    if not user_can_view(request.user, entry.organization):
-        messages.error(request, "No permission to view.")
+    def form_valid(self, form):
+        """Submits the final version of the form"""
+        self.save_form_entry(form, status="submitted")
+        messages.success(self.request, "Submitted.")
         return redirect("form_list")
-    form = build_dynamic_form(entry.form_definition, initial=entry.data, disabled=True)
-    return render(request, "forms/form_preview.html", {"form": form, "entry": entry})
+
+    def form_invalid(self, form):
+        """Always save the form data as a draft if the form isn't valid yet."""
+        self.save_form_entry(
+            form,
+        )
+        if "save" in self.request.POST:
+            messages.success(self.request, "Draft saved.")
+        else:
+            messages.error(self.request, "Could not submit form due to errors.")
+
+        return super().form_invalid(form)
+
+    def post(self, request, *args, **kwargs):
+        """Overload the post method to immediately call form_invalid if we're saving a draft."""
+
+        self.object = cast(FormEntry, self.get_object())
+
+        form = self.get_form()
+
+        if self.is_saving_draft():
+            return self.form_invalid(form)
+
+        return super().post(request, *args, **kwargs)
+
+    def is_saving_draft(self) -> bool:
+        """Return True if a draft is being saved."""
+        return "save" in self.request.POST
+
+    def is_submitting(self):
+        """Return True if a final form submission is being saved."""
+        return "submit" in self.request.POST
+
+    def has_permission(self) -> bool:
+
+        if self.object.locked:
+            return False
+
+        if self.is_saving_draft() and not self.can_edit():
+            return False
+
+        if self.is_submitting() and not self.can_submit():
+            return False
+
+        return True
+
+
+class FormPreviewView(BaseSingleFormView, FormPermissionMixin):
+    template_name = "forms/form_preview.html"
+    context_object_name = "entry"
+
+    def has_permission(self) -> bool:
+
+        if not self.can_view():
+            messages.error(self.request, "No permission to view.")
+            return False
+
+        return True
 
 
 @login_required
@@ -123,22 +150,38 @@ def form_history(request, pk: int):
     )
 
 
-@login_required
-def form_snapshot(request, pk: int, audit_id: int):
-    entry = get_object_or_404(FormEntry, pk=pk)
-    if not user_can_view(request.user, entry.organization):
-        messages.error(request, "No permission to view.")
-        return redirect("form_list")
-    audit = get_object_or_404(FormAuditTrail, pk=audit_id, form_entry=entry)
-    data = reconstruct_state(entry, upto=audit.timestamp)
-    form = build_dynamic_form(entry.form_definition, initial=data, disabled=True)
-    context = {
-        "form": form,
-        "entry": entry,
-        "snapshot_at": audit.timestamp,
-        "snapshot_action": audit.action,
-    }
-    return render(request, "forms/form_preview.html", context)
+class FormSnapshotView(BaseSingleFormView, FormPermissionMixin):
+    template_name = "forms/form_preview.html"
+    context_object_name = "entry"
+
+    def has_permission(self) -> bool:
+
+        if not self.can_view():
+            messages.error(self.request, "No permission to view.")
+            return False
+
+        return True
+
+    def get_initial(self):
+        audit = self.get_audit()
+        return reconstruct_state(self.object, upto=audit.timestamp)
+
+    @lru_cache
+    def get_audit(self):
+
+        audit_id = self.kwargs["audit_id"]
+        return get_object_or_404(FormAuditTrail, pk=audit_id, form_entry=self.object)
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        audit = self.get_audit()
+        context.update(
+            {
+                "snapshot_at": audit.timestamp,
+                "snapshot_action": audit.action,
+            }
+        )
+        return context
 
 
 @login_required

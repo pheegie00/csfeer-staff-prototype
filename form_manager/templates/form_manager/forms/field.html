@@ -11,19 +11,23 @@
     </div>
     {% endif %}
 
+    {% if field.errors %}
+    <div class="usa-error-message">{{ field.errors.0 }}</div>
+    {% endif %}
+
     {% if field.widget_type == "textarea" %}
       <c-textarea
         error="{% if field.errors %}true{% endif %}"
         id="{{ field.id_for_label }}"
         name="{{ field.html_name }}"
-        value="{% if field.initial %}{{ field.initial }}{% endif %}"
+        value="{% if field.value %}{{ field.value }}{% endif %}"
         readonly="{% if field.field.disabled %}true{% endif %}"
       />
     {% elif field.widget_type == "currency" %}
       <c-currency-input
         id="{{ field.id_for_label }}"
         name="{{ field.html_name }}"
-        value="{% if field.initial %}{{ field.initial|floatformat:2 }}{% endif %}"
+        value="{{ field.value|floatformat:2 }}"
         readonly="{% if field.field.disabled %}true{% endif %}"
         error="{% if field.errors %}true{% endif %}"
       />
@@ -31,7 +35,7 @@
       <c-currency-input
         id="{{ field.id_for_label }}"
         name="{{ field.html_name }}"
-        value="{% if field.initial %}{{ field.initial|floatformat:2 }}{% endif %}"
+        value="{{ field.value|floatformat:2 }}"
         readonly="true"
         error="{% if field.errors %}true{% endif %}"
       />
@@ -40,7 +44,7 @@
           id="{{ field.id_for_label }}"
           name="{{ field.html_name }}"
           type="{{ field.type|default:'text'}}"
-          value="{% if field.initial %}{{ field.initial }}{% endif %}"
+          value="{% if field.value %}{{ field.value }}{% endif %}"
           readonly="{% if field.field.disabled %}true{% endif %}"
           error="{% if field.errors %}true{% endif %}"
       />

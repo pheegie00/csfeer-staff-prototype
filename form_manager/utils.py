@@ -5,7 +5,6 @@ import logging
 from inspect import isclass
 
 from .models import FormAuditDetail, UserOrganizationMembership
-from .rendering.pydantic_form import PydanticJSONSchemaForm
 from .schema import forms as form_schemas
 
 logger = logging.getLogger(__name__)
@@ -44,17 +43,6 @@ def reconstruct_state(entry, upto=None):
     for d in qs:
         state[d.field_name] = try_parse_json(d.new_value)
     return state
-
-
-def build_dynamic_form(form_definition, data=None, initial=None, disabled=False):
-    FormClass = type("DynamicForm", (PydanticJSONSchemaForm,), {"_schema": form_definition.schema})
-
-    form = FormClass(data=data, initial=initial)
-    if disabled:
-        for f in form.fields.values():
-            f.disabled = True
-
-    return form
 
 
 def get_user_role(user, organization):
