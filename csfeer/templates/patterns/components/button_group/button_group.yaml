@@ -1,0 +1,10 @@
+name: Button Group
+context:
+  default_variant:            
+    - title: "Button Group"
+      control_id: "button-group-1"
+      label_title: "This is a button group"
+  segemented_variant:            
+    - title: "Button Group"
+      control_id: "button-group-1"
+      label_title: "This is a button group"

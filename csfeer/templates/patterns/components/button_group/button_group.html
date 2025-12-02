@@ -1,0 +1,20 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Button Group Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-button-group>
+            <c-button-group.button-group-item>
+                <a href="#" class="usa-button usa-button--outline">Back</a>
+            </c-button-group.button-group-item>
+            <c-button-group.button-group-item>
+                <button type="button" class="usa-button">Continue</button>
+            </c-button-group.button-group-item>
+        </c-button-group>
+    </div>
+    {% endfor %}
+</div>
