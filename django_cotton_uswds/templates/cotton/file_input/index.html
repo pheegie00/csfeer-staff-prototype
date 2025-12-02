@@ -1,35 +1,18 @@
 <c-vars
-    input_type=""
-    hint=""
+    file_type=""
+    name=""
     accept=""
-    label=""
     multiple=""
-    error_message=""
     disabled=""
 />
 
-<div class="usa-form-group {% if input_type == 'error' %} usa-form-group--error{% endif %}">
-  <label class="usa-label {% if input_type == 'error' %} usa-label--error{% endif %}" for="file-input-{{ input_type }}"
-    >{{ label }}</label
-  >
-{% if hint %}
-  <span class="usa-hint" id="file-input-{{ input_type }}-hint"
-    >{{ hint }}</span
-  >
-{% endif %}
-{% if input_type == 'error' %}
-    <span class="usa-error-message" id="file-input-{{ input_type }}-alert"
-      >{{ error_message }}</span
-    >
-{% endif %}
-  <input
-    id="file-input-{{ input_type }}"
-    class="usa-file-input"
-    type="file"
-    name="file-input-{{ input_type }}"
-    aria-describedby="file-input-{{ input_type }}-hint"
-    accept="{{ accept }}"
-    multiple="{$ if multiple == 'true' $}multiple{$ endif $}"
-    {% if disabled %}disabled{% endif %}
-  />
-</div>
+<input
+  id="file-input-{{ file_type }}"
+  class="usa-file-input"
+  type="file"
+  name="{{ name }}"
+  aria-describedby="file-input-{{ file_type }}-hint"
+  accept="{{ accept }}"
+  multiple="{$ if multiple == 'true' $}multiple{$ endif $}"
+  {% if disabled %}disabled{% endif %}
+/>

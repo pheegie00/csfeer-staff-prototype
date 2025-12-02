@@ -1,6 +1,6 @@
 Example usage:
 
-Must use inside of <c-form-group>
+Must use inside of c-form-group
 
 input_type options: single | multiple | specific | wildcard | error
 

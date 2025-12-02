@@ -4,16 +4,15 @@
     <h1>File Input Component</h1>
     {% for variant in variants %}
     <div class="component-variant">
-        <c-form-group>
         <h2 class="variant-title">{{ variant.title }}</h2>
+        <c-form-group error="{{ variant.error }}">
+            <span class="usa-hint" id="file-input-hint">{{ variant.hint }}</span>
             <c-file-input
-                input_type="{{ variant.input_type }}"
-                label="{{ variant.label }}"
-                hint="{{ variant.hint }}"
+                file_type="{{ variant.file_type }}"
+                name="{{ variant.name }}"
                 disabled="{{ variant.disabled }}"
                 accept="{{ variant.accept }}"
                 multiple="{{ variant.multiple }}"
-                error_message="{{ variant.error_message }}"
             />
         </c-form-group>
         </div>
