@@ -78,26 +78,30 @@ def get_form_definition(request, definition_id: int):
 # ==================== Form Entries Endpoints ====================
 
 
-@api.get("/forms/entries", response=List[FormEntryListSchema], tags=["Forms"])
-def list_form_entries(
+@api.get(
+    "/forms/definitions/{definition_id}/entries", response=List[FormEntryListSchema], tags=["Forms"]
+)
+def list_form_entries_for_definition(
     request,
+    definition_id: int,
     status: Optional[str] = None,
-    form_name: Optional[str] = None,
     include_archived: bool = False,
 ):
     """
-    List form entries for the user's organization.
+    List form entries for a specific form definition within the user's organization.
 
     Filters:
     - status: Filter by entry status (draft, submitted, amended, archived)
-    - form_name: Filter by form definition name
     - include_archived: Include archived entries (default: false)
     """
+    # Ensure the form definition exists and is active
+    get_object_or_404(FormDefinition, pk=definition_id, is_active=True)
+
     org = get_user_organization(request)
 
-    queryset = FormEntry.objects.filter(organization=org).select_related(
-        "form_definition", "organization"
-    )
+    queryset = FormEntry.objects.filter(
+        organization=org, form_definition__id=definition_id
+    ).select_related("form_definition", "organization")
 
     if not include_archived:
         queryset = queryset.filter(is_archived=False)
@@ -105,14 +109,11 @@ def list_form_entries(
     if status:
         queryset = queryset.filter(status=status)
 
-    if form_name:
-        queryset = queryset.filter(form_definition__name=form_name)
-
     entries = queryset.order_by("-updated_at")
 
     return [
         {
-            "id": entry.pk,  # Use pk (primary key) - works with type checker
+            "id": entry.pk,
             "form_definition_name": entry.form_definition.name,
             "form_definition_variant": str(entry.form_definition.variant),
             "organization_name": entry.organization.name,
