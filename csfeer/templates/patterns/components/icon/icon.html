@@ -1,0 +1,92 @@
+{% load static %}
+<div role="region" aria-atomic="true">
+  <label for="icon-filter">Type to filter icons</label>
+  <input
+    class="usa-input"
+    id="icon-filter"
+    onkeyup="filter(this)"
+  />
+  <p class="text-base" aria-live="polite">
+    <span id="icon-count">243 icons.</span> Click an icon to copy its code
+    snippet.
+  </p>
+</div>
+<div class="display-flex flex-wrap margin-top-5">
+  {% for variant in variants %}
+  {% for icon in variant.icons %}
+  <div
+    role="region"
+    aria-atomic="true"
+    class="font-sans-xl position-relative icon-example border-1px border-base-lighter hover:text-white hover:bg-primary-vivid hover:border-primary-darker"
+    data-meta="{{ icon.name }}"
+    aria-label="{{ icon.name }} icon."
+  >
+    <button
+      type="button"
+      onclick="copyHTML(this)"
+      class="bg-transparent cursor-pointer text-no-underline text-black display-flex width-card height-card flex-align-center flex-align-center border-0 flex-column flex-justify-center padding-2 hover:text-white"
+      aria-label="Copy icon to clipboard"
+      style="
+        -webkit-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
+      "
+    >
+      <c-icon icon="{{ icon.name }}" />
+      <span class="font-sans-3xs margin-top-2 display-block" aria-hidden="true"
+        >{{ icon.name }}</span
+      >
+    </button>
+    <span
+      aria-live="assertive"
+      style="pointer-events: none"
+      class="message-holder bottom-1 position-absolute font-sans-3xs text-bold display-block text-center left-0 width-full"
+    ></span>
+  </div>
+  {% endfor %}
+  {% endfor %}
+</div>
+<script>
+  function filter(e) {
+    search = e.value.toLowerCase();
+    document.querySelectorAll(".icon-example").forEach(function (row) {
+      text = row.getAttribute("data-meta").toLowerCase();
+      if (text.match(search)) {
+        row.classList.remove("display-none");
+      } else {
+        row.classList.add("display-none");
+      }
+    });
+    iconCount = document.querySelectorAll(
+      ".icon-example:not(.display-none)",
+    ).length;
+    var word = iconCount === 1 ? "icon" : "icons";
+    document.getElementById("icon-count").innerHTML = `${iconCount} ${word}.`;
+  }
+
+  function copyHTML(el) {
+    code = el.querySelector("svg").outerHTML;
+    messagePlaceholder = el.nextElementSibling;
+    oldCopyNotice = document.getElementById("icon-copy-notice");
+
+    if (oldCopyNotice) {
+      oldCopyNotice.remove();
+    }
+
+    message = document.createElement("span");
+    message.setAttribute("id", "icon-copy-notice");
+    message.classList.add("bg-primary", "text-white", "padding-1", "border-radius-2px");
+    message.innerHTML = "Copied to clipboard!";
+
+    // Copy the SVG code to clipboard
+    var textArea = document.createElement("textarea");
+    textArea.value = code;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+
+    messagePlaceholder.append(message);
+  }
+</script>
