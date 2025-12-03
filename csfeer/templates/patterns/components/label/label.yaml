@@ -2,5 +2,9 @@ name: Label
 context:
   variants:            
     - title: "Label"
-      control_id: "label-1"
-      label_title: "This is a label"
+      id: "label-1"
+      label: "This is a label"
+    - title: "Label with hint"
+      id: "label-2"
+      label: "This is a label with a hint"
+      hint: "This is a hint for the label"
