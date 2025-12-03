@@ -24,6 +24,7 @@ dependencies = [
     "pydantic_extra_types>=2.10.6",
     "phonenumbers==9.0.18",
     "semver>=3.0.4",
+    "weasyprint>=62.3",
 ]
 
 [dependency-groups]

@@ -84,6 +84,22 @@
                           <img src="{% static 'frontend/uswds/img/usa-icons/history.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
                           History
                         </a>
+                        <div x-data="{ confirmDownload: false }">
+                          <a x-on:click.prevent="confirmDownload = true" href="{% url 'form_download_pdf' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="Download PDF for {{ e.form_definition.title }}">
+                            <img src="{% static 'frontend/uswds/img/usa-icons/file_download.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
+                            PDF
+                          </a>
+                        <div x-show="confirmDownload" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;" x-on:click="confirmDownload = false">
+                          <div style="background: white; padding: 20px; border-radius: 5px; max-width: 400px; width: 100%; margin: 0 auto;" x-on:click.stop>
+                            <h2>Confirm Download</h2>
+                            <p>Are you sure you want to download the PDF for {{ e.form_definition.title }}?</p>
+                            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                              <button x-on:click="confirmDownload = false" style="padding: 10px 20px; background: #ccc; border: none; border-radius: 3px;">Cancel</button>
+                              <a href="{% url 'form_download_pdf' e.pk %}" x-on:click="confirmDownload = false" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 3px;">Yes, Download</a>
+                            </div>
+                          </div>
+                        </div> 
+                        </div>                         
                         {% if not e.locked %}
                           <a href="{% url 'form_lock' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="Lock {{ e.form_definition.title }}">
                             <img src="{% static 'frontend/uswds/img/usa-icons/lock.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">

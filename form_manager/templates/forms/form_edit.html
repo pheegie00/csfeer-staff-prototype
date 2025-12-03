@@ -26,14 +26,14 @@
               <div class="display-flex flex-gap-1">
                 {% if can_edit %}
                   <button type="submit" name="save" class="usa-button usa-button--outline">
-                    <img src="{% static '@uswds/uswds/dist/img/usa-icons/save_alt.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="">
+                    <img src="{% static 'frontend/uswds/img/usa-icons/save_alt.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="">
                     Save Draft
                   </button>
                 {% endif %}
                 
                 {% if can_submit %}
                   <button type="submit" name="submit" class="usa-button">
-                    <img src="{% static '@uswds/uswds/dist/img/usa-icons/check_circle.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="">
+                    <img src="{% static 'frontend/uswds/img/usa-icons/check_circle.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="">
                     Submit Form
                   </button>
                 {% endif %}
@@ -52,13 +52,19 @@
         <ul class="usa-list usa-list--unstyled margin-bottom-0">
           <li class="margin-bottom-1">
             <a href="{% url 'form_preview' entry.pk %}" class="usa-link display-flex flex-align-center">
-              <img src="{% static '@uswds/uswds/dist/img/usa-icons/visibility.svg' %}" class="usa-icon margin-right-1" aria-hidden="true" alt="">
+              <img src="{% static 'frontend/uswds/img/usa-icons/visibility.svg' %}" class="usa-icon margin-right-1" aria-hidden="true" alt="">
               Preview (read-only)
+            </a>
+          </li>
+          <li class="margin-bottom-1">
+            <a href="{% url 'form_download_pdf' entry.pk %}" class="usa-link display-flex flex-align-center">
+              <img src="{% static 'frontend/uswds/img/usa-icons/file_download.svg' %}" class="usa-icon margin-right-1" aria-hidden="true" alt="">
+              Download as PDF
             </a>
           </li>
           <li>
             <a href="{% url 'form_history' entry.pk %}" class="usa-link display-flex flex-align-center">
-              <img src="{% static '@uswds/uswds/dist/img/usa-icons/history.svg' %}" class="usa-icon margin-right-1" aria-hidden="true" alt="">
+              <img src="{% static 'frontend/uswds/img/usa-icons/history.svg' %}" class="usa-icon margin-right-1" aria-hidden="true" alt="">
               View submission history
             </a>
           </li>

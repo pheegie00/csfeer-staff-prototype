@@ -20,7 +20,8 @@ flowchart TB
   end
  subgraph AppLogic["Application Logic"]
         FormViews["Form Manager Views<br>form_manager/views.py"]
-        APIViews["API Endpoints<br>(Future: REST/GraphQL)"]
+        APIViews["API Endpoints<br>(REST)"]
+        PDFView["Download PDF"]
   end
  subgraph Data["Data Layer"]
         Models["Django Models"]
@@ -47,6 +48,8 @@ flowchart TB
     Models -- "11 Store JSON Data" --> PostgreSQL
     APIViews -. "12 Query Form Data" .-> PostgreSQL
     APIViews -. "13 Export via API" .-> ExternalSystem["🌐 External Service<br>(Data Consumer)"]
+    PDFView -. "14 Query Form Data" .-> PostgreSQL
+    PDFView -. "15 Export via PDF" .-> Export["🗄️ Save"]
 
     %% Styling
     classDef userStyle fill:#e1f5ff,stroke:#01579b,stroke-width:2px

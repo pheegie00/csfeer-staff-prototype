@@ -102,7 +102,6 @@ STATICFILES_FINDERS = [
 ]
 STATICFILES_DIRS = [
     BASE_DIR / "csfeer" / "static",  # Where Django looks for static files
-    BASE_DIR / "static",
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 NPM_ROOT_PATH = str(BASE_DIR / "csfeer")  # Where your package.json is located

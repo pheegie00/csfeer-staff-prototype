@@ -16,4 +16,5 @@ urlpatterns = [
     path("entry/<int:pk>/lock/", views.form_lock, name="form_lock"),
     path("entry/<int:pk>/unlock/", views.form_unlock, name="form_unlock"),
     path("entry/<int:pk>/archive/", views.form_archive, name="form_archive"),
+    path("entry/<int:pk>/download/", views.FormDownloadPDFView.as_view(), name="form_download_pdf"),
 ]

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ entry.form_definition.title }} - Version {{ entry.version_number }}</title>
+  <style>
+    /* PDF-optimized styles using USWDS design tokens */
+    @page {
+      size: letter;
+      margin: 0.75in;
+      @top-center {
+        content: "{{ entry.form_definition.title|escapejs }}";
+        font-size: 10pt;
+        color: #71767a;
+      }
+      @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-size: 9pt;
+        color: #71767a;
+      }
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.5;
+      color: #1b1b1b;
+      background: white;
+    }
+
+    h1 {
+      font-size: 24pt;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #1b1b1b;
+      page-break-after: avoid;
+    }
+
+    h2 {
+      font-size: 18pt;
+      font-weight: 700;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: #1b1b1b;
+      page-break-after: avoid;
+    }
+
+    .header {
+      border-bottom: 2px solid #005ea2;
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .metadata {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      font-size: 10pt;
+    }
+
+    .metadata-item {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background-color: #f0f0f0;
+      border-radius: 3px;
+    }
+
+    .metadata-label {
+      font-weight: 700;
+      color: #565c65;
+    }
+
+    .section {
+      margin-bottom: 2rem;
+      page-break-inside: avoid;
+    }
+
+    .section-title {
+      font-size: 14pt;
+      font-weight: 700;
+      color: #005ea2;
+      border-bottom: 1px solid #dfe1e2;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+      page-break-after: avoid;
+    }
+
+    .section-description {
+      font-size: 10pt;
+      color: #565c65;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+
+    .field-group {
+      margin-bottom: 1.25rem;
+      page-break-inside: avoid;
+    }
+
+    .field-label {
+      font-weight: 700;
+      color: #1b1b1b;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+
+    .field-hint {
+      font-size: 9pt;
+      color: #565c65;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+
+    .field-value {
+      padding: 0.5rem;
+      background-color: #f9f9f9;
+      border: 1px solid #dfe1e2;
+      border-radius: 2px;
+      min-height: 2rem;
+      word-wrap: break-word;
+    }
+
+    .field-value:empty::before {
+      content: "(No response)";
+      color: #71767a;
+      font-style: italic;
+    }
+
+    .radio-group,
+    .checkbox-group {
+      padding-left: 0;
+      list-style: none;
+    }
+
+    .radio-option,
+    .checkbox-option {
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .radio-option input,
+    .checkbox-option input {
+      margin-right: 0.5rem;
+    }
+
+    .submission-info {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 2px solid #dfe1e2;
+      font-size: 10pt;
+    }
+
+    .submission-info dl {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 0.5rem;
+    }
+
+    .submission-info dt {
+      font-weight: 700;
+      color: #565c65;
+    }
+
+    .submission-info dd {
+      color: #1b1b1b;
+    }
+
+    /* Print-specific rules */
+    @media print {
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+
+    /* Prevent orphans/widows */
+    p, li {
+      orphans: 3;
+      widows: 3;
+    }
+
+    /* Status badge */
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 3px;
+      font-size: 9pt;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .status-draft {
+      background-color: #e7f6f8;
+      color: #07648d;
+    }
+
+    .status-submitted {
+      background-color: #ecf3ec;
+      color: #446443;
+    }
+
+    .status-amended {
+      background-color: #fef0c8;
+      color: #936f38;
+    }
+
+    .status-archived {
+      background-color: #f0f0f0;
+      color: #565c65;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>{{ entry.form_definition.title }}</h1>
+    <div class="metadata">
+      <span class="metadata-item">
+        <span class="metadata-label">Version:</span> {{ entry.version_number }}
+      </span>
+      <span class="metadata-item">
+        <span class="metadata-label">Status:</span>
+        <span class="status-badge status-{{ entry.status }}">{{ entry.get_status_display }}</span>
+      </span>
+      {% if entry.organization %}
+      <span class="metadata-item">
+        <span class="metadata-label">Organization:</span> {{ entry.organization.name }}
+      </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="form-content">
+    {% for field in form %}
+      <div class="field-group">
+        <label class="field-label">{{ field.label }}</label>
+        {% if field.help_text %}
+        <span class="field-hint">{{ field.help_text }}</span>
+        {% endif %}
+        
+        {% if field.field.widget.input_type == 'radio' or field.field.widget.input_type == 'checkbox' %}
+          <div class="{{ field.field.widget.input_type }}-group">
+            {% if field.value %}
+              {{ field.value }}
+            {% else %}
+              <span style="color: #71767a; font-style: italic;">(No response)</span>
+            {% endif %}
+          </div>
+        {% elif field.field.widget.input_type == 'textarea' %}
+          <div class="field-value" style="white-space: pre-wrap;">{% if field.value %}{{ field.value }}{% endif %}</div>
+        {% else %}
+          <div class="field-value">{% if field.value %}{{ field.value }}{% endif %}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if entry.submitted_at %}
+  <div class="submission-info">
+    <h2>Submission Information</h2>
+    <dl>
+      <dt>Submitted at:</dt>
+      <dd>{{ entry.submitted_at|date:"F d, Y g:i A" }}</dd>
+      {% if entry.created_by %}
+      <dt>Submitted by:</dt>
+      <dd>{{ entry.created_by.get_full_name|default:entry.created_by.username }}</dd>
+      {% endif %}
+      <dt>Last updated:</dt>
+      <dd>{{ entry.updated_at|date:"F d, Y g:i A" }}</dd>
+    </dl>
+  </div>
+  {% endif %}
+</body>
+</html>
