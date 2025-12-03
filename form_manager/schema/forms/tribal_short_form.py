@@ -1,6 +1,6 @@
 """The Tribal Short Form definition"""
 
-from typing import Annotated, Literal
+from typing import Annotated, Optional
 
 from pydantic import ConfigDict, Field
 from pydantic_extra_types.semantic_version import SemanticVersion
@@ -177,21 +177,23 @@ class TribalShortFormFields(BaseFormFields):
         ),
     ]
 
-    total_expenditures: Annotated[
-        CalculatedCurrencyField,
-        Field(
-            json_schema_extra={
-                "fields": [
-                    "asset_building_expenditure",
-                    "housing_expenditure",
-                    "health_expenditure",
-                    "civic_expenditure",
-                    "transportation_expenditure",
-                    "partnerships_expenditure",
-                    "other_expenditure",
-                ]
-            }
-        ),
+    total_expenditures: Optional[
+        Annotated[
+            CalculatedCurrencyField,
+            Field(
+                json_schema_extra={
+                    "fields": [
+                        "asset_building_expenditure",
+                        "housing_expenditure",
+                        "health_expenditure",
+                        "civic_expenditure",
+                        "transportation_expenditure",
+                        "partnerships_expenditure",
+                        "other_expenditure",
+                    ]
+                }
+            ),
+        ]
     ]
 
 
@@ -204,7 +206,7 @@ class TribalShortForm(BaseFormSchema):
     name: CSBGAnnualReportForms = Field(
         CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT, frozen=True
     )
-    variant: SemanticVersion = Field(SemanticVersion(3, 0, 1), frozen=True)
+    variant: SemanticVersion = Field(SemanticVersion(3, 0, 3), frozen=True)
     form_fields: TribalShortFormFields
     ui: UIDefinition = Field(
         frozen=True,
