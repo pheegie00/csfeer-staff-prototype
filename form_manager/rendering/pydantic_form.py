@@ -6,7 +6,9 @@ from django.forms.forms import DeclarativeFieldsMetaclass
 from django.forms.renderers import TemplatesSetting
 from django.forms.utils import ErrorList
 
-from ..schema.forms.base import BaseFormSchema
+from form_manager.rendering.utils import generate_django_form_field_from_schema
+from form_manager.schema.forms.base import BaseFormSchema
+
 from .utils import generate_django_form_field_from_schema
 
 logger = logging.getLogger(__name__)

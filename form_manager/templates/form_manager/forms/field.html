@@ -27,7 +27,7 @@
       <c-currency-input
         id="{{ field.id_for_label }}"
         name="{{ field.html_name }}"
-        value="{{ field.value|floatformat:2 }}"
+        value="{% if field.initial %}{{ field.initial }}{% endif %}"
         readonly="{% if field.field.disabled %}true{% endif %}"
         error="{% if field.errors %}true{% endif %}"
       />
@@ -35,7 +35,7 @@
       <c-currency-input
         id="{{ field.id_for_label }}"
         name="{{ field.html_name }}"
-        value="{{ field.value|floatformat:2 }}"
+        value="{% if field.value %}{{ field.value|floatformat:2 }}{% endif %}"
         readonly="true"
         error="{% if field.errors %}true{% endif %}"
       />

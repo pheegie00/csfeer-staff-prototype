@@ -1,0 +1,17 @@
+<c-vars
+    legend=""
+    legend_type=""
+    required=""
+/>
+
+  <fieldset class="usa-fieldset">
+    <legend class="usa-legend  usa-legend--{{ legend_type }}">
+        {{ legend }}
+
+        {% if required %}
+            <c-label.required-marker />
+        {% endif %}
+    </legend>
+    {{ slot|safe }}
+  </fieldset>
+  

@@ -1,9 +1,10 @@
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 from django import forms
+from django.forms import NumberInput
 
 
-class CurrencyInput(forms.NumberInput):
+class CurrencyInput(NumberInput):
     """Special type of number input."""
 
     pass
