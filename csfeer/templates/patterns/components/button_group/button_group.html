@@ -1,0 +1,47 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Button Group Component</h1>
+    
+    {% for variant in default_variant %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-button-group>
+            <c-button-group.button-group-item>
+                <c-button text="Back" variant="outline" />
+            </c-button-group.button-group-item>
+            <c-button-group.button-group-item>
+                <c-button text="Continue" />
+            </c-button-group.button-group-item>
+        </c-button-group>
+    </div>
+    {% endfor %}
+    {% for variant in segemented_variant %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-button-group segemented="{{ variant.segemented }}">
+            {% for options in variant.options %}
+            <c-button-group.button-group-item>
+                <c-button text="{{ options.text }}" variant="{{ options.variant }}" />
+            </c-button-group.button-group-item>
+            {% endfor %}
+        </c-button-group>
+    </div>
+    {% endfor %}
+    {% for variant in segemented_inverse_variant %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+        <div class="bg-base-darkest padding-1" style="max-width: fit-content">
+            <c-button-group segemented="{{ variant.segemented }}">
+                {% for options in variant.options %}
+                <c-button-group.button-group-item>
+                    <c-button text="{{ options.text }}" variant="{{ options.variant }}" />
+                </c-button-group.button-group-item>
+                {% endfor %}
+            </c-button-group>
+        </div>
+    </div>
+    {% endfor %}
+</div>
