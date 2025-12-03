@@ -1,0 +1,20 @@
+<c-vars
+    selection_type=""
+    name=""
+    accept=""
+    multiple=""
+    disabled=""
+    required=""
+/>
+
+<input
+  id="file-input-{{ selection_type }}"
+  class="usa-file-input"
+  type="file"
+  name="{{ name }}"
+  aria-describedby="file-input-{{ selection_type }}-hint"
+  accept="{{ accept }}"
+  multiple="{$ if multiple == 'true' $}multiple{$ endif $}"
+  {% if required %}required{% endif %}
+  {% if disabled %}disabled{% endif %}
+/>

@@ -1,0 +1,20 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>File Input Component</h1>
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+        <c-form-group error="{{ variant.error }}">
+            <span class="usa-hint" id="file-input-hint">{{ variant.hint }}</span>
+            <c-file-input
+                selection_type="{{ variant.selection_type }}"
+                name="{{ variant.name }}"
+                disabled="{{ variant.disabled }}"
+                accept="{{ variant.accept }}"
+                multiple="{{ variant.multiple }}"
+            />
+        </c-form-group>
+        </div>
+        {% endfor %}
+</div>
