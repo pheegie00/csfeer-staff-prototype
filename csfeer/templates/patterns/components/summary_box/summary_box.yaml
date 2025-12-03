@@ -4,7 +4,7 @@ context:
     - title: "Summary box with simple body"
       summary_title: "Important Update"
       body: "<p>Our office will be closed on Friday for maintenance.</p>"
-      heading_level: ""
+      heading_level: "h4"
       actions: ""
     
     - title: "Summary box with list and actions"

@@ -7,7 +7,7 @@
     <div class="component-variant">
         <h2 class="variant-title">{{ variant.title }}</h2>
 
-        <c-label control_id="{{ variant.control_id }}" label_title="{{ variant.label_title }}" />
+        <c-label id="{{ variant.id }}" label="{{ variant.label }}" hint="{{ variant.hint }}" />
     </div>
     {% endfor %}
 </div>
