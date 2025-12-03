@@ -1,6 +1,6 @@
 from django import forms
 
-from .widgets import CalculatedCurrencyInput, CalculatedField, CurrencyInput
+from form_manager.rendering.widgets import CalculatedCurrencyInput, CalculatedField, CurrencyInput
 
 FIELD_TEMPLATE_NAME = "form_manager/forms/field.html"
 
