@@ -1,0 +1,13 @@
+<c-vars
+    href=""
+    list_item=""
+    aria_current=""
+/>
+
+<li 
+    class="usa-breadcrumb__list-item{% if aria_current %} usa-current{% endif %}" 
+    {{ attrs }} 
+    {% if aria_current %}aria-current="{{ aria_current }}"{% endif %}
+>
+    <a href="{{ href }}" class="usa-breadcrumb__link"><span>{{ list_item }}</span></a>
+</li>

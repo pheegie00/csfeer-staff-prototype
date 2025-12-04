@@ -1,0 +1,9 @@
+<c-vars
+    wrapped="false"
+/>
+
+<nav class="usa-breadcrumb {% if wrapped %}usa-breadcrumb--wrap{% endif %}" aria-label="Breadcrumbs">
+  <ol class="usa-breadcrumb__list" {{ attrs }}>
+    {{ slot }}
+  </ol>
+</nav>
