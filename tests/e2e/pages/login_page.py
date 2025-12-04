@@ -6,7 +6,7 @@ import os
 
 from playwright.sync_api import Page, expect
 
-from tests.pages.base_page import BasePage
+from tests.e2e.pages.base_page import BasePage
 
 
 class LoginPage(BasePage):

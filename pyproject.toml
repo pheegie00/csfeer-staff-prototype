@@ -43,6 +43,8 @@ dev = [
     "pytest-playwright>=0.6.2",
     "types-requests>=2.32.4.20250913",
     "ipdb",
+    "pytest",
+    "pytest-django",
 ]
 
 [tool.black]
