@@ -1,0 +1,21 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Breadcrumb Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-breadcrumb wrapped="{{ variant.wrapped }}">
+            {% for item in variant.items %}
+                <c-breadcrumb.breadcrumb-item 
+                    href="{{ item.href }}" 
+                    list_item="{{ item.list_item }}" 
+                    aria_current="{{ item.aria_current }}"
+                />
+            {% endfor %}
+        </c-breadcrumb>
+    </div>
+    {% endfor %}
+</div>
