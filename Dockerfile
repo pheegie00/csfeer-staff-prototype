@@ -43,6 +43,9 @@ RUN uv sync --frozen --no-install-project --quiet
 
 COPY --chown=appuser:appuser . /app
 
+# Create logs directory for Django logging
+RUN mkdir -p /app/logs
+
 RUN uv run python manage.py collectstatic --noinput
 
 CMD ["uv", "run","python", "manage.py", "runserver", "0.0.0.0:8000"]
@@ -87,6 +90,10 @@ WORKDIR /app
 
 COPY --chown=python:python ./csfeer .
 COPY --chown=python:python --from=app-build /app/.venv /app/.venv
+
+# Create logs directory for Django logging
+RUN mkdir -p /app/logs && chown python:python /app/logs
+
 USER python
 
 ENV UVLOOP_DISABLE=1
