@@ -177,24 +177,22 @@ class TribalShortFormFields(BaseFormFields):
         ),
     ]
 
-    total_expenditures: Optional[
-        Annotated[
-            CalculatedCurrencyField,
-            Field(
-                json_schema_extra={
-                    "fields": [
-                        "asset_building_expenditure",
-                        "housing_expenditure",
-                        "health_expenditure",
-                        "civic_expenditure",
-                        "transportation_expenditure",
-                        "partnerships_expenditure",
-                        "other_expenditure",
-                    ]
-                }
-            ),
-        ]
-    ]
+    total_expenditures: Annotated[
+        CalculatedCurrencyField,
+        Field(
+            json_schema_extra={
+                "fields": [
+                    "asset_building_expenditure",
+                    "housing_expenditure",
+                    "health_expenditure",
+                    "civic_expenditure",
+                    "transportation_expenditure",
+                    "partnerships_expenditure",
+                    "other_expenditure",
+                ]
+            }
+        ),
+    ] = 0
 
 
 type UIDefinition = list[SectionBlock | FieldBlock]
