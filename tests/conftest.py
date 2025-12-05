@@ -85,7 +85,7 @@ def authenticated_page(page: Page, base_url: str) -> Generator[Page, None, None]
     Provide a page with an authenticated session.
     Uses Keycloak test user credentials.
     """
-    from tests.pages.login_page import LoginPage
+    from tests.e2e.pages.login_page import LoginPage
 
     # Navigate to the application
     page.goto(base_url)

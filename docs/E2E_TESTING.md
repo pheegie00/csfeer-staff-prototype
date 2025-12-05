@@ -72,7 +72,7 @@ tests/
 ```python
 import pytest
 from playwright.sync_api import Page
-from tests.pages.login_page import LoginPage
+from tests.e2e.pages.login_page import LoginPage
 
 @pytest.mark.e2e
 @pytest.mark.auth
@@ -89,7 +89,7 @@ def test_user_can_login(page: Page, base_url: str) -> None:
 Page Objects encapsulate page interactions and make tests more maintainable:
 
 ```python
-from tests.pages.form_manager_page import FormManagerPage
+from tests.e2e.pages.form_manager_page import FormManagerPage
 
 def test_submit_form(authenticated_page: Page, base_url: str) -> None:
     form_page = FormManagerPage(authenticated_page, base_url)
