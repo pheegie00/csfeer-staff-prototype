@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
 
 from .models import (
     FormAuditDetail,
@@ -39,9 +41,16 @@ class FormEntryAdmin(admin.ModelAdmin):
         "status",
         "locked",
         "updated_at",
+        "download_pdf_link",
     )
     list_filter = ("status", "locked")
     search_fields = ("organization__name", "form_definition__name")
+
+    @admin.display(description="PDF")
+    def download_pdf_link(self, obj):
+        """Add a download PDF link in the admin list view."""
+        url = reverse("form_download_pdf", args=[obj.pk])
+        return format_html('<a href="{}" target="_blank">Download PDF</a>', url)
 
 
 @admin.register(FormAuditTrail)

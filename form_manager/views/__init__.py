@@ -3,10 +3,18 @@ from typing import Any, cast
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.utils import timezone
+from weasyprint import HTML
 
-from form_manager.models import FormAuditTrail, FormDefinition, FormEntry, OrganizationProfile
+from form_manager.models import (
+    FormAuditTrail,
+    FormDefinition,
+    FormEntry,
+    OrganizationProfile,
+)
 from form_manager.utils import (
     reconstruct_state,
     record_field_diffs,
@@ -222,3 +230,40 @@ def form_archive(request, pk: int):
     FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="archive")
     messages.info(request, "Entry archived (soft deleted).")
     return redirect("form_list")
+
+
+class FormDownloadPDFView(BaseSingleFormView, FormPermissionMixin):
+    """Generate and download a PDF of the form entry."""
+
+    def has_permission(self) -> bool:
+        if not self.can_view():
+            messages.error(self.request, "No permission to view.")
+            return False
+        return True
+
+    def get(self, request, *args, **kwargs):
+        self.object = cast(FormEntry, self.get_object())
+
+        # Build the form with current data
+        form = self.get_form()
+
+        # Render the PDF template
+        html_string = render_to_string(
+            "forms/form_pdf.html",
+            {
+                "form": form,
+                "entry": self.object,
+            },
+        )
+
+        # Generate PDF
+        pdf = HTML(string=html_string).write_pdf()
+
+        # Create response with PDF
+        response = HttpResponse(pdf, content_type="application/pdf")
+        filename = (
+            f"{self.object.form_definition.name}_v{self.object.version_number}_{self.object.pk}.pdf"
+        )
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+        return response

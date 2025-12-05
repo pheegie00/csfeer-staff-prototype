@@ -11,7 +11,11 @@ migrate:
 
 load-form:
 	$(UV) run python manage.py load_initial_forms
-	
+
+build:
+	docker compose down --volumes
+	docker compose build
+
 start:
 	docker compose up -d
 
