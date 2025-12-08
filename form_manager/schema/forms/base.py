@@ -1,12 +1,12 @@
 """Base form class definitions"""
 
-from typing import Annotated, Any, Generic, Optional, Tuple, TypeVar, get_args, get_origin
+from typing import Annotated, Any, Generic, Optional, Tuple, TypeVar
 
 from pydantic import BaseModel, Field
 from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.constants import AllFormNames, FormFamilies
-from form_manager.schema.fields import ALL_FIELD_TYPES
+from form_manager.schema.fields import get_allowed_field_types, get_base_origin
 from form_manager.schema.layout import FieldBlock, SectionBlock
 
 
@@ -29,16 +29,20 @@ class BaseFormFields(BaseModel, arbitrary_types_allowed=True):
     """The base form fields object"""
 
     @classmethod
-    def model_json_schema(cls, *args, **kwargs):
+    def __pydantic_on_complete__(cls):
         """Overload this method to perform some schema validation."""
+
+        ALLOWED_FIELD_CLASSES = get_allowed_field_types()
 
         for name, field in cls.__annotations__.items():
 
-            assert field in get_args(
-                ALL_FIELD_TYPES
+            base = get_base_origin(field)
+
+            assert (
+                base in ALLOWED_FIELD_CLASSES
             ), f"{name} is an invalid field type in {cls.__name__}"
 
-        return super().model_json_schema()
+        return super().__pydantic_on_complete__()
 
 
 FormFields = TypeVar("FormFields", bound=BaseFormFields)

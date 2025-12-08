@@ -221,6 +221,9 @@ See [csfeer/templates/patterns/README.md](csfeer/templates/patterns/README.md) f
 See [docs/E2E_TESTING.md](docs/E2E_TESTING.md) for detailed testing documentation.
 
 ```bash
+# Run unit tests
+make test-unit
+
 # Run E2E tests (headless)
 make test-e2e
 
