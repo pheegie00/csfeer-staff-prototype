@@ -3,16 +3,15 @@ from typing import cast
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import HttpRequest
 from django.views.generic.base import ContextMixin
-from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
+from django.views.generic.detail import (
+    SingleObjectMixin,
+    SingleObjectTemplateResponseMixin,
+)
 from django.views.generic.edit import FormMixin, ProcessFormView
 
 from form_manager.models import FormEntry
 from form_manager.rendering.pydantic_form import PydanticJSONSchemaForm
-from form_manager.utils import (
-    user_can_edit,
-    user_can_submit,
-    user_can_view,
-)
+from form_manager.utils import user_can_edit, user_can_submit, user_can_view
 
 
 class BaseFormUpdateView(

@@ -18,7 +18,7 @@
           <div class="usa-alert usa-alert--info usa-alert--slim">
             <div class="usa-alert__body">
               <p class="usa-alert__text">
-                <img src="{% static '@uswds/uswds/dist/img/usa-icons/info.svg' %}" class="usa-icon" aria-hidden="true" alt="">
+                <img src="{% static 'frontend/uswds/img/usa-icons/info.svg' %}" class="usa-icon" aria-hidden="true" alt="">
                 <strong>Snapshot:</strong> Viewing form as of {{ snapshot_at|date:"M d, Y g:i A" }} ({{ snapshot_action }})
               </p>
             </div>
@@ -83,11 +83,15 @@
         <div class="display-flex flex-justify flex-wrap flex-gap-1">
           <div class="display-flex flex-gap-1">
             <a href="{% url 'form_edit' entry.pk %}" class="usa-button">
-              <img src="{% static '@uswds/uswds/dist/img/usa-icons/edit.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="">
+              <img src="{% static 'frontend/uswds/img/usa-icons/edit.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="">
               Edit Form
             </a>
+            <a href="{% url 'form_download_pdf' entry.pk %}" class="usa-button usa-button--secondary">
+              <img src="{% static 'frontend/uswds/img/usa-icons/file_download.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="">
+              Download PDF
+            </a>
             <a href="{% url 'form_history' entry.pk %}" class="usa-button usa-button--outline">
-              <img src="{% static '@uswds/uswds/dist/img/usa-icons/history.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="">
+              <img src="{% static 'frontend/uswds/img/usa-icons/history.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="">
               View History
             </a>
           </div>

@@ -11,6 +11,7 @@
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "isort.args": ["--profile", "black"],
+  "isort.path": ["${workspaceFolder}/.venv/bin/python", "-m", "isort"],
   "isort.importStrategy": "fromEnvironment",
   "python.analysis.autoImportCompletions": true,
   "flake8.cwd": "${workspaceFolder}",

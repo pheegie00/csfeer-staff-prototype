@@ -1,0 +1,22 @@
+name: Breadcrumb
+context:
+  variants:            
+    - title: "Breadcrumb (default)"
+      items:
+        - href: ""
+          list_item: "Home"
+        - href: ""
+          list_item: "Federal Contracting"
+        - href: ""
+          list_item: "Economically disadvantaged women-owned small business federal contracting program"
+          aria_current: "page"
+    - title: "Breadcrumb (wrapped)"
+      wrapped: "true"
+      items:
+        - href: ""
+          list_item: "Home"
+        - href: ""
+          list_item: "Federal Contracting"
+        - href: ""
+          list_item: "Economically disadvantaged women-owned small business federal contracting program"
+          aria_current: "page"

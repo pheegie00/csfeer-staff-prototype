@@ -102,7 +102,6 @@ STATICFILES_FINDERS = [
 ]
 STATICFILES_DIRS = [
     BASE_DIR / "csfeer" / "static",  # Where Django looks for static files
-    BASE_DIR / "static",
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 NPM_ROOT_PATH = str(BASE_DIR / "csfeer")  # Where your package.json is located
@@ -178,3 +177,69 @@ if DEBUG:
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Logging Configuration
+# https://docs.djangoproject.com/en/5.2/topics/logging/
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+            "level": "WARNING" if settings.is_production else ("DEBUG" if DEBUG else "INFO"),
+        },
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": BASE_DIR / "logs" / "django.log",
+            "maxBytes": settings.logging_config.file_max_bytes,
+            "backupCount": settings.logging_config.file_backup_count,
+            "formatter": "verbose",
+            "level": "DEBUG",
+        },
+        "error_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": BASE_DIR / "logs" / "django_errors.log",
+            "maxBytes": settings.logging_config.file_max_bytes,
+            "backupCount": settings.logging_config.file_backup_count,
+            "formatter": "verbose",
+            "level": "ERROR",
+        },
+    },
+    "root": {
+        "handlers": ["console", "file", "error_file"],
+        "level": settings.logging_config.level,
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file", "error_file"],
+            "level": settings.logging_config.level,
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console", "file", "error_file"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "django.server": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": ["file"],
+            "level": "DEBUG" if DEBUG and settings.is_local else "INFO",
+            "propagate": False,
+        },
+    },
+}

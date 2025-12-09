@@ -9,7 +9,10 @@ ARG PIP_INDEX_URL
 RUN pip install 'uv==0.7.20'
 RUN apt-get update && apt-get upgrade --yes \
     && apt-get install --no-install-recommends --yes \
-    postgresql=15+* libpq-dev=15.* gnupg=2.2.40-* build-essential=12.9
+    postgresql=15+* libpq-dev=15.* gnupg=2.2.40-* build-essential=12.9 \
+    libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 \
+    && apt-get autoremove -y && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
 
 # Non-dev build
 FROM library/node:18.20-slim AS static
@@ -26,13 +29,23 @@ FROM build AS dev
 EXPOSE 8000
 
 WORKDIR /app
-COPY . /app
+
+# Copy dependency files first for better caching
+COPY pyproject.toml uv.lock ./
 
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
 # For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
 RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
 USER appuser
+
+# Install dependencies (cached if pyproject.toml/uv.lock unchanged)
 RUN uv sync --frozen --no-install-project --quiet
+
+COPY --chown=appuser:appuser . /app
+
+# Create logs directory for Django logging
+RUN mkdir -p /app/logs
+
 RUN uv run python manage.py collectstatic --noinput
 
 CMD ["uv", "run","python", "manage.py", "runserver", "0.0.0.0:8000"]
@@ -40,10 +53,6 @@ CMD ["uv", "run","python", "manage.py", "runserver", "0.0.0.0:8000"]
 
 
 FROM build AS app-build
-
-RUN apt-get update && apt-get install --no-install-recommends --yes libpq-dev=15.* \
-    && apt-get autoremove -y && apt-get clean -y \
-    && rm -rf /var/lib/apt/lists/*
 
 # Create python user and group in app-build stage
 RUN groupadd -g 10001 python && \
@@ -60,13 +69,18 @@ COPY --chown=python:python --from=static /app/csfeer/static /app/static
 RUN python manage.py collectstatic --noinput
 
 # Prod
-FROM docker/library/python:3.12.10-slim AS app
+FROM python:3.12.10-slim AS app
 
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Install only runtime dependencies (no build tools)
 RUN apt-get update && apt-get upgrade --yes \
+    && apt-get install --no-install-recommends --yes \
+    libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 \
     && apt-get autoremove -y && apt-get clean -y \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN rm -rf /usr/bin/apt-get
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /usr/bin/apt-get
 
 RUN groupadd -g 10001 python && \
     useradd -r -u 10001 -g python python
@@ -76,6 +90,10 @@ WORKDIR /app
 
 COPY --chown=python:python ./csfeer .
 COPY --chown=python:python --from=app-build /app/.venv /app/.venv
+
+# Create logs directory for Django logging
+RUN mkdir -p /app/logs && chown python:python /app/logs
+
 USER python
 
 ENV UVLOOP_DISABLE=1

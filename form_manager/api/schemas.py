@@ -6,13 +6,7 @@ from datetime import datetime
 from typing import Optional
 
 from ninja import Schema
-from pydantic import ConfigDict, Field, field_validator
-
-
-class FormVariantSchema(Schema):
-    major: int
-    minor: int
-    patch: int
+from pydantic import ConfigDict, Field
 
 
 class OrganizationSchema(Schema):
@@ -29,7 +23,7 @@ class FormDefinitionSchema(Schema):
     id: int
     family: str
     name: str
-    variant: FormVariantSchema
+    variant: str
     description: Optional[str] = None
     form_schema: dict = Field(..., alias="schema")
     schema_class: str
@@ -43,7 +37,7 @@ class FormDefinitionListSchema(Schema):
     id: int
     family: str
     name: str
-    variant: FormVariantSchema
+    variant: str
     description: Optional[str] = None
     is_active: bool
 
