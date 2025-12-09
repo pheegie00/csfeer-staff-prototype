@@ -40,6 +40,9 @@ restart:
 oauth-setup:
 	docker compose run --rm oauth-setup
 
+test-unit:
+	$(UV) run pytest tests/unit -v
+
 # E2E Testing targets
 test-e2e:
 	@echo "Starting services..."

@@ -71,7 +71,7 @@ def test_admin_feature(admin_page: Page, base_url: str):
 
 ### Using Page Objects:
 ```python
-from tests.pages.form_manager_page import FormManagerPage
+from tests.e2e.pages.form_manager_page import FormManagerPage
 
 @pytest.mark.e2e
 @pytest.mark.auth
@@ -134,7 +134,7 @@ uv sync  # Reinstall dependencies
 
 3. Use Page Objects when possible:
    ```python
-   from tests.pages.your_page import YourPage
+   from tests.e2e.pages.your_page import YourPage
    
    page_obj = YourPage(page, base_url)
    page_obj.do_something()

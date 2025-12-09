@@ -7,7 +7,7 @@ from typing import Generator
 import pytest
 from playwright.sync_api import Page
 
-from tests.pages.login_page import LoginPage
+from tests.e2e.pages.login_page import LoginPage
 
 # Test users from devops/mocks/keycloak/users.csv
 TEST_USERS = {

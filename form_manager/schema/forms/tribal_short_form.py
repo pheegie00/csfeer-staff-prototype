@@ -7,7 +7,7 @@ from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.schema.layout import FieldBlock, SectionBlock
 
-from ...constants import CSBGAnnualReportForms, FormFamilies
+from ...constants import AllFormNames, CSBGAnnualReportForms, FormFamilies
 from ..fields import (
     CalculatedCurrencyField,
     CurrencyField,
@@ -180,6 +180,7 @@ class TribalShortFormFields(BaseFormFields):
     total_expenditures: Annotated[
         CalculatedCurrencyField,
         Field(
+            default=0,
             json_schema_extra={
                 "fields": [
                     "asset_building_expenditure",
@@ -190,9 +191,9 @@ class TribalShortFormFields(BaseFormFields):
                     "partnerships_expenditure",
                     "other_expenditure",
                 ]
-            }
+            },
         ),
-    ] = 0
+    ]
 
 
 type UIDefinition = list[SectionBlock | FieldBlock]
@@ -201,9 +202,7 @@ type UIDefinition = list[SectionBlock | FieldBlock]
 class TribalShortForm(BaseFormSchema):
 
     family: FormFamilies = Field(FormFamilies.CSBG_ANNUAL_REPORT, frozen=True)
-    name: CSBGAnnualReportForms = Field(
-        CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT, frozen=True
-    )
+    name: AllFormNames = Field(CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT, frozen=True)
     variant: SemanticVersion = Field(SemanticVersion(3, 0, 3), frozen=True)
     form_fields: TribalShortFormFields
     ui: UIDefinition = Field(

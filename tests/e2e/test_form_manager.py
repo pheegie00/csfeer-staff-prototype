@@ -5,7 +5,7 @@ End-to-end tests for form manager functionality.
 import pytest
 from playwright.sync_api import Page
 
-from tests.pages.form_manager_page import FormManagerPage
+from tests.e2e.pages.form_manager_page import FormManagerPage
 
 
 @pytest.mark.e2e

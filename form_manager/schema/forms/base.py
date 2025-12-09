@@ -1,13 +1,13 @@
 """Base form class definitions"""
 
-from enum import Enum
 from typing import Annotated, Any, Generic, Optional, Tuple, TypeVar
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field
 from pydantic_extra_types.semantic_version import SemanticVersion
 
-from ...constants import AllFormNames, FormFamilies
-from ..layout import FieldBlock, SectionBlock
+from form_manager.constants import AllFormNames, FormFamilies
+from form_manager.schema.fields import get_allowed_field_types, get_base_origin
+from form_manager.schema.layout import FieldBlock, SectionBlock
 
 
 class JSONSchemaService:
@@ -28,8 +28,21 @@ class JSONSchemaService:
 class BaseFormFields(BaseModel, arbitrary_types_allowed=True):
     """The base form fields object"""
 
-    # To Do: figure out how to constrain this  base
-    # class to only allow form field types
+    @classmethod
+    def __pydantic_on_complete__(cls):
+        """Overload this method to perform some schema validation."""
+
+        ALLOWED_FIELD_CLASSES = get_allowed_field_types()
+
+        for name, field in cls.__annotations__.items():
+
+            base = get_base_origin(field)
+
+            assert (
+                base in ALLOWED_FIELD_CLASSES
+            ), f"{name} is an invalid field type in {cls.__name__}"
+
+        return super().__pydantic_on_complete__()
 
 
 FormFields = TypeVar("FormFields", bound=BaseFormFields)

@@ -135,6 +135,10 @@ DATABASES = {
             "sslmode": settings.db_config.ssl_mode,
             "options": f"-c statement_timeout={settings.db_config.statement_timeout}",
         },
+        "USER": settings.db_config.pguser,
+        "PASSWORD": settings.db_config.pgpassword,
+        "HOST": settings.db_config.pghost,
+        "PORT": settings.db_config.pgport,
     }
 }
 

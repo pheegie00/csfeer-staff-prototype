@@ -3,12 +3,16 @@ from typing import Annotated, Any, Optional
 from unittest.mock import Base
 
 from pydantic import Field
+from pydantic_extra_types.semantic_version import SemanticVersion
 
-from ..fields import TextareaField, TextField
+from form_manager.constants import AllFormNames, CSBGTribalPlanApplicationForms, FormFamilies
+from form_manager.schema.layout import FieldBlock, SectionBlock
+
+from ..fields import ChoiceField, TextareaField, TextField
 from .base import BaseFormFields, BaseFormSchema
 
 
-class PlanCoverageChoices(str, Enum):
+class PlanCoverageChoices(str, ChoiceField):
     one = "One Year"
     two = "Two-Year"
 
@@ -106,5 +110,12 @@ class TribalPlanApplicationFields(BaseFormFields):
 
 
 class TribalPlanApplication(BaseFormSchema):
-    name: str = "Tribal Plan and Application"
-    fields: Any = TribalPlanApplicationFields
+    family: FormFamilies = Field(FormFamilies.CSBG_TRIBAL_PLAN_APPLICATION, frozen=True)
+    name: AllFormNames = Field(CSBGTribalPlanApplicationForms.CSBG_TRIBAL_PLAN, frozen=True)
+    variant: Annotated[
+        SemanticVersion, Field(description="The version of the form", default="1.0.0", frozen=True)
+    ]
+    form_fields: TribalPlanApplicationFields = Field(
+        description="Form field definitions. This should be a class that inherits BaseFormFields."
+    )
+    ui: list[SectionBlock | FieldBlock] = Field(description="The Form UI definition")

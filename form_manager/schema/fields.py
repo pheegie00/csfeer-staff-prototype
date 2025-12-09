@@ -3,13 +3,21 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Annotated, Any
+from functools import lru_cache
+from typing import TYPE_CHECKING, Annotated, Any, NewType, Union, get_args, get_origin
 
 from pydantic import (
-    EmailStr,
     Field,
 )
 from pydantic_extra_types.phone_numbers import PhoneNumber
+
+if TYPE_CHECKING:
+
+    class EmailStr(str):
+        pass
+
+else:
+    from pydantic import EmailStr
 
 
 def SpecificTypedField(field_type: str, *args, **kwargs) -> Any:
@@ -23,15 +31,13 @@ def SpecificTypedField(field_type: str, *args, **kwargs) -> Any:
     return Field(*args, **kwargs)
 
 
-BaseTextField = Annotated[str, SpecificTypedField("TextField", min_length=0, max_length=255)]
-BaseFloatField = Annotated[float, SpecificTypedField("FloatField")]
-BaseEnumField = Annotated[Enum, SpecificTypedField("EnumField")]
-
-
-TextField = BaseTextField
+TextField = Annotated[
+    NewType("TextField", str),
+    SpecificTypedField(field_type="TextField", min_length=0, max_length=255),
+]
 
 TextareaField = Annotated[
-    BaseTextField,
+    NewType("TextareaField", str),
     SpecificTypedField(
         "TextareaField",
         min_length=0,
@@ -40,7 +46,7 @@ TextareaField = Annotated[
 ]
 
 CurrencyField = Annotated[
-    BaseFloatField,
+    NewType("CurrencyField", float),
     SpecificTypedField(
         "CurrencyField",
         json_schema_extra={
@@ -58,7 +64,7 @@ class USPhoneFieldType(PhoneNumber):
 
 
 PhoneNumberField = Annotated[
-    USPhoneFieldType,
+    NewType("PhoneNumberField", USPhoneFieldType),
     SpecificTypedField(
         "PhoneNumberField",
         json_schema_extra={
@@ -68,7 +74,7 @@ PhoneNumberField = Annotated[
 ]
 
 EmailField = Annotated[
-    EmailStr,
+    NewType("EmailField", EmailStr),
     SpecificTypedField(
         "EmailField",
         json_schema_extra={
@@ -78,18 +84,22 @@ EmailField = Annotated[
 ]
 
 
-BooleanField = Annotated[bool, Field()]
+BooleanField = Annotated[NewType("BooleanField", bool), Field()]
 
 
 CalculatedField = Annotated[
-    BaseFloatField, SpecificTypedField("CalculatedField", json_schema_extra={"fields": []})
+    NewType("CalculatedField", float),
+    SpecificTypedField("CalculatedField", json_schema_extra={"fields": []}),
 ]
 
 CalculatedCurrencyField = Annotated[
-    BaseFloatField, SpecificTypedField("CalculatedCurrencyField", json_schema_extra={"fields": []})
+    NewType("CalculatedCurrencyField", float),
+    SpecificTypedField("CalculatedCurrencyField", json_schema_extra={"fields": []}),
 ]
 
-ChoiceField = Annotated[Enum, Field()]
+
+class ChoiceField(Enum):
+    pass
 
 
 ALL_FIELD_TYPES = (
@@ -103,3 +113,32 @@ ALL_FIELD_TYPES = (
     | CalculatedCurrencyField
     | CalculatedField
 )
+
+
+def get_base_origin(t):
+    """Return the base type of a type."""
+
+    if get_origin(t) == Union:
+        t = get_args(t)[0]
+
+    while True:
+
+        _next = get_origin(t)
+
+        if not _next:
+            return t
+
+        t = _next
+
+
+@lru_cache
+def get_allowed_field_types() -> list[Any]:
+    """Return a list of possible base field types."""
+
+    allowed_field_types = []
+
+    for _type in get_args(ALL_FIELD_TYPES):
+
+        allowed_field_types.append(get_base_origin(_type))
+
+    return allowed_field_types

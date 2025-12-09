@@ -85,7 +85,7 @@ def authenticated_page(page: Page, base_url: str) -> Generator[Page, None, None]
     Provide a page with an authenticated session.
     Uses Keycloak test user credentials.
     """
-    from tests.pages.login_page import LoginPage
+    from tests.e2e.pages.login_page import LoginPage
 
     # Navigate to the application
     page.goto(base_url)
@@ -111,19 +111,6 @@ def setup_test_directories() -> None:
     os.makedirs("tests/videos", exist_ok=True)
     os.makedirs("tests/traces", exist_ok=True)
     os.makedirs("tests/screenshots", exist_ok=True)
-
-
-# The django_db_setup fixture is intentionally left as a placeholder for future database setup needs.
-# Remove this fixture if not required, or implement setup logic as needed.
-@pytest.fixture(scope="session")
-def django_db_setup() -> None:
-    """
-    Setup Django test database.
-    This works with pytest-django to manage database state.
-
-    Placeholder: implement database setup logic here if needed.
-    """
-    pass
 
 
 # Markers for pytest
