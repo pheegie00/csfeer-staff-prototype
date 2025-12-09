@@ -1,5 +1,4 @@
 import json
-from inspect import isclass
 
 from django.core.management.base import BaseCommand, CommandError
 

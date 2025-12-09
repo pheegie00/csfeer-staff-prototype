@@ -113,19 +113,6 @@ def setup_test_directories() -> None:
     os.makedirs("tests/screenshots", exist_ok=True)
 
 
-# The django_db_setup fixture is intentionally left as a placeholder for future database setup needs.
-# Remove this fixture if not required, or implement setup logic as needed.
-@pytest.fixture(scope="session")
-def django_db_setup() -> None:
-    """
-    Setup Django test database.
-    This works with pytest-django to manage database state.
-
-    Placeholder: implement database setup logic here if needed.
-    """
-    pass
-
-
 # Markers for pytest
 def pytest_configure(config: pytest.Config) -> None:
     """Configure pytest with custom markers."""

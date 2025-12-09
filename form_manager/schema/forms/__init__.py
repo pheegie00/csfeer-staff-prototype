@@ -7,3 +7,5 @@ __all__ = [
     "TribalShortForm",
     "BaseFormSchema",
 ]
+
+ALL_FORM_SCHEMAS = [TribalPlanApplication, TribalShortForm]
