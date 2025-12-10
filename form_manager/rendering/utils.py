@@ -1,13 +1,24 @@
 from django import forms
 
-from form_manager.rendering.widgets import CalculatedCurrencyInput, CalculatedField, CurrencyInput
+from form_manager.rendering.widgets import (
+    CalculatedCurrencyInput,
+    CalculatedField,
+    CurrencyInput,
+)
 
 FIELD_TEMPLATE_NAME = "form_manager/forms/field.html"
 
 
 def generate_django_form_field_from_schema(
-    name: str, field: dict[str, str | bool], required: bool
-) -> forms.CharField | forms.EmailField | forms.FloatField | None:
+    name: str, field: dict[str, str | bool | list], required: bool
+) -> (
+    forms.CharField
+    | forms.EmailField
+    | forms.FloatField
+    | forms.ChoiceField
+    | CalculatedField
+    | None
+):
     """Generates a django form field from a JSON schema field definition."""
     label = field.get("title", name)
     help_text = field.get("description", "")
@@ -15,9 +26,19 @@ def generate_django_form_field_from_schema(
     min_length = field.get("minLength")
     field_type = field.get("fieldType", None)
     derrived_fields = field.get("fields", None)
+    enum_choices = field.get("enum", None)
     field_object = None
 
-    if field_type == "TextField":
+    if enum_choices and isinstance(enum_choices, list):
+        field_object = forms.ChoiceField(
+            label=label,
+            required=required,
+            help_text=help_text,
+            choices=[(c, c) for c in enum_choices],
+            widget=forms.RadioSelect,
+            template_name=FIELD_TEMPLATE_NAME,  # pyright: ignore
+        )
+    elif field_type == "TextField":
         field_object = forms.CharField(
             label=label,
             required=required,
