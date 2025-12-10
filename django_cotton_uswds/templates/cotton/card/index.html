@@ -1,0 +1,12 @@
+<c-vars
+    layout="standardDefault"
+    header_first=""
+    grid_layout=""
+    container_class=""
+/>
+
+<li class="usa-card{% if layout == 'flagDefault' or layout == 'flagMediaRight' %} usa-card--flag{% endif %}{% if layout == 'flagMediaRight' %} usa-card--media-right{% endif %}{% if header_first %} usa-card--header-first{% endif %} {{ grid_layout }} {{ extra_classes }}" data-testid="Card">
+    <div class="usa-card__container {{ container_class }}">
+        {{ slot }}
+    </div>
+</li>

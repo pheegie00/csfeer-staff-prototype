@@ -1,0 +1,76 @@
+<div class="component-variants">
+    <h1>Card Component</h1>
+
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+        <c-card.group>
+        {% for options in variant.options %}
+        <c-card layout="{{ options.layout|default:'standardDefault' }}" grid_layout="tablet:grid-col-6">
+            {% if options.media %}
+            <c-card.media inset="{% if options.inset %}true{% endif %}" exdent="{% if options.exdent %}true{% endif %}">
+                <img src="{{ options.media }}" alt="Placeholder image" />
+            </c-card.media>
+            {% endif %}
+            <c-card.header>
+                <h3 class="usa-card__heading">{{ options.title }}</h3>
+            </c-card.header>
+            <c-card.body>
+                <p>{{ options.body }}</p>
+            </c-card.body>
+            {% if options.footer %}
+            <c-card.footer>
+                <a href="#" class="usa-button">{{ options.footer }}</a>
+            </c-card.footer>
+            {% endif %}
+        </c-card>
+        {% endfor %}
+        </c-card.group>
+    </div>
+    {% endfor %}
+
+    <div class="component-variant">
+        <h2 class="variant-title">Card Group</h2>
+        <c-card.group>
+            <c-card grid_layout="tablet:grid-col-4">
+                <c-card.header>
+                    <h3 class="usa-card__heading">First Card</h3>
+                </c-card.header>
+                <c-card.body>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis earum tenetur quo cupiditate, eaque qui officia recusandae.</p>
+                </c-card.body>
+                <c-card.footer>
+                    <a href="#" class="usa-button">Link 1</a>
+                </c-card.footer>
+            </c-card>
+            <c-card grid_layout="tablet:grid-col-4">
+                <c-card.header>
+                    <h3 class="usa-card__heading">Card with Media</h3>
+                </c-card.header>
+                <c-card.media>
+                    <img src="https://designsystem.digital.gov/img/introducing-uswds-2-0/built-to-grow--alt.jpg" alt="Placeholder image" />
+                </c-card.media>
+                <c-card.body>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis earum tenetur quo cupiditate, eaque qui officia recusandae.</p>
+                </c-card.body>
+                <c-card.footer>
+                    <a href="#" class="usa-button">Link 2</a>
+                </c-card.footer>
+            </c-card>
+            <c-card grid_layout="tablet:grid-col-4" header_first="true">
+                <c-card.header>
+                    <h3 class="usa-card__heading">Media with header first</h3>
+                </c-card.header>
+                <c-card.media>
+                    <img src="https://designsystem.digital.gov/img/introducing-uswds-2-0/built-to-grow--alt.jpg" alt="Placeholder image" />
+                </c-card.media>                
+                <c-card.body>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis earum tenetur quo cupiditate, eaque qui officia recusandae.</p>
+                </c-card.body>
+                <c-card.footer>
+                    <a href="#" class="usa-button">Link 3</a>
+                </c-card.footer>
+            </c-card>
+        </c-card.group>
+    </div>
+</div>
