@@ -1,12 +1,14 @@
 """Base form class definitions"""
 
+import inspect
 from typing import Annotated, Any, Generic, Optional, Tuple, TypeVar
 
-from pydantic import BaseModel, Field
+from django import forms
+from pydantic import BaseModel, Field, GetCoreSchemaHandler
+from pydantic_core import core_schema
 from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.constants import AllFormNames, FormFamilies
-from form_manager.schema.fields import get_allowed_field_types, get_base_origin
 from form_manager.schema.layout import FieldBlock, SectionBlock
 
 
@@ -25,27 +27,29 @@ class JSONSchemaService:
         return current
 
 
-class BaseFormFields(BaseModel, arbitrary_types_allowed=True):
-    """The base form fields object"""
+class BaseFields(forms.Form):
+    """A base form class for form fields."""
 
     @classmethod
-    def __pydantic_on_complete__(cls):
-        """Overload this method to perform some schema validation."""
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler
+    ) -> core_schema.CoreSchema:
 
-        ALLOWED_FIELD_CLASSES = get_allowed_field_types()
+        fields = {}
 
-        for name, field in cls.__annotations__.items():
+        for name, field in cls.declared_fields.items():
 
-            base = get_base_origin(field)
+            try:
 
-            assert (
-                base in ALLOWED_FIELD_CLASSES
-            ), f"{name} is an invalid field type in {cls.__name__}"
+                fields[name] = field.to_pydantic_schema_type()
+            except Exception as error:
+                print(error)
+                continue
 
-        return super().__pydantic_on_complete__()
+        return core_schema.typed_dict_schema(fields)
 
 
-FormFields = TypeVar("FormFields", bound=BaseFormFields)
+FormFields = TypeVar("FormFields", bound=BaseFields)
 FormId = TypeVar("FormId", bound=str)
 FormVersion = TypeVar("FormVersion", bound=str)
 
@@ -68,22 +72,22 @@ class BaseFormSchema(
     variant: Annotated[
         SemanticVersion, Field(description="The version of the form", default="1.0.0")
     ]
-    form_fields: FormFields = Field(
+    form_fields: Any = Field(
         description="Form field definitions. This should be a class that inherits BaseFormFields."
     )
     ui: list[SectionBlock | FieldBlock] = Field(description="The Form UI definition")
 
-    @classmethod
-    def model_json_schema(cls, *args, **kwargs):
-        """Overload this method to perform some schema validation."""
+    # @classmethod
+    # def model_json_schema(cls, *args, **kwargs):
+    #     """Overload this method to perform some schema validation."""
 
-        for field in ["family", "name", "variant"]:
-            if not cls.model_fields[field].frozen:
-                raise SchemaValidationError(
-                    f"Field {field} in {cls.__name__} must have frozen=True", form_class=cls
-                )
+    #     for field in ["family", "name", "variant"]:
+    #         if not cls.model_fields[field].frozen:
+    #             raise SchemaValidationError(
+    #                 f"Field {field} in {cls.__name__} must have frozen=True", form_class=cls
+    #             )
 
-        return super().model_json_schema()
+    #     return super().model_json_schema()
 
     @classmethod
     def dump_form_fields_from_json_schema(

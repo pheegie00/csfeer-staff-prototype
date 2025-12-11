@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from enum import Enum
-from functools import lru_cache
-from typing import TYPE_CHECKING, Annotated, Any, NewType, Union, get_args, get_origin
+import inspect
+from datetime import date, datetime
+from decimal import Decimal
+from typing import TYPE_CHECKING, List
 
-from pydantic import (
-    Field,
-)
+from django import forms
+from pydantic_core import core_schema
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
 if TYPE_CHECKING:
@@ -20,125 +20,110 @@ else:
     from pydantic import EmailStr
 
 
-def SpecificTypedField(field_type: str, *args, **kwargs) -> Any:
-    """A field with a specific field type in its JSON schema"""
+class ACFFieldMixin:
+    title: str | None = None
+    description: str | None = None
 
-    json_schema_extra = kwargs.get("json_schema_extra", {})
-    json_schema_extra.update({"fieldType": field_type})
+    def __init__(self, *args, title=None, description=None, **kwargs):
+        self.title = kwargs.pop("title", None)
+        self.description = kwargs.pop("description", None)
+        kwargs["help_text"] = kwargs.get("help_text", description)
+        super().__init__(*args, **kwargs)
 
-    kwargs = kwargs | {"json_schema_extra": json_schema_extra}
+    def to_pydantic_schema_type(self):
 
-    return Field(*args, **kwargs)
+        field_type_map = {
+            "BooleanField": bool,
+            "DateField": date,
+            "DateTimeField": datetime,
+            "DecimalField": Decimal,
+            "FloatField": float,
+            "JSONField": dict,
+            "CurrencyField": float,
+            "CalculatedField": float,
+            "CalculatedCurrencyField": float,
+        }
 
+        _type = field_type_map.get(self.__class__.__name__) or field_type_map.get(
+            self.__class__.__name__.replace("ACF", ""), str
+        )
 
-TextField = Annotated[
-    NewType("TextField", str),
-    SpecificTypedField(field_type="TextField", min_length=0, max_length=255),
-]
+        extra_fields = [
+            "title",
+            "description",
+            "max_length",
+            "min_length",
+            "required",
+            "label",
+            "initial",
+            "max_value",
+            "min_value",
+            "step_size",
+            "max_digits",
+            "decimal_places",
+        ]
 
-TextareaField = Annotated[
-    NewType("TextareaField", str),
-    SpecificTypedField(
-        "TextareaField",
-        min_length=0,
-        max_length=0,
-    ),
-]
+        data = {
+            f: getattr(self, f, None) for f in extra_fields if getattr(self, f, None) is not None
+        }
 
-CurrencyField = Annotated[
-    NewType("CurrencyField", float),
-    SpecificTypedField(
-        "CurrencyField",
-        json_schema_extra={
-            "currencySymbol": "$",
-            "currencyCode": "USD",
-        },
-    ),
-]
+        field_type_schema = getattr(core_schema, f"{_type.__name__}_schema")
+        possible_args = inspect.getcallargs(field_type_schema).keys()
+        data_args = {k: v for k, v in data.items() if k in possible_args}
 
-
-class USPhoneFieldType(PhoneNumber):
-    default_region_code = "US"
-    supported_regions = ["US"]
-    phone_format = "NATIONAL"
-
-
-PhoneNumberField = Annotated[
-    NewType("PhoneNumberField", USPhoneFieldType),
-    SpecificTypedField(
-        "PhoneNumberField",
-        json_schema_extra={
-            "pattern": "\\d{3}-\\d{3}-\\d{4}",
-        },
-    ),
-]
-
-EmailField = Annotated[
-    NewType("EmailField", EmailStr),
-    SpecificTypedField(
-        "EmailField",
-        json_schema_extra={
-            "pattern": "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$",
-        },
-    ),
-]
+        return core_schema.typed_dict_field(field_type_schema(**data_args))
 
 
-BooleanField = Annotated[NewType("BooleanField", bool), Field()]
+class ACFCalculatedField(ACFFieldMixin, forms.FloatField):
+    fields = List[str]
+
+    def __init__(self, *args, fields: List[str], **kwargs):
+
+        self.fields = fields
+        super().__init__(*args, **kwargs)
 
 
-CalculatedField = Annotated[
-    NewType("CalculatedField", float),
-    SpecificTypedField("CalculatedField", json_schema_extra={"fields": []}),
-]
-
-CalculatedCurrencyField = Annotated[
-    NewType("CalculatedCurrencyField", float),
-    SpecificTypedField("CalculatedCurrencyField", json_schema_extra={"fields": []}),
-]
-
-
-class ChoiceField(Enum):
+class ACFCalculatedCurrencyField(ACFCalculatedField):
     pass
 
 
-ALL_FIELD_TYPES = (
-    TextField
-    | TextareaField
-    | CurrencyField
-    | PhoneNumberField
-    | EmailField
-    | BooleanField
-    | ChoiceField
-    | CalculatedCurrencyField
-    | CalculatedField
-)
+class ACFCurrencyField(ACFFieldMixin, forms.FloatField):
+    pass
 
 
-def get_base_origin(t):
-    """Return the base type of a type."""
-
-    if get_origin(t) == Union:
-        t = get_args(t)[0]
-
-    while True:
-
-        _next = get_origin(t)
-
-        if not _next:
-            return t
-
-        t = _next
+class ACFTextAreaField(ACFFieldMixin, forms.CharField):
+    pass
 
 
-@lru_cache
-def get_allowed_field_types() -> list[Any]:
-    """Return a list of possible base field types."""
+class ACFPhoneNumberField(ACFFieldMixin, forms.CharField):
+    pass
 
-    allowed_field_types = []
 
-    for _type in get_args(ALL_FIELD_TYPES):
+class ACFFieldsMeta(type):
 
-        allowed_field_types.append(get_base_origin(_type))
+    def __new__(cls, name, bases=(), dct={}):
 
-    return allowed_field_types
+        for name, field_class in forms.fields.__dict__.items():
+
+            try:
+                if not issubclass(field_class, forms.Field):
+                    continue
+            except TypeError:
+                continue
+
+            dct.update({name: type(name, (ACFFieldMixin, field_class), {})})
+
+        dct.update(
+            {
+                "CurrencyField": ACFCurrencyField,
+                "TextareaField": ACFTextAreaField,
+                "PhoneNumberField": ACFPhoneNumberField,
+                "CalculatedCurrencyField": ACFCalculatedCurrencyField,
+                "CalculatedField": ACFCalculatedField,
+            }
+        )
+
+        return super().__new__(cls, name, bases, dct)
+
+
+class acf_fields(metaclass=ACFFieldsMeta): ...
