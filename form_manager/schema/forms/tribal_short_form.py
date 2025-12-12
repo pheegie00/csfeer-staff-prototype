@@ -12,20 +12,20 @@ from .base import BaseFields, BaseFormSchema
 
 class TribalShortFormFields(BaseFields):
 
-    # org_name = acf_fields.CharField(
-    #     title="A.1a.", description="Name of Tribe or Tribal Organization", max_length=100
-    # )
-    # contact_name = acf_fields.CharField(title="Contact name")
-    # contact_title = acf_fields.CharField(title="Title")
-    # phone = acf_fields.PhoneNumberField(
-    #     title="A.1c", description="Work Telephone number and extension (if applicable)"
-    # )
-    # email = acf_fields.CharField(title="A.1d", description="Email address")
-    # employment_expenditure = acf_fields.CharField(title="A.2a.", description="Employment")
-    # childcare_expenditure = acf_fields.CurrencyField(
-    #     title="A.2b",
-    #     description="Childcare, Early Childhood, Youth Development, and Adult Education",
-    # )
+    org_name = acf_fields.CharField(
+        title="A.1a.", description="Name of Tribe or Tribal Organization", max_length=100
+    )
+    contact_name = acf_fields.CharField(title="Contact name")
+    contact_title = acf_fields.CharField(title="Title")
+    phone = acf_fields.PhoneNumberField(
+        title="A.1c", description="Work Telephone number and extension (if applicable)"
+    )
+    email = acf_fields.CharField(title="A.1d", description="Email address")
+    employment_expenditure = acf_fields.CharField(title="A.2a.", description="Employment")
+    childcare_expenditure = acf_fields.CurrencyField(
+        title="A.2b",
+        description="Childcare, Early Childhood, Youth Development, and Adult Education",
+    )
 
     asset_building_expenditure = acf_fields.CurrencyField(
         title="A.2c.", description="Income and Asset Building"

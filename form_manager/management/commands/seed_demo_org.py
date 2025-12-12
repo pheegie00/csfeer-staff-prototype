@@ -1,7 +1,12 @@
+from typing import TYPE_CHECKING, cast
+
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 
 from form_manager.models import OrganizationProfile, UserOrganizationMembership
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
 
 
 class Command(BaseCommand):
@@ -23,24 +28,35 @@ class Command(BaseCommand):
             default="Demo Organization",
             help="Name of the organization to create or reuse.",
         )
+        parser.add_argument(
+            "--all",
+            action="store_true",
+            default=False,
+            help="Seed this demo org for all django users",
+        )
 
     def handle(self, *args, **options):
-        User = get_user_model()
-        username: str | None = options.get("username")
+        seed_all = options.get("all")
         org_name: str = options.get("org_name") or "Demo Organization"
-        # No local user creation here; user must already exist via OIDC login
 
-        # Resolve user
-        user = None
-        if username:
-            user = User.objects.filter(username=username).first()
-            if not user:
+        UserModel = cast("User", get_user_model())
+
+        if seed_all:
+            for user in UserModel.objects.all():
+                self._create_org(user, org_name)
+        else:
+            username: str | None = options.get("username")
+
+            try:
+                user = UserModel.objects.get(username=username)
+            except UserModel.DoesNotExist:
                 raise CommandError(
                     f"User '{username}' not found. Have them sign in via OIDC first to provision the Django user."
                 )
-        else:
-            # With defaulting to 'demo', we should practically never hit this branch.
-            raise CommandError("No username resolved. Specify --username.")
+
+            self._create_org(user, org_name)
+
+    def _create_org(self, user: "User", org_name: str):
 
         # At this point user must be resolved
         assert user is not None

@@ -1,15 +1,41 @@
 """Base form class definitions"""
 
-import inspect
-from typing import Annotated, Any, Generic, Optional, Tuple, TypeVar
+from typing import (
+    Annotated,
+    Any,
+    Generic,
+    Optional,
+    Tuple,
+    TypeVar,
+    cast,
+    get_type_hints,
+)
 
 from django import forms
+from django.forms.renderers import TemplatesSetting
+from django.forms.utils import ErrorList
 from pydantic import BaseModel, Field, GetCoreSchemaHandler
 from pydantic_core import core_schema
 from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.constants import AllFormNames, FormFamilies
 from form_manager.schema.layout import FieldBlock, SectionBlock
+
+
+class PydanticErrorList(ErrorList):
+    """A custom error renderer"""
+
+    template_name = "form_manager/forms/error_list.html"
+    template_name_text = "form_manager/forms/error_list_text.txt"
+    template_name_ul = "form_manager/forms/error_list_ul.html"
+
+
+class ACFFormRenderer(TemplatesSetting):
+    """A custom renderer"""
+
+    form_template_name = "form_manager/forms/form.html"
+    formset_template_name = "form_manager/forms/formset.html"
+    field_template_name = "form_manager/forms/field.html"
 
 
 class JSONSchemaService:
@@ -30,6 +56,12 @@ class JSONSchemaService:
 class BaseFields(forms.Form):
     """A base form class for form fields."""
 
+    default_renderer = ACFFormRenderer
+
+    def __init__(self, *args, ui_components=None, **kwargs):
+        self.ui_components = ui_components
+        super().__init__(*args, **kwargs)
+
     @classmethod
     def __get_pydantic_core_schema__(
         cls, source_type: Any, handler: GetCoreSchemaHandler
@@ -47,6 +79,28 @@ class BaseFields(forms.Form):
                 continue
 
         return core_schema.typed_dict_schema(fields)
+
+    def get_context(self):
+
+        context = cast(dict, super().get_context())
+
+        # Recursively attach Django field objects to UI components
+        # for rendering
+        def attach_fields(node):
+            if node["type"] == "field":
+                field_name = node.get("field_name")
+                field = self[field_name]
+                node["django_field"] = field
+            else:
+                for child in node.get("children", []):
+                    attach_fields(child)
+
+        for component in self.ui_components:
+            attach_fields(component)
+
+        context.update({"ui_components": self.ui_components})
+
+        return context
 
 
 FormFields = TypeVar("FormFields", bound=BaseFields)
@@ -105,6 +159,11 @@ class BaseFormSchema(
         return _def.get("properties", None), _def.get("required", [])
 
     @classmethod
+    def get_form_fields_class(cls) -> BaseFields | None:
+
+        return get_type_hints(cls).get("form_fields")
+
+    @classmethod
     def dump_ui_definition_from_json_schema(
         cls, json_schema: Optional[dict[str, Any]] = None
     ) -> dict:
@@ -115,22 +174,22 @@ class BaseFormSchema(
 
         return json_schema["properties"]["ui"]["default"]
 
-    @classmethod
-    def merge_fields_into_ui_schema(cls, ui_schema: dict, form_fields: dict) -> dict:
-        """Merge the form fields into the UI schema"""
+    # @classmethod
+    # def merge_fields_into_ui_schema(cls, ui_schema: dict, form_fields: dict) -> dict:
+    #     """Merge the form fields into the UI schema"""
 
-        def merge_fields(component: dict) -> dict:
+    #     def merge_fields(component: dict) -> dict:
 
-            if component.get("type") == "field":
-                field_name = component.get("field_name")
-                field_def = form_fields.get(field_name, {})
-                component["field_definition"] = field_def
+    #         if component.get("type") == "field":
+    #             field_name = component.get("field_name")
+    #             field_def = form_fields.get(field_name, {})
+    #             component["field_definition"] = field_def
 
-            if "children" in component:
-                component["children"] = [merge_fields(child) for child in component["children"]]
+    #         if "children" in component:
+    #             component["children"] = [merge_fields(child) for child in component["children"]]
 
-            return component
+    #         return component
 
-        merged_ui = merge_fields(ui_schema)
+    #     merged_ui = merge_fields(ui_schema)
 
-        return merged_ui
+    #     return merged_ui

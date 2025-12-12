@@ -3,10 +3,19 @@ Pytest configuration and fixtures for e2e tests.
 """
 
 import os
-from typing import Generator
+from typing import TYPE_CHECKING, Generator
 
 import pytest
+from django.test.client import Client
 from playwright.sync_api import Browser, BrowserContext, Page, expect
+
+if TYPE_CHECKING:
+    from django.test.client import Client
+
+from faker import Faker
+
+fake = Faker()
+
 
 # Import user fixtures
 pytest_plugins = ["tests.fixtures.users"]
@@ -119,3 +128,43 @@ def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "e2e: end-to-end tests using Playwright")
     config.addinivalue_line("markers", "auth: tests that require authentication")
     config.addinivalue_line("markers", "slow: slow running tests")
+
+
+import pytest
+from django.contrib.auth import get_user_model
+
+
+@pytest.fixture
+def create_user(django_user_model):
+    """
+    Factory fixture to create Django users.
+
+    Usage:
+        user = create_user(username="alice", password="secret", email="a@b.com", is_staff=True)
+    """
+
+    details = dict(
+        first_name=fake.first_name(),
+        last_name=fake.last_name(),
+        username=fake.user_name(),
+        password=fake.password(),
+    )
+
+    return django_user_model.objects.create_user(**details), details
+
+
+@pytest.fixture
+def authenticated_client(create_user, client: "Client") -> "Client":
+
+    user, _ = create_user
+
+    client.force_login(user)
+
+    return client
+
+
+@pytest.fixture(autouse=True)
+def use_model_auth_backend(settings):
+    settings.AUTHENTICATION_BACKENDS = [
+        "django.contrib.auth.backends.ModelBackend"
+    ] + settings.AUTHENTICATION_BACKENDS
