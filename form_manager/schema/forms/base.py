@@ -5,7 +5,6 @@ from typing import (
     Any,
     Generic,
     Optional,
-    Tuple,
     TypeVar,
     cast,
     get_type_hints,
@@ -38,27 +37,12 @@ class ACFFormRenderer(TemplatesSetting):
     field_template_name = "form_manager/forms/field.html"
 
 
-class JSONSchemaService:
-    """Utility class for working with JSON Schemas."""
-
-    @classmethod
-    def get_def_of_ref(cls, ref: str, schema: dict):
-        path = ref.split("/")[1:]
-
-        current = schema
-
-        for part in path:
-            current = current.get(part, {})
-
-        return current
-
-
 class BaseFields(forms.Form):
     """A base form class for form fields."""
 
     default_renderer = ACFFormRenderer
 
-    def __init__(self, *args, ui_components=None, **kwargs):
+    def __init__(self, *args, ui_components=[], **kwargs):
         self.ui_components = ui_components
         super().__init__(*args, **kwargs)
 
@@ -66,14 +50,15 @@ class BaseFields(forms.Form):
     def __get_pydantic_core_schema__(
         cls, source_type: Any, handler: GetCoreSchemaHandler
     ) -> core_schema.CoreSchema:
+        """This is what allows us to used BaseFields as a pydantic type
+        and continue to generate a JSON schema."""
 
         fields = {}
 
         for name, field in cls.declared_fields.items():
 
             try:
-
-                fields[name] = field.to_pydantic_schema_type()
+                fields[name] = field.to_pydantic_schema_type()  # type: ignore
             except Exception as error:
                 print(error)
                 continue
@@ -81,7 +66,7 @@ class BaseFields(forms.Form):
         return core_schema.typed_dict_schema(fields)
 
     def get_context(self):
-
+        """Set template context for rendering purposes."""
         context = cast(dict, super().get_context())
 
         # Recursively attach Django field objects to UI components
@@ -131,33 +116,6 @@ class BaseFormSchema(
     )
     ui: list[SectionBlock | FieldBlock] = Field(description="The Form UI definition")
 
-    # @classmethod
-    # def model_json_schema(cls, *args, **kwargs):
-    #     """Overload this method to perform some schema validation."""
-
-    #     for field in ["family", "name", "variant"]:
-    #         if not cls.model_fields[field].frozen:
-    #             raise SchemaValidationError(
-    #                 f"Field {field} in {cls.__name__} must have frozen=True", form_class=cls
-    #             )
-
-    #     return super().model_json_schema()
-
-    @classmethod
-    def dump_form_fields_from_json_schema(
-        cls, json_schema: Optional[dict[str, Any]] = None
-    ) -> Tuple[dict | None, list[str]]:
-        """Dump the form fields as a dictionary"""
-
-        if not json_schema:
-            json_schema = cls.model_json_schema()
-
-        _def = JSONSchemaService.get_def_of_ref(
-            json_schema["properties"]["form_fields"]["$ref"], json_schema
-        )
-
-        return _def.get("properties", None), _def.get("required", [])
-
     @classmethod
     def get_form_fields_class(cls) -> BaseFields | None:
 
@@ -173,23 +131,3 @@ class BaseFormSchema(
             json_schema = cls.model_json_schema()
 
         return json_schema["properties"]["ui"]["default"]
-
-    # @classmethod
-    # def merge_fields_into_ui_schema(cls, ui_schema: dict, form_fields: dict) -> dict:
-    #     """Merge the form fields into the UI schema"""
-
-    #     def merge_fields(component: dict) -> dict:
-
-    #         if component.get("type") == "field":
-    #             field_name = component.get("field_name")
-    #             field_def = form_fields.get(field_name, {})
-    #             component["field_definition"] = field_def
-
-    #         if "children" in component:
-    #             component["children"] = [merge_fields(child) for child in component["children"]]
-
-    #         return component
-
-    #     merged_ui = merge_fields(ui_schema)
-
-    #     return merged_ui

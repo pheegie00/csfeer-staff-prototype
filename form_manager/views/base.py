@@ -69,10 +69,6 @@ class BaseSingleFormView(BaseFormUpdateView):
 
         schema_class = self.get_form_schema()
 
-        # import ipdb
-
-        # ipdb.set_trace()
-
         kwargs.update({"ui_components": schema_class.dump_ui_definition_from_json_schema()})
 
         return kwargs

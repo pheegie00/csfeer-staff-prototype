@@ -5,19 +5,12 @@ from __future__ import annotations
 import inspect
 from datetime import date, datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING, List
+from typing import List
 
 from django import forms
+from django.forms.boundfield import BoundField
+from django.utils.functional import cached_property
 from pydantic_core import core_schema
-from pydantic_extra_types.phone_numbers import PhoneNumber
-
-if TYPE_CHECKING:
-
-    class EmailStr(str):
-        pass
-
-else:
-    from pydantic import EmailStr
 
 
 class ACFFieldMixin:
@@ -31,6 +24,7 @@ class ACFFieldMixin:
         super().__init__(*args, **kwargs)
 
     def to_pydantic_schema_type(self):
+        """Convert this field to a pydantic schema type."""
 
         field_type_map = {
             "BooleanField": bool,
@@ -75,11 +69,42 @@ class ACFFieldMixin:
 
 
 class ACFCalculatedField(ACFFieldMixin, forms.FloatField):
-    fields = List[str]
+    """A field whose value is calculated from other form fields."""
+
+    fields: List[str]
+
+    class ACFCalculatedBoundField(BoundField):
+        """A BoundField for Calculated Fields."""
+
+        field: ACFCalculatedField  # type: ignore
+
+        @property
+        def data(self):
+            """
+            Return the data for this BoundField, or None if it wasn't given.
+            """
+            values = []
+
+            for source_field in self.field.fields:
+                source_value = self.form.data.get(source_field)
+                if source_value in (None, ""):
+                    continue
+                values.append(float(source_value))
+
+            return sum(values)
+
+        @cached_property
+        def initial(self):
+            """Overload the initial property to always return the calcualted value."""
+
+            return self.data
 
     def __init__(self, *args, fields: List[str], **kwargs):
 
         self.fields = fields
+        kwargs.update(
+            {"disabled": True, "bound_field_class": self.ACFCalculatedBoundField, "required": False}
+        )
         super().__init__(*args, **kwargs)
 
 
