@@ -1,5 +1,6 @@
 """Base form class definitions"""
 
+import logging
 from typing import (
     Annotated,
     Any,
@@ -20,6 +21,8 @@ from pydantic_extra_types.semantic_version import SemanticVersion
 from form_manager.constants import AllFormNames, FormFamilies
 from form_manager.schema.layout import FieldBlock, SectionBlock
 
+logger = logging.getLogger(__name__)
+
 
 class PydanticErrorList(ErrorList):
     """A custom error renderer"""
@@ -38,7 +41,8 @@ class ACFFormRenderer(TemplatesSetting):
 
 
 class BaseFields(forms.Form):
-    """A base form class for form fields."""
+    """A base Django form class that can also be used as a Pydantic field
+    for serializing form defintions into base classes."""
 
     default_renderer = ACFFormRenderer
 
@@ -60,7 +64,7 @@ class BaseFields(forms.Form):
             try:
                 fields[name] = field.to_pydantic_schema_type()  # type: ignore
             except Exception as error:
-                print(error)
+                logger.warning(error)
                 continue
 
         return core_schema.typed_dict_schema(fields)
@@ -88,7 +92,6 @@ class BaseFields(forms.Form):
         return context
 
 
-FormFields = TypeVar("FormFields", bound=BaseFields)
 FormId = TypeVar("FormId", bound=str)
 FormVersion = TypeVar("FormVersion", bound=str)
 
@@ -101,9 +104,7 @@ class SchemaValidationError(Exception):
         super().__init__(message)
 
 
-class BaseFormSchema(
-    BaseModel, Generic[FormFields, FormId, FormVersion], arbitrary_types_allowed=True
-):
+class BaseFormSchema(BaseModel, Generic[FormId, FormVersion], arbitrary_types_allowed=True):
     """The official schema for CSFEER form definitions."""
 
     family: FormFamilies = Field(description="The family of the form")
@@ -111,7 +112,7 @@ class BaseFormSchema(
     variant: Annotated[
         SemanticVersion, Field(description="The version of the form", default="1.0.0")
     ]
-    form_fields: Any = Field(
+    form_fields: BaseFields = Field(
         description="Form field definitions. This should be a class that inherits BaseFormFields."
     )
     ui: list[SectionBlock | FieldBlock] = Field(description="The Form UI definition")

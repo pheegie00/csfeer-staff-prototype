@@ -9,8 +9,9 @@ from typing import List
 
 from django import forms
 from django.forms.boundfield import BoundField
-from django.utils.functional import cached_property
 from pydantic_core import core_schema
+
+from form_manager.schema.widgets import CurrencyInput
 
 
 class ACFFieldMixin:
@@ -24,7 +25,13 @@ class ACFFieldMixin:
         super().__init__(*args, **kwargs)
 
     def to_pydantic_schema_type(self):
-        """Convert this field to a pydantic schema type."""
+        """Convert the field to a pydantic schema type when using Pydantic to serialize
+        the form definition into json.
+
+        To Do: This will only provide very basic field info at the moment. If we intend to
+        make the JSON schema the source of truth for form definitions, we will need to
+        include more field properties in the dumped schema.
+        """
 
         field_type_map = {
             "BooleanField": bool,
@@ -81,7 +88,7 @@ class ACFCalculatedField(ACFFieldMixin, forms.FloatField):
         @property
         def data(self):
             """
-            Return the data for this BoundField, or None if it wasn't given.
+            Sum the values of the source fields.
             """
             values = []
 
@@ -93,35 +100,43 @@ class ACFCalculatedField(ACFFieldMixin, forms.FloatField):
 
             return sum(values)
 
-        @cached_property
+        @property
         def initial(self):
-            """Overload the initial property to always return the calcualted value."""
+            initial = self.form.get_initial_for_field(self.field, self.name)
 
-            return self.data
+            return self.data or initial
+
+    bound_field_class = ACFCalculatedBoundField
 
     def __init__(self, *args, fields: List[str], **kwargs):
-
+        """Overloaded to set the source field list and the disabled and required attributes."""
         self.fields = fields
-        kwargs.update(
-            {"disabled": True, "bound_field_class": self.ACFCalculatedBoundField, "required": False}
-        )
+        kwargs.update({"disabled": True, "required": False})
         super().__init__(*args, **kwargs)
 
+    def bound_data(self, data, initial):
+        """Overloaded to return the calculated value even if
+        the field is disabled."""
 
-class ACFCalculatedCurrencyField(ACFCalculatedField):
-    pass
+        return data or initial
 
 
 class ACFCurrencyField(ACFFieldMixin, forms.FloatField):
-    pass
+    """A currency field"""
+
+    widget = CurrencyInput
+
+
+class ACFCalculatedCurrencyField(ACFCalculatedField):
+    """A calculated currency field"""
+
+    widget = CurrencyInput
 
 
 class ACFTextAreaField(ACFFieldMixin, forms.CharField):
-    pass
+    """A text area field"""
 
-
-class ACFPhoneNumberField(ACFFieldMixin, forms.CharField):
-    pass
+    widget = type("TextareaInput", (forms.TextInput,), {})
 
 
 class ACFFieldsMeta(type):
@@ -142,7 +157,6 @@ class ACFFieldsMeta(type):
             {
                 "CurrencyField": ACFCurrencyField,
                 "TextareaField": ACFTextAreaField,
-                "PhoneNumberField": ACFPhoneNumberField,
                 "CalculatedCurrencyField": ACFCalculatedCurrencyField,
                 "CalculatedField": ACFCalculatedField,
             }

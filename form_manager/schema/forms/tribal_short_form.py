@@ -1,5 +1,6 @@
 """The Tribal Short Form definition"""
 
+from django import forms
 from pydantic import ConfigDict, Field
 from pydantic_extra_types.semantic_version import SemanticVersion
 
@@ -17,10 +18,12 @@ class TribalShortFormFields(BaseFields):
     )
     contact_name = acf_fields.CharField(title="Contact name")
     contact_title = acf_fields.CharField(title="Title")
-    phone = acf_fields.PhoneNumberField(
-        title="A.1c", description="Work Telephone number and extension (if applicable)"
+    phone = acf_fields.CharField(
+        title="A.1c",
+        description="Work Telephone number and extension (if applicable)",
+        widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
     )
-    email = acf_fields.CharField(title="A.1d", description="Email address")
+    email = acf_fields.CharField(title="A.1d", description="Email address", widget=forms.EmailInput)
     employment_expenditure = acf_fields.CharField(title="A.2a.", description="Employment")
     childcare_expenditure = acf_fields.CurrencyField(
         title="A.2b",
@@ -160,7 +163,7 @@ class TribalShortForm(BaseFormSchema):
     family: FormFamilies = Field(FormFamilies.CSBG_ANNUAL_REPORT, frozen=True)
     name: AllFormNames = Field(CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT, frozen=True)
     variant: SemanticVersion = Field(SemanticVersion(3, 0, 3), frozen=True)
-    form_fields: TribalShortFormFields
+    form_fields: TribalShortFormFields  # type: ignore  add typing.ReadOnly in python > 3.13 to fix this
     ui: UIDefinition = Field(
         frozen=True,
         default=[
