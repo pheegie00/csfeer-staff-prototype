@@ -66,6 +66,7 @@ class Command(BaseCommand):
                     "family": family,
                     "schema": schema,
                     "is_active": True,
+                    "schema_class": definition.__name__,
                 },
             )
 

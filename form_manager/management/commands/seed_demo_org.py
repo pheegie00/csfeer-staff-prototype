@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand, CommandError
 from form_manager.models import OrganizationProfile, UserOrganizationMembership
 
 if TYPE_CHECKING:
-    from django.contrib.auth.models import User
+    from users.models import CoreUser
 
 
 class Command(BaseCommand):
@@ -17,10 +17,10 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--username",
+            "--email",
             type=str,
             default="demo",
-            help="Username to link to the demo organization (default: 'demo').",
+            help="Email to link to the demo organization (default: 'demo').",
         )
         parser.add_argument(
             "--org-name",
@@ -39,24 +39,24 @@ class Command(BaseCommand):
         seed_all = options.get("all")
         org_name: str = options.get("org_name") or "Demo Organization"
 
-        UserModel = cast("User", get_user_model())
+        UserModel = cast("CoreUser", get_user_model())
 
         if seed_all:
             for user in UserModel.objects.all():
                 self._create_org(user, org_name)
         else:
-            username: str | None = options.get("username")
+            email: str | None = options.get("username")
 
             try:
-                user = UserModel.objects.get(username=username)
+                user = UserModel.objects.get(email=email)
             except UserModel.DoesNotExist:
                 raise CommandError(
-                    f"User '{username}' not found. Have them sign in via OIDC first to provision the Django user."
+                    f"User '{email}' not found. Have them sign in via OIDC first to provision the Django user."
                 )
 
             self._create_org(user, org_name)
 
-    def _create_org(self, user: "User", org_name: str):
+    def _create_org(self, user: "CoreUser", org_name: str):
 
         # At this point user must be resolved
         assert user is not None
