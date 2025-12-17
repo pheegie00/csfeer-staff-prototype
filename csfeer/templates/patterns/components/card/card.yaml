@@ -1,0 +1,42 @@
+name: Card
+context:
+  variants:
+    - title: "Default Card"
+      options:
+        - title: "Card Title"
+          body: "This is a default card with some content."
+          footer: "Read more"
+    - title: "Card with Media"
+      options:
+        - title: "Card with Image"
+          body: "This card includes an image and content."
+          media: "https://designsystem.digital.gov/img/introducing-uswds-2-0/built-to-grow--alt.jpg"
+          footer: "Visit"
+    - title: "Flag Layout"
+      options:
+        - title: "Flag Card"
+          body: "This is a flag layout card with media on the side."
+          media: "https://designsystem.digital.gov/img/introducing-uswds-2-0/built-to-grow--alt.jpg"
+          footer: "Learn more"
+          layout: "flagDefault"
+    - title: "Flag Layout"
+      options:
+        - title: "Flag Card with Media on Right Side"
+          body: "This is a flag layout card with media on the side."
+          media: "https://designsystem.digital.gov/img/introducing-uswds-2-0/built-to-grow--alt.jpg"
+          footer: "Learn more"
+          layout: "flagMediaRight"          
+    - title: "Inset Media"
+      options:
+        - title: "Inset Media Card"
+          body: "This card has inset media."
+          media: "https://designsystem.digital.gov/img/introducing-uswds-2-0/built-to-grow--alt.jpg"
+          inset: "true"
+          footer: "Action"
+    - title: "Exdent Media"
+      options:
+        - title: "Exdent Media Card"
+          body: "This card has exdent media."
+          media: "https://designsystem.digital.gov/img/introducing-uswds-2-0/built-to-grow--alt.jpg"
+          exdent: "true"
+          footer: "Go"

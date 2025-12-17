@@ -1,6 +1,11 @@
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
-from form_manager.models import FormDefinition
+from form_manager.models import (
+    FormDefinition,
+    OrganizationProfile,
+    UserOrganizationMembership,
+)
 from form_manager.schema.forms.base import BaseFormSchema, SchemaValidationError
 
 from ...utils import get_form_definitions
@@ -54,15 +59,30 @@ class Command(BaseCommand):
                 )
                 continue
 
-            obj = FormDefinition.objects.create(
-                family=family,
+            obj, created_bool = FormDefinition.objects.update_or_create(
                 variant=variant,
                 name=name,
-                schema=schema,
-                schema_class=definition.__name__,
-                is_active=True,
+                defaults={
+                    "family": family,
+                    "schema": schema,
+                    "is_active": True,
+                },
             )
-            created += 1
-            self.stdout.write(self.style.SUCCESS(f"Imported {definition.__name__}: {obj}"))
+
+            if created_bool:
+                created += 1
+                self.stdout.write(self.style.SUCCESS(f"Imported {definition.__name__}: {obj}"))
+            else:
+                self.stdout.write(self.style.SUCCESS(f"Updated {definition.__name__}: {obj}"))
 
         self.stdout.write(self.style.SUCCESS(f"Done. Created={created}"))
+
+        # Ensure all users have an organization
+        User = get_user_model()
+        users = User.objects.all()
+        for user in users:
+            if not UserOrganizationMembership.objects.filter(user=user).exists():
+                org_name = f"{user.email}'s Organization"
+                org = OrganizationProfile.objects.create(name=org_name, contact_email=user.email)
+                UserOrganizationMembership.objects.create(user=user, organization=org, role="admin")
+                self.stdout.write(self.style.SUCCESS(f"Created organization for user {user.email}"))

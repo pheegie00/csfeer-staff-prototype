@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     "django_cotton_uswds",
     "django_extensions",
     # Local
+    "core",
+    "users",
     "form_manager",
     "django.forms",
 ]
@@ -68,7 +70,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-AUTHENTICATION_BACKENDS = ["oauth2_authcodeflow.auth.AuthenticationBackend"]
+AUTHENTICATION_BACKENDS = ["csfeer.backends.EmailOIDCAuthenticationBackend"]
 ROOT_URLCONF = "csfeer.urls"
 
 TEMPLATES = [
@@ -158,7 +160,9 @@ OIDC_RP_CLIENT_SECRET = settings.oidc_config.client_secret
 OIDC_RP_FORCE_SECRET_WITH_PKCE = settings.oidc_config.force_secret_with_pkce
 OIDC_RP_SCOPES = settings.oidc_config.scopes
 OIDC_MIDDLEWARE_NO_AUTH_URL_PATTERNS = settings.oidc_config.no_auth_urls
-OIDC_EXTEND_USER = "csfeer.auth.extend_user_with_roles"
+OIDC_EXTEND_USER = (
+    "csfeer.backends.extend_user_with_roles"  # Custom function to extend user with roles
+)
 
 PATTERN_LIBRARY = {
     "SECTIONS": (
@@ -177,6 +181,8 @@ if DEBUG:
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = "users.CoreUser"
 
 # Logging Configuration
 # https://docs.djangoproject.com/en/5.2/topics/logging/
