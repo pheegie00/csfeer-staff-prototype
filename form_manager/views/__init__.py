@@ -1,5 +1,6 @@
 from functools import lru_cache
 from typing import Any, cast
+from uuid import UUID
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -34,7 +35,7 @@ def form_list(request):
 
 
 @login_required
-def form_start(request, form_id: str):
+def form_start(request, form_id: UUID):
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=request.user).first()
     if not org or not user_can_edit(request.user, org):
         messages.error(request, "No permission to create forms.")
@@ -138,7 +139,7 @@ class FormPreviewView(BaseSingleFormView, FormPermissionMixin):
 
 
 @login_required
-def form_history(request, pk: int):
+def form_history(request, pk: UUID):
     """Show submission events for this entry and allow previewing snapshots at each submit/amend."""
     entry = get_object_or_404(FormEntry, pk=pk)
     if not user_can_view(request.user, entry.organization):
@@ -193,7 +194,7 @@ class FormSnapshotView(BaseSingleFormView, FormPermissionMixin):
 
 
 @login_required
-def form_lock(request, pk: int):
+def form_lock(request, pk: UUID):
     entry = get_object_or_404(FormEntry, pk=pk)
     if not user_can_edit(request.user, entry.organization):
         messages.error(request, "No permission to lock/unlock.")
@@ -206,7 +207,7 @@ def form_lock(request, pk: int):
 
 
 @login_required
-def form_unlock(request, pk: int):
+def form_unlock(request, pk: UUID):
     entry = get_object_or_404(FormEntry, pk=pk)
     if not user_can_edit(request.user, entry.organization):
         messages.error(request, "No permission to lock/unlock.")
@@ -219,7 +220,7 @@ def form_unlock(request, pk: int):
 
 
 @login_required
-def form_archive(request, pk: int):
+def form_archive(request, pk: UUID):
     entry = get_object_or_404(FormEntry, pk=pk)
     if not user_can_edit(request.user, entry.organization):
         messages.error(request, "No permission to archive.")

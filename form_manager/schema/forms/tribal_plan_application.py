@@ -5,7 +5,11 @@ from unittest.mock import Base
 from pydantic import Field
 from pydantic_extra_types.semantic_version import SemanticVersion
 
-from form_manager.constants import AllFormNames, CSBGTribalPlanApplicationForms, FormFamilies
+from form_manager.constants import (
+    AllFormNames,
+    CSBGTribalPlanApplicationForms,
+    FormFamilies,
+)
 from form_manager.schema.layout import FieldBlock, SectionBlock
 
 from ..fields import ChoiceField, TextareaField, TextField
@@ -118,4 +122,32 @@ class TribalPlanApplication(BaseFormSchema):
     form_fields: TribalPlanApplicationFields = Field(
         description="Form field definitions. This should be a class that inherits BaseFormFields."
     )
-    ui: list[SectionBlock | FieldBlock] = Field(description="The Form UI definition")
+    ui: list[SectionBlock | FieldBlock] = Field(
+        description="The Form UI definition",
+        default=[
+            SectionBlock(
+                title="1.1 Plan coverage",
+                children=[
+                    FieldBlock(field_name="plan_coverage"),
+                    FieldBlock(field_name="plan_coverage_year_one"),
+                    FieldBlock(field_name="plan_coverage_year_two"),
+                ],
+            ),
+            SectionBlock(
+                title="1.2 Tribal Grant Recipient Name",
+                children=[
+                    FieldBlock(field_name="recipient_name"),
+                    FieldBlock(field_name="tribe_or_organization_name"),
+                ],
+            ),
+            SectionBlock(
+                title="1.3 Authorized Tribal Official",
+                children=[
+                    FieldBlock(field_name="tribal_official_city"),
+                    FieldBlock(field_name="tribal_official_street_address"),
+                    FieldBlock(field_name="tribal_official_state"),
+                    FieldBlock(field_name="tribal_official_zip"),
+                ],
+            ),
+        ],
+    )

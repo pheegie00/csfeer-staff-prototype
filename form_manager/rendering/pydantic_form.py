@@ -7,7 +7,7 @@ from django.forms.renderers import TemplatesSetting
 from django.forms.utils import ErrorList
 
 from form_manager.rendering.utils import generate_django_form_field_from_schema
-from form_manager.schema.forms.base import BaseFormSchema
+from form_manager.schema.forms.base import BaseFormSchema, JSONSchemaService
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +55,14 @@ class PyddanticDeclarativeFieldsMetaclass(DeclarativeFieldsMetaclass):
             return form_attrs
 
         for name, field in form_fields.items():
+            if "$ref" in field:
+                if _schema is None:
+                    continue
+                ref_def = JSONSchemaService.get_def_of_ref(field["$ref"], _schema)
+                # Merge ref_def into field (field properties override ref properties)
+                # We want to keep title/description from the field if they exist
+                field = ref_def | field
+
             field_object = generate_django_form_field_from_schema(
                 name, field, required=name in required_fields
             )

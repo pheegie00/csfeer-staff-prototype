@@ -18,6 +18,14 @@ A Django application for managing forms and workflows.
 - [uv](https://docs.astral.sh/uv/) for Python dependency management
 - Python 3.11+
 
+### macOS Setup
+
+If you are on macOS, you need to install system dependencies for WeasyPrint:
+
+```bash
+brew install pango
+```
+
 ## Quick Start
 
 1. **Configure hosts file**

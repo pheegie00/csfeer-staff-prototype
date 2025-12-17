@@ -504,6 +504,7 @@ dev = [
     { name = "isort", specifier = ">=6.1.0" },
     { name = "playwright", specifier = ">=1.49.0" },
     { name = "pre-commit", specifier = ">=4.0.0" },
+    { name = "pre-commit", specifier = ">=4.5.0" },
     { name = "pydotplus", specifier = ">=2.0.2" },
     { name = "pyright", extras = ["nodejs"], specifier = ">=1.1.406" },
     { name = "pytest" },

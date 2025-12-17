@@ -1,24 +1,25 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from core.models import BaseModel
+
 from ..constants import ALL_FORM_NAME_CHOICES, FormFamilies
 from .fields import SemVerField
 
 User = get_user_model()
 
 
-class OrganizationProfile(models.Model):
+class OrganizationProfile(BaseModel):
     name = models.CharField(max_length=255)
     address = models.TextField(blank=True)
     contact_email = models.EmailField(blank=True)
     contact_phone = models.CharField(max_length=30, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:  # pragma: no cover - trivial
         return self.name
 
 
-class UserOrganizationMembership(models.Model):
+class UserOrganizationMembership(BaseModel):
     ROLE_CHOICES = [
         ("admin", "Administrator"),
         ("editor", "Editor"),
@@ -29,14 +30,14 @@ class UserOrganizationMembership(models.Model):
     organization = models.ForeignKey(OrganizationProfile, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="editor")
 
-    class Meta:
+    class Meta(BaseModel.Meta):
         unique_together = ("user", "organization")
 
     def __str__(self) -> str:  # pragma: no cover - trivial
         return f"{self.user} → {self.organization} ({self.role})"
 
 
-class FormDefinition(models.Model):
+class FormDefinition(BaseModel):
     family = models.CharField(
         null=False,
         blank=False,
@@ -56,16 +57,15 @@ class FormDefinition(models.Model):
         help_text="The name of the pydantic form schema class",
     )
     is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
+    class Meta(BaseModel.Meta):
         unique_together = ("name", "variant")
 
     def __str__(self) -> str:  # pragma: no cover - trivial
         return f"{self.name} (v{self.variant})"
 
 
-class FormEntry(models.Model):
+class FormEntry(BaseModel):
     STATUS_CHOICES = [
         ("draft", "Draft"),
         ("submitted", "Submitted"),
@@ -80,11 +80,10 @@ class FormEntry(models.Model):
     version_number = models.PositiveIntegerField(default=1)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="draft")
     submitted_at = models.DateTimeField(null=True, blank=True)
-    updated_at = models.DateTimeField(auto_now=True)
     locked = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
 
-    class Meta:
+    class Meta(BaseModel.Meta):
         unique_together = ("organization", "form_definition", "version_number")
         ordering = ["-updated_at"]
 
@@ -92,7 +91,7 @@ class FormEntry(models.Model):
         return f"{self.organization.name} - {self.form_definition.name} (v{self.version_number})"
 
 
-class FormAuditTrail(models.Model):
+class FormAuditTrail(BaseModel):
     form_entry = models.ForeignKey(FormEntry, on_delete=models.CASCADE, related_name="audits")
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     action = models.CharField(
@@ -105,7 +104,7 @@ class FormAuditTrail(models.Model):
         return f"{self.form_entry} - {self.action} by {self.user}"
 
 
-class FormAuditDetail(models.Model):
+class FormAuditDetail(BaseModel):
     form_entry = models.ForeignKey(
         FormEntry, on_delete=models.CASCADE, related_name="audit_details"
     )
