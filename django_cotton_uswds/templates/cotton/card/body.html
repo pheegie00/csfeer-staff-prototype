@@ -1,0 +1,7 @@
+<c-vars
+    exdent=""
+/>
+
+<div class="usa-card__body{% if exdent %} usa-card__body--exdent{% endif %} {{ extra_classes }}" data-testid="CardBody">
+    {{ slot }}
+</div>

@@ -1,0 +1,11 @@
+<c-vars
+    exdent=""
+    inset=""
+    image_class=""
+/>
+
+<div class="usa-card__media{% if exdent %} usa-card__media--exdent{% endif %}{% if inset %} usa-card__media--inset{% endif %} {{ extra_classes }}" data-testid="CardMedia">
+    <div class="usa-card__img {{ image_class }}">
+        {{ slot }}
+    </div>
+</div>
