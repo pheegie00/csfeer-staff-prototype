@@ -12,6 +12,9 @@ migrate:
 load-form:
 	$(UV) run python manage.py load_initial_forms
 
+nuke-forms:
+	$(UV) run python manage.py nuke_forms
+
 build:
 	docker compose build
 

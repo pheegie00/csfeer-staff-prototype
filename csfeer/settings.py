@@ -72,6 +72,7 @@ MIDDLEWARE = [
 
 AUTHENTICATION_BACKENDS = ["csfeer.backends.EmailOIDCAuthenticationBackend"]
 ROOT_URLCONF = "csfeer.urls"
+APPEND_SLASH = False
 
 TEMPLATES = [
     {
