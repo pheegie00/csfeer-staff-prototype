@@ -18,7 +18,7 @@ def seed_data(create_user):
     user, details = create_user
 
     call_command("load_initial_forms")
-    call_command("seed_demo_org", username=user.username)
+    call_command("seed_demo_org", email=user.email, all=True)
 
     return user, details
 
@@ -49,6 +49,8 @@ def test_can_start_new_form(django_db_setup, seed_data, client: "Client"):
 
     form = FormDefinition.objects.all().first()
 
+    assert form
+
     url = reverse("form_start", args=[form.pk])
 
     response = client.get(url)
@@ -56,9 +58,11 @@ def test_can_start_new_form(django_db_setup, seed_data, client: "Client"):
     assert response.status_code == 302
     assert FormEntry.objects.count() == 1
 
-    assert response.headers.get("Location", "") == reverse(
-        "form_edit", args=[FormEntry.objects.first().pk]
-    )
+    obj = FormEntry.objects.first()
+
+    assert obj
+
+    assert response.headers.get("Location", "") == reverse("form_edit", args=[obj.pk])
 
 
 @pytest.mark.django_db

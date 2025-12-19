@@ -146,7 +146,7 @@ def create_user(django_user_model):
     details = dict(
         first_name=fake.first_name(),
         last_name=fake.last_name(),
-        username=fake.user_name(),
+        email=fake.email(),
         password=fake.password(),
     )
 

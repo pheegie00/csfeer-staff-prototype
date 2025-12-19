@@ -49,6 +49,7 @@ dev = [
     "pytest-django",
     "django-stubs==5.2.8",
     "django-stubs-ext==5.2.8",
+    "faker==39.0.0",
 ]
 
 [tool.black]
