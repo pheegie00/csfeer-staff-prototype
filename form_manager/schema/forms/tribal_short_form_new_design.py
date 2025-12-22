@@ -1,32 +1,26 @@
 """The Tribal Short Form definition"""
 
-from typing import TYPE_CHECKING
-
 from django import forms
 from pydantic import ConfigDict, Field
 from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.schema.fields import acf_fields
-from form_manager.schema.forms.base import UIDefinition
-from form_manager.schema.layout import FieldBlock, SectionBlock
+from form_manager.schema.layout import FieldBlock, PageBlock, SectionBlock, StepBlock
 
 from ...constants import AllFormNames, CSBGAnnualReportForms, FormFamilies
-from .base import BaseFields, BaseFormSchema
+from .base import BaseFields, BaseFormSchema, UIDefinition
 
 
 class TribalShortFormFields(BaseFields):
 
-    org_name = acf_fields.CharField(
-        title="A.1a.", description="Name of Tribe or Tribal Organization", max_length=100
-    )
-    contact_name = acf_fields.CharField(title="Contact name")
-    contact_title = acf_fields.CharField(title="Title")
+    org_name = acf_fields.CharField(title="Name of Tribe or Tribal Organization", max_length=100)
+    contact_name = acf_fields.CharField(title="Full name")
+    contact_title = acf_fields.CharField(title="Role")
     phone = acf_fields.CharField(
-        title="A.1c",
-        description="Work Telephone number and extension (if applicable)",
+        title="Primary phone number",
         widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
     )
-    email = acf_fields.CharField(title="A.1d", description="Email address", widget=forms.EmailInput)
+    email = acf_fields.CharField(title="Email address", widget=forms.EmailInput)
     employment_expenditure = acf_fields.CharField(title="A.2a.", description="Employment")
     childcare_expenditure = acf_fields.CurrencyField(
         title="A.2b",
@@ -158,58 +152,40 @@ class TribalShortFormFields(BaseFields):
     )
 
 
-class TribalShortForm(BaseFormSchema):
+class TribalShortFormNewDesign(BaseFormSchema):
 
     family: FormFamilies = Field(FormFamilies.CSBG_ANNUAL_REPORT, frozen=True)
     name: AllFormNames = Field(CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT, frozen=True)
-    variant: SemanticVersion = Field(SemanticVersion(3, 0, 3), frozen=True)
+    variant: SemanticVersion = Field(SemanticVersion(3, 0, 4), frozen=True)
     form_fields: TribalShortFormFields  # type: ignore  add typing.ReadOnly in python > 3.13 to fix this
     ui: UIDefinition = Field(
         frozen=True,
         default=[
-            SectionBlock(
-                title="A.1",
-                description=(
-                    "Provide the following information in relation to the tribe or "
-                    "tribal organization designated to administer CSBG as required in "
-                    "Sections 676 and 677 of the CSBG Act, the Human Services Reauthorization "
-                    "Act of 1998 (P.L.105-285), and relevant federal policy guidance. "
-                    "The following information should mirror the information provided on the "
-                    "Application for Federal Assistance, SF-424M."
-                ),
+            StepBlock(
+                title="Basic Information",
                 children=[
-                    FieldBlock(field_name="org_name"),
-                    FieldBlock(field_name="contact_name"),
-                    FieldBlock(field_name="contact_title"),
-                    FieldBlock(field_name="phone"),
-                    FieldBlock(field_name="email"),
+                    PageBlock(
+                        title="Your basic information",
+                        children=[
+                            SectionBlock(
+                                title="Tribal Organization",
+                                children=[
+                                    FieldBlock(field_name="org_name"),
+                                ],
+                            ),
+                            SectionBlock(
+                                title="CSBG Program Contact",
+                                children=[
+                                    FieldBlock(field_name="contact_name"),
+                                    FieldBlock(field_name="contact_title"),
+                                    FieldBlock(field_name="phone"),
+                                    FieldBlock(field_name="email"),
+                                ],
+                            ),
+                        ],
+                    )
                 ],
-            ),
-            SectionBlock(
-                title="Section A: Tribal CSBG Expenditures",
-                children=[
-                    FieldBlock(field_name="employment_expenditure"),
-                    FieldBlock(field_name="childcare_expenditure"),
-                    FieldBlock(field_name="asset_building_expenditure"),
-                    FieldBlock(field_name="housing_expenditure"),
-                    FieldBlock(field_name="health_expenditure"),
-                    FieldBlock(field_name="civic_expenditure"),
-                    FieldBlock(field_name="transportation_expenditure"),
-                    FieldBlock(field_name="partnerships_expenditure"),
-                    FieldBlock(field_name="other_expenditure"),
-                    FieldBlock(field_name="total_expenditures"),
-                    FieldBlock(field_name="administration_expenditure"),
-                    FieldBlock(field_name="employment_related_services_description"),
-                    FieldBlock(field_name="education_related_service_description"),
-                    FieldBlock(field_name="income_services_description"),
-                    FieldBlock(field_name="housing_services_description"),
-                    FieldBlock(field_name="health_services_description"),
-                    FieldBlock(field_name="civic_services_description"),
-                    FieldBlock(field_name="health_services_description"),
-                    FieldBlock(field_name="transportation_services_description"),
-                    FieldBlock(field_name="poverty_coordination_description"),
-                ],
-            ),
+            )
         ],
     )
 

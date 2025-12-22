@@ -51,10 +51,10 @@ def form_start(request, form_id: UUID):
         form_definition=form_def, organization=org, created_by=request.user, version_number=next_ver
     )
     FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="create")
-    return redirect("form_edit", pk=entry.pk)
+    return redirect("form_edit_legacy", pk=entry.pk)
 
 
-class FormEditView(BaseSingleFormView, FormPermissionMixin):
+class FormEditLegacyView(BaseSingleFormView, FormPermissionMixin):
     template_name = "forms/form_edit.html"
 
     def save_form_entry(self, form, status=None):
@@ -203,7 +203,7 @@ def form_lock(request, pk: UUID):
     entry.save()
     FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="lock")
     messages.info(request, "Entry locked.")
-    return redirect("form_edit", pk=pk)
+    return redirect("form_edit_legacy", pk=pk)
 
 
 @login_required
@@ -216,7 +216,7 @@ def form_unlock(request, pk: UUID):
     entry.save()
     FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="unlock")
     messages.info(request, "Entry unlocked.")
-    return redirect("form_edit", pk=pk)
+    return redirect("form_edit_legacy", pk=pk)
 
 
 @login_required
