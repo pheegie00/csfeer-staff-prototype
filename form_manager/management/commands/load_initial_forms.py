@@ -14,7 +14,20 @@ from ...utils import get_form_definitions
 class Command(BaseCommand):
     help = "Load initial form definitions from official schemas"
 
+    def add_arguments(self, parser):
+        """Add arguments to the command"""
+
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            default=False,
+            help="Overwrite existing form schemas, even if one already exists",
+        )
+
     def handle(self, *args, **options):
+
+        force = options["force"]
+
         form_definitions = get_form_definitions()
 
         created = 0
@@ -38,6 +51,14 @@ class Command(BaseCommand):
             variant = default_or_constraint(schema["properties"]["variant"])
             name = default_or_constraint(schema["properties"]["name"])
 
+            if not force and FormDefinition.objects.filter(variant=variant, name=name).exists():
+                self.stdout.write(
+                    self.style.NOTICE(
+                        f"A form definition named {name} with variant {variant} already exists."
+                    )
+                )
+                continue
+
             obj, created_bool = FormDefinition.objects.update_or_create(
                 variant=variant,
                 name=name,
@@ -45,6 +66,7 @@ class Command(BaseCommand):
                     "family": family,
                     "schema": schema,
                     "is_active": True,
+                    "schema_class": definition.__name__,
                 },
             )
 

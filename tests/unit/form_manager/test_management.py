@@ -32,6 +32,8 @@ def test_correctly_loads_form_schemas_in_db(django_db_setup):
 
         form_definition = form_definition_qs.first()
 
+        assert form_definition.schema_class == schema.__name__  # type: ignore
+
         assert form_definition and (
             form_definition.schema == schema.model_json_schema()
         ), f"{schema.__name__} schema differs in db"
