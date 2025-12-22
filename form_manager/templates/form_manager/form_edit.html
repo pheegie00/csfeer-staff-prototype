@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="grid-container">
+  <div class="grid-row">
+    <div class="grid-col-12">
+      <!-- Page Header -->
+      <div class="margin-bottom-4">
+        <h1 class="margin-bottom-1">{{ entry.form_definition.title }}</h1>
+        <div class="display-flex flex-align-center flex-gap-1 margin-bottom-2">
+          <span class="usa-tag bg-base-lighter text-ink">Version {{ entry.version_number }}</span>
+          <span class="usa-tag {% if entry.status == 'draft' %}bg-base-lighter text-ink{% elif entry.status == 'submitted' %}bg-success{% elif entry.status == 'locked' %}bg-warning{% else %}bg-info{% endif %}">
+            {{ entry.status|upper }}
+          </span>
+        </div>
+      </div>
+
+      {% include "form_manager/step_indicator.html" with steps=steps %}
+
+      <!-- Form Container -->
+        <form method="post">
+          {% csrf_token %}
+          
+          {{ current_page.render }}
+
+          <!-- Form Actions -->
+          <div class="margin-top-4 padding-top-2 border-top-1px border-base-lighter">
+            <div class="display-flex flex-justify flex-wrap flex-gap-1">
+              <div class="display-flex flex-gap-1">
+                {% if can_edit %}
+                  <button type="submit" name="save" class="usa-button usa-button--outline">
+                    <img src="{% static 'frontend/uswds/img/usa-icons/save_alt.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="">
+                    Save Draft
+                  </button>
+                {% endif %}
+                
+                {% if can_submit %}
+                  <button type="submit" name="submit" class="usa-button">
+                    <img src="{% static 'frontend/uswds/img/usa-icons/check_circle.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="">
+                    Submit Form
+                  </button>
+                {% endif %}
+              </div>
+
+              <a href="{% url 'form_list' %}" class="usa-button usa-button--unstyled">
+                Cancel
+              </a>
+            </div>
+          </div>
+        </form>
+
+      <!-- Quick Actions -->
+      <div class="margin-top-4 padding-3 bg-base-lightest radius-md">
+        <h3 class="margin-top-0 margin-bottom-2">Quick Actions</h3>
+        <ul class="usa-list usa-list--unstyled margin-bottom-0">
+          <li class="margin-bottom-1">
+            <a href="{% url 'form_preview' entry.pk %}" class="usa-link display-flex flex-align-center">
+              <img src="{% static 'frontend/uswds/img/usa-icons/visibility.svg' %}" class="usa-icon margin-right-1" aria-hidden="true" alt="">
+              Preview (read-only)
+            </a>
+          </li>
+          <li class="margin-bottom-1">
+            <a href="{% url 'form_download_pdf' entry.pk %}" class="usa-link display-flex flex-align-center">
+              <img src="{% static 'frontend/uswds/img/usa-icons/file_download.svg' %}" class="usa-icon margin-right-1" aria-hidden="true" alt="">
+              Download as PDF
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'form_history' entry.pk %}" class="usa-link display-flex flex-align-center">
+              <img src="{% static 'frontend/uswds/img/usa-icons/history.svg' %}" class="usa-icon margin-right-1" aria-hidden="true" alt="">
+              View submission history
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Initialize USWDS date pickers
+  document.addEventListener('DOMContentLoaded', function() {
+    const datePickers = document.querySelectorAll('.usa-date-picker');
+    datePickers.forEach(function(picker) {
+      // USWDS date picker will auto-initialize
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,9 @@
+{# to do: replace this with a cotton template when that template is ready #}
+<div class="usa-step-indicator">
+  <ol class="usa-step-indicator__segments">
+    {% for step in steps %}
+        <li class="usa-step-indicator__segment usa-step-indicator__segment{% if step.completed %}--complete{% endif %}">
+            <span class="usa-step-indicator__segment-label">{{ step.title }} <span class="usa-sr-only">completed</span></span>
+        </li>
+    {% endfor %}
+</div>

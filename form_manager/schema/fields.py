@@ -18,10 +18,10 @@ class ACFFieldMixin:
     title: str | None = None
     description: str | None = None
 
-    def __init__(self, *args, title=None, description=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         self.title = kwargs.pop("title", None)
         self.description = kwargs.pop("description", None)
-        kwargs["help_text"] = kwargs.get("help_text", description)
+        kwargs["help_text"] = kwargs.get("help_text", self.description)
         super().__init__(*args, **kwargs)
 
     def to_pydantic_schema_type(self):

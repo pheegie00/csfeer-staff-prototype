@@ -4,7 +4,7 @@ from uuid import UUID
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -16,6 +16,7 @@ from form_manager.models import (
     FormEntry,
     OrganizationProfile,
 )
+from form_manager.schema.forms.utils import import_form_schema
 from form_manager.utils import (
     reconstruct_state,
     record_field_diffs,
@@ -51,7 +52,10 @@ def form_start(request, form_id: UUID):
         form_definition=form_def, organization=org, created_by=request.user, version_number=next_ver
     )
     FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="create")
-    return redirect("form_edit_legacy", pk=entry.pk)
+    if form_def.schema_class == "TribalShortForm":
+        return redirect("form_edit_legacy", pk=entry.pk)
+    else:
+        return redirect("form_edit", pk=entry.pk)
 
 
 class FormEditLegacyView(BaseSingleFormView, FormPermissionMixin):
@@ -123,6 +127,61 @@ class FormEditLegacyView(BaseSingleFormView, FormPermissionMixin):
             return False
 
         return True
+
+
+class FormEditView(BaseSingleFormView, FormPermissionMixin):
+    template_name = "forms/form_edit.html"
+
+
+@login_required
+def form_edit(request, pk):
+    """
+    Edit an existing FormEntry.
+
+    Context provided to the template:
+      - form: the django form (value of the form schema's `form_fields` property)
+      - ui_components: a dict representation of the form schema's `ui` property
+      - form_entry: the FormEntry instance
+      - schema: the instantiated schema object
+    """
+    entry: FormEntry = get_object_or_404(FormEntry, pk=pk)
+
+    schema_class_ref = entry.form_definition.schema_class
+
+    current_step_number = request.GET.get("step", 0)
+    current_page_number = request.GET.get("page", 0)
+
+    if not schema_class_ref:
+        raise Http404("FormEntry has no schema_class defined")
+
+    try:
+        schema_cls = import_form_schema(schema_class_ref)
+    except (ImportError, AttributeError) as exc:
+        raise Http404(f"Unable to import schema class {schema_class_ref!r}: {exc}") from exc
+
+    # Instantiate the schema if possible; fall back to using the class object
+    schema = schema_cls.model_construct()
+
+    # The django form is expected to be available on schema.form_fields
+    django_form_class = schema_cls.get_form_fields_class()
+
+    ui_components = schema.ui
+
+    current_page = ui_components[int(current_step_number)].children[int(current_page_number)]
+
+    current_page.set_extra_context(form=django_form_class())
+
+    context = {
+        "form": django_form_class,
+        "steps": ui_components,
+        "entry": entry,
+        "schema": schema,
+        "current_step_number": current_step_number,
+        "current_page_number": current_page_number,
+        "current_page": current_page,
+    }
+
+    return render(request, "form_manager/form_edit.html", context)
 
 
 class FormPreviewView(BaseSingleFormView, FormPermissionMixin):
