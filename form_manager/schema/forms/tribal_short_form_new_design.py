@@ -21,29 +21,23 @@ class TribalShortFormFieldsNew(BaseFields):
         widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
     )
     email = acf_fields.CharField(title="Email address", widget=forms.EmailInput)
-    employment_expenditure = acf_fields.CharField(title="A.2a.", description="Employment")
+    employment_expenditure = acf_fields.CharField(title="Employment")
     childcare_expenditure = acf_fields.CurrencyField(
-        title="A.2b",
-        description="Childcare, Early Childhood, Youth Development, and Adult Education",
+        title="Childcare, Early Childhood, Youth Development, and Adult Education"
     )
 
-    asset_building_expenditure = acf_fields.CurrencyField(
-        title="A.2c.", description="Income and Asset Building"
-    )
-    housing_expenditure = acf_fields.CurrencyField(title="A.2d", description="Housing")
-    health_expenditure = acf_fields.CurrencyField(title="A.2e", description="Health and Nutrition")
-    civic_expenditure = acf_fields.CurrencyField(
-        title="A.2f.", description="Civic Engagement and Community Involvement"
-    )
-    transportation_expenditure = acf_fields.CurrencyField(
-        title="A.2g.", description="Transportation"
-    )
+    asset_building_expenditure = acf_fields.CurrencyField(title="Income and Asset Building")
+    housing_expenditure = acf_fields.CurrencyField(title="Housing")
+    health_expenditure = acf_fields.CurrencyField(title="Health and Nutrition")
+    civic_expenditure = acf_fields.CurrencyField(title="Civic Engagement and Community Involvement")
+    transportation_expenditure = acf_fields.CurrencyField(title="Transportation")
 
     partnerships_expenditure = acf_fields.CurrencyField(
-        title="A.2h", description="Partnerships, Linkages, and Coordination"
+        title="Partnerships, Linkages, and Coordination"
     )
 
-    other_expenditure = acf_fields.CurrencyField(title="A.2i.", description="Other")
+    other_expenditure = acf_fields.CurrencyField(title="Other")
+
     administration_expenditure = acf_fields.CurrencyField(
         title="A.3.", description="Report the total amount used for Administration."
     )
@@ -186,8 +180,43 @@ class TribalShortFormNewDesign(BaseFormSchema):
                     )
                 ],
             ),
-            StepBlock(title="Expenditure categories"),
-            StepBlock(title="Expenditure details"),
+            StepBlock(
+                title="Expenditure categories",
+                children=[
+                    PageBlock(
+                        title="Expenditure categories",
+                        children=[
+                            SectionBlock(
+                                title="Provide the amounts for each stated category",
+                                children=[
+                                    FieldBlock(field_name="employment_expenditure"),
+                                    FieldBlock(field_name="childcare_expenditure"),
+                                    FieldBlock(field_name="housing_expenditure"),
+                                    FieldBlock(field_name="civic_expenditure"),
+                                    FieldBlock(field_name="transportation_expenditure"),
+                                    FieldBlock(field_name="partnerships_expenditure"),
+                                    FieldBlock(field_name="other_expenditure"),
+                                    FieldBlock(field_name="total_expenditures"),
+                                ],
+                            ),
+                        ],
+                    ),
+                    PageBlock(title="Administration costs", children=[]),
+                ],
+            ),
+            StepBlock(
+                title="Expenditure details",
+                children=[
+                    PageBlock(
+                        title="Details on employement services",
+                        subtitle=(
+                            "Describe all employment related services, such as support for job placement, "
+                            "vocational and skill training, job development and elminiating barriers to work."
+                        ),
+                        children=[FieldBlock(field_name="employment_related_services_description")],
+                    )
+                ],
+            ),
             StepBlock(title="Demographic details"),
             StepBlock(title="Review and submit"),
         ],

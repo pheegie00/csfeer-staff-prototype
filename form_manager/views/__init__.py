@@ -17,6 +17,7 @@ from form_manager.models import (
     OrganizationProfile,
 )
 from form_manager.schema.forms.utils import import_form_schema
+from form_manager.schema.layout import PageBlock
 from form_manager.utils import (
     reconstruct_state,
     record_field_diffs,
@@ -25,6 +26,7 @@ from form_manager.utils import (
     user_can_view,
 )
 from form_manager.views.base import BaseSingleFormView, FormPermissionMixin
+from tests.conftest import page
 
 
 @login_required
@@ -129,10 +131,6 @@ class FormEditLegacyView(BaseSingleFormView, FormPermissionMixin):
         return True
 
 
-class FormEditView(BaseSingleFormView, FormPermissionMixin):
-    template_name = "forms/form_edit.html"
-
-
 @login_required
 def form_edit(request, pk):
     """
@@ -148,8 +146,10 @@ def form_edit(request, pk):
 
     schema_class_ref = entry.form_definition.schema_class
 
-    current_step_number = request.GET.get("step", 0)
-    current_page_number = request.GET.get("page", 0)
+    page_action = request.POST.get("page-action", None)
+
+    current_step_number = int(request.POST.get("current-step", 0))
+    current_page_number = int(request.POST.get("current-page", 0))
 
     if not schema_class_ref:
         raise Http404("FormEntry has no schema_class defined")
@@ -167,18 +167,77 @@ def form_edit(request, pk):
 
     ui_components = schema.ui
 
-    current_page = ui_components[int(current_step_number)].children[int(current_page_number)]
+    def get_step_page(step: int, page: int) -> PageBlock:
+        return ui_components[step].children[page]
 
-    current_page.set_extra_context(form=django_form_class())
+    def get_next_step_and_page(
+        current_step: int, current_page: int
+    ) -> tuple[int | None, int | None]:
+        current_ui_step = ui_components[current_step]
+
+        # If there's no children in the current step, move to the next step and first page
+        if len(current_ui_step.children) == 0:
+            return current_step + 1, 0
+
+        # Check if we're on the last page, and if so, move to the next step
+        # and first page
+        if current_page == len(current_ui_step.children) - 1:
+            return current_step + 1, 0
+
+        # Otherwise, stay on the current step but advance the next page
+        return current_step, current_page + 1
+
+    def get_previous_step_and_page(
+        current_step: int, current_page: int
+    ) -> tuple[None, None] | tuple[int, int]:
+
+        # if we're on the first step and page, you can't go back so
+        # just return None
+        if current_step == 0 and current_page == 0:
+            return None, None
+
+        # if we're on the first page of a step, decrement the current step and
+        # return the last page of the previous step.
+        if current_page == 0:
+            return current_step - 1, len(ui_components[current_step - 1].children) - 1
+
+        # Otherwise, stay on the current step but decrement the next page
+        return current_step, current_page - 1
+
+    if page_action == "next":
+        target_step_number, target_page_number = get_next_step_and_page(
+            current_step_number, current_page_number
+        )
+    elif page_action == "previous":
+        target_step_number, target_page_number = get_previous_step_and_page(
+            current_step_number, current_page_number
+        )
+    else:
+        target_step_number = current_step_number
+        target_page_number = current_page_number
+
+    target_page = get_step_page(int(target_step_number or 0), target_page_number or 0)
+    target_page.set_extra_context(form=django_form_class())
+
+    def is_last_page(target_step_number, target_page_number):
+
+        if len(ui_components) - 1 != target_step_number:
+            return False
+
+        if len(ui_components.children[target_step_number].children) - 1 != target_page_number:
+            return False
+
+        return True
 
     context = {
         "form": django_form_class,
         "steps": ui_components,
         "entry": entry,
         "schema": schema,
-        "current_step_number": current_step_number,
-        "current_page_number": current_page_number,
-        "current_page": current_page,
+        "current_step_number": target_step_number,
+        "current_page_number": target_page_number,
+        "current_page": target_page,
+        "is_last_page": is_last_page(target_step_number, target_page_number),
     }
 
     return render(request, "form_manager/form_edit.html", context)

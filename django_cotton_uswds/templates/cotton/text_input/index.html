@@ -8,6 +8,7 @@
     aria_describedby=""
     input_classes=""
     step=""
+    value=""
 />
 
 
@@ -18,4 +19,5 @@
   {% if readonly %}readonly{% endif %}
   {% if required %}required{% endif %}
   {% if step %} step="{{ step }}" {% endif %}
+  {% if value != None %}value="{{ value }}"{% endif %}
 />

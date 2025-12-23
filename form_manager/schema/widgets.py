@@ -2,4 +2,4 @@ from django import forms
 
 
 class CurrencyInput(forms.NumberInput):
-    pass
+    template_name = "form_manager/widgets/currency.html"
