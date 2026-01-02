@@ -1,0 +1,23 @@
+<c-vars
+    indicator_type=""
+    current_step=""
+    total_steps=""
+    segment_name=""
+/>
+
+<div class="usa-step-indicator {% if indicator_type %}usa-step-indicator--{{ indicator_type }}{% endif %}">
+  <ol class="usa-step-indicator__segments">
+    {{ slot }}
+  </ol>
+  <div class="usa-step-indicator__header">
+    <h4 class="usa-step-indicator__heading">
+      <span class="usa-step-indicator__heading-counter"
+        ><span class="usa-sr-only">Step</span>
+        <span class="usa-step-indicator__current-step">{{ current_step }}</span>
+        <span class="usa-step-indicator__total-steps">of {{ total_steps }}</span> </span
+      ><span class="usa-step-indicator__heading-text"
+        >{{ segment_name }}</span
+      >
+    </h4>
+  </div>
+</div>
