@@ -1,0 +1,16 @@
+name: Date Picker
+context:
+  variants:            
+    - title: "Default Date Picker"
+      id: "date-1"
+      name: "date-1"
+      value: ""
+      min: ""
+      max: ""
+    - title: "Disabled Date Picker"
+      id: "date-2"
+      name: "date-2"
+      value: ""
+      min: ""
+      max: ""
+      disabled: true
