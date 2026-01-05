@@ -1,0 +1,24 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Step Indicator Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+        <c-step-indicator
+            indicator_type="{{ variant.indicator_type }}"
+            current_step="{{ variant.current_step }}"
+            total_steps="{{ variant.total_steps }}"
+            segment_name="{{ variant.segment_name }}"
+        >
+            {% for item in variant.items %}
+                <c-step-indicator.step-item 
+                    segment_state="{{ item.segment_state }}" 
+                    name="{{ item.name }}" 
+                />
+            {% endfor %}
+        </c-step-indicator>
+    </div>
+    {% endfor %}
+</div>
