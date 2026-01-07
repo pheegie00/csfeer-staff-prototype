@@ -68,7 +68,7 @@ class SectionBlock(RenderableBaseModel):
     type: str = "section"
     title: Optional[str] = None
     description: Optional[str] = None
-    children: Optional[list[Self | "FieldBlock"]] = None
+    children: Optional[list[Self | "FieldBlock" | "FieldGroupBlock"]] = None
     template_name: ClassVar[str] = "form_manager/section.html"
 
 

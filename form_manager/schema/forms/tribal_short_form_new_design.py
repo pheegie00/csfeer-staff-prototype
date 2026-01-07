@@ -88,6 +88,41 @@ class TribalShortFormFieldsNew(BaseFields):
 
     total_individuals_served_over_18 = acf_fields.IntegerField(title="Total number of people")
 
+    male_individuals_served = acf_fields.IntegerField(title="Male")
+    female_individuals_served = acf_fields.IntegerField(title="Female")
+    total_individuals_served_by_sex = acf_fields.CalculatedField(
+        title="Total", fields=["male_individuals_served", "female_individuals_served"]
+    )
+
+    employment__full_time = acf_fields.IntegerField(title="Employed Full Time")
+    employment__part_time = acf_fields.IntegerField(title="Employed Part Time")
+    employment__migrant_seasonal = acf_fields.IntegerField(title="Migrant or seasonal farm worker")
+    employment__unemployed_short_term = acf_fields.IntegerField(
+        title="Unemployed (short term, 6 months or less)"
+    )
+    employment__unemployed_long_term = acf_fields.IntegerField(
+        title="Unemployed (long term, more than 6 months)"
+    )
+    employment__permanently_unemployed = acf_fields.IntegerField(
+        title="Unemployed (not in labor force)"
+    )
+    employment__retired = acf_fields.IntegerField(title="Retired")
+    employment__unknown = acf_fields.IntegerField(title="Unknown or not reported")
+    employment__total = acf_fields.CalculatedField(
+        title="Total (auto-calculated)",
+        fields=[
+            "employment__full_time",
+            "employment__part_time",
+            "employment__migrant_seasonal",
+            "employment__unemployed_short_term",
+            "employment__unemployed_long_term",
+            "employment__permanently_unemployed",
+            "employment__retired",
+            "employment__unknown",
+            "employment__total",
+        ],
+    )
+
 
 class TribalShortFormNewDesign(BaseFormSchema):
 
@@ -214,7 +249,7 @@ class TribalShortFormNewDesign(BaseFormSchema):
                 ],
             ),
             StepBlock(
-                title="Demographic details",
+                title="Demographic information",
                 children=[
                     PageBlock(
                         title="Let's collect demographic details",
@@ -230,10 +265,60 @@ class TribalShortFormNewDesign(BaseFormSchema):
                                 ],
                             ),
                         ],
-                    )
+                    ),
+                    PageBlock(
+                        title="About the individuals served",
+                        children=[
+                            SectionBlock(
+                                title="Sex of individuals served (Age 18 and older)",
+                                children=[
+                                    FieldGroupBlock(
+                                        children=[
+                                            FieldBlock(field_name="male_individuals_served"),
+                                            FieldBlock(field_name="female_individuals_served"),
+                                            FieldBlock(
+                                                field_name="total_individuals_served_by_sex"
+                                            ),
+                                        ]
+                                    )
+                                ],
+                            ),
+                        ],
+                    ),
+                    PageBlock(
+                        title="About the individuals served",
+                        children=[
+                            SectionBlock(
+                                title="Work status of adults served (age 18 and older)",
+                                children=[
+                                    FieldGroupBlock(
+                                        children=[
+                                            FieldBlock(field_name="employment__full_time"),
+                                            FieldBlock(field_name="employment__part_time"),
+                                            FieldBlock(field_name="employment__migrant_seasonal"),
+                                            FieldBlock(
+                                                field_name="employment__unemployed_short_term"
+                                            ),
+                                            FieldBlock(
+                                                field_name="employment__unemployed_long_term"
+                                            ),
+                                            FieldBlock(
+                                                field_name="employment__permanently_unemployed"
+                                            ),
+                                            FieldBlock(field_name="employment__unknown"),
+                                            FieldBlock(field_name="employment__total"),
+                                        ]
+                                    )
+                                ],
+                            ),
+                        ],
+                    ),
                 ],
             ),
-            StepBlock(title="Review and submit"),
+            StepBlock(
+                title="Review and submit",
+                children=[PageBlock(title="Review and Submit", children=[])],
+            ),
         ],
     )
 
