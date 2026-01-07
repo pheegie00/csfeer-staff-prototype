@@ -18,7 +18,7 @@
       {% include "form_manager/step_indicator.html" with steps=steps %}
 
       <!-- Form Container -->
-        <form id="csf-form" method="post" action="{% url 'form_edit' entry.pk %}" data-current-step="{{ current_step_number}}" data-current-page="{{ current_page_number}}">
+        <form id="csf-form" method="post" action="{{next_url}}" data-current-step="{{ current_step_number}}" data-current-page="{{ current_page_number}}">
           {% csrf_token %}
           
           {{ current_page }}
@@ -28,13 +28,16 @@
             <div class="display-flex flex-justify flex-wrap flex-gap-1 flex-align-end">
 
                 {% if current_step_number != 0 or current_page_number != 0 %}
-                    <c-button 
+                <a href="{{ prev_url }}" class="usa-button usa-button--outline" type="submit" name="page-action" value="previous">
+                  ← Back
+                </a>
+                    <!-- <c-button 
                         text="← Back"
                         variant="outline"
                         name="page-action"
                         value="previous"
                         type="submit"
-                    />            
+                    />             -->
                 {% endif %}
                 
                 {% if not is_last_page %}

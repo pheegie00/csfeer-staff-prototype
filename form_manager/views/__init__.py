@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils import timezone
 from weasyprint import HTML
 
@@ -146,10 +147,8 @@ def form_edit(request, pk):
 
     schema_class_ref = entry.form_definition.schema_class
 
-    page_action = request.POST.get("page-action", None)
-
-    current_step_number = int(request.POST.get("current-step", 0))
-    current_page_number = int(request.POST.get("current-page", 0))
+    current_step_number = int(request.GET.get("step", 0))
+    current_page_number = int(request.GET.get("page", 0))
 
     if not schema_class_ref:
         raise Http404("FormEntry has no schema_class defined")
@@ -176,7 +175,7 @@ def form_edit(request, pk):
         current_ui_step = ui_components[current_step]
 
         # If there's no children in the current step, move to the next step and first page
-        if len(current_ui_step.children) == 0:
+        if not current_ui_step.children or len(current_ui_step.children) == 0:
             return current_step + 1, 0
 
         # Check if we're on the last page, and if so, move to the next step
@@ -204,20 +203,16 @@ def form_edit(request, pk):
         # Otherwise, stay on the current step but decrement the next page
         return current_step, current_page - 1
 
-    if page_action == "next":
-        target_step_number, target_page_number = get_next_step_and_page(
-            current_step_number, current_page_number
-        )
-    elif page_action == "previous":
-        target_step_number, target_page_number = get_previous_step_and_page(
-            current_step_number, current_page_number
-        )
-    else:
-        target_step_number = current_step_number
-        target_page_number = current_page_number
+    next_step_number, next_page_number = get_next_step_and_page(
+        current_step_number, current_page_number
+    )
 
-    target_page = get_step_page(int(target_step_number or 0), target_page_number or 0)
-    target_page.set_extra_context(form=django_form_class())
+    previous_step_number, previous_page_number = get_previous_step_and_page(
+        current_step_number, current_page_number
+    )
+
+    current_page = get_step_page(int(current_step_number or 0), current_page_number or 0)
+    current_page.set_extra_context(form=django_form_class())
 
     def is_last_page(target_step_number, target_page_number):
 
@@ -229,15 +224,37 @@ def form_edit(request, pk):
 
         return True
 
+    next_page_url = (
+        reverse(
+            "form_edit",
+            kwargs={
+                "pk": entry.pk,
+            },
+        )
+        + f"?page={next_page_number}&step={next_step_number}"
+    )
+
+    prev_page_url = (
+        reverse(
+            "form_edit",
+            kwargs={
+                "pk": entry.pk,
+            },
+        )
+        + f"?page={previous_page_number}&step={previous_step_number}"
+    )
+
     context = {
         "form": django_form_class,
         "steps": ui_components,
         "entry": entry,
         "schema": schema,
-        "current_step_number": target_step_number,
-        "current_page_number": target_page_number,
-        "current_page": target_page,
-        "is_last_page": is_last_page(target_step_number, target_page_number),
+        "current_step_number": current_step_number,
+        "current_page_number": current_page_number,
+        "current_page": current_page,
+        "is_last_page": is_last_page(current_step_number, current_page_number),
+        "next_url": next_page_url,
+        "prev_url": prev_page_url,
     }
 
     return render(request, "form_manager/form_edit.html", context)

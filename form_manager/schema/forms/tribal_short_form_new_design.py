@@ -84,6 +84,10 @@ class TribalShortFormFieldsNew(BaseFields):
         ]
     )
 
+    total_individuals_served = acf_fields.IntegerField(title="Total number of people")
+
+    total_individuals_served_over_18 = acf_fields.IntegerField(title="Total number of people")
+
 
 class TribalShortFormNewDesign(BaseFormSchema):
 
@@ -209,7 +213,26 @@ class TribalShortFormNewDesign(BaseFormSchema):
                     ),
                 ],
             ),
-            StepBlock(title="Demographic details"),
+            StepBlock(
+                title="Demographic details",
+                children=[
+                    PageBlock(
+                        title="Let's collect demographic details",
+                        children=[
+                            SectionBlock(
+                                title="How many individuals did you serve in total?",
+                                children=[FieldBlock(field_name="total_individuals_served")],
+                            ),
+                            SectionBlock(
+                                title="How many individuals did you serve that are over 18?",
+                                children=[
+                                    FieldBlock(field_name="total_individuals_served_over_18")
+                                ],
+                            ),
+                        ],
+                    )
+                ],
+            ),
             StepBlock(title="Review and submit"),
         ],
     )
