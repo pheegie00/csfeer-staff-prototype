@@ -5,7 +5,13 @@ from pydantic import ConfigDict, Field
 from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.schema.fields import acf_fields
-from form_manager.schema.layout import FieldBlock, PageBlock, SectionBlock, StepBlock
+from form_manager.schema.layout import (
+    FieldBlock,
+    FieldGroupBlock,
+    PageBlock,
+    SectionBlock,
+    StepBlock,
+)
 
 from ...constants import AllFormNames, CSBGAnnualReportForms, FormFamilies
 from .base import BaseFields, BaseFormSchema, UIDefinition
@@ -180,8 +186,8 @@ class TribalShortFormNewDesign(BaseFormSchema):
                     PageBlock(
                         title="Expenditure categories",
                         children=[
-                            SectionBlock(
-                                title="Provide the amounts for each stated category",
+                            FieldGroupBlock(
+                                description="Provide the amounts for each selected category.",
                                 children=[
                                     FieldBlock(field_name="employment_expenditure"),
                                     FieldBlock(field_name="childcare_expenditure"),

@@ -58,7 +58,7 @@ class PageBlock(RenderableBaseModel):
     type: str = "page"
     title: Optional[str] = None
     subtitle: Optional[str] = None
-    children: Optional[list[Self | "FieldBlock" | "SectionBlock"]] = None
+    children: Optional[list[Self | "FieldBlock" | "SectionBlock" | "FieldGroupBlock"]] = None
     template_name: ClassVar[str] = "form_manager/page.html"
 
 
@@ -70,6 +70,16 @@ class SectionBlock(RenderableBaseModel):
     description: Optional[str] = None
     children: Optional[list[Self | "FieldBlock"]] = None
     template_name: ClassVar[str] = "form_manager/section.html"
+
+
+class FieldGroupBlock(RenderableBaseModel):
+    """Represents a group of fields surrounded by a border
+    with an explanatary note."""
+
+    type: str = "field-group"
+    description: Optional[str] = None
+    children: Optional[list[Self | "FieldBlock"]] = None
+    template_name: ClassVar[str] = "form_manager/field_group.html"
 
 
 class FieldBlock(RenderableBaseModel):

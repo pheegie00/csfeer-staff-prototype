@@ -1,0 +1,15 @@
+<div class="grid-container padding-x-0">
+    <div class="grid-row">
+        <div class="grid-col-auto">
+            {% if description %}
+            <p class="usa-label">{{ description }}</p>
+            {% endif %}
+
+            <div class="usa-card__container margin-0 padding-left-205 padding-right-205 padding-bottom-205 height-auto">
+                {% for child in children %}
+                    {{ child.render }}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
