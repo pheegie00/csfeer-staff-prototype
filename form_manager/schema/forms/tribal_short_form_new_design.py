@@ -44,93 +44,32 @@ class TribalShortFormFieldsNew(BaseFields):
 
     other_expenditure = acf_fields.CurrencyField(title="Other")
 
-    administration_expenditure = acf_fields.CurrencyField(
-        title="A.3.", description="Report the total amount used for Administration."
-    )
+    administration_expenditure = acf_fields.CurrencyField(title="Administration")
 
     employment_related_services_description = acf_fields.TextareaField(
         title="Description",
     )
 
-    education_related_service_description = acf_fields.TextareaField(
-        title="SRV 2",
-        description=(
-            "Describe all education related services, such as adult education, "
-            "literacy programs, scholarships, Head Start enhancement, child development "
-            "programs, and anti-drug education. Additionally, describe all youth "
-            "development related activities, such as activities that address the needs "
-            "of youth in communities with low income to include establishment of "
-            "violence-free zones, intervention, and mediation programs, mentoring and "
-            "life skills training, job creation, entrepreneurship programs, and after-school "
-            "childcare programs. (If you did not provide this service, indicate “N/A” for not applicable.)"
-        ),
-    )
+    education_related_service_description = acf_fields.TextareaField(title="Description")
 
     income_services_description = acf_fields.TextareaField(
-        title="SRV 3",
-        description=(
-            "Describe all income management and asset building related services, such "
-            "as budgeting assistance, tax preparation, tax credit education, medical "
-            "benefits, claims assistance, and savings programs. (If you did not "
-            "provide this service, indicate “N/A” for not applicable.)"
-        ),
+        title="Description",
     )
 
     housing_services_description = acf_fields.TextareaField(
-        title="SRV 4",
-        description=(
-            "Describe all housing related services, such as homeownership "
-            "counseling and loan assistance, landlord-tenant relations, "
-            "housing assistance, homeless services, and home repair "
-            "and rehabilitation. (If you did not provide this service, "
-            'indicate "N/A" for not applicable.)'
-        ),
+        title="Description",
     )
 
-    health_services_description = acf_fields.TextareaField(
-        title="SRV 5",
-        description=(
-            "Describe all health and nutrition related services, such as "
-            "food banks, public education, health counseling, transportation "
-            "to health services, community garden programs, and production "
-            "and delivery programs. (If you did not provide this service, "
-            'indicate "N/A" for not applicable.)'
-        ),
-    )
+    health_services_description = acf_fields.TextareaField(title="Description")
 
-    civic_services_description = acf_fields.TextareaField(
-        title="SRV 6",
-        description=(
-            "Describe all partnerships and community engagement related services, "
-            "such as activities designed to help families and individuals with low "
-            "incomes achieve greater participation in the aﬀairs of their communities, "
-            "including partnerships with local law enforcement agencies, housing authorities, "
-            "private foundations, and other public and private partners. "
-            "CSBG funding also supports interagency partnerships and Tribal-State "
-            'partnerships as well. (If you did not provide this service, indicate "N/A" for not applicable.)'
-        ),
-    )
+    civic_services_description = acf_fields.TextareaField(title="Description")
 
     transportation_services_description = acf_fields.TextareaField(
-        title="SRV 7",
-        description=(
-            "Describe all transportation related activities such as "
-            "transportation vouchers, public transit fare assistance, "
-            "medical transportation services, community shuttle services, "
-            "rideshare programs, volunteer driver programs, and child "
-            "and youth transportation. (If you did not provide this service, indicate `N/A` for not applicable.)"
-        ),
+        title="Description",
     )
 
     poverty_coordination_description = acf_fields.TextareaField(
-        title="SRV 8",
-        description=(
-            "Describe all linkages and coordination between anti-poverty programs, "
-            "such as eligibility coordination to make more eﬀective use of related programs, "
-            "including other public and private sources. Fill identified gaps in the services "
-            "through the provision of information, referrals, eligibility coordination, "
-            "case management, and follow-up consultations."
-        ),
+        title="Description",
     )
 
     total_expenditures = acf_fields.CalculatedCurrencyField(
@@ -201,7 +140,11 @@ class TribalShortFormNewDesign(BaseFormSchema):
                             ),
                         ],
                     ),
-                    PageBlock(title="Administration costs", children=[]),
+                    PageBlock(
+                        title="Administration costs",
+                        subtitle="To learn more about what qualifies as Administration costs, refer to guidance IM37.",
+                        children=[FieldBlock(field_name="administration_expenditure")],
+                    ),
                 ],
             ),
             StepBlock(
@@ -214,7 +157,56 @@ class TribalShortFormNewDesign(BaseFormSchema):
                             "vocational and skill training, job development and elminiating barriers to work."
                         ),
                         children=[FieldBlock(field_name="employment_related_services_description")],
-                    )
+                    ),
+                    PageBlock(
+                        title="Details on education services",
+                        subtitle=(
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                        ),
+                        children=[FieldBlock(field_name="education_related_service_description")],
+                    ),
+                    PageBlock(
+                        title="Details on income services",
+                        subtitle=(
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                        ),
+                        children=[FieldBlock(field_name="income_services_description")],
+                    ),
+                    PageBlock(
+                        title="Details on housing services",
+                        subtitle=(
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                        ),
+                        children=[FieldBlock(field_name="housing_services_description")],
+                    ),
+                    PageBlock(
+                        title="Details on health services",
+                        subtitle=(
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                        ),
+                        children=[FieldBlock(field_name="health_services_description")],
+                    ),
+                    PageBlock(
+                        title="Details on civic services",
+                        subtitle=(
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                        ),
+                        children=[FieldBlock(field_name="civic_services_description")],
+                    ),
+                    PageBlock(
+                        title="Details on transportation services",
+                        subtitle=(
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                        ),
+                        children=[FieldBlock(field_name="transportation_services_description")],
+                    ),
+                    PageBlock(
+                        title="Details on poverty coordination services",
+                        subtitle=(
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                        ),
+                        children=[FieldBlock(field_name="poverty_coordination_description")],
+                    ),
                 ],
             ),
             StepBlock(title="Demographic details"),
