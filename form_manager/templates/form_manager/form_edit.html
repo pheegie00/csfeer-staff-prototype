@@ -18,7 +18,7 @@
       {% include "form_manager/step_indicator.html" with steps=steps %}
 
       <!-- Form Container -->
-        <form id="fe-form" method="post" action="{% url 'form_edit' entry.pk %}" data-current-step="{{ current_step_number}}" data-current-page="{{ current_page_number}}">
+        <form id="csf-form" method="post" action="{% url 'form_edit' entry.pk %}" data-current-step="{{ current_step_number}}" data-current-page="{{ current_page_number}}">
           {% csrf_token %}
           
           {{ current_page }}
@@ -45,6 +45,7 @@
                         value="next"
                         state="active"
                         type="submit"
+                        onClick="(e) => e.preventDefault(); const form = document.querySelector('#csf-form'); const action = form.getAttribute('action'); form.setAttribute('action', ${action}?)"
                     />
                 {% endif %}
             </div>

@@ -43,13 +43,7 @@ class TribalShortFormFieldsNew(BaseFields):
     )
 
     employment_related_services_description = acf_fields.TextareaField(
-        title="SRV 1",
-        description=(
-            "Describe all employment related services, such as support for job "
-            "placement, vocational and skills training, job development, and "
-            "eliminating barriers to work. (If you did not provide this service, "
-            "indicate “N/A” for not applicable.)"
-        ),
+        title="Description",
     )
 
     education_related_service_description = acf_fields.TextareaField(
@@ -208,7 +202,7 @@ class TribalShortFormNewDesign(BaseFormSchema):
                 title="Expenditure details",
                 children=[
                     PageBlock(
-                        title="Details on employement services",
+                        title="Details on employment services",
                         subtitle=(
                             "Describe all employment related services, such as support for job placement, "
                             "vocational and skill training, job development and elminiating barriers to work."

@@ -136,7 +136,7 @@ class ACFCalculatedCurrencyField(ACFCalculatedField):
 class ACFTextAreaField(ACFFieldMixin, forms.CharField):
     """A text area field"""
 
-    widget = type("TextareaInput", (forms.TextInput,), {})
+    widget = forms.Textarea
 
 
 class ACFFieldsMeta(type):
