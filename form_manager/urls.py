@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from form_manager import views
 
 urlpatterns = [
     path("", views.form_list, name="form_list"),
