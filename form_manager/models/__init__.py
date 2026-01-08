@@ -2,9 +2,8 @@ from django.contrib.auth import get_user_model
 from django.db import models
 
 from core.models import BaseModel
-
-from ..constants import ALL_FORM_NAME_CHOICES, FormFamilies
-from .fields import SemVerField
+from form_manager.constants import ALL_FORM_NAME_CHOICES, FormFamilies
+from form_manager.models.fields import SemVerField
 
 User = get_user_model()
 

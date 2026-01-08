@@ -2,6 +2,6 @@
 Form Manager REST API module.
 """
 
-from .endpoints import api
+from form_manager.api.endpoints import api
 
 __all__ = ["api"]

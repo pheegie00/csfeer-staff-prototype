@@ -8,8 +8,10 @@ This module contains:
    user roles, groups, and organization membership based on OIDC claims.
 """
 
+from typing import cast
+
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import AbstractUser, Group
 from oauth2_authcodeflow.auth import AuthenticationBackend
 from oauth2_authcodeflow.conf import settings
 
@@ -25,7 +27,7 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
     email address provided in the OIDC claims, rather than the 'sub' or 'username' claim.
     """
 
-    def get_or_create_user(self, request, id_claims, access_token):
+    def get_or_create_user(self, request, id_claims, access_token) -> AbstractUser:
         """
         Retrieve or create a user based on the email claim in the ID token.
 
@@ -65,6 +67,7 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
         User = get_user_model()
         # Use email for lookup instead of username
         user, created = User.objects.get_or_create(email=email)
+        user = cast(AbstractUser, user)
 
         self.update_user(user, created, claims, request, access_token)
         user.save()

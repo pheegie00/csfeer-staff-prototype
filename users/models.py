@@ -3,8 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from core.models import BaseModel
-
-from .managers import CoreUserManager
+from users.managers import CoreUserManager
 
 
 class CoreUser(AbstractUser, BaseModel):

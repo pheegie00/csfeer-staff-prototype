@@ -4,7 +4,9 @@ from django import forms
 from pydantic import ConfigDict, Field
 from pydantic_extra_types.semantic_version import SemanticVersion
 
+from form_manager.constants import AllFormNames, CSBGAnnualReportForms, FormFamilies
 from form_manager.schema.fields import acf_fields
+from form_manager.schema.forms.base import BaseFields, BaseFormSchema, UIDefinition
 from form_manager.schema.layout import (
     FieldBlock,
     FieldGroupBlock,
@@ -12,9 +14,6 @@ from form_manager.schema.layout import (
     SectionBlock,
     StepBlock,
 )
-
-from ...constants import AllFormNames, CSBGAnnualReportForms, FormFamilies
-from .base import BaseFields, BaseFormSchema, UIDefinition
 
 
 class TribalLongFormFields(BaseFields):

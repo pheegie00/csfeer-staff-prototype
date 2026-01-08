@@ -1,5 +1,5 @@
-from .base import BaseFormSchema
-from .tribal_long_form import TribalLongForm
+from form_manager.schema.forms.base import BaseFormSchema
+from form_manager.schema.forms.tribal_long_form import TribalLongForm
 
 __all__ = [
     "TribalLongForm",
