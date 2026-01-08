@@ -15,6 +15,9 @@ from form_manager.schema.widgets import CurrencyInput
 
 
 class ACFFieldMixin:
+    """A mixin class that provides some common ACF field functionality and makes
+    standard Django form fields usable in pydantic classes."""
+
     title: str | None = None
     description: str | None = None
 
@@ -142,6 +145,8 @@ class ACFTextAreaField(ACFFieldMixin, forms.CharField):
 class ACFFieldsMeta(type):
 
     def __new__(cls, name, bases=(), dct={}):
+        """A metaclass that creates an object of custom ACF form fields from built-in Django
+        form fields. They're all accessible on the acf_fields object below."""
 
         for name, field_class in forms.fields.__dict__.items():
 
