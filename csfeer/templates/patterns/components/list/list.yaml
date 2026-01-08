@@ -1,0 +1,21 @@
+name: List Component
+context:
+  variants:            
+    - title: "Unordered List"
+      list_type: "unordered"
+      items:
+        - text: "Unordered list item"
+        - text: "Unordered list item"
+        - text: "Unordered list item"
+    - title: "Ordered List"
+      list_type: "ordered"
+      items:
+        - text: "Ordered list item"
+        - text: "Ordered list item"
+        - text: "Ordered list item"
+    - title: "Unstyled List"
+      list_type: "unstyled"
+      items:
+        - text: "Unstyled list item"
+        - text: "Unstyled list item"
+        - text: "Unstyled list item"

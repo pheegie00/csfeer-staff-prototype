@@ -1,0 +1,17 @@
+<c-vars
+    list_type=""
+/>
+
+{% if list_type == "ordered" %}
+<ol class="usa-list">
+    {{ slot }}
+</ol>
+{% elif list_type == "unstyled" %}
+<ul class="usa-list usa-list--unstyled">
+    {{ slot }}
+</ul>
+{% else %}
+<ul class="usa-list">
+    {{ slot }}
+</ul>
+{% endif %}
