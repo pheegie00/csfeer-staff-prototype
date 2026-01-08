@@ -1,4 +1,6 @@
-from form_manager.views.views import *
+from form_manager.views.form_download import FormDownloadPDFView
+from form_manager.views.form_edit import form_edit
+from form_manager.views.form_views import *
 
 __ALL__ = [
     "form_list",
@@ -10,4 +12,5 @@ __ALL__ = [
     "form_lock",
     "form_unlock",
     "form_archive",
+    "FormDownloadPDFView",
 ]
