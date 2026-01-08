@@ -1,0 +1,43 @@
+{% load static %}
+<c-vars
+    id=""
+    type=""
+    href=""
+    button_text=""
+    is_forced_action="false"
+    body_id=""
+    heading_id=""
+/>
+
+<a
+    href="{{ href }}"
+    class="usa-button"
+    aria-controls="{{ id }}"
+    data-open-modal
+>
+    {{ button_text }}
+</a>
+<div
+    class="usa-modal{% if type == 'large' %} usa-modal--lg {% endif %}"
+    id="{{ id }}"
+    aria-labelledby="{{ heading_id }}"
+    aria-describedby="{{ body_id }}"
+>
+    <div class="usa-modal__content">
+        <div class="usa-modal__main">
+        {{ slot }}
+        </div>
+        {% if is_forced_action != 'true' %}
+        <button
+            type="button"
+            class="usa-button usa-modal__close"
+            aria-label="Close this window"
+            data-close-modal
+        >
+            <svg class="usa-icon" aria-hidden="true" focusable="false" role="img">
+            <use href="{% static 'frontend/uswds/img/usa-icons/close.svg' %}"></use>
+            </svg>
+        </button>
+        {% endif %}
+    </div>
+</div>

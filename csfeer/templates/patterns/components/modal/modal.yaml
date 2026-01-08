@@ -1,0 +1,47 @@
+name: Modal
+context:
+  variants:            
+    - title: "Default Modal"
+      id: "example-modal-1"
+      href: "#example-modal-1"
+      button_text: "Open Modal"
+      heading_id: "modal-1-heading"
+      heading_text: "Are you sure you want to continue?"
+      body_id: "modal-1-description"
+      body_text: "You have unsaved changes that will be lost."
+      footer:
+      - text: "Continue without saving"
+      - text: "Go back"
+        type: "unstyled"
+        extra_classes: "padding-105 text-center"
+    - title: "Large Modal"
+      id: "example-modal-2"
+      type: "large"
+      href: "#example-modal-2"
+      button_text: "Open Large Modal"
+      heading_id: "modal-2-heading"
+      heading_text: "Are you sure you want to continue?"
+      body_id: "modal-2-description"
+      body_text: "You have unsaved changes that will be lost."
+      footer:
+      - text: "Continue without saving"
+      - text: "Go back"
+        type: "unstyled"
+        extra_classes: "padding-105 text-center"
+    - title: "Forced Action Modal"
+      id: "example-modal-3"
+      href: "#example-modal-3"
+      button_text: "Open modal with forced action"
+      heading_id: "modal-3-heading"
+      heading_text: "Your session will end soon."
+      body_id: "modal-3-description"
+      body_text: "You’ve been inactive for too long. Please choose to stay signed in
+            or sign out. Otherwise, you’ll be signed out automatically in 5
+            minutes."
+      is_forced_action: "true"
+      footer:
+      - text: "Yes, stay signed in"
+      - text: "Sign out"
+        type: "unstyled"
+        extra_classes: "padding-105 text-center"
+

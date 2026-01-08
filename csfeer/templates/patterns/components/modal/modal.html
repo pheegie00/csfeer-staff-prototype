@@ -1,0 +1,44 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Modal Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-modal
+            id="{{ variant.id }}"
+            type="{{ variant.type }}"
+            href="{{ variant.href }}"
+            button_text="{{ variant.button_text }}"
+            is_forced_action="{{ variant.is_forced_action }}"
+            body_id="{{ variant.body_id }}"
+            heading_id="{{ variant.heading_id }}"
+        >
+            <c-modal.modal-header heading_id="{{ variant.heading_id }}">
+                <h2>{{ variant.heading_text }}</h2>
+            </c-modal.modal-header>
+            <c-modal.modal-body>
+                <p id="{{ variant.body_id }}">
+                    {{ variant.body_text }}
+                </p>
+            </c-modal.modal-body>
+            <c-modal.modal-footer>
+                <c-button-group>   
+                    {% for button in variant.footer %}
+                    <c-button-group.button-group-item>
+                        <c-modal.modal-close-button 
+                            text="{{ button.text }}"
+                            type="{{ button.type }}"
+                            disabled="{{ button.disabled }}"
+                            extra_classes="{{ button.extra_classes }}"
+                        />
+                    </c-button-group.button-group-item>
+                    {% endfor %}
+                </c-button-group>
+            </c-modal.modal-footer>
+        </c-modal>
+    </div>
+    {% endfor %}
+</div>
