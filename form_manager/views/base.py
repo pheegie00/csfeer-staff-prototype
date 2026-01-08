@@ -12,6 +12,7 @@ from django.views.generic.detail import (
 from django.views.generic.edit import FormMixin, ProcessFormView
 
 from form_manager.models import FormEntry
+from form_manager.schema.forms.utils import import_form_schema
 from form_manager.utils import user_can_edit, user_can_submit, user_can_view
 
 
@@ -45,9 +46,7 @@ class BaseSingleFormView(BaseFormUpdateView):
 
         self.object = cast(FormEntry, getattr(self, "object", None) or self.get_object())
 
-        return import_string(
-            "form_manager.schema.forms." + self.object.form_definition.schema_class
-        )
+        return import_form_schema(self.object.form_definition.schema_class)
 
     def get_form_class(self):
         """Return the form class to use."""

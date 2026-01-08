@@ -1,15 +1,9 @@
-from .base import BaseFormSchema
-
-# from .tribal_plan_application import TribalPlanApplication
-from .tribal_short_form import TribalShortForm
+from form_manager.schema.forms.base import BaseFormSchema
+from form_manager.schema.forms.tribal_long_form import TribalLongForm
 
 __all__ = [
-    "TribalPlanApplication",
-    "TribalShortForm",
+    "TribalLongForm",
     "BaseFormSchema",
 ]
 
-ALL_FORM_SCHEMAS = [
-    # TribalPlanApplication,
-    TribalShortForm
-]
+ALL_FORM_SCHEMAS = [TribalLongForm]

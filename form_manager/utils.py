@@ -4,8 +4,8 @@ import json
 import logging
 from inspect import isclass
 
-from .models import FormAuditDetail, UserOrganizationMembership
-from .schema import forms as form_schemas
+from form_manager.models import FormAuditDetail, UserOrganizationMembership
+from form_manager.schema import forms as form_schemas
 
 logger = logging.getLogger(__name__)
 

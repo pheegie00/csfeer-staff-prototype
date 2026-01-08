@@ -1,3 +1,5 @@
+from typing import cast
+
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
@@ -7,8 +9,8 @@ from form_manager.models import (
     UserOrganizationMembership,
 )
 from form_manager.schema.forms.base import BaseFormSchema, SchemaValidationError
-
-from ...utils import get_form_definitions
+from form_manager.utils import get_form_definitions
+from users.models import CoreUser
 
 
 class Command(BaseCommand):
@@ -82,6 +84,7 @@ class Command(BaseCommand):
         User = get_user_model()
         users = User.objects.all()
         for user in users:
+            user = cast(CoreUser, user)
             if not UserOrganizationMembership.objects.filter(user=user).exists():
                 org_name = f"{user.email}'s Organization"
                 org = OrganizationProfile.objects.create(name=org_name, contact_email=user.email)

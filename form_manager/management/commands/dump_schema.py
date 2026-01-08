@@ -3,8 +3,7 @@ import json
 from django.core.management.base import BaseCommand, CommandError
 
 from form_manager.schema.forms import BaseFormSchema
-
-from ...utils import get_form_definitions
+from form_manager.utils import get_form_definitions
 
 
 class Command(BaseCommand):
