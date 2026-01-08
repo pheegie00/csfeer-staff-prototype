@@ -219,7 +219,7 @@ def form_edit(request, pk):
         if len(ui_components) - 1 != target_step_number:
             return False
 
-        if len(ui_components.children[target_step_number].children) - 1 != target_page_number:
+        if len(ui_components[target_step_number].children) - 1 != target_page_number:
             return False
 
         return True
