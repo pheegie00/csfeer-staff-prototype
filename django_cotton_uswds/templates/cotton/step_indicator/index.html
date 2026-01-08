@@ -9,6 +9,7 @@
   <ol class="usa-step-indicator__segments">
     {{ slot }}
   </ol>
+  {% if current_step and total_steps and segment_name %}
   <div class="usa-step-indicator__header">
     <h4 class="usa-step-indicator__heading">
       <span class="usa-step-indicator__heading-counter"
@@ -20,4 +21,5 @@
       >
     </h4>
   </div>
+{% endif %}
 </div>
