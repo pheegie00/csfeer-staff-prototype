@@ -17,7 +17,7 @@ from ...constants import AllFormNames, CSBGAnnualReportForms, FormFamilies
 from .base import BaseFields, BaseFormSchema, UIDefinition
 
 
-class TribalShortFormFieldsNew(BaseFields):
+class TribalLongFormFields(BaseFields):
 
     org_name = acf_fields.CharField(title="Name of Tribe or Tribal Organization", max_length=100)
     contact_name = acf_fields.CharField(title="Full name")
@@ -124,12 +124,12 @@ class TribalShortFormFieldsNew(BaseFields):
     )
 
 
-class TribalShortFormNewDesign(BaseFormSchema):
+class TribalLongForm(BaseFormSchema):
 
     family: FormFamilies = Field(FormFamilies.CSBG_ANNUAL_REPORT, frozen=True)
-    name: AllFormNames = Field(CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT, frozen=True)
+    name: AllFormNames = Field(CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0, frozen=True)
     variant: SemanticVersion = Field(SemanticVersion(3, 0, 4), frozen=True)
-    form_fields: TribalShortFormFieldsNew  # type: ignore  add typing.ReadOnly in python > 3.13 to fix this
+    form_fields: TribalLongFormFields  # type: ignore  add typing.ReadOnly in python > 3.13 to fix this
     ui: UIDefinition = Field(
         frozen=True,
         default=[

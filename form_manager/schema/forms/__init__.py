@@ -1,11 +1,9 @@
 from .base import BaseFormSchema
-from .tribal_short_form import TribalShortForm
-from .tribal_short_form_new_design import TribalShortFormNewDesign
+from .tribal_long_form import TribalLongForm
 
 __all__ = [
-    "TribalShortForm",
+    "TribalLongForm",
     "BaseFormSchema",
-    "TribalShortFormNewDesign",
 ]
 
-ALL_FORM_SCHEMAS = [TribalShortForm, TribalShortFormNewDesign]
+ALL_FORM_SCHEMAS = [TribalLongForm]
