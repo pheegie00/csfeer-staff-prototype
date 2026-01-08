@@ -1,0 +1,20 @@
+{% load static %}
+<c-vars
+    search_type=""
+    id=""
+/>
+
+<form class="usa-search {% if search_type == 'big' %} usa-search--big {% endif %} {% if search_type == 'small' %} usa-search--small {% endif %}" role="search">
+    <label class="usa-sr-only" for="{{ id }}">Search</label>
+    <input class="usa-input" id="{{ id }}" type="search" name="{{ id }}" />
+    <button class="usa-button" type="submit">
+    {% if search_type != 'small' %}
+        <span class="usa-search__submit-text">Search </span>
+    {% endif %}
+        <img
+        src="{% static 'frontend/uswds/img/usa-icons/search.svg' %}"
+        class="usa-search__submit-icon"
+        alt="Search"
+        />
+    </button>
+</form>
