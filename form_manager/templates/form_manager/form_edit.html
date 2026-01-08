@@ -15,35 +15,60 @@
         </div>
       </div>
 
+      <c-step-indicator
+          indicator_type="centered"
+      >
+        {% for step in steps %}
+            {% if forloop.counter0 < current_step_number %}
+              <c-step-indicator.step-item 
+                  segment_state="complete" 
+                  name="{{ step.title }}" 
+              />
+            {% elif forloop.counter0 == current_step_number %}
+              <c-step-indicator.step-item 
+                  segment_state="current" 
+                  name="{{ step.title }}" 
+              />
+            {% else %}
+              <c-step-indicator.step-item 
+                  segment_state="incomplete" 
+                  name="{{ step.title }}" 
+              />
+            {% endif %}
+        {% endfor %}
+      </c-step-indicator>
+
       <!-- Form Container -->
-        <form method="post">
+        <form id="csf-form" method="post" action="{{next_url}}" data-current-step="{{ current_step_number}}" data-current-page="{{ current_page_number}}">
           {% csrf_token %}
-          {{ form }}
+          
+          {{ current_page }}
 
           <!-- Form Actions -->
           <div class="margin-top-4 padding-top-2 border-top-1px border-base-lighter">
-            <div class="display-flex flex-justify flex-wrap flex-gap-1">
-              <div class="display-flex flex-gap-1">
-                {% if can_edit %}
-                  <button type="submit" name="save" class="usa-button usa-button--outline">
-                    <img src="{% static 'frontend/uswds/img/usa-icons/save_alt.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="">
-                    Save Draft
-                  </button>
+            <div class="display-flex flex-justify flex-wrap flex-gap-1 flex-align-end">
+
+                {% if current_step_number != 0 or current_page_number != 0 %}
+                <a href="{{ prev_url }}" class="usa-button usa-button--outline" type="submit" name="page-action" value="previous">
+                  ← Back
+                </a>
                 {% endif %}
                 
-                {% if can_submit %}
-                  <button type="submit" name="submit" class="usa-button">
-                    <img src="{% static 'frontend/uswds/img/usa-icons/check_circle.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="">
-                    Submit Form
-                  </button>
+                {% if not is_last_page %}
+                    <c-button 
+                        text="Save & Continue →"
+                        variant="base"
+                        name="page-action"
+                        value="next"
+                        state="active"
+                        type="submit"
+                        onClick="(e) => e.preventDefault(); const form = document.querySelector('#csf-form'); const action = form.getAttribute('action'); form.setAttribute('action', ${action}?)"
+                    />
                 {% endif %}
-              </div>
-
-              <a href="{% url 'form_list' %}" class="usa-button usa-button--unstyled">
-                Cancel
-              </a>
             </div>
           </div>
+          <input type="hidden" name="current-step" value="{{ current_step_number }}" />
+          <input type="hidden" name="current-page" value="{{ current_page_number }}" />
         </form>
 
       <!-- Quick Actions -->

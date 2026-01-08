@@ -16,18 +16,24 @@
         
         {% if definitions %}
           <div class="grid-row grid-gap">
+          <c-card.group>
+
             {% for d in definitions %}
               <div class="grid-col-12 tablet:grid-col-6 desktop:grid-col-4">
                 <c-card title="{{ d.name }}">
-                  <div class="padding-bottom-1">
+                  <c-card.header>
+                    <h3 class="usa-card__heading">{{ d.name }}</h3>
+                  </c-card.header>
+                  <c-card.footer>
                     <a href="{% url 'form_start' d.id %}" class="usa-button width-full display-flex flex-align-center flex-justify-center">
                       <img src="{% static 'frontend/uswds/img/usa-icons/add_circle.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="" style="filter: brightness(0) invert(1);">
                       Start New Form
                     </a>
-                  </div>
+                  </c-card.footer>
                 </c-card>
               </div>
             {% endfor %}
+          </c-card.group>
           </div>
         {% else %}
           <c-card>

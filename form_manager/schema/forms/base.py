@@ -6,6 +6,7 @@ from typing import (
     Any,
     Generic,
     Optional,
+    TypeAlias,
     TypeVar,
     cast,
     get_type_hints,
@@ -19,25 +20,15 @@ from pydantic_core import core_schema
 from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.constants import AllFormNames, FormFamilies
-from form_manager.schema.layout import FieldBlock, SectionBlock
+from form_manager.schema.layout import SectionBlock, StepBlock
 
 logger = logging.getLogger(__name__)
-
-
-class PydanticErrorList(ErrorList):
-    """A custom error renderer"""
-
-    template_name = "form_manager/forms/error_list.html"
-    template_name_text = "form_manager/forms/error_list_text.txt"
-    template_name_ul = "form_manager/forms/error_list_ul.html"
 
 
 class ACFFormRenderer(TemplatesSetting):
     """A custom renderer"""
 
     form_template_name = "form_manager/forms/form.html"
-    formset_template_name = "form_manager/forms/formset.html"
-    field_template_name = "form_manager/forms/field.html"
 
 
 class BaseFields(forms.Form):
@@ -95,6 +86,8 @@ class BaseFields(forms.Form):
 FormId = TypeVar("FormId", bound=str)
 FormVersion = TypeVar("FormVersion", bound=str)
 
+UIDefinition: TypeAlias = list[StepBlock | SectionBlock]
+
 
 class SchemaValidationError(Exception):
     form_class = None
@@ -115,7 +108,7 @@ class BaseFormSchema(BaseModel, Generic[FormId, FormVersion], arbitrary_types_al
     form_fields: BaseFields = Field(
         description="Form field definitions. This should be a class that inherits BaseFormFields."
     )
-    ui: list[SectionBlock | FieldBlock] = Field(description="The Form UI definition")
+    ui: UIDefinition = Field(description="The Form UI definition")
 
     @classmethod
     def get_form_fields_class(cls) -> BaseFields | None:

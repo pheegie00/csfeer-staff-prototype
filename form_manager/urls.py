@@ -1,11 +1,11 @@
 from django.urls import path
 
-from . import views
+from form_manager import views
 
 urlpatterns = [
     path("", views.form_list, name="form_list"),
     path("start/<uuid:form_id>/", views.form_start, name="form_start"),
-    path("entry/<uuid:pk>/edit/", views.FormEditView.as_view(), name="form_edit"),
+    path("entry/<uuid:pk>/edit/", views.form_edit, name="form_edit"),
     path("entry/<uuid:pk>/preview/", views.FormPreviewView.as_view(), name="form_preview"),
     path("entry/<uuid:pk>/history/", views.form_history, name="form_history"),
     path(

@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Generic, TypeVar
+from typing import Annotated, Any, Generic, TypeAlias, TypeVar
 
 from _typeshed import Incomplete
 from django import forms
@@ -11,8 +11,7 @@ from pydantic_extra_types.semantic_version import SemanticVersion as SemanticVer
 
 from form_manager.constants import AllFormNames as AllFormNames
 from form_manager.constants import FormFamilies as FormFamilies
-from form_manager.schema.layout import FieldBlock as FieldBlock
-from form_manager.schema.layout import SectionBlock as SectionBlock
+from form_manager.schema.layout import FieldBlock, SectionBlock, StepBlock
 
 logger: Incomplete
 
@@ -41,6 +40,8 @@ class BaseFields(forms.Form):
 FormId = TypeVar("FormId", bound=str)
 FormVersion = TypeVar("FormVersion", bound=str)
 
+UIDefinition: TypeAlias = list[StepBlock | SectionBlock]
+
 class SchemaValidationError(Exception):
     form_class: Incomplete
     def __init__(self, message: str, form_class: object | None = None) -> None: ...
@@ -50,7 +51,7 @@ class BaseFormSchema(BaseModel, Generic[FormId, FormVersion], arbitrary_types_al
     name: Annotated[AllFormNames, None]
     variant: Annotated[SemanticVersion, None]
     form_fields: BaseFields
-    ui: list[SectionBlock | FieldBlock]
+    ui: UIDefinition
     @classmethod
     def get_form_fields_class(cls) -> BaseFields | None: ...
     @classmethod

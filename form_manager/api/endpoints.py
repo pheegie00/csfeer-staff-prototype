@@ -11,15 +11,7 @@ from ninja.errors import HttpError
 from ninja.security import django_auth
 from ninja.security.http import HttpAuthBase
 
-from ..models import (
-    FormAuditDetail,
-    FormAuditTrail,
-    FormDefinition,
-    FormEntry,
-    OrganizationProfile,
-)
-from ..utils import user_can_view
-from .schemas import (
+from form_manager.api.schemas import (
     AuditDetailSchema,
     AuditTrailSchema,
     FormDefinitionListSchema,
@@ -28,6 +20,14 @@ from .schemas import (
     FormEntrySchema,
     OrganizationSchema,
 )
+from form_manager.models import (
+    FormAuditDetail,
+    FormAuditTrail,
+    FormDefinition,
+    FormEntry,
+    OrganizationProfile,
+)
+from form_manager.utils import user_can_view
 
 # Initialize API with Django session authentication
 api = NinjaAPI(
