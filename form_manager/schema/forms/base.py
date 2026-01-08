@@ -25,20 +25,10 @@ from form_manager.schema.layout import SectionBlock, StepBlock
 logger = logging.getLogger(__name__)
 
 
-class PydanticErrorList(ErrorList):
-    """A custom error renderer"""
-
-    template_name = "form_manager/forms/error_list.html"
-    template_name_text = "form_manager/forms/error_list_text.txt"
-    template_name_ul = "form_manager/forms/error_list_ul.html"
-
-
 class ACFFormRenderer(TemplatesSetting):
     """A custom renderer"""
 
     form_template_name = "form_manager/forms/form.html"
-    formset_template_name = "form_manager/forms/formset.html"
-    field_template_name = "form_manager/forms/field.html"
 
 
 class BaseFields(forms.Form):

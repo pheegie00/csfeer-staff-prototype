@@ -62,14 +62,14 @@ def test_can_start_new_form(django_db_setup, seed_data, client: "Client"):
 
     assert obj
 
-    assert response.headers.get("Location", "") == reverse("form_edit_legacy", args=[obj.pk])
+    assert response.headers.get("Location", "") == reverse("form_edit", args=[obj.pk])
 
 
 @pytest.mark.django_db
 def test_can_render_and_edit_form(django_db_setup, form_entry: "FormEntry", authenticated_client):
     """Ensure the load_initial_forms command loads successfully."""
 
-    url = reverse("form_edit_legacy", args=[form_entry.pk])
+    url = reverse("form_edit", args=[form_entry.pk])
 
     response = authenticated_client.get(url)
 

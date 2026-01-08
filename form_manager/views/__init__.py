@@ -55,81 +55,7 @@ def form_start(request, form_id: UUID):
         form_definition=form_def, organization=org, created_by=request.user, version_number=next_ver
     )
     FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="create")
-    if form_def.schema_class == "TribalShortForm":
-        return redirect("form_edit_legacy", pk=entry.pk)
-    else:
-        return redirect("form_edit", pk=entry.pk)
-
-
-class FormEditLegacyView(BaseSingleFormView, FormPermissionMixin):
-    template_name = "forms/form_edit.html"
-
-    def save_form_entry(self, form, status=None):
-        form.is_valid()
-        entry = self.object
-        old = entry.data.copy() if entry.data else {}
-        entry.data = to_jsonable(form.cleaned_data)
-        FormAuditTrail.objects.create(form_entry=entry, user=self.request.user, action="save")
-        record_field_diffs(entry, old, entry.data, user=self.request.user)
-
-        if status:
-            entry.status = status
-
-        if status == "submitted":
-            entry.submitted_at = timezone.now()
-
-        entry.save()
-
-    def form_valid(self, form):
-        """Submits the final version of the form"""
-        self.save_form_entry(form, status="submitted")
-        messages.success(self.request, "Submitted.")
-        return redirect("form_list")
-
-    def form_invalid(self, form):
-        """Always save the form data as a draft if the form isn't valid yet."""
-        self.save_form_entry(
-            form,
-        )
-        if "save" in self.request.POST:
-            messages.success(self.request, "Draft saved.")
-        else:
-            messages.error(self.request, "Could not submit form due to errors.")
-
-        return super().form_invalid(form)
-
-    def post(self, request, *args, **kwargs):
-        """Overload the post method to immediately call form_invalid if we're saving a draft."""
-
-        self.object = cast(FormEntry, self.get_object())
-
-        form = self.get_form()
-
-        if self.is_saving_draft():
-            return self.form_invalid(form)
-
-        return super().post(request, *args, **kwargs)
-
-    def is_saving_draft(self) -> bool:
-        """Return True if a draft is being saved."""
-        return "save" in self.request.POST
-
-    def is_submitting(self):
-        """Return True if a final form submission is being saved."""
-        return "submit" in self.request.POST
-
-    def has_permission(self) -> bool:
-
-        if self.object.locked:
-            return False
-
-        if self.is_saving_draft() and not self.can_edit():
-            return False
-
-        if self.is_submitting() and not self.can_submit():
-            return False
-
-        return True
+    return redirect("form_edit", pk=entry.pk)
 
 
 @login_required
@@ -338,7 +264,7 @@ def form_lock(request, pk: UUID):
     entry.save()
     FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="lock")
     messages.info(request, "Entry locked.")
-    return redirect("form_edit_legacy", pk=pk)
+    return redirect("form_edit", pk=pk)
 
 
 @login_required
@@ -351,7 +277,7 @@ def form_unlock(request, pk: UUID):
     entry.save()
     FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="unlock")
     messages.info(request, "Entry unlocked.")
-    return redirect("form_edit_legacy", pk=pk)
+    return redirect("form_edit", pk=pk)
 
 
 @login_required

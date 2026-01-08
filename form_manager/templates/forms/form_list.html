@@ -78,7 +78,7 @@
                     </td>
                     <td data-label="Actions">
                       <div class="display-flex flex-wrap gap-1">
-                        <a href="{% url 'form_edit_legacy' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="Edit {{ e.form_definition.title }}">
+                        <a href="{% url 'form_edit' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="Edit {{ e.form_definition.title }}">
                           <img src="{% static 'frontend/uswds/img/usa-icons/edit.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
                           Edit
                         </a>
