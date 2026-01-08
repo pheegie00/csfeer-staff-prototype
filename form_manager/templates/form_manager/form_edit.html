@@ -19,12 +19,12 @@
           indicator_type="centered"
       >
         {% for step in steps %}
-            {% if forloop.counter < current_step_number %}
+            {% if forloop.counter0 < current_step_number %}
               <c-step-indicator.step-item 
                   segment_state="complete" 
                   name="{{ step.title }}" 
               />
-            {% elif forloop.counter == current_step_number %}
+            {% elif forloop.counter0 == current_step_number %}
               <c-step-indicator.step-item 
                   segment_state="current" 
                   name="{{ step.title }}" 
