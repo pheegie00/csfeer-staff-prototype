@@ -1,0 +1,10 @@
+<c-vars
+    segment_state=""
+    name=""
+/>
+
+<li class="usa-step-indicator__segment {% if segment_state == 'complete' %}usa-step-indicator__segment--complete{% endif %}{% if segment_state == 'current' %}usa-step-indicator__segment--current{% endif %}" {% if segment_state == 'current' %}aria-current="true"{% endif %}>
+    <span class="usa-step-indicator__segment-label">
+        {{ name }} {% if segment_state == 'complete' %}<span class="usa-sr-only">completed</span>{% endif %}{% if segment_state == 'incomplete' %}<span class="usa-sr-only">not completed</span>{% endif %}
+    </span>
+</li>

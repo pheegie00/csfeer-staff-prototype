@@ -1,0 +1,23 @@
+<c-vars
+    id=""
+    name=""
+    value=""
+    min=""
+    max=""
+    required=""
+    disabled=""
+/>
+
+<input
+  class="usa-input"
+  id="{{ id }}"
+  name="{{ name }}"
+  type="date"
+  aria-labelledby="appointment-date-label"
+  aria-describedby="appointment-date-hint"
+  {% if value %}value="{{ value }}"{% endif %}
+  {% if min %}min="{{ min }}"{% endif %}
+  {% if max %}max="{{ max }}"{% endif %}
+  {% if required %}required{% endif %}
+  {% if disabled %}disabled{% endif %}
+/>
