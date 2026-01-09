@@ -11,9 +11,9 @@
     required=""
     width=""
     inputmode=""
+    extra_classes=""
 />
-
-    
+  
 <c-input-group>
     <c-input-prefix>$</c-input-prefix>
     <c-text-input
@@ -25,10 +25,12 @@
         error="{{ error }}"
         success="{{ success }}"
         disabled="{{ disabled }}"
-        readonly="{{ readonly }}"
         required="{{ required }}"
         width="{{ width }}"
         inputmode="numeric"
         step="0.01"
+        readonly="{{ readonly }}"
+        input_classes="currency-input {{ extra_classes}}"
+        :attrs="attrs"
     />
 </c-input-group>

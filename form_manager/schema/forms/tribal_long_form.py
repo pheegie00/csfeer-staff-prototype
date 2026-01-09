@@ -43,6 +43,19 @@ class TribalLongFormFields(BaseFields):
 
     other_expenditure = acf_fields.CurrencyField(title="Other")
 
+    total_expenditures = acf_fields.CalculatedCurrencyField(
+        title="Total Expenditures",
+        fields=[
+            "asset_building_expenditure",
+            "housing_expenditure",
+            "health_expenditure",
+            "civic_expenditure",
+            "transportation_expenditure",
+            "partnerships_expenditure",
+            "other_expenditure",
+        ],
+    )
+
     administration_expenditure = acf_fields.CurrencyField(title="Administration")
 
     employment_related_services_description = acf_fields.TextareaField(
@@ -69,18 +82,6 @@ class TribalLongFormFields(BaseFields):
 
     poverty_coordination_description = acf_fields.TextareaField(
         title="Description",
-    )
-
-    total_expenditures = acf_fields.CalculatedCurrencyField(
-        fields=[
-            "asset_building_expenditure",
-            "housing_expenditure",
-            "health_expenditure",
-            "civic_expenditure",
-            "transportation_expenditure",
-            "partnerships_expenditure",
-            "other_expenditure",
-        ]
     )
 
     total_individuals_served = acf_fields.IntegerField(title="Total number of people")
