@@ -1,0 +1,12 @@
+name: Search
+context:
+  variants:            
+    - title: "Default"
+      search_type: ""
+      id: "search-field"
+    - title: "Big"
+      search_type: "big"
+      id: "search-field-big"
+    - title: "Small"
+      search_type: "small"
+      id: "search-field-small"

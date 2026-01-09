@@ -1,0 +1,19 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>List Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-list
+            list_type="{{ variant.list_type }}"
+        >
+            {% for item in variant.items %}
+                <li>{{ item.text }}</li>
+            {% endfor %}
+        </c-list>
+    </div>
+    {% endfor %}
+</div>
