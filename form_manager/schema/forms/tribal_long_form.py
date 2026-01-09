@@ -26,7 +26,7 @@ class TribalLongFormFields(BaseFields):
         widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
     )
     email = acf_fields.CharField(title="Email address", widget=forms.EmailInput)
-    employment_expenditure = acf_fields.CharField(title="Employment")
+    employment_expenditure = acf_fields.CurrencyField(title="Employment")
     childcare_expenditure = acf_fields.CurrencyField(
         title="Childcare, Early Childhood, Youth Development, and Adult Education"
     )
