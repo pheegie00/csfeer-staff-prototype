@@ -135,7 +135,12 @@ class ACFCalculatedField(ACFFieldMixin, forms.FloatField):
         extra_attrs = {
             "x-data": {"sourceFields": self.fields},
         }
-        attrs.update({"extra_attrs": extra_attrs})
+        attrs.update(
+            {
+                "extra_attrs": extra_attrs,
+                "source_fields": self.fields,
+            }
+        )
         return attrs
 
 

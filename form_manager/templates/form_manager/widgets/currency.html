@@ -5,7 +5,6 @@
     required="{% if widget.required %}True{% endif %}"
     value="{{ widget.value|default:'' }}"
     extra_classes="{{ widget.attrs.class|default:''}}"
-    :x-ref="widget.attrs.id"
-    x-data=""
+    data-source-fields="{{ widget.attrs.source_fields|join:','}}"
     :attrs="widget.attrs.extra_attrs"
 />
