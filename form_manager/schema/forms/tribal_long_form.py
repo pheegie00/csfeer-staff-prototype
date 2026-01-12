@@ -26,12 +26,14 @@ class TribalLongFormFields(BaseFields):
         widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
     )
     email = acf_fields.CharField(title="Email address", widget=forms.EmailInput)
-    employment_expenditure = acf_fields.CurrencyField(title="Employment")
+    employment_expenditure = acf_fields.CurrencyField(title="Employment", min_value=0)
     childcare_expenditure = acf_fields.CurrencyField(
         title="Childcare, Early Childhood, Youth Development, and Adult Education"
     )
 
-    asset_building_expenditure = acf_fields.CurrencyField(title="Income and Asset Building")
+    asset_building_expenditure = acf_fields.CurrencyField(
+        title="Income and Asset Building", min_value=0
+    )
     housing_expenditure = acf_fields.CurrencyField(title="Housing")
     health_expenditure = acf_fields.CurrencyField(title="Health and Nutrition")
     civic_expenditure = acf_fields.CurrencyField(title="Civic Engagement and Community Involvement")
@@ -46,6 +48,8 @@ class TribalLongFormFields(BaseFields):
     total_expenditures = acf_fields.CalculatedCurrencyField(
         title="Total Expenditures",
         fields=[
+            "employment_expenditure",
+            "childcare_expenditure",
             "asset_building_expenditure",
             "housing_expenditure",
             "health_expenditure",

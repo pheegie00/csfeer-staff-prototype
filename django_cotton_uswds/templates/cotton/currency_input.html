@@ -11,7 +11,6 @@
     required=""
     width=""
     inputmode=""
-    extra_classes=""
 />
   
 <c-input-group>
@@ -30,7 +29,6 @@
         inputmode="numeric"
         step="0.01"
         readonly="{{ readonly }}"
-        input_classes="currency-input {{ extra_classes}}"
-        :attrs="attrs"
+        :attrs="widget_attrs"
     />
 </c-input-group>

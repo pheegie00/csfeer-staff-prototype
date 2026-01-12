@@ -40,18 +40,19 @@
 
       <script>
         const updateCalculatedFields = (e) => {
-          const calculatedFields = e.currentTarget.querySelectorAll(".calculated-currency-input");
+          const calculatedFields = e.currentTarget.querySelectorAll(".calculated-currency-field");
           calculatedFields.forEach((field) => {
             let sourceFields = field.getAttribute("data-source-fields");
             sourceFields = sourceFields.split(',')
-            const total = sourceFields.reduce((acc, fieldName, index) => {
+            const total = sourceFields.reduce((total, fieldName, index) => {
               const sourceField = e.currentTarget.querySelector(`[name=${fieldName}]`)
               if (sourceField === null) {
-                return 0;
+                return total;
               }
-              const value = sourceField.value;
-              return parseFloat(value || 0.0) + acc;
-            }, 0);
+              const value = parseFloat(sourceField.value || 0.0)
+              const newTotal = value + total;
+              return newTotal
+            }, 0.0);
             field.value = total;
           })
         }

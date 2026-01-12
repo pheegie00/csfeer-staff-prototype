@@ -4,7 +4,5 @@
     readonly="{% if widget.attrs.disabled %}True{% endif %}"
     required="{% if widget.required %}True{% endif %}"
     value="{{ widget.value|default:'' }}"
-    extra_classes="{{ widget.attrs.class|default:''}}"
-    data-source-fields="{{ widget.attrs.source_fields|join:','}}"
-    :attrs="widget.attrs.extra_attrs"
+    :widget_attrs="widget.attrs"
 />

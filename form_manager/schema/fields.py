@@ -84,6 +84,19 @@ class ACFCurrencyField(ACFFieldMixin, forms.FloatField):
 
     widget = CurrencyInput
 
+    def __init__(self, *args, **kwargs):
+        step_size = kwargs.pop("step_size", 0.01)
+        super().__init__(*args, step_size=step_size, **kwargs)
+
+    def widget_attrs(self, widget: forms.Widget) -> dict[str, Any]:
+        attrs = super().widget_attrs(widget)
+        attrs.update(
+            {
+                "class": "usa-input currency-input",
+            }
+        )
+        return attrs
+
 
 class ACFCalculatedField(ACFFieldMixin, forms.FloatField):
     """A field whose value is calculated from other form fields."""
@@ -132,22 +145,24 @@ class ACFCalculatedField(ACFFieldMixin, forms.FloatField):
 
     def widget_attrs(self, widget: forms.Widget) -> dict[str, Any]:
         attrs = super().widget_attrs(widget)
-        extra_attrs = {
-            "x-data": {"sourceFields": self.fields},
-        }
         attrs.update(
             {
-                "extra_attrs": extra_attrs,
-                "source_fields": self.fields,
+                "class": "usa-input calculated-field",
+                "data-source-fields": ",".join(self.fields),
             }
         )
         return attrs
 
 
-class ACFCalculatedCurrencyField(ACFCalculatedField):
+class ACFCalculatedCurrencyField(ACFCalculatedField, ACFCurrencyField):
     """A calculated currency field"""
 
-    widget = CurrencyInput(attrs={"class": "calculated-currency-input"})
+    widget = CurrencyInput()
+
+    def widget_attrs(self, widget: forms.Widget) -> dict[str, Any]:
+        attrs = super().widget_attrs(widget)
+        attrs.update({"class": attrs.get("class", "") + " calculated-currency-field"})
+        return attrs
 
 
 class ACFTextAreaField(ACFFieldMixin, forms.CharField):
