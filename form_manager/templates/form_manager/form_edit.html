@@ -58,35 +58,9 @@
         }
       </script>
 
-      <c-form id="csf-form" method="post" action="{{ next_url }}" x-data="" novalidate @change="updateCalculatedFields">
-        <c-fieldset>
+      <c-form id="csf-form" class="" method="post" action="{{ next_url }}" x-data="" novalidate @change="updateCalculatedFields">
         {% csrf_token %}
-        
         {{ current_page }}
-
-        <!-- Form Actions -->
-        <div class="margin-top-4 padding-top-2 border-top-1px border-base-lighter">
-          <div class="display-flex flex-justify flex-wrap flex-gap-1 flex-align-end">
-
-              {% if current_step_number != 0 or current_page_number != 0 %}
-              <a href="{{ prev_url }}" class="usa-button usa-button--outline" type="submit" name="page-action" value="previous">
-                ← Back
-              </a>
-              {% endif %}
-              
-              {% if not is_last_page %}
-                  <c-button 
-                      text="Save & Continue →"
-                      variant="base"
-                      name="page-action"
-                      value="next"
-                      state="active"
-                      type="submit"
-                  />
-              {% endif %}
-          </div>
-        </div>
-        </c-fieldset>
       </c-form>
 
       <!-- Quick Actions -->
