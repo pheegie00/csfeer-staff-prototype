@@ -1,0 +1,17 @@
+<c-vars
+    text=""
+    type=""
+    disabled=""
+    aria_disabled=""
+    extra_classes=""
+/>
+
+<button
+    type="button"
+    class="usa-button {% if type == 'unstyled' %} usa-button--unstyled {% endif %} {{ extra_classes }}"
+    data-close-modal
+    {% if disabled %}disabled="disabled"{% endif %}
+    {% if aria_disabled %}aria-disabled="true"{% endif %}
+    >
+    {{ text }}
+</button>
