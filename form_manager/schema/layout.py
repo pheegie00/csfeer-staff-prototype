@@ -17,9 +17,11 @@ class RenderableBaseModel[T](RenderableMixin, BaseModel):
     children: Optional[list[T]] = None
 
     def set_extra_context(self, **kwargs: dict) -> None:
+        """Set global context that will also be made available to any descendant nodes."""
         self._global_context = kwargs
 
     def get_context(self) -> dict[str, Any]:
+        """Overloaded to inject global context and local variables into this node's template context"""
         context = {}
 
         field_context = {
