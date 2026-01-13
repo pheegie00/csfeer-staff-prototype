@@ -12,7 +12,7 @@ from django import forms
 from django.forms.boundfield import BoundField
 from pydantic_core import core_schema
 
-from form_manager.schema.widgets import CurrencyInput
+from form_manager.schema.widgets import CheckboxSelectMultiple, CurrencyInput
 
 
 class ACFFieldMixin:
@@ -165,10 +165,16 @@ class ACFCalculatedCurrencyField(ACFCalculatedField, ACFCurrencyField):
         return attrs
 
 
-class ACFTextAreaField(ACFFieldMixin, forms.CharField):
+class ACFTextareaField(ACFFieldMixin, forms.CharField):
     """A text area field"""
 
     widget = forms.Textarea
+
+
+class FieldFilterField(ACFFieldMixin, forms.MultipleChoiceField):
+    """A special field that defines fields to exclude from interview questions."""
+
+    widget = CheckboxSelectMultiple
 
 
 class ACFFieldsMeta(type):
@@ -190,9 +196,10 @@ class ACFFieldsMeta(type):
         dct.update(
             {
                 "CurrencyField": ACFCurrencyField,
-                "TextareaField": ACFTextAreaField,
+                "TextareaField": ACFTextareaField,
                 "CalculatedCurrencyField": ACFCalculatedCurrencyField,
                 "CalculatedField": ACFCalculatedField,
+                "PageFilterField": FieldFilterField,
             }
         )
 
