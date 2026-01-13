@@ -1,1 +1,8 @@
-<c-currency-input />
+<c-currency-input
+    name="{{ widget.name }}"
+    id="{{ widget.attrs.id }}"
+    readonly="{% if widget.attrs.disabled %}True{% endif %}"
+    required="{% if widget.required %}True{% endif %}"
+    value="{{ widget.value|default:'' }}"
+    :widget_attrs="widget.attrs"
+/>

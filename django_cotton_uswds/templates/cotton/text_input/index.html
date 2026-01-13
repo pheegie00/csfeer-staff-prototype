@@ -6,18 +6,16 @@
     required=""
     width=""
     aria_describedby=""
-    input_classes=""
-    step=""
     value=""
+    class="usa-input"
 />
 
 
 <input
-  class="usa-input {{ input_classes }}{% if width %} usa-input--{{ width }}{% endif %}{% if error %} usa-input--error{% endif %}{% if success %} usa-input--success{% endif %}"
+  class="{{ class }} {% if width %} usa-input--{{ width }}{% endif %}{% if error %} usa-input--error{% endif %}{% if success %} usa-input--success{% endif %}"
   {{ attrs }}
   {% if disabled %}disabled{% endif %}
   {% if readonly %}readonly{% endif %}
   {% if required %}required{% endif %}
-  {% if step %} step="{{ step }}" {% endif %}
   {% if value != None %}value="{{ value }}"{% endif %}
 />

@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import inspect
+import json
 from datetime import date, datetime
 from decimal import Decimal
-from typing import List
+from typing import Any, List
 
 from django import forms
 from django.forms.boundfield import BoundField
@@ -78,6 +79,25 @@ class ACFFieldMixin:
         return core_schema.typed_dict_field(field_type_schema(**data_args))
 
 
+class ACFCurrencyField(ACFFieldMixin, forms.FloatField):
+    """A currency field"""
+
+    widget = CurrencyInput
+
+    def __init__(self, *args, **kwargs):
+        step_size = kwargs.pop("step_size", 0.01)
+        super().__init__(*args, step_size=step_size, **kwargs)
+
+    def widget_attrs(self, widget: forms.Widget) -> dict[str, Any]:
+        attrs = super().widget_attrs(widget)
+        attrs.update(
+            {
+                "class": "usa-input currency-input",
+            }
+        )
+        return attrs
+
+
 class ACFCalculatedField(ACFFieldMixin, forms.FloatField):
     """A field whose value is calculated from other form fields."""
 
@@ -123,17 +143,26 @@ class ACFCalculatedField(ACFFieldMixin, forms.FloatField):
 
         return data or initial
 
+    def widget_attrs(self, widget: forms.Widget) -> dict[str, Any]:
+        attrs = super().widget_attrs(widget)
+        attrs.update(
+            {
+                "class": "usa-input calculated-field",
+                "data-source-fields": ",".join(self.fields),
+            }
+        )
+        return attrs
 
-class ACFCurrencyField(ACFFieldMixin, forms.FloatField):
-    """A currency field"""
 
-    widget = CurrencyInput
-
-
-class ACFCalculatedCurrencyField(ACFCalculatedField):
+class ACFCalculatedCurrencyField(ACFCalculatedField, ACFCurrencyField):
     """A calculated currency field"""
 
-    widget = CurrencyInput
+    widget = CurrencyInput()
+
+    def widget_attrs(self, widget: forms.Widget) -> dict[str, Any]:
+        attrs = super().widget_attrs(widget)
+        attrs.update({"class": attrs.get("class", "") + " calculated-currency-field"})
+        return attrs
 
 
 class ACFTextAreaField(ACFFieldMixin, forms.CharField):

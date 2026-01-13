@@ -90,9 +90,6 @@ def form_edit(request, pk):
         current_step_number, current_page_number
     )
 
-    current_page = get_step_page(int(current_step_number or 0), current_page_number or 0)
-    current_page.set_extra_context(form=django_form_class())
-
     def is_last_page(target_step_number, target_page_number):
 
         if len(ui_components) - 1 != target_step_number:
@@ -123,8 +120,10 @@ def form_edit(request, pk):
         + f"?page={previous_page_number}&step={previous_step_number}"
     )
 
+    current_page = get_step_page(int(current_step_number or 0), current_page_number or 0)
+
     context = {
-        "form": django_form_class,
+        "form": django_form_class(),
         "steps": ui_components,
         "entry": entry,
         "schema": schema,
@@ -135,5 +134,7 @@ def form_edit(request, pk):
         "next_url": next_page_url,
         "prev_url": prev_page_url,
     }
+
+    current_page.set_extra_context(**context)
 
     return render(request, "form_manager/form_edit.html", context)

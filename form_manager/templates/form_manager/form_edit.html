@@ -38,38 +38,30 @@
         {% endfor %}
       </c-step-indicator>
 
-      <!-- Form Container -->
-        <form id="csf-form" method="post" action="{{next_url}}" data-current-step="{{ current_step_number}}" data-current-page="{{ current_page_number}}">
-          {% csrf_token %}
-          
-          {{ current_page }}
+      <script>
+        const updateCalculatedFields = (e) => {
+          const calculatedFields = e.currentTarget.querySelectorAll(".calculated-currency-field");
+          calculatedFields.forEach((field) => {
+            let sourceFields = field.getAttribute("data-source-fields");
+            sourceFields = sourceFields.split(',')
+            const total = sourceFields.reduce((total, fieldName, index) => {
+              const sourceField = e.currentTarget.querySelector(`[name=${fieldName}]`)
+              if (sourceField === null) {
+                return total;
+              }
+              const value = parseFloat(sourceField.value || 0.0)
+              const newTotal = value + total;
+              return newTotal
+            }, 0.0);
+            field.value = total;
+          })
+        }
+      </script>
 
-          <!-- Form Actions -->
-          <div class="margin-top-4 padding-top-2 border-top-1px border-base-lighter">
-            <div class="display-flex flex-justify flex-wrap flex-gap-1 flex-align-end">
-
-                {% if current_step_number != 0 or current_page_number != 0 %}
-                <a href="{{ prev_url }}" class="usa-button usa-button--outline" type="submit" name="page-action" value="previous">
-                  ← Back
-                </a>
-                {% endif %}
-                
-                {% if not is_last_page %}
-                    <c-button 
-                        text="Save & Continue →"
-                        variant="base"
-                        name="page-action"
-                        value="next"
-                        state="active"
-                        type="submit"
-                        onClick="(e) => e.preventDefault(); const form = document.querySelector('#csf-form'); const action = form.getAttribute('action'); form.setAttribute('action', ${action}?)"
-                    />
-                {% endif %}
-            </div>
-          </div>
-          <input type="hidden" name="current-step" value="{{ current_step_number }}" />
-          <input type="hidden" name="current-page" value="{{ current_page_number }}" />
-        </form>
+      <c-form id="csf-form" class="" method="post" action="{{ next_url }}" x-data="" novalidate @change="updateCalculatedFields">
+        {% csrf_token %}
+        {{ current_page }}
+      </c-form>
 
       <!-- Quick Actions -->
       <div class="margin-top-4 padding-3 bg-base-lightest radius-md">

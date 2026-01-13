@@ -26,22 +26,41 @@ class TribalLongFormFields(BaseFields):
         widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
     )
     email = acf_fields.CharField(title="Email address", widget=forms.EmailInput)
-    employment_expenditure = acf_fields.CharField(title="Employment")
+    employment_expenditure = acf_fields.CurrencyField(title="Employment", min_value=0)
     childcare_expenditure = acf_fields.CurrencyField(
-        title="Childcare, Early Childhood, Youth Development, and Adult Education"
+        title="Childcare, Early Childhood, Youth Development, and Adult Education", min_value=0
     )
 
-    asset_building_expenditure = acf_fields.CurrencyField(title="Income and Asset Building")
-    housing_expenditure = acf_fields.CurrencyField(title="Housing")
-    health_expenditure = acf_fields.CurrencyField(title="Health and Nutrition")
-    civic_expenditure = acf_fields.CurrencyField(title="Civic Engagement and Community Involvement")
-    transportation_expenditure = acf_fields.CurrencyField(title="Transportation")
+    asset_building_expenditure = acf_fields.CurrencyField(
+        title="Income and Asset Building", min_value=0
+    )
+    housing_expenditure = acf_fields.CurrencyField(title="Housing", min_value=0)
+    health_expenditure = acf_fields.CurrencyField(title="Health and Nutrition", min_value=0)
+    civic_expenditure = acf_fields.CurrencyField(
+        title="Civic Engagement and Community Involvement", min_value=0
+    )
+    transportation_expenditure = acf_fields.CurrencyField(title="Transportation", min_value=0)
 
     partnerships_expenditure = acf_fields.CurrencyField(
-        title="Partnerships, Linkages, and Coordination"
+        title="Partnerships, Linkages, and Coordination", min_value=0
     )
 
-    other_expenditure = acf_fields.CurrencyField(title="Other")
+    other_expenditure = acf_fields.CurrencyField(title="Other", min_value=0)
+
+    total_expenditures = acf_fields.CalculatedCurrencyField(
+        title="Total Expenditures",
+        fields=[
+            "employment_expenditure",
+            "childcare_expenditure",
+            "asset_building_expenditure",
+            "housing_expenditure",
+            "health_expenditure",
+            "civic_expenditure",
+            "transportation_expenditure",
+            "partnerships_expenditure",
+            "other_expenditure",
+        ],
+    )
 
     administration_expenditure = acf_fields.CurrencyField(title="Administration")
 
@@ -69,18 +88,6 @@ class TribalLongFormFields(BaseFields):
 
     poverty_coordination_description = acf_fields.TextareaField(
         title="Description",
-    )
-
-    total_expenditures = acf_fields.CalculatedCurrencyField(
-        fields=[
-            "asset_building_expenditure",
-            "housing_expenditure",
-            "health_expenditure",
-            "civic_expenditure",
-            "transportation_expenditure",
-            "partnerships_expenditure",
-            "other_expenditure",
-        ]
     )
 
     total_individuals_served = acf_fields.IntegerField(title="Total number of people")
