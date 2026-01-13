@@ -18,6 +18,7 @@ from form_manager.schema.layout import (
 
 class TribalLongFormFields(BaseFields):
 
+    # region Basic Information
     org_name = acf_fields.CharField(title="Name of Tribe or Tribal Organization", max_length=100)
     contact_name = acf_fields.CharField(title="Full name")
     contact_title = acf_fields.CharField(title="Role")
@@ -26,6 +27,41 @@ class TribalLongFormFields(BaseFields):
         widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
     )
     email = acf_fields.CharField(title="Email address", widget=forms.EmailInput)
+
+    # region Question Filters
+
+    applicable_topics = acf_fields.PageFilterField(
+        choices=[
+            (
+                "employment_expenditure,employment_related_services_description",
+                "Employment",
+            ),
+            (
+                "childcare_expenditure,education_related_service_description",
+                "Childcare, Early Childhood, Youth Development & Adult Education",
+            ),
+            (
+                "asset_building_expenditure,income_services_description",
+                "Income & Asset Building",
+            ),
+            (
+                "housing_expenditure,housing_services_description",
+                "Housing",
+            ),
+            (
+                "health_expenditure,health_services_description",
+                "Health & Nutrition",
+            ),
+            (
+                "civic_expenditure,civic_services_description",
+                "Civic Engagement & Community Involvement",
+            ),
+            ("transportation_expenditure,transportation_services_description", "Transportation"),
+            ("other_expenditure", "Other"),
+        ]
+    )
+
+    # region Expenditure Amounts
     employment_expenditure = acf_fields.CurrencyField(title="Employment", min_value=0)
     childcare_expenditure = acf_fields.CurrencyField(
         title="Childcare, Early Childhood, Youth Development, and Adult Education", min_value=0
@@ -64,6 +100,8 @@ class TribalLongFormFields(BaseFields):
 
     administration_expenditure = acf_fields.CurrencyField(title="Administration")
 
+    # region Expenditure Descriptions
+
     employment_related_services_description = acf_fields.TextareaField(
         title="Description",
     )
@@ -89,6 +127,8 @@ class TribalLongFormFields(BaseFields):
     poverty_coordination_description = acf_fields.TextareaField(
         title="Description",
     )
+
+    # region Demographic Questions
 
     total_individuals_served = acf_fields.IntegerField(title="Total number of people")
 
@@ -167,6 +207,10 @@ class TribalLongForm(BaseFormSchema):
             StepBlock(
                 title="Expenditure categories",
                 children=[
+                    PageBlock(
+                        title="Expenditure categories",
+                        children=[FieldBlock(field_name="applicable_topics")],
+                    ),
                     PageBlock(
                         title="Expenditure categories",
                         children=[
