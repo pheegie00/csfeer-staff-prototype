@@ -166,9 +166,22 @@ class ACFCalculatedCurrencyField(ACFCalculatedField, ACFCurrencyField):
 
 
 class ACFTextAreaField(ACFFieldMixin, forms.CharField):
-    """A text area field"""
+    """A text area field with custom widget that properly handles initial values"""
 
-    widget = forms.Textarea
+    class ACFTextarea(forms.Textarea):
+        """Custom Textarea widget that ensures initial values are rendered"""
+
+        template_name = "form_manager/widgets/textarea.html"
+
+        def get_context(self, name, value, attrs):
+            """Override to ensure value is used even when form is unbound"""
+            context = super().get_context(name, value, attrs)
+            # Ensure value is set in context for rendering
+            if value is not None:
+                context["widget"]["value"] = value
+            return context
+
+    widget = ACFTextarea
 
 
 class ACFFieldsMeta(type):

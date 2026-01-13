@@ -15,6 +15,6 @@
     <div class="usa-error-message">{{ field.errors.0 }}</div>
     {% endif %}
 
-    {{ field }}
+    {{ field.as_widget|safe }}
 
 </c-form-group>

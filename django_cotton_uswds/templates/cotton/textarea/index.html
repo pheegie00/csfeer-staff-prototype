@@ -1,4 +1,6 @@
 <c-vars
+    id=""
+    name=""
     error=""
     success=""
     disabled=""
@@ -10,9 +12,12 @@
     input_classes=""
     label_classes=""
     rows=""
+    value=""
 />
 
 <textarea
+  id="{{ id }}"
+  name="{{ name }}"
   class="usa-textarea{{ input_classes }}{% if error %} usa-input--error{% endif %}{% if success %} usa-input--success{% endif %}"
   {{ attrs }}
   {% if disabled %}disabled{% endif %}
