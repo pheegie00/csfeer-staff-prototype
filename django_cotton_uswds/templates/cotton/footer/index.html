@@ -1,0 +1,102 @@
+<c-vars 
+    type="medium"
+    return_to_top_href="#" 
+    agency_name="" 
+    agency_logo="" 
+    contact_heading="" 
+    show_signup="false" 
+    signup_heading="Sign up" 
+    signup_label="Your email address" 
+/>
+
+<footer class="usa-footer{% if type == 'big' %} usa-footer--big{% elif type == 'slim' %} usa-footer--slim{% endif %}">
+  {% if return_to_top_href %}
+  <div class="grid-container usa-footer__return-to-top">
+    <a href="{{ return_to_top_href }}">Return to top</a>
+  </div>
+  {% endif %}
+
+  <div class="usa-footer__primary-section">
+    {% if type == 'big' %}
+    <div class="grid-container">
+      <div class="grid-row grid-gap">
+        <div class="tablet:grid-col-8">
+          <nav class="usa-footer__nav" aria-label="Footer navigation">
+            <div class="grid-row grid-gap-4">
+              {{ slot }}
+            </div>
+          </nav>
+        </div>
+        {% if show_signup == "true" %}
+        <div class="tablet:grid-col-4">
+          <div class="usa-sign-up">
+            <h3 class="usa-sign-up__heading">{{ signup_heading }}</h3>
+            <form class="usa-form">
+              <label class="usa-label" for="footer-email">{{ signup_label }}</label>
+              <input class="usa-input" id="footer-email" name="email" type="email" autocomplete="email" />
+              <button class="usa-button" type="submit">Sign up</button>
+            </form>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% elif type == 'slim' %}
+    <div class="usa-footer__primary-container grid-row">
+      <div class="mobile-lg:grid-col-8">
+        <nav class="usa-footer__nav" aria-label="Footer navigation">
+          <ul class="grid-row grid-gap">
+            {{ slot }}
+          </ul>
+        </nav>
+      </div>
+      <div class="mobile-lg:grid-col-4">
+        {{ contact_info }}
+      </div>
+    </div>
+    {% else %}
+    <nav class="usa-footer__nav" aria-label="Footer navigation">
+      <ul class="grid-row grid-gap">
+        {{ slot }}
+      </ul>
+    </nav>
+    {% endif %}
+  </div>
+
+  <div class="usa-footer__secondary-section">
+    <div class="grid-container">
+      {% if type == 'slim' %}
+      <div class="usa-footer__logo grid-row grid-gap-2">
+        {% if agency_logo %}
+        <div class="grid-col-auto">
+          <img class="usa-footer__logo-img" src="{{ agency_logo }}" alt="" />
+        </div>
+        {% endif %}
+        <div class="grid-col-auto">
+          <p class="usa-footer__logo-heading">{{ agency_name }}</p>
+        </div>
+      </div>
+      {% else %}
+      <div class="grid-row grid-gap">
+        <div class="usa-footer__logo grid-row mobile-lg:grid-col-6 mobile-lg:grid-gap-2">
+          {% if agency_logo %}
+          <div class="mobile-lg:grid-col-auto">
+            <img class="usa-footer__logo-img" src="{{ agency_logo }}" alt="" />
+          </div>
+          {% endif %}
+          <div class="mobile-lg:grid-col-auto">
+            <p class="usa-footer__logo-heading">{{ agency_name }}</p>
+          </div>
+        </div>
+        <div class="usa-footer__contact-links mobile-lg:grid-col-6">
+          {{ social_links }}
+          {% if contact_heading %}
+          <p class="usa-footer__contact-heading">{{ contact_heading }}</p>
+          {% endif %}
+          {{ contact_info }}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</footer>
