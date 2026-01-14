@@ -7,12 +7,18 @@
     <div class="component-variant">
         <h2 class="variant-title">{{ variant.title }}</h2>
         
-        <c-summary-box 
-            title="{{ variant.summary_title }}"
-            heading_level="{{ variant.heading_level }}"
-            body="{{ variant.body }}"
-            actions="{{ variant.actions }}"
-        />
+        <c-summary_box 
+            heading="{{ variant.heading }}"
+            heading_level="{{ variant.heading_level|default:'h4' }}"
+        >
+            {% if variant.items %}
+            <ul class="usa-list">
+                {% for item in variant.items %}
+                <li>{{ item.text|safe }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </c-summary_box>
     </div>
     {% endfor %}
 </div>
