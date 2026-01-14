@@ -1,0 +1,13 @@
+<c-vars type="default" />
+
+<address class="usa-footer__address">
+  {% if type == 'slim' %}
+  <div class="grid-row grid-gap">
+    {{ slot }}
+  </div>
+  {% else %}
+  <div class="usa-footer__contact-info grid-row grid-gap">
+    {{ slot }}
+  </div>
+  {% endif %}
+</address>
