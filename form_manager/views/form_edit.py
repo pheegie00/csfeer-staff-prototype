@@ -224,8 +224,6 @@ def form_edit(request, pk):
     else:
         form = django_form_class(initial=entry.data or {})
 
-    current_page.set_extra_context(form=form)
-
     context = {
         "form": form,
         "steps": ui_components,
@@ -238,5 +236,7 @@ def form_edit(request, pk):
         "next_url": next_page_url,
         "prev_url": prev_page_url,
     }
+
+    current_page.set_extra_context(**context)
 
     return render(request, "form_manager/form_edit.html", context)
