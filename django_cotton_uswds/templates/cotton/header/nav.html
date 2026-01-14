@@ -1,0 +1,37 @@
+{% load static %}
+<c-vars
+    type="basic"
+    show_search="true"
+    close_icon_src=""
+/>
+
+<nav aria-label="Primary navigation" class="usa-nav">
+    {% if type == 'extended' %}
+        <div class="usa-nav__inner">
+            <button type="button" class="usa-nav__close">
+                <img src="{% if close_icon_src %}{{ close_icon_src }}{% else %}{% static 'frontend/uswds/img/usa-icons/close.svg' %}{% endif %}" role="img" alt="Close" />
+            </button>
+            <ul class="usa-nav__primary usa-accordion">
+                {{ slot }}
+            </ul>
+            <div class="usa-nav__secondary">
+                <ul class="usa-nav__secondary-links">
+                    {{ secondary_links }}
+                </ul>
+                {% if show_search == 'true' %}
+                    <c-header.search />
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <button type="button" class="usa-nav__close">
+            <img src="{% if close_icon_src %}{{ close_icon_src }}{% else %}{% static 'frontend/uswds/img/usa-icons/close.svg' %}{% endif %}" role="img" alt="Close" />
+        </button>
+        <ul class="usa-nav__primary usa-accordion">
+            {{ slot }}
+        </ul>
+        {% if show_search == 'true' %}
+            <c-header.search />
+        {% endif %}
+    {% endif %}
+</nav>
