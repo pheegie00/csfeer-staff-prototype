@@ -95,7 +95,6 @@ class FieldBlock(RenderableBaseModel):
         context = super().get_context()
         form = context.get("form")
         if form:
-            field = form.fields.get(self.field_name)
-            bound_field = field.get_bound_field(form, self.field_name)
+            bound_field = form[self.field_name]
             context.update({"field": bound_field})
         return context
