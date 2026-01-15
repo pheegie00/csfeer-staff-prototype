@@ -18,8 +18,8 @@
         </button>
         {{ slot }}
     {% else %}
-        <a href="{{ href }}" class="usa-nav-link{% if is_current == 'true' %} usa-current{% endif %}">
+        <c-link href="{{ href }}" variant="nav" is_current="{{ is_current }}">
             <span>{{ text }}</span>
-        </a>
+        </c-link>
     {% endif %}
 </li>
