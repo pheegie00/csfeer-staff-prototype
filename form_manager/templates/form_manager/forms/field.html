@@ -6,5 +6,7 @@
         required="{{ field.field.required }}"
     />
     {% endif %}
-    {{ field }}
+  
+    {{ field.as_widget|safe }}
+  
 </c-form-group>
