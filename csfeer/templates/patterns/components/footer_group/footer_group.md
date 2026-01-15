@@ -49,10 +49,10 @@ A modular footer following USWDS patterns. Supports **big**, **medium**, and **s
   </c-footer.nav_column>
 
   <c-slot name="social_links">
-    <c-footer.social_links>
-      <c-footer.social_link href="#" icon="facebook" alt="Facebook" />
-      <c-footer.social_link href="#" icon="twitter" alt="Twitter" />
-    </c-footer.social_links>
+    <c-footer.social_link>
+      <c-footer.social_link_item href="#" icon="facebook" alt="Facebook" />
+      <c-footer.social_link_item href="#" icon="twitter" alt="Twitter" />
+    </c-footer.social_link>
   </c-slot>
 
   <c-slot name="contact_info">
@@ -73,9 +73,9 @@ A modular footer following USWDS patterns. Supports **big**, **medium**, and **s
   <c-footer.primary_link href="/contact" text="Contact" />
 
   <c-slot name="social_links">
-    <c-footer.social_links>
-      <c-footer.social_link href="#" icon="facebook" alt="Facebook" />
-    </c-footer.social_links>
+    <c-footer.social_link>
+      <c-footer.social_link_item href="#" icon="facebook" alt="Facebook" />
+    </c-footer.social_link>
   </c-slot>
 
   <c-slot name="contact_info">
@@ -107,26 +107,26 @@ A modular footer following USWDS patterns. Supports **big**, **medium**, and **s
 
 ### Navigation
 
-| Component                                      | Description                    |
-|------------------------------------------------|--------------------------------|
-| `<c-footer.nav_column title="">`               | Collapsible column (big)       |
-| `<c-footer.secondary_link href="" text="">`    | Link inside nav_column         |
-| `<c-footer.primary_link href="" text="">`      | Primary link (medium)          |
-| `<c-footer.slim_link href="" text="">`         | Primary link (slim)            |
+| Component                         | Props                        | Description                    |
+|-----------------------------------|------------------------------|--------------------------------|
+| `c-footer.nav_column`             | `title`                      | Collapsible column (big)       |
+| `c-footer.secondary_link`         | `href`, `text`               | Link inside nav_column         |
+| `c-footer.primary_link`           | `href`, `text`               | Primary link (medium)          |
+| `c-footer.slim_link`              | `href`, `text`               | Primary link (slim)            |
 
 ### Social Links
 
-| Component                                      | Description                    |
-|------------------------------------------------|--------------------------------|
-| `<c-footer.social_links>`                      | Container for social icons     |
-| `<c-footer.social_link href="" icon="" alt="">` | Social media link              |
+| Component                    | Props                    | Description                    |
+|------------------------------|--------------------------|--------------------------------|
+| `c-footer.social_link`       | (none)                   | Container for social icons     |
+| `c-footer.social_link_item`  | `href`, `icon`, `alt`    | Social media link              |
 
 ### Contact
 
-| Component                                      | Description                    |
-|------------------------------------------------|--------------------------------|
-| `<c-footer.address type="">`                   | Contact info wrapper           |
-| `<c-footer.contact_item href="" text="" type="">` | Contact link (phone, email) |
+| Component                    | Props                        | Description                    |
+|------------------------------|------------------------------|--------------------------------|
+| `c-footer.address`           | `type`                       | Contact info wrapper           |
+| `c-footer.contact_item`      | `href`, `text`, `type`       | Contact link (phone, email)    |
 
 *Note: Pass `type="slim"` to address and contact_item for slim footer styling.*
 

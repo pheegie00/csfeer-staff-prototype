@@ -36,11 +36,11 @@
 
         {% if variant.social_links %}
         <c-slot name="social_links">
-            <c-footer.social_links>
+            <c-footer.social_link>
                 {% for social in variant.social_links %}
-                <c-footer.social_link href="{{ social.href }}" icon="{{ social.icon }}" alt="{{ social.alt }}" />
+                <c-footer.social_link_item href="{{ social.href }}" icon="{{ social.icon }}" alt="{{ social.alt }}" />
                 {% endfor %}
-            </c-footer.social_links>
+            </c-footer.social_link>
         </c-slot>
         {% endif %}
 
