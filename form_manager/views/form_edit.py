@@ -120,21 +120,29 @@ def form_edit(request, pk):
         + f"?page={previous_page_number}&step={previous_step_number}"
     )
 
-    current_page = get_step_page(int(current_step_number or 0), current_page_number or 0)
-
     context = {
         "form": django_form_class(),
-        "steps": ui_components,
         "entry": entry,
         "schema": schema,
         "current_step_number": current_step_number,
         "current_page_number": current_page_number,
-        "current_page": current_page,
         "is_last_page": is_last_page(current_step_number, current_page_number),
         "next_url": next_page_url,
         "prev_url": prev_page_url,
+        "steps": ui_components,
     }
 
-    current_page.set_extra_context(**context)
+    # add the context to all steps, even if we're not going to render that step
+    # on this page.
+    for component in ui_components:
+        component.set_extra_context(**context)
+
+    current_page = get_step_page(int(current_step_number or 0), current_page_number or 0)
+
+    context.update(
+        {
+            "current_page": current_page,
+        }
+    )
 
     return render(request, "form_manager/form_edit.html", context)

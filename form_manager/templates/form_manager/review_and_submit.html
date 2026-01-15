@@ -1,0 +1,30 @@
+{% load form_manager_tags %}
+<h1 class="font-heading-2xl semibold font-family-sans font-weight-semibold">{{ title }}</h1>
+
+
+<c-accordion type="multiselectable">
+{% for step in steps|flatten_for_review %}
+
+    <c-accordion-item
+        heading="{{ step.title}}"
+        control_id="{{ step.title|spaceless }}"
+    >
+
+    {% for field_block in step.fields %}
+
+        {% if not field_block.field.field.is_presentational_only %}
+        <p>
+            <strong>{{ field_block.title }}</strong><br />
+            {{ field_block.value }}
+        </p>
+        {% endif %}
+
+    {% endfor %}
+    </c-accordion-item>
+    
+{% endfor %}
+</c-accordion>
+
+
+
+        

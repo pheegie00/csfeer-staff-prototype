@@ -31,6 +31,7 @@ class TribalLongFormFields(BaseFields):
     # region Question Filters
 
     applicable_topics = acf_fields.PageFilterField(
+        is_presentational_only=True,
         choices=[
             (
                 "employment_expenditure,employment_related_services_description",
@@ -58,7 +59,7 @@ class TribalLongFormFields(BaseFields):
             ),
             ("transportation_expenditure,transportation_services_description", "Transportation"),
             ("other_expenditure", "Other"),
-        ]
+        ],
     )
 
     # region Expenditure Amounts
@@ -367,7 +368,13 @@ class TribalLongForm(BaseFormSchema):
             ),
             StepBlock(
                 title="Review and submit",
-                children=[PageBlock(title="Review and Submit", children=[])],
+                children=[
+                    PageBlock(
+                        title="Review and Submit",
+                        children=[],
+                        template_name="form_manager/review_and_submit.html",
+                    )
+                ],
             ),
         ],
     )
