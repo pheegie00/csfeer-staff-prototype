@@ -16,31 +16,27 @@
         agency_logo="{{ variant.agency_logo }}"
         contact_heading="{{ variant.contact_heading|default:'' }}"
     >
-        {% if variant.type == 'big' and variant.nav_columns %}
-        {% for column in variant.nav_columns %}
-        <c-footer.nav_column title="{{ column.title }}">
-            {% for link in column.links %}
-            <c-footer.secondary_link href="{{ link.href }}" text="{{ link.text }}" />
+        {% if variant.nav_columns %}
+            {% for column in variant.nav_columns %}
+            <c-footer.nav_column title="{{ column.title }}">
+                {% for link in column.links %}
+                <c-footer.secondary_link href="{{ link.href }}" text="{{ link.text }}" />
+                {% endfor %}
+            </c-footer.nav_column>
             {% endfor %}
-        </c-footer.nav_column>
-        {% endfor %}
         {% elif variant.primary_links %}
-        {% for link in variant.primary_links %}
-            {% if variant.type == 'slim' %}
-            <c-footer.slim_link href="{{ link.href }}" text="{{ link.text }}" />
-            {% else %}
-            <c-footer.primary_link href="{{ link.href }}" text="{{ link.text }}" />
-            {% endif %}
-        {% endfor %}
+            {% for link in variant.primary_links %}
+            <c-footer.link href="{{ link.href }}" text="{{ link.text }}" type="{{ variant.type }}" />
+            {% endfor %}
         {% endif %}
 
         {% if variant.social_links %}
         <c-slot name="social_links">
-            <c-footer.social_links>
+            <c-footer.social_link>
                 {% for social in variant.social_links %}
-                <c-footer.social_link href="{{ social.href }}" icon="{{ social.icon }}" alt="{{ social.alt }}" />
+                <c-footer.social_link_item href="{{ social.href }}" icon="{{ social.icon }}" alt="{{ social.alt }}" />
                 {% endfor %}
-            </c-footer.social_links>
+            </c-footer.social_link>
         </c-slot>
         {% endif %}
 
