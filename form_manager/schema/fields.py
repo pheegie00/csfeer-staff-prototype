@@ -27,6 +27,7 @@ class ACFFieldMixin:
         self.title = kwargs.pop("title", None)
         self.description = kwargs.pop("description", None)
         self.is_presentational_only = kwargs.pop("is_presentational_only", False)
+        self.review_title = kwargs.pop("review_title", False)
         kwargs["help_text"] = kwargs.get("help_text", self.description)
         super().__init__(*args, **kwargs)
 

@@ -12,8 +12,10 @@
             <c-accordion-item 
                 heading="{{ item.heading }}"
                 control_id="{{ item.control_id }}" 
-                is_expanded="{{ item.is_expanded }}">
+                :is_expanded="{{ item.is_expanded }}">
+                <p>
                 {{ item.content }}
+                </p>
             </c-accordion-item>
             {% endfor %}
         </c-accordion>

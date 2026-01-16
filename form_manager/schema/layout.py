@@ -40,8 +40,6 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel):
 
         context = context | field_context | self._global_context
 
-        print(context.keys())
-
         return context
 
 
@@ -72,7 +70,9 @@ class SectionBlock(RenderableBaseModel):
     type: str = "section"
     title: Optional[str] = None
     description: Optional[str] = None
-    children: Optional[list[Self | "FieldBlock" | "FieldGroupBlock"]] = None
+    children: Optional[list[Self | "FieldBlock" | "FieldGroupBlock" | "ReviewSubheadingBlock"]] = (
+        None
+    )
     template_name: str = "form_manager/section.html"
 
 
@@ -125,3 +125,12 @@ class FieldBlock(RenderableBaseModel):
     @property
     def review_title(self) -> str | None:
         return self.unbound_field.review_title if self.unbound_field else None
+
+
+class ReviewSubheadingBlock(RenderableBaseModel):
+    """Represents a subheading that will only be rendered on the review page."""
+
+    type: str = "review-subheading"
+    title: Optional[str] = None
+    description: Optional[str] = None
+    template_name: str = "form_manager/review_subheading.html"

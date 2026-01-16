@@ -6,7 +6,6 @@ from typing import (
     Any,
     Generic,
     Optional,
-    Sequence,
     TypeAlias,
     TypeVar,
     cast,
@@ -20,7 +19,7 @@ from pydantic_core import core_schema
 from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.constants import AllFormNames, FormFamilies
-from form_manager.schema.layout import SectionBlock, StepBlock
+from form_manager.schema.layout import StepBlock
 
 logger = logging.getLogger(__name__)
 
