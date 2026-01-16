@@ -160,7 +160,6 @@ def form_edit(request, pk):
         "is_last_page": next_step_number is None,
         "next_url": next_page_url,
         "prev_url": prev_page_url,
-        "steps": ui_components,
     }
 
     # add the context to all steps, even if we're not going to render that step
