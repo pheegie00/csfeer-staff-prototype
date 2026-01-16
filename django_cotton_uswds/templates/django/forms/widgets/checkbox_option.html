@@ -3,5 +3,5 @@
     name="{{ widget.name }}"
     value="{{ widget.value }}"
     label="{{ widget.label }}"
-    :checked="{{ widget.checked }}"
+    checked="{{ widget.attrs.checked|yesno:'checked,' }}"
 />

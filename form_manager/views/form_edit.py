@@ -4,6 +4,7 @@ from uuid import UUID
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.forms import MultipleChoiceField
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -148,7 +149,12 @@ def form_edit(request, pk):
                 new_data[field_name] = jsonable_dict[field_name]
             elif field_name in request.POST:
                 # For invalid forms or fields not in cleaned_data, use raw POST data
-                new_data[field_name] = request.POST.get(field_name)
+                # Use getlist for multi-value fields (checkboxes, multi-select)
+                field = form.fields.get(field_name)
+                if field and isinstance(field, MultipleChoiceField):
+                    new_data[field_name] = request.POST.getlist(field_name)
+                else:
+                    new_data[field_name] = request.POST.get(field_name)
 
         entry.data = {**(entry.data or {}), **new_data}
         FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="save")
