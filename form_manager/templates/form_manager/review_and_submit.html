@@ -20,10 +20,10 @@
           indicator_type="centered"
       >
         {% for step in steps %}
-              <c-step-indicator.step-item 
-                  segment_state="complete" 
-                  name="{{ step.title }}" 
-              />
+            <c-step-indicator.step-item 
+                segment_state="complete" 
+                name="{{ step.title }}" 
+            />
         {% endfor %}
 
         <c-step-indicator.step-item 
@@ -41,11 +41,12 @@
                 heading="{{ step.title}}"
                 control-id="{{ step.title|cut:' ' }}"
                 :is-expanded="True"
+                button_class="usa-accordion__button text-normal font-heading-lg font-family-sans"
             >
 
             {% for block in step.blocks %}
                 {% if block.type == "review-subheading" %}
-                <h4 class="font-heading-2xl semibold font-family-sans font-weight-semibold">{{ block.title }}</h4>
+                <div class="font-heading-lg font-family-sans">{{ block.title }}</div>
                 {% else %}
                     {% if not block.unbound_field.is_presentational_only %}
                     <p>

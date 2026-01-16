@@ -3,12 +3,13 @@
     :is_expanded="False"
     control_id=""
     content_class="usa-accordion__content usa-prose"
+    button_class="usa-accordion__button"
 />
 
 <h4 class="{{ heading_class }}">
   <button
     type="button"
-    class="usa-accordion__button"
+    class="{{ button_class }}"
     aria-expanded="{% if is_expanded %}true{% else %}false{% endif %}"
     aria-controls="{{ control_id }}"
   >
