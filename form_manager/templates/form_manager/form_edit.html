@@ -45,7 +45,7 @@
 
       <script>
         const updateCalculatedFields = (e) => {
-          const calculatedFields = e.currentTarget.querySelectorAll(".calculated-currency-field");
+          const calculatedFields = e.currentTarget.querySelectorAll(".calculated-currency-field, .calculated-field");
           calculatedFields.forEach((field) => {
             let sourceFields = field.getAttribute("data-source-fields");
             sourceFields = sourceFields.split(',')

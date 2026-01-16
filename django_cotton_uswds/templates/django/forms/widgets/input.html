@@ -3,4 +3,6 @@
     name="{{ widget.name }}"
     value="{% if widget.value != None %}{{ widget.value|stringformat:'s' }}{% endif %}"
     :disabled="{{widget.attrs.disabled}}"
+    class="usa-input {{ widget.attrs.class }}"
+    :attrs=widget.attrs
 />

@@ -127,7 +127,12 @@ class ACFCalculatedField(ACFFieldMixin, forms.FloatField):
                 if source_value in (None, ""):
                     continue
 
-                values.append(float(source_value))
+                try:
+                    converted = int(source_value)
+                except ValueError:
+                    converted = float(source_value)
+
+                values.append(converted)
 
             return sum(values)
 
