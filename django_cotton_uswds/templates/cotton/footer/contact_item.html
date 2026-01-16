@@ -3,11 +3,11 @@
 {% if type == 'slim' %}
 <div class="grid-col-auto mobile-lg:grid-col-12 desktop:grid-col-auto">
   <div class="usa-footer__contact-info">
-    <a href="{{ href }}">{{ text }}</a>
+    <c-link href="{{ href }}" text="{{ text }}" />
   </div>
 </div>
 {% else %}
 <div class="grid-col-auto">
-  <a href="{{ href }}">{{ text }}</a>
+  <c-link href="{{ href }}" text="{{ text }}" />
 </div>
 {% endif %}
