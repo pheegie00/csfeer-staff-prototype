@@ -5,6 +5,8 @@ import logging
 from inspect import isclass
 from typing import Any, cast
 
+from django.forms import MultipleChoiceField
+
 from form_manager.models import (
     FormAuditDetail,
     FormAuditTrail,
@@ -145,7 +147,12 @@ def save_form_entry(form, form_entry: FormEntry, request):
             new_data[field_name] = jsonable_dict[field_name]
         elif field_name in request.POST:
             # For invalid forms or fields not in cleaned_data, use raw POST data
-            new_data[field_name] = request.POST.get(field_name)
+            # Use getlist for multi-value fields (checkboxes, multi-select)
+            field = form.fields.get(field_name)
+            if field and isinstance(field, MultipleChoiceField):
+                new_data[field_name] = request.POST.getlist(field_name)
+            else:
+                new_data[field_name] = request.POST.get(field_name)
 
     form_entry.data = (form_entry.data or {}) | new_data
     FormAuditTrail.objects.create(form_entry=form_entry, user=request.user, action="save")

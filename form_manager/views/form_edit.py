@@ -1,14 +1,12 @@
 import logging
-from typing import Any, cast
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils import timezone
 
-from form_manager.models import FormAuditTrail, FormEntry
+from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.schema.layout import PageBlock
 from form_manager.utils import save_form_entry, user_can_edit, user_can_submit

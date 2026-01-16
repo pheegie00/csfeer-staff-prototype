@@ -1,0 +1,26 @@
+{% load static %}
+<c-vars
+    size="small"
+    input_id="search-field"
+    label="Search"
+    search_icon_src=""
+/>
+
+<section aria-label="Search component">
+    <form class="usa-search usa-search--{{ size }}" role="search">
+        <label class="usa-sr-only" for="{{ input_id }}">{{ label }}</label>
+        <input
+            class="usa-input"
+            id="{{ input_id }}"
+            type="search"
+            name="search"
+        />
+        <button class="usa-button" type="submit">
+            <img
+                src="{% if search_icon_src %}{{ search_icon_src }}{% else %}{% static 'frontend/uswds/img/usa-icons-bg/search--white.svg' %}{% endif %}"
+                class="usa-search__submit-icon"
+                alt="{{ label }}"
+            />
+        </button>
+    </form>
+</section>

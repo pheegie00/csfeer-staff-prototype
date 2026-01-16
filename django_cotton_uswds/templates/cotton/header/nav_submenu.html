@@ -1,0 +1,16 @@
+<c-vars
+    id=""
+    is_megamenu="false"
+/>
+
+{% if is_megamenu == 'true' %}
+<div id="{{ id }}" class="usa-nav__submenu usa-megamenu">
+    <div class="grid-row grid-gap-4">
+        {{ slot }}
+    </div>
+</div>
+{% else %}
+<ul id="{{ id }}" class="usa-nav__submenu">
+    {{ slot }}
+</ul>
+{% endif %}

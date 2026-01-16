@@ -1,0 +1,25 @@
+<c-vars
+    href=""
+    text=""
+    is_current="false"
+    type="link"
+    submenu_id=""
+/>
+
+<li class="usa-nav__primary-item">
+    {% if type == 'dropdown' %}
+        <button
+            type="button"
+            class="usa-accordion__button usa-nav__link{% if is_current == 'true' %} usa-current{% endif %}"
+            aria-expanded="false"
+            aria-controls="{{ submenu_id }}"
+        >
+            <span>{{ text }}</span>
+        </button>
+        {{ slot }}
+    {% else %}
+        <c-link href="{{ href }}" variant="nav" is_current="{{ is_current }}">
+            <span>{{ text }}</span>
+        </c-link>
+    {% endif %}
+</li>
