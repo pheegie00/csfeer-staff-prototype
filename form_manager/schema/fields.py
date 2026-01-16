@@ -114,26 +114,30 @@ class ACFCalculatedField(ACFFieldMixin, forms.FloatField):
 
         field: ACFCalculatedField  # type: ignore
 
-        @property
-        def data(self):
+        def get_calculated_value(self):
             """
             Sum the values of the source fields.
             """
             values = []
 
-            for source_field in self.field.fields:
-                source_value = self.form.data.get(source_field)
+            for field_name in self.field.fields:
+                source_field = self.form[field_name]
+                source_value = source_field.value()
+
                 if source_value in (None, ""):
                     continue
+
                 values.append(float(source_value))
 
             return sum(values)
 
         @property
-        def initial(self):
-            initial = self.form.get_initial_for_field(self.field, self.name)
+        def data(self):
+            return self.get_calculated_value()
 
-            return self.data or initial
+        @property
+        def initial(self):
+            return self.get_calculated_value()
 
     bound_field_class = ACFCalculatedBoundField
 
