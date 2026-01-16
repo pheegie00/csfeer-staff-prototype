@@ -1,0 +1,29 @@
+<c-vars
+    type="basic"
+    is_megamenu="false"
+    title=""
+    logo_href="/"
+    show_search="true"
+/>
+
+<header class="usa-header usa-header--{{ type }}{% if is_megamenu == 'true' %} usa-header--megamenu{% endif %}">
+    {% if type == 'extended' %}
+        <div class="usa-navbar">
+            <c-header.title title="{{ title }}" href="{{ logo_href }}" />
+            <button type="button" class="usa-menu-btn">Menu</button>
+        </div>
+        <c-header.nav type="extended" show_search="{{ show_search }}">
+            {{ slot }}
+        </c-header.nav>
+    {% else %}
+        <div class="usa-nav-container">
+            <div class="usa-navbar">
+                <c-header.title title="{{ title }}" href="{{ logo_href }}" />
+                <button type="button" class="usa-menu-btn">Menu</button>
+            </div>
+            <c-header.nav type="basic" show_search="{{ show_search }}">
+                {{ slot }}
+            </c-header.nav>
+        </div>
+    {% endif %}
+</header>

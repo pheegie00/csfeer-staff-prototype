@@ -1,0 +1,52 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Header Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-header
+            type="{{ variant.type }}"
+            is_megamenu="{{ variant.is_megamenu }}"
+            title="{{ variant.logo_title }}"
+            logo_href="{{ variant.logo_href }}"
+            show_search="{{ variant.show_search }}"
+        >
+            {% for item in variant.nav_items %}
+            <c-header.nav-item
+                type="{{ item.type|default:'link' }}"
+                href="{{ item.href }}"
+                text="{{ item.text }}"
+                submenu_id="{{ item.submenu_id }}"
+                is_current="{{ item.is_current }}"
+            >
+                {% if item.type == 'dropdown' %}
+                <c-header.nav-submenu id="{{ item.submenu_id }}" is_megamenu="{{ item.submenu_is_megamenu }}">
+                    {% for column in item.columns %}
+                    <c-header.megamenu-column>
+                        {% for subitem in column.items %}
+                        <c-header.nav-submenu-item href="{{ subitem.href }}" text="{{ subitem.text }}" />
+                        {% endfor %}
+                    </c-header.megamenu-column>
+                    {% endfor %}
+                    {% for subitem in item.submenu_items %}
+                    <c-header.nav-submenu-item href="{{ subitem.href }}" text="{{ subitem.text }}" />
+                    {% endfor %}
+                </c-header.nav-submenu>
+                {% endif %}
+            </c-header.nav-item>
+            {% endfor %}
+
+            {% if variant.secondary_links %}
+            <c-slot name="secondary_links">
+                {% for link in variant.secondary_links %}
+                <c-header.secondary-link href="{{ link.href }}" text="{{ link.text }}" />
+                {% endfor %}
+            </c-slot>
+            {% endif %}
+        </c-header>
+    </div>
+    {% endfor %}
+</div>
