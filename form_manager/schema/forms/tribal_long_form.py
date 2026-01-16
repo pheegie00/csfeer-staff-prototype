@@ -173,7 +173,6 @@ class TribalLongFormFields(BaseFields):
             "employment__permanently_unemployed",
             "employment__retired",
             "employment__unknown",
-            "employment__total",
         ],
         review_title="Total",
     )
