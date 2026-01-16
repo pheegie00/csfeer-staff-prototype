@@ -14,13 +14,12 @@ from typing import (
 
 from django import forms
 from django.forms.renderers import TemplatesSetting
-from django.forms.utils import ErrorList
 from pydantic import BaseModel, Field, GetCoreSchemaHandler
 from pydantic_core import core_schema
 from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.constants import AllFormNames, FormFamilies
-from form_manager.schema.layout import SectionBlock, StepBlock
+from form_manager.schema.layout import StepBlock
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +85,7 @@ class BaseFields(forms.Form):
 FormId = TypeVar("FormId", bound=str)
 FormVersion = TypeVar("FormVersion", bound=str)
 
-UIDefinition: TypeAlias = list[StepBlock | SectionBlock]
+UIDefinition: TypeAlias = list[StepBlock]
 
 
 class SchemaValidationError(Exception):

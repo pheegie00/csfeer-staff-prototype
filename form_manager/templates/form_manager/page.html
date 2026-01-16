@@ -19,13 +19,11 @@
         </a>
         {% endif %}
         
-        {% if not is_last_page %}
-            <c-button 
-                text="Save & Continue →"
-                variant="base"
-                state="active"
-                type="submit"
-            />
-        {% endif %}
+        <c-button 
+            text="{% if is_last_page %}Save & Begin Final Review →{% else %}Save & Continue →{% endif %}"
+            variant="base"
+            state="active"
+            type="submit"
+        />
     </div>
 </div>

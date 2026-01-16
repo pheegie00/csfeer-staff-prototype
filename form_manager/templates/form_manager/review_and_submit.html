@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
+{% load form_manager_tags %}
 <div class="grid-container">
   <div class="grid-row">
     <div class="grid-col-12">
@@ -19,54 +20,67 @@
           indicator_type="centered"
       >
         {% for step in steps %}
-            {% if forloop.counter0 < current_step_number %}
               <c-step-indicator.step-item 
                   segment_state="complete" 
                   name="{{ step.title }}" 
               />
-            {% elif forloop.counter0 == current_step_number %}
-              <c-step-indicator.step-item 
-                  segment_state="current" 
-                  name="{{ step.title }}" 
-              />
-            {% else %}
-              <c-step-indicator.step-item 
-                  segment_state="incomplete" 
-                  name="{{ step.title }}" 
-              />
-            {% endif %}
         {% endfor %}
+
         <c-step-indicator.step-item 
-          segment_state="incomplete" 
+          segment_state="current" 
           name="Review and Submit" 
         />
-
       </c-step-indicator>
 
-      <script>
-        const updateCalculatedFields = (e) => {
-          const calculatedFields = e.currentTarget.querySelectorAll(".calculated-currency-field");
-          calculatedFields.forEach((field) => {
-            let sourceFields = field.getAttribute("data-source-fields");
-            sourceFields = sourceFields.split(',')
-            const total = sourceFields.reduce((total, fieldName, index) => {
-              const sourceField = e.currentTarget.querySelector(`[name=${fieldName}]`)
-              if (sourceField === null) {
-                return total;
-              }
-              const value = parseFloat(sourceField.value || 0.0)
-              const newTotal = value + total;
-              return newTotal
-            }, 0.0);
-            field.value = total;
-          })
-        }
-      </script>
+      <h1 class="font-heading-2xl semibold font-family-sans font-weight-semibold">Review and Submit</h1>
 
-      <c-form id="csf-form" class="" method="post" action="{{ next_url }}" x-data="" novalidate @change="updateCalculatedFields">
-        {% csrf_token %}
-        {{ current_page }}
-      </c-form>
+        <c-accordion type="multiselectable">
+        {% for step in steps|flatten_for_review %}
+
+            <c-accordion-item
+                heading="{{ step.title}}"
+                control-id="{{ step.title|cut:' ' }}"
+                :is-expanded="True"
+            >
+
+            {% for block in step.blocks %}
+                {% if block.type == "review-subheading" %}
+                <h4 class="font-heading-2xl semibold font-family-sans font-weight-semibold">{{ block.title }}</h4>
+                {% else %}
+                    {% if not block.unbound_field.is_presentational_only %}
+                    <p>
+                        <strong>{% if block.review_title %}{{ block.review_title }}{% else %}{{ block.title }}{% endif %}</strong><br />
+                        {{ block.value }}
+                    </p>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            </c-accordion-item>
+            
+        {% endfor %}
+        </c-accordion>
+
+        <form id="csf-form" method="post" action="{% url 'form_finalize' entry.id %}" novalidate>
+            {% csrf_token %}
+            <div class="margin-top-4 padding-top-2 border-top-1px border-base-lighter">
+                <div class="display-flex flex-justify flex-wrap flex-gap-1 flex-align-end">
+
+                    {% if current_step_number != 0 or current_page_number != 0 %}
+                    <a href="{{ prev_url }}" class="usa-button usa-button--outline" type="submit">
+                    ← Back
+                    </a>
+                    {% endif %}
+
+                    <c-button 
+                        text="Submit Application"
+                        variant="base"
+                        state="active"
+                        type="submit"
+                    />
+                </div>
+            </div>
+
+        </form>
 
       <!-- Quick Actions -->
       <div class="margin-top-4 padding-3 bg-base-lightest radius-md">
@@ -96,13 +110,5 @@
   </div>
 </div>
 
-<script>
-  // Initialize USWDS date pickers
-  document.addEventListener('DOMContentLoaded', function() {
-    const datePickers = document.querySelectorAll('.usa-date-picker');
-    datePickers.forEach(function(picker) {
-      // USWDS date picker will auto-initialize
-    });
-  });
-</script>
+
 {% endblock %}

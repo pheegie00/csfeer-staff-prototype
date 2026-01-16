@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import inspect
-import json
 from datetime import date, datetime
 from decimal import Decimal
 from typing import Any, List
@@ -20,11 +19,15 @@ class ACFFieldMixin:
     standard Django form fields usable in pydantic classes."""
 
     title: str | None = None
+    review_title: str | None = None
     description: str | None = None
+    is_presentational_only: bool = False
 
     def __init__(self, *args, **kwargs):
         self.title = kwargs.pop("title", None)
         self.description = kwargs.pop("description", None)
+        self.is_presentational_only = kwargs.pop("is_presentational_only", False)
+        self.review_title = kwargs.pop("review_title", False)
         kwargs["help_text"] = kwargs.get("help_text", self.description)
         super().__init__(*args, **kwargs)
 
@@ -77,6 +80,9 @@ class ACFFieldMixin:
         data_args = {k: v for k, v in data.items() if k in possible_args}
 
         return core_schema.typed_dict_field(field_type_schema(**data_args))
+
+
+class ACFField(ACFFieldMixin, forms.Field): ...
 
 
 class ACFCurrencyField(ACFFieldMixin, forms.FloatField):
