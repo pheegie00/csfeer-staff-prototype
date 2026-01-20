@@ -95,6 +95,31 @@ def form_edit(request, pk):
 
     ui_components = schema.ui
 
+    def has_permission():
+        if entry.locked:
+            return False
+
+        if "save" in request.POST and not user_can_edit(request.user, entry.organization):
+            return False
+
+        if "submit" in request.POST and not user_can_submit(request.user, entry.organization):
+            return False
+
+        return True
+
+    if request.method == "POST":
+
+        if not has_permission():
+            messages.error(request, "Permission denied.")
+            return redirect("form_list")  # Assuming a form list URL
+
+        form = django_form_class(request.POST)
+
+        save_form_entry(form, entry, request)
+        messages.success(request, "Draft saved.")
+
+    form = django_form_class(initial=entry.data or {})
+
     next_step_number, next_page_number = get_next_step_and_page(
         ui_components, current_step_number, current_page_number
     )
@@ -129,31 +154,6 @@ def form_edit(request, pk):
         )
         + f"?page={previous_page_number}&step={previous_step_number}"
     )
-
-    def has_permission():
-        if entry.locked:
-            return False
-
-        if "save" in request.POST and not user_can_edit(request.user, entry.organization):
-            return False
-
-        if "submit" in request.POST and not user_can_submit(request.user, entry.organization):
-            return False
-
-        return True
-
-    if request.method == "POST":
-
-        if not has_permission():
-            messages.error(request, "Permission denied.")
-            return redirect("form_list")  # Assuming a form list URL
-
-        form = django_form_class(request.POST)
-
-        save_form_entry(form, entry, request)
-        messages.success(request, "Draft saved.")
-
-    form = django_form_class(initial=entry.data or {})
 
     context = {
         "form": form,

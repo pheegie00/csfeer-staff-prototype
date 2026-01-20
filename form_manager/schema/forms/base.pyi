@@ -1,7 +1,9 @@
+from functools import cached_property
 from typing import Annotated, Any, Generic, TypeAlias, TypeVar
 
 from _typeshed import Incomplete
 from django import forms
+from django.forms.boundfield import BoundField
 from django.forms.renderers import TemplatesSetting
 from django.forms.utils import ErrorList
 from pydantic import BaseModel
@@ -11,7 +13,8 @@ from pydantic_extra_types.semantic_version import SemanticVersion as SemanticVer
 
 from form_manager.constants import AllFormNames as AllFormNames
 from form_manager.constants import FormFamilies as FormFamilies
-from form_manager.schema.layout import FieldBlock, SectionBlock, StepBlock
+from form_manager.schema.fields import acf_fields
+from form_manager.schema.layout import SectionBlock, StepBlock
 
 logger: Incomplete
 
@@ -36,6 +39,12 @@ class BaseFields(forms.Form):
         cls, source_type: Any, handler: GetCoreSchemaHandler
     ) -> core_schema.CoreSchema: ...
     def get_context(self): ...
+    @cached_property
+    def has_filter_fields(self) -> bool: ...
+    @cached_property
+    def fields_to_filter(self) -> list[str]: ...
+    @cached_property
+    def filter_fields(self) -> list[BoundField]: ...
 
 FormId = TypeVar("FormId", bound=str)
 FormVersion = TypeVar("FormVersion", bound=str)

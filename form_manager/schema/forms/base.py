@@ -1,14 +1,16 @@
 """Base form class definitions"""
 
 import logging
+from functools import cached_property
 from typing import (
+    TYPE_CHECKING,
     Annotated,
     Any,
     Generic,
+    LiteralString,
     Optional,
     TypeAlias,
     TypeVar,
-    cast,
     get_type_hints,
 )
 
@@ -19,9 +21,14 @@ from pydantic_core import core_schema
 from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.constants import AllFormNames, FormFamilies
+from form_manager.schema.fields import acf_fields
 from form_manager.schema.layout import StepBlock
 
 logger = logging.getLogger(__name__)
+
+
+if TYPE_CHECKING:
+    from django.forms.boundfield import BoundField
 
 
 class ACFFormRenderer(TemplatesSetting):
@@ -54,6 +61,37 @@ class BaseFields(forms.Form):
                 continue
 
         return core_schema.typed_dict_schema(fields)
+
+    @cached_property
+    def has_filter_fields(self) -> bool:
+        """Return True if the form has any filter fields."""
+        return bool(self.filter_fields)
+
+    @cached_property
+    def filter_fields(self) -> list[BoundField]:
+        """Return a list of filter fields in the form."""
+        filter_fields = []
+        for name, field in self.fields.items():
+            if isinstance(field, acf_fields.FieldFilterField):
+                filter_fields.append(self[name])
+        return filter_fields
+
+    @cached_property
+    def fields_to_filter(self) -> list[LiteralString]:
+        """Return a list of field names that should be filtered based on the filter fields."""
+
+        fields_to_filter = []
+
+        for field in self.filter_fields:
+            if field.value():
+                fields_to_filter.extend(field.value())
+
+        if not fields_to_filter:
+            return []
+
+        combined_fields = ",".join(fields_to_filter)
+
+        return combined_fields.split(",")
 
 
 FormId = TypeVar("FormId", bound=str)

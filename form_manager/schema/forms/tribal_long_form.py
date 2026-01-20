@@ -31,7 +31,7 @@ class TribalLongFormFields(BaseFields):
 
     # region Question Filters
 
-    applicable_topics = acf_fields.PageFilterField(
+    applicable_topics = acf_fields.FieldFilterField(
         is_presentational_only=True,
         choices=[
             (

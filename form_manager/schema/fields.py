@@ -191,8 +191,8 @@ class ACFTextareaField(ACFFieldMixin, forms.CharField):
     widget = forms.Textarea
 
 
-class FieldFilterField(ACFFieldMixin, forms.MultipleChoiceField):
-    """A special field that defines fields to exclude from interview questions."""
+class ACFFieldFilterField(ACFFieldMixin, forms.MultipleChoiceField):
+    """A special field that defines fields to exclude from subsequent interview questions."""
 
     widget = CheckboxSelectMultiple
 
@@ -219,7 +219,7 @@ class ACFFieldsMeta(type):
                 "TextareaField": ACFTextareaField,
                 "CalculatedCurrencyField": ACFCalculatedCurrencyField,
                 "CalculatedField": ACFCalculatedField,
-                "PageFilterField": FieldFilterField,
+                "FieldFilterField": ACFFieldFilterField,
             }
         )
 
