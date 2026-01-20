@@ -126,6 +126,11 @@ class FieldBlock(RenderableBaseModel):
     def review_title(self) -> str | None:
         return self.unbound_field.review_title if self.unbound_field else None
 
+    @property
+    def display_title(self) -> str | None:
+        """Returns review_title if available, otherwise falls back to title"""
+        return self.review_title or self.title
+
 
 class ReviewSubheadingBlock(RenderableBaseModel):
     """Represents a subheading that will only be rendered on the review page."""
