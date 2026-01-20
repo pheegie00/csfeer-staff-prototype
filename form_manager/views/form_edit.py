@@ -14,6 +14,53 @@ from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
 logger = logging.getLogger(__name__)
 
 
+def get_step_page(components, step: int, page: int) -> PageBlock:
+    return components[step].children[page]
+
+
+def get_next_step_and_page(
+    components, current_step: int, current_page: int
+) -> tuple[int | None, int | None]:
+    current_ui_step = components[current_step]
+
+    # If we're on the last step and page, move on to the review page
+    if (
+        current_step == len(components) - 1
+        and current_page == len(current_ui_step.children or []) - 1
+    ):
+        return None, None
+
+    # If there's no children in the current step, move to the next step and first page
+    if not current_ui_step.children or len(current_ui_step.children) == 0:
+        return current_step + 1, 0
+
+    # Check if we're on the last page, and if so, move to the next step
+    # and first page
+    if current_page == len(current_ui_step.children) - 1:
+        return current_step + 1, 0
+
+    # Otherwise, stay on the current step but advance the next page
+    return current_step, current_page + 1
+
+
+def get_previous_step_and_page(
+    components, current_step: int, current_page: int
+) -> tuple[None, None] | tuple[int, int]:
+
+    # if we're on the first step and page, you can't go back so
+    # just return None
+    if current_step == 0 and current_page == 0:
+        return None, None
+
+    # if we're on the first page of a step, decrement the current step and
+    # return the last page of the previous step.
+    if current_page == 0:
+        return current_step - 1, len(components[current_step - 1].children) - 1
+
+    # Otherwise, stay on the current step but decrement the next page
+    return current_step, current_page - 1
+
+
 @login_required
 def form_edit(request, pk):
     """
@@ -48,59 +95,17 @@ def form_edit(request, pk):
 
     ui_components = schema.ui
 
-    def get_step_page(step: int, page: int) -> PageBlock:
-        return ui_components[step].children[page]
-
-    def get_next_step_and_page(
-        current_step: int, current_page: int
-    ) -> tuple[int | None, int | None]:
-        current_ui_step = ui_components[current_step]
-
-        # If we're on the last step and page, move on to the review page
-        if (
-            current_step == len(ui_components) - 1
-            and current_page == len(current_ui_step.children or []) - 1
-        ):
-            return None, None
-
-        # If there's no children in the current step, move to the next step and first page
-        if not current_ui_step.children or len(current_ui_step.children) == 0:
-            return current_step + 1, 0
-
-        # Check if we're on the last page, and if so, move to the next step
-        # and first page
-        if current_page == len(current_ui_step.children) - 1:
-            return current_step + 1, 0
-
-        # Otherwise, stay on the current step but advance the next page
-        return current_step, current_page + 1
-
-    def get_previous_step_and_page(
-        current_step: int, current_page: int
-    ) -> tuple[None, None] | tuple[int, int]:
-
-        # if we're on the first step and page, you can't go back so
-        # just return None
-        if current_step == 0 and current_page == 0:
-            return None, None
-
-        # if we're on the first page of a step, decrement the current step and
-        # return the last page of the previous step.
-        if current_page == 0:
-            return current_step - 1, len(ui_components[current_step - 1].children) - 1
-
-        # Otherwise, stay on the current step but decrement the next page
-        return current_step, current_page - 1
-
     next_step_number, next_page_number = get_next_step_and_page(
-        current_step_number, current_page_number
+        ui_components, current_step_number, current_page_number
     )
 
     previous_step_number, previous_page_number = get_previous_step_and_page(
-        current_step_number, current_page_number
+        ui_components, current_step_number, current_page_number
     )
 
-    current_page = get_step_page(int(current_step_number or 0), current_page_number or 0)
+    current_page = get_step_page(
+        ui_components, int(current_step_number or 0), current_page_number or 0
+    )
 
     if next_step_number is None:
         next_page_url = reverse("form_review", kwargs={"pk": entry.pk})
@@ -167,7 +172,9 @@ def form_edit(request, pk):
     for component in ui_components:
         component.set_extra_context(**context)
 
-    current_page = get_step_page(int(current_step_number or 0), current_page_number or 0)
+    current_page = get_step_page(
+        ui_components, int(current_step_number or 0), current_page_number or 0
+    )
 
     context.update(
         {
