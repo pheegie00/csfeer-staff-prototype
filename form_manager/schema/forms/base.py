@@ -3,7 +3,6 @@
 import logging
 from functools import cached_property
 from typing import (
-    TYPE_CHECKING,
     Annotated,
     Any,
     Generic,
@@ -15,6 +14,7 @@ from typing import (
 )
 
 from django import forms
+from django.forms.boundfield import BoundField
 from django.forms.renderers import TemplatesSetting
 from pydantic import BaseModel, Field, GetCoreSchemaHandler
 from pydantic_core import core_schema
@@ -25,10 +25,6 @@ from form_manager.schema.fields import acf_fields
 from form_manager.schema.layout import StepBlock
 
 logger = logging.getLogger(__name__)
-
-
-if TYPE_CHECKING:
-    from django.forms.boundfield import BoundField
 
 
 class ACFFormRenderer(TemplatesSetting):
