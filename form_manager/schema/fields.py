@@ -219,26 +219,94 @@ class acf_fields(metaclass=ACFFieldsMeta):
     """
 
     if TYPE_CHECKING:
-        # Custom ACF fields
-        CurrencyField: Type[ACFCurrencyField]
-        TextareaField: Type[ACFTextareaField]
-        CalculatedCurrencyField: Type[ACFCalculatedCurrencyField]
-        CalculatedField: Type[ACFCalculatedField]
-        PageFilterField: Type[FieldFilterField]
 
-        # Common Django form fields (dynamically wrapped with ACFFieldMixin)
-        CharField: Any
-        IntegerField: Any
-        FloatField: Any
-        BooleanField: Any
-        DateField: Any
-        DateTimeField: Any
-        DecimalField: Any
-        EmailField: Any
-        URLField: Any
-        ChoiceField: Any
-        MultipleChoiceField: Any
-        TypedChoiceField: Any
-        FileField: Any
-        ImageField: Any
-        JSONField: Any
+        class ACFCharField(ACFFieldMixin, forms.CharField): ...
+
+        class ACFIntegerField(ACFFieldMixin, forms.IntegerField): ...
+
+        class ACFFloatField(ACFFieldMixin, forms.FloatField): ...
+
+        class ACFDecimalField(ACFFieldMixin, forms.DecimalField): ...
+
+        class ACFDateField(ACFFieldMixin, forms.DateField): ...
+
+        class ACFTimeField(ACFFieldMixin, forms.TimeField): ...
+
+        class ACFDateTimeField(ACFFieldMixin, forms.DateTimeField): ...
+
+        class ACFDurationField(ACFFieldMixin, forms.DurationField): ...
+
+        class ACFRegexField(ACFFieldMixin, forms.RegexField): ...
+
+        class ACFEmailField(ACFFieldMixin, forms.EmailField): ...
+
+        class ACFFileField(ACFFieldMixin, forms.FileField): ...
+
+        class ACFImageField(ACFFieldMixin, forms.ImageField): ...
+
+        class ACFURLField(ACFFieldMixin, forms.URLField): ...
+
+        class ACFBooleanField(ACFFieldMixin, forms.BooleanField): ...
+
+        class ACFNullBooleanField(ACFFieldMixin, forms.NullBooleanField): ...
+
+        class ACFChoiceField(ACFFieldMixin, forms.ChoiceField): ...
+
+        class ACFTypedChoiceField(ACFFieldMixin, forms.TypedChoiceField): ...
+
+        class ACFMultipleChoiceField(ACFFieldMixin, forms.MultipleChoiceField): ...
+
+        class ACFTypedMultipleChoiceField(ACFFieldMixin, forms.TypedMultipleChoiceField): ...
+
+        class ACFComboField(ACFFieldMixin, forms.ComboField): ...
+
+        class ACFMultiValueField(ACFFieldMixin, forms.MultiValueField): ...
+
+        class ACFFilePathField(ACFFieldMixin, forms.FilePathField): ...
+
+        class ACFSplitDateTimeField(ACFFieldMixin, forms.SplitDateTimeField): ...
+
+        class ACFGenericIPAddressField(ACFFieldMixin, forms.GenericIPAddressField): ...
+
+        class ACFSlugField(ACFFieldMixin, forms.SlugField): ...
+
+        class ACFUUIDField(ACFFieldMixin, forms.UUIDField): ...
+
+        class ACFJSONField(ACFFieldMixin, forms.JSONField): ...
+
+        # Type hints for acf_fields attributes
+        BooleanField: type[ACFBooleanField]
+        CharField: type[ACFCharField]
+        ChoiceField: type[ACFChoiceField]
+        ComboField: type[ACFComboField]
+        DateField: type[ACFDateField]
+        DateTimeField: type[ACFDateTimeField]
+        DecimalField: type[ACFDecimalField]
+        DurationField: type[ACFDurationField]
+        EmailField: type[ACFEmailField]
+        Field: type[ACFField]
+        FileField: type[ACFFileField]
+        FilePathField: type[ACFFilePathField]
+        FloatField: type[ACFFloatField]
+        GenericIPAddressField: type[ACFGenericIPAddressField]
+        ImageField: type[ACFImageField]
+        IntegerField: type[ACFIntegerField]
+        JSONField: type[ACFJSONField]
+        MultipleChoiceField: type[ACFMultipleChoiceField]
+        MultiValueField: type[ACFMultiValueField]
+        NullBooleanField: type[ACFNullBooleanField]
+        RegexField: type[ACFRegexField]
+        SlugField: type[ACFSlugField]
+        SplitDateTimeField: type[ACFSplitDateTimeField]
+        TimeField: type[ACFTimeField]
+        TypedChoiceField: type[ACFTypedChoiceField]
+        TypedMultipleChoiceField: type[ACFTypedMultipleChoiceField]
+        URLField: type[ACFURLField]
+        UUIDField: type[ACFUUIDField]
+
+        # Custom ACF fields
+        CurrencyField: type[ACFCurrencyField]
+        TextareaField: type[ACFTextareaField]
+        CalculatedCurrencyField: type[ACFCalculatedCurrencyField]
+        CalculatedField: type[ACFCalculatedField]
+        PageFilterField: type[FieldFilterField]
