@@ -5,4 +5,6 @@
     required="{% if widget.required %}True{% endif %}"
     value="{{ widget.value|default:'' }}"
     :widget_attrs="widget.attrs"
+    type="text"
+    inputmode="decimal"
 />
