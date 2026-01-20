@@ -181,11 +181,7 @@ class ACFCalculatedCurrencyField(ACFCalculatedField, ACFCurrencyField):
 
     def widget_attrs(self, widget: forms.Widget) -> dict[str, Any]:
         attrs = super().widget_attrs(widget)
-        attrs.update(
-            {
-                "class": attrs.get("class", "") + " calculated-currency-field",
-            }
-        )
+        attrs.update({"class": attrs.get("class", "") + " calculated-currency-field"})
         return attrs
 
 
