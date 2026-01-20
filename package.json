@@ -19,8 +19,9 @@
   "homepage": "https://github.com/focusconsulting/csfeer#readme",
   "description": "",
   "dependencies": {
+    "@alpinejs/mask": "^3.15.4",
     "@uswds/uswds": "^3.13.0",
-    "alpinejs": "^3.15.0",
+    "alpinejs": "^3.15.4",
     "htmx-ext-sse": "^2.2.3",
     "htmx.org": "^2.0.7"
   },

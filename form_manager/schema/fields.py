@@ -9,6 +9,7 @@ from typing import Any, List
 
 from django import forms
 from django.forms.boundfield import BoundField
+from django.utils import formats
 from pydantic_core import core_schema
 
 from form_manager.schema.widgets import CheckboxSelectMultiple, CurrencyInput
@@ -85,26 +86,33 @@ class ACFFieldMixin:
 class ACFField(ACFFieldMixin, forms.Field): ...
 
 
-class ACFCurrencyField(ACFFieldMixin, forms.FloatField):
+class ACFCurrencyField(ACFFieldMixin, forms.DecimalField):
     """A currency field"""
 
     widget = CurrencyInput
 
     def __init__(self, *args, **kwargs):
-        step_size = kwargs.pop("step_size", 0.01)
-        super().__init__(*args, step_size=step_size, **kwargs)
+        kwargs.update({"decimal_places": 2, "localize": True})
+        super().__init__(*args, **kwargs)
 
     def widget_attrs(self, widget: forms.Widget) -> dict[str, Any]:
         attrs = super().widget_attrs(widget)
         attrs.update(
             {
                 "class": "usa-input currency-input",
+                "x-mask:dynamic": "$money($input, '.', ',')",
             }
         )
         return attrs
 
+    def prepare_value(self, value):
+        """Format the value as a currency string for display in the form field."""
+        value = value or "0.00"
+        sanitized = formats.sanitize_separators(value)
+        return formats.number_format(sanitized, 2, True)
 
-class ACFCalculatedField(ACFFieldMixin, forms.FloatField):
+
+class ACFCalculatedField(ACFFieldMixin, forms.DecimalField):
     """A field whose value is calculated from other form fields."""
 
     fields: List[str]
@@ -114,26 +122,32 @@ class ACFCalculatedField(ACFFieldMixin, forms.FloatField):
 
         field: ACFCalculatedField  # type: ignore
 
-        @property
-        def data(self):
+        def get_calculated_value(self):
             """
             Sum the values of the source fields.
             """
             values = []
 
-            for source_field in self.field.fields:
-                source_value = self.form.data.get(source_field)
+            for field_name in self.field.fields:
+                source_field = self.form[field_name]
+                source_value = source_field.value()
+
                 if source_value in (None, ""):
                     continue
-                values.append(float(source_value))
+
+                sanitized = formats.sanitize_separators(source_value)
+
+                values.append(Decimal(sanitized))
 
             return sum(values)
 
         @property
-        def initial(self):
-            initial = self.form.get_initial_for_field(self.field, self.name)
+        def data(self):
+            return self.get_calculated_value()
 
-            return self.data or initial
+        @property
+        def initial(self):
+            return self.get_calculated_value()
 
     bound_field_class = ACFCalculatedBoundField
 

@@ -36,10 +36,6 @@ class BaseFields(forms.Form):
 
     default_renderer = ACFFormRenderer
 
-    def __init__(self, *args, ui_components=[], **kwargs):
-        self.ui_components = ui_components
-        super().__init__(*args, **kwargs)
-
     @classmethod
     def __get_pydantic_core_schema__(
         cls, source_type: Any, handler: GetCoreSchemaHandler
@@ -58,28 +54,6 @@ class BaseFields(forms.Form):
                 continue
 
         return core_schema.typed_dict_schema(fields)
-
-    def get_context(self):
-        """Set template context for rendering purposes."""
-        context = cast(dict, super().get_context())
-
-        # Recursively attach Django field objects to UI components
-        # for rendering
-        def attach_fields(node):
-            if node["type"] == "field":
-                field_name = node.get("field_name")
-                field = self[field_name]
-                node["django_field"] = field
-            else:
-                for child in node.get("children", []):
-                    attach_fields(child)
-
-        for component in self.ui_components:
-            attach_fields(component)
-
-        context.update({"ui_components": self.ui_components})
-
-        return context
 
 
 FormId = TypeVar("FormId", bound=str)
