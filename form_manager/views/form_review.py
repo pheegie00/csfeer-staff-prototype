@@ -51,8 +51,14 @@ def form_review(request, pk):
         "form": form,
         "entry": entry,
         "steps": schema.ui,
-        "prev_url": reverse("form_edit", kwargs={"pk": entry.pk})
-        + f"?step={len(schema.ui) - 1}&page={len(schema.ui[-1].children) - 1}",
+        "prev_url": reverse(
+            "form_edit",
+            kwargs={"pk": entry.pk},
+            query={
+                "step": len(schema.ui) - 1,
+                "page": len(schema.ui[-1].children) - 1,
+            },
+        ),
     }
 
     for component in schema.ui:

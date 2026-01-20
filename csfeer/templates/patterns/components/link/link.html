@@ -13,11 +13,12 @@
         {% endif %}
         <c-link 
             href="{{ variant.href }}"
-            text="{{ variant.text }}"
-            external="{{ variant.external }}"
+            is_external="{{ variant.external }}"
             inverse="{{ variant.inverse }}"
             target="{{ variant.target }}"
-            class="{{ variant.class }}">
+            class="{{ variant.class }}"
+        >
+            {{ variant.text }}
         </c-link>
         {% if variant.inverse %}
         </div>
