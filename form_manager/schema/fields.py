@@ -5,7 +5,7 @@ from __future__ import annotations
 import inspect
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Any, List
+from typing import TYPE_CHECKING, Any, List, Type
 
 from django import forms
 from django.forms.boundfield import BoundField
@@ -212,4 +212,33 @@ class ACFFieldsMeta(type):
         return super().__new__(cls, name, bases, dct)
 
 
-class acf_fields(metaclass=ACFFieldsMeta): ...
+class acf_fields(metaclass=ACFFieldsMeta):
+    """Dynamic form fields accessible via metaclass.
+
+    Type hints for static analysis are provided below.
+    """
+
+    if TYPE_CHECKING:
+        # Custom ACF fields
+        CurrencyField: Type[ACFCurrencyField]
+        TextareaField: Type[ACFTextareaField]
+        CalculatedCurrencyField: Type[ACFCalculatedCurrencyField]
+        CalculatedField: Type[ACFCalculatedField]
+        PageFilterField: Type[FieldFilterField]
+
+        # Common Django form fields (dynamically wrapped with ACFFieldMixin)
+        CharField: Any
+        IntegerField: Any
+        FloatField: Any
+        BooleanField: Any
+        DateField: Any
+        DateTimeField: Any
+        DecimalField: Any
+        EmailField: Any
+        URLField: Any
+        ChoiceField: Any
+        MultipleChoiceField: Any
+        TypedChoiceField: Any
+        FileField: Any
+        ImageField: Any
+        JSONField: Any
