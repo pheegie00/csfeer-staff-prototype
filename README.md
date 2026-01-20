@@ -6,6 +6,8 @@ A Django application for managing forms and workflows.
 
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
+- [Docker-Based Development](#docker-based-development)
+- [Local Development (Outside Docker)](#local-development-outside-docker)
 - [Development Workflow](#development-workflow)
 - [Database Management](#database-management)
 - [Code Quality](#code-quality)
@@ -28,6 +30,13 @@ brew install pango
 
 ## Quick Start
 
+Choose your development approach based on your needs:
+
+- **[Docker-Based Development](#docker-based-development)**: Quick setup, production-like environment
+- **[Local Development](#local-development-outside-docker)**: Faster iteration, better debugging (Recommended)
+
+### Initial Setup (Required for Both Approaches)
+
 1. **Configure hosts file**
 
    For OpenID redirection to work correctly, add these entries to your `/etc/hosts` file:
@@ -45,11 +54,17 @@ brew install pango
    cp example.env .env
    ```
 
-3. **Choose your development approach**
+3. **Install pre-commit hooks** (recommended)
 
-### Option A: Run Everything in Docker
+   ```bash
+   uv run pre-commit install
+   ```
 
-Best for quick setup and production-like environment:
+## Docker-Based Development
+
+Best for quick setup and production-like environment. All services run in containers.
+
+### Starting Services
 
 ```bash
 # Build and start all services (app, database, mock OAuth)
@@ -62,36 +77,103 @@ docker compose logs -f app
 make stop
 ```
 
-### Option B: Local Development (Recommended)
+### Frontend Changes in Docker
 
-Run the app locally for faster iteration and debugging:
+When running in Docker, volume mounts handle file synchronization automatically:
 
 ```bash
-# Start only database and mock OAuth services
-make start-local
+# 1. Edit SCSS files in frontend/src/scss/
+# 2. Build frontend assets
+npm run build
 
-# Run migrations
-uv run python manage.py migrate
-
-# Create a superuser (optional)
-uv run python manage.py createsuperuser
-
-# Start the development server
-uv run python manage.py runserver 0.0.0.0:8000
-
-# Or use VSCode's debugger:
-# Press F5 or use "Python Debugger: Django" launch configuration
+# 3. Hard refresh browser (Cmd+Shift+R on Mac, Ctrl+Shift+R on Windows)
+# Changes appear immediately!
 ```
 
-4. **Install pre-commit hooks** (recommended)
+## Local Development (Outside Docker)
+
+**Recommended** for faster iteration and debugging. Run Django locally while using Docker only for database and OAuth services.
+
+### Initial Setup (One-Time)
+
+1. **Create static symlink**
+
+   This symlink allows Django to serve frontend assets without running `collectstatic`:
+
+   ```bash
+   # Remove existing directory if present and create symlink
+   rm -rf csfeer/static/frontend
+   ln -s ../../frontend/built csfeer/static/frontend
+   ```
+
+   **How it works:**
+   - `frontend/built/` contains webpack output
+   - `csfeer/static/frontend` symlinks to `frontend/built/`
+   - Django's runserver automatically serves from the symlinked directory
+   - No need to run `collectstatic` during development!
+
+2. **Start supporting services**
+
+   ```bash
+   # Start only database and mock OAuth services
+   make start-local
+   ```
+
+3. **Run migrations**
+
+   ```bash
+   uv run python manage.py migrate
+   ```
+
+4. **Create a superuser** (optional)
+
+   ```bash
+   uv run python manage.py createsuperuser
+   ```
+
+### Daily Development Workflow
+
+1. **Start supporting services** (if not already running)
+
+   ```bash
+   make start-local
+   ```
+
+2. **Start the Django development server**
+
+   ```bash
+   # Option 1: Command line
+   uv run python manage.py runserver 0.0.0.0:8000
+
+   # Option 2: VSCode debugger (Recommended)
+   # Press F5 or use "Python Debugger: Django" launch configuration
+   ```
+
+3. **Making frontend changes**
+
+   ```bash
+   # 1. Edit SCSS files in frontend/src/scss/
+   # 2. Build frontend assets
+   npm run build
+
+   # 3. Hard refresh browser (Cmd+Shift+R on Mac, Ctrl+Shift+R on Windows)
+   # Changes appear immediately - no collectstatic needed!
+   ```
+
+### Production Deployment
+
+For production, `collectstatic` copies the files (following symlinks):
 
 ```bash
-uv run pre-commit install
+npm run build
+uv run python manage.py collectstatic --noinput
 ```
 
 ## Development Workflow
 
 ### Running Django Commands
+
+**For Local Development:**
 
 Use `uv` to run Django commands (installs dependencies from `pyproject.toml` automatically):
 
@@ -103,25 +185,46 @@ uv run python manage.py check
 uv run python manage.py makemigrations
 uv run python manage.py migrate
 
-# Collect static files
-uv run python manage.py collectstatic --noinput
-
 # Create a superuser
 uv run python manage.py createsuperuser
+
+# Collect static files (production only - not needed in local dev)
+uv run python manage.py collectstatic --noinput
+```
+
+**For Docker Development:**
+
+Execute commands inside the running container:
+
+```bash
+# Run any Django command
+docker compose exec app python manage.py <command>
+
+# Examples:
+docker compose exec app python manage.py migrate
+docker compose exec app python manage.py createsuperuser
 ```
 
 **Note:** Database commands require PostgreSQL to be running (via `make start` or `make start-local`).
 
 ### Viewing Logs
 
+**Docker logs:**
+
 ```bash
-# Docker logs
+# Application logs
 docker compose logs -f app
+
+# Database logs
 docker compose logs -f db
 
-# Or view all services
+# All services
 docker compose logs -f
 ```
+
+**Local development logs:**
+
+Check the terminal where you ran `uv run python manage.py runserver` or the VSCode debug console.
 
 ### Stopping Services
 
@@ -270,3 +373,4 @@ make test-e2e-debug
 
 - [E2E Testing Guide](docs/E2E_TESTING.md) - Comprehensive testing documentation
 - [ER Diagrams](docs/app/erds/) - Database schema diagrams
+- [USWDS Guidelines](docs/USWDS_GUIDELINES.md) - Component and styling best practices

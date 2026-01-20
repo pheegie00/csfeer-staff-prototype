@@ -102,6 +102,7 @@ class TribalLongFormFields(BaseFields):
             "partnerships_expenditure",
             "other_expenditure",
         ],
+        review_title="Total Expenditures (auto-calculated)",
     )
 
     administration_expenditure = acf_fields.CurrencyField(title="Administration")
@@ -121,19 +122,23 @@ class TribalLongFormFields(BaseFields):
     )
 
     housing_services_description = acf_fields.TextareaField(
-        title="Description",
+        title="Description", review_title="Details about housing services"
     )
 
-    health_services_description = acf_fields.TextareaField(title="Description")
+    health_services_description = acf_fields.TextareaField(
+        title="Description", review_title="Details about health services"
+    )
 
-    civic_services_description = acf_fields.TextareaField(title="Description")
+    civic_services_description = acf_fields.TextareaField(
+        title="Description", review_title="Details about civic services"
+    )
 
     transportation_services_description = acf_fields.TextareaField(
-        title="Description",
+        title="Description", review_title="Details about transportation services"
     )
 
     poverty_coordination_description = acf_fields.TextareaField(
-        title="Description",
+        title="Description", review_title="Details about poverty coordination services"
     )
 
     # region Demographic Questions
@@ -145,7 +150,9 @@ class TribalLongFormFields(BaseFields):
     male_individuals_served = acf_fields.IntegerField(title="Male")
     female_individuals_served = acf_fields.IntegerField(title="Female")
     total_individuals_served_by_sex = acf_fields.CalculatedField(
-        title="Total", fields=["male_individuals_served", "female_individuals_served"]
+        title="Total",
+        fields=["male_individuals_served", "female_individuals_served"],
+        review_title="Total (auto-calculated)",
     )
 
     employment__full_time = acf_fields.IntegerField(title="Employed Full Time")
@@ -174,7 +181,7 @@ class TribalLongFormFields(BaseFields):
             "employment__retired",
             "employment__unknown",
         ],
-        review_title="Total",
+        review_title="Total (auto-calculated)",
     )
 
 

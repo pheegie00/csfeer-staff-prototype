@@ -214,6 +214,8 @@ node_modules
 frontend/built
 staticfiles/
 static
+# Symlink for local development (points to frontend/built)
+csfeer/static/frontend
 
 # E2E test artifacts
 tests/screenshots/
