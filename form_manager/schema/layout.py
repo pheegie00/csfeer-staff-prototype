@@ -5,7 +5,7 @@ from typing import Any, ClassVar, Optional, Self, cast
 from django.forms.boundfield import BoundField
 from django.forms.renderers import TemplatesSetting
 from django.forms.utils import RenderableMixin
-from pydantic import BaseModel
+from pydantic import BaseModel, PrivateAttr
 
 from form_manager.schema.fields import ACFField
 
@@ -14,7 +14,7 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel):
     """A special Pydantic BaseModel that utilizes the Django forms rendering API
     for template rendering"""
 
-    _global_context = {}
+    _global_context: dict[str, Any] = PrivateAttr(default_factory=dict)
     renderer: ClassVar[TemplatesSetting] = TemplatesSetting()
     children: Optional[list[T]] = None
     template_name: Optional[S] = None
