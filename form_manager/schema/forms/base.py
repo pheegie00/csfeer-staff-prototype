@@ -14,7 +14,6 @@ from typing import (
 )
 
 from django import forms
-from django.forms.boundfield import BoundField
 from django.forms.renderers import TemplatesSetting
 from pydantic import BaseModel, Field, GetCoreSchemaHandler
 from pydantic_core import core_schema
