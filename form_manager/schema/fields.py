@@ -5,7 +5,7 @@ from __future__ import annotations
 import inspect
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Any, Iterable, List, cast
+from typing import TYPE_CHECKING, Any, Iterable, List, cast
 
 from django import forms
 from django.forms.boundfield import BoundField
@@ -13,6 +13,9 @@ from django.utils import formats
 from pydantic_core import core_schema
 
 from form_manager.schema.widgets import CheckboxSelectMultiple, CurrencyInput
+
+if TYPE_CHECKING:
+    from form_manager.schema.forms.base import BaseFields
 
 
 class ACFFieldMixin:
@@ -133,6 +136,7 @@ class ACFCalculatedField(ACFFieldMixin, forms.DecimalField):
         """A BoundField for Calculated Fields."""
 
         field: ACFCalculatedField  # type: ignore
+        form: BaseFields  # type: ignore
 
         def get_calculated_value(self):
             """
@@ -140,7 +144,13 @@ class ACFCalculatedField(ACFFieldMixin, forms.DecimalField):
             """
             values = []
 
+            fields_to_exclude = self.form.fields_to_exclude
+
             for field_name in self.field.fields:
+
+                if field_name in fields_to_exclude:
+                    continue
+
                 source_field = self.form[field_name]
                 source_value = source_field.value()
 
