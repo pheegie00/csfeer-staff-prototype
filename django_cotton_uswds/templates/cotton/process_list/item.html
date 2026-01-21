@@ -1,0 +1,11 @@
+<c-vars
+    heading=""
+    heading_tag="h4"
+    heading_classes=""
+    extra_classes=""
+/>
+
+<li class="usa-process-list__item {{ extra_classes }}">
+  <{{ heading_tag }} class="usa-process-list__heading {{ heading_classes }}">{{ heading }}</{{ heading_tag }}>
+  {{ slot }}
+</li>
