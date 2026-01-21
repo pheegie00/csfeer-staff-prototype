@@ -1,6 +1,7 @@
 <c-vars
     id=""
     name=""
+    type="numeric"
     value=""
     label=""
     hint=""
@@ -10,7 +11,7 @@
     readonly=""
     required=""
     width=""
-    inputmode=""
+    inputmode="numeric"
 />
   
 <c-input-group>
@@ -18,7 +19,7 @@
     <c-text-input
         id="{{ id }}"
         name="{{ name }}"
-        type="number"
+        type="{{ type}}"
         value="{{ value }}"
         hint="{{ hint }}"
         error="{{ error }}"
@@ -26,7 +27,7 @@
         disabled="{{ disabled }}"
         required="{{ required }}"
         width="{{ width }}"
-        inputmode="numeric"
+        inputmode="{{ inputmode }}"
         step="0.01"
         readonly="{{ readonly }}"
         :attrs="widget_attrs"

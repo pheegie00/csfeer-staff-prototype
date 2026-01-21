@@ -3,10 +3,12 @@ Pytest configuration and fixtures for e2e tests.
 """
 
 import os
+from pathlib import Path
 from typing import TYPE_CHECKING, Generator
 
 import pytest
 from django.test.client import Client
+from dotenv import load_dotenv
 from playwright.sync_api import Browser, BrowserContext, Page, expect
 
 if TYPE_CHECKING:
@@ -22,6 +24,18 @@ pytest_plugins = ["tests.fixtures.users"]
 
 # Base URL for the application
 BASE_URL = os.environ.get("BASE_URL", "http://ui.csfeer:8000")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def load_dotenv_file() -> None:
+    """Load project .env once before any tests run (does not override existing env vars)."""
+    root = Path(__file__).resolve().parents[1]
+    environment = os.getenv("ENVIRONMENT", None)
+    # Only load local env when running locally (avoid automatic load in CI)
+    if environment is None or environment == "local":
+        env_path = root / ".env"
+        if env_path.exists():
+            load_dotenv(env_path, override=False)
 
 
 @pytest.fixture(scope="session")

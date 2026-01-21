@@ -11,6 +11,7 @@ from form_manager.schema.layout import (
     FieldBlock,
     FieldGroupBlock,
     PageBlock,
+    ReviewSubheadingBlock,
     SectionBlock,
     StepBlock,
 )
@@ -31,6 +32,7 @@ class TribalLongFormFields(BaseFields):
     # region Question Filters
 
     applicable_topics = acf_fields.PageFilterField(
+        is_presentational_only=True,
         choices=[
             (
                 "employment_expenditure,employment_related_services_description",
@@ -58,13 +60,17 @@ class TribalLongFormFields(BaseFields):
             ),
             ("transportation_expenditure,transportation_services_description", "Transportation"),
             ("other_expenditure", "Other"),
-        ]
+        ],
     )
 
     # region Expenditure Amounts
-    employment_expenditure = acf_fields.CurrencyField(title="Employment", min_value=0)
+    employment_expenditure = acf_fields.CurrencyField(
+        title="Employment", min_value=0, review_title="Employment expenses"
+    )
     childcare_expenditure = acf_fields.CurrencyField(
-        title="Childcare, Early Childhood, Youth Development, and Adult Education", min_value=0
+        title="Childcare, Early Childhood, Youth Development, and Adult Education",
+        min_value=0,
+        review_title="Childcare, Early Childhood, Youth Development, and Adult Education expenses",
     )
 
     asset_building_expenditure = acf_fields.CurrencyField(
@@ -96,6 +102,7 @@ class TribalLongFormFields(BaseFields):
             "partnerships_expenditure",
             "other_expenditure",
         ],
+        review_title="Total Expenditures (auto-calculated)",
     )
 
     administration_expenditure = acf_fields.CurrencyField(title="Administration")
@@ -103,29 +110,35 @@ class TribalLongFormFields(BaseFields):
     # region Expenditure Descriptions
 
     employment_related_services_description = acf_fields.TextareaField(
-        title="Description",
+        title="Description", review_title="Details about employment related services"
     )
 
-    education_related_service_description = acf_fields.TextareaField(title="Description")
+    education_related_service_description = acf_fields.TextareaField(
+        title="Description", review_title="Details about education related services"
+    )
 
     income_services_description = acf_fields.TextareaField(
-        title="Description",
+        title="Description", review_title="Details about income and asset services"
     )
 
     housing_services_description = acf_fields.TextareaField(
-        title="Description",
+        title="Description", review_title="Details about housing services"
     )
 
-    health_services_description = acf_fields.TextareaField(title="Description")
+    health_services_description = acf_fields.TextareaField(
+        title="Description", review_title="Details about health services"
+    )
 
-    civic_services_description = acf_fields.TextareaField(title="Description")
+    civic_services_description = acf_fields.TextareaField(
+        title="Description", review_title="Details about civic services"
+    )
 
     transportation_services_description = acf_fields.TextareaField(
-        title="Description",
+        title="Description", review_title="Details about transportation services"
     )
 
     poverty_coordination_description = acf_fields.TextareaField(
-        title="Description",
+        title="Description", review_title="Details about poverty coordination services"
     )
 
     # region Demographic Questions
@@ -137,7 +150,9 @@ class TribalLongFormFields(BaseFields):
     male_individuals_served = acf_fields.IntegerField(title="Male")
     female_individuals_served = acf_fields.IntegerField(title="Female")
     total_individuals_served_by_sex = acf_fields.CalculatedField(
-        title="Total", fields=["male_individuals_served", "female_individuals_served"]
+        title="Total",
+        fields=["male_individuals_served", "female_individuals_served"],
+        review_title="Total (auto-calculated)",
     )
 
     employment__full_time = acf_fields.IntegerField(title="Employed Full Time")
@@ -165,8 +180,8 @@ class TribalLongFormFields(BaseFields):
             "employment__permanently_unemployed",
             "employment__retired",
             "employment__unknown",
-            "employment__total",
         ],
+        review_title="Total (auto-calculated)",
     )
 
 
@@ -188,12 +203,14 @@ class TribalLongForm(BaseFormSchema):
                             SectionBlock(
                                 title="Tribal Organization",
                                 children=[
+                                    ReviewSubheadingBlock(title="Tribal Organization"),
                                     FieldBlock(field_name="org_name"),
                                 ],
                             ),
                             SectionBlock(
                                 title="CSBG Program Contact",
                                 children=[
+                                    ReviewSubheadingBlock(title="CSBG Program Contact"),
                                     FieldBlock(field_name="contact_name"),
                                     FieldBlock(field_name="contact_title"),
                                     FieldBlock(field_name="phone"),
@@ -364,10 +381,6 @@ class TribalLongForm(BaseFormSchema):
                         ],
                     ),
                 ],
-            ),
-            StepBlock(
-                title="Review and submit",
-                children=[PageBlock(title="Review and Submit", children=[])],
             ),
         ],
     )

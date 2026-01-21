@@ -71,16 +71,18 @@ def form_history(request, pk: UUID):
         messages.error(request, "No permission to view.")
         return redirect("form_list")
 
-    events = (
+    submission_events = (
         FormAuditTrail.objects.filter(form_entry=entry, action__in=["submit", "amend"])  # type: ignore[arg-type]
         .order_by("-timestamp")
         .all()
     )
 
+    all_events = FormAuditTrail.objects.filter(form_entry=entry).order_by("-timestamp").all()
+
     return render(
         request,
         "forms/form_history.html",
-        {"current": entry, "events": events},
+        {"current": entry, "submission_events": submission_events, "all_events": all_events},
     )
 
 

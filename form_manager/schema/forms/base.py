@@ -14,13 +14,12 @@ from typing import (
 
 from django import forms
 from django.forms.renderers import TemplatesSetting
-from django.forms.utils import ErrorList
 from pydantic import BaseModel, Field, GetCoreSchemaHandler
 from pydantic_core import core_schema
 from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.constants import AllFormNames, FormFamilies
-from form_manager.schema.layout import SectionBlock, StepBlock
+from form_manager.schema.layout import StepBlock
 
 logger = logging.getLogger(__name__)
 
@@ -36,10 +35,6 @@ class BaseFields(forms.Form):
     for serializing form defintions into base classes."""
 
     default_renderer = ACFFormRenderer
-
-    def __init__(self, *args, ui_components=[], **kwargs):
-        self.ui_components = ui_components
-        super().__init__(*args, **kwargs)
 
     @classmethod
     def __get_pydantic_core_schema__(
@@ -60,33 +55,11 @@ class BaseFields(forms.Form):
 
         return core_schema.typed_dict_schema(fields)
 
-    def get_context(self):
-        """Set template context for rendering purposes."""
-        context = cast(dict, super().get_context())
-
-        # Recursively attach Django field objects to UI components
-        # for rendering
-        def attach_fields(node):
-            if node["type"] == "field":
-                field_name = node.get("field_name")
-                field = self[field_name]
-                node["django_field"] = field
-            else:
-                for child in node.get("children", []):
-                    attach_fields(child)
-
-        for component in self.ui_components:
-            attach_fields(component)
-
-        context.update({"ui_components": self.ui_components})
-
-        return context
-
 
 FormId = TypeVar("FormId", bound=str)
 FormVersion = TypeVar("FormVersion", bound=str)
 
-UIDefinition: TypeAlias = list[StepBlock | SectionBlock]
+UIDefinition: TypeAlias = list[StepBlock]
 
 
 class SchemaValidationError(Exception):

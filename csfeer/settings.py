@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "django_cotton",
     "django_cotton_uswds",
     "django_extensions",
+    "django_json_widget",
     # Local
     "core",
     "users",
@@ -250,3 +251,5 @@ LOGGING = {
         },
     },
 }
+
+USE_THOUSAND_SEPARATOR = True

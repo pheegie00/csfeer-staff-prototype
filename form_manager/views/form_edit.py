@@ -1,18 +1,15 @@
 import logging
-from typing import Any, cast
-from uuid import UUID
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils import timezone
 
-from form_manager.models import FormAuditTrail, FormEntry
+from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.schema.layout import PageBlock
-from form_manager.utils import record_field_diffs, to_jsonable
+from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +56,13 @@ def form_edit(request, pk):
     ) -> tuple[int | None, int | None]:
         current_ui_step = ui_components[current_step]
 
+        # If we're on the last step and page, move on to the review page
+        if (
+            current_step == len(ui_components) - 1
+            and current_page == len(current_ui_step.children or []) - 1
+        ):
+            return None, None
+
         # If there's no children in the current step, move to the next step and first page
         if not current_ui_step.children or len(current_ui_step.children) == 0:
             return current_step + 1, 0
@@ -98,25 +102,18 @@ def form_edit(request, pk):
 
     current_page = get_step_page(int(current_step_number or 0), current_page_number or 0)
 
-    def is_last_page(target_step_number, target_page_number):
-
-        if len(ui_components) - 1 != target_step_number:
-            return False
-
-        if len(ui_components[target_step_number].children) - 1 != target_page_number:
-            return False
-
-        return True
-
-    next_page_url = (
-        reverse(
-            "form_edit",
-            kwargs={
-                "pk": entry.pk,
-            },
+    if next_step_number is None:
+        next_page_url = reverse("form_review", kwargs={"pk": entry.pk})
+    else:
+        next_page_url = (
+            reverse(
+                "form_edit",
+                kwargs={
+                    "pk": entry.pk,
+                },
+            )
+            + f"?page={next_page_number}&step={next_step_number}"
         )
-        + f"?page={next_page_number}&step={next_step_number}"
-    )
 
     prev_page_url = (
         reverse(
@@ -128,101 +125,30 @@ def form_edit(request, pk):
         + f"?page={previous_page_number}&step={previous_step_number}"
     )
 
-    def save_form_entry(form, status=None):
-        is_valid = form.is_valid()
-        old = entry.data.copy() if entry.data else {}
-
-        # Only save fields that were actually in the POST request
-        # to avoid overwriting data from other pages
-        excluded_fields = {"csrfmiddlewaretoken", "current-step", "current-page", "page-action"}
-        submitted_fields = set(request.POST.keys()) - excluded_fields
-
-        # Build new_data from cleaned_data when available, otherwise from POST
-        new_data = {}
-        for field_name in submitted_fields:
-            if is_valid and field_name in form.cleaned_data:
-                # Use cleaned data for validated fields (proper type conversion)
-                jsonable_dict = cast(
-                    dict[str, Any], to_jsonable({field_name: form.cleaned_data[field_name]})
-                )
-                new_data[field_name] = jsonable_dict[field_name]
-            elif field_name in request.POST:
-                # For invalid forms or fields not in cleaned_data, use raw POST data
-                new_data[field_name] = request.POST.get(field_name)
-
-        entry.data = {**(entry.data or {}), **new_data}
-        FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="save")
-        record_field_diffs(entry, old, entry.data, user=request.user)
-
-        if status:
-            entry.status = status
-
-        if status == "submitted":
-            entry.submitted_at = timezone.now()
-
-        entry.save()
-
-    def can_edit():
-        # Implement based on your permission logic; e.g., check user roles or ownership
-        return True  # Placeholder; replace with actual check
-
-    def can_submit():
-        # Implement based on your permission logic; e.g., check user roles or ownership
-        return True  # Placeholder; replace with actual check
-
     def has_permission():
         if entry.locked:
             return False
 
-        if "save" in request.POST and not can_edit():
+        if "save" in request.POST and not user_can_edit(request.user, entry.organization):
             return False
 
-        if "submit" in request.POST and not can_submit():
+        if "submit" in request.POST and not user_can_submit(request.user, entry.organization):
             return False
 
         return True
 
     if request.method == "POST":
-        form = django_form_class(request.POST)
 
         if not has_permission():
             messages.error(request, "Permission denied.")
             return redirect("form_list")  # Assuming a form list URL
 
-        if form.is_valid():
-            if "submit" in request.POST:
-                save_form_entry(form, status="submitted")
-                messages.success(request, "Submitted.")
-                return redirect("form_list")
-            else:
-                save_form_entry(form)
-                messages.success(request, "Draft saved.")
-                # Redirect to next page if "Save & Continue" was clicked, otherwise stay on current page
-                page_action = request.POST.get("page-action")
-                if page_action == "next":
-                    return redirect(next_page_url)
-                else:
-                    return redirect(
-                        request.path + f"?step={current_step_number}&page={current_page_number}"
-                    )
-        else:
-            # Form is invalid (usually because page-action is in POST but not a form field)
-            # Save as draft and handle navigation
-            if "submit" in request.POST:
-                messages.error(request, "Could not submit form due to errors.")
-            else:
-                # This is a save (either explicit save button or Save & Continue)
-                save_form_entry(form)
-                messages.success(request, "Draft saved.")
-                # Navigate to next page if "Save & Continue" was clicked
-                if request.POST.get("page-action") == "next":
-                    return redirect(next_page_url)
-                else:
-                    return redirect(
-                        request.path + f"?step={current_step_number}&page={current_page_number}"
-                    )
-    else:
-        form = django_form_class(initial=entry.data or {})
+        form = django_form_class(request.POST)
+
+        save_form_entry(form, entry, request)
+        messages.success(request, "Draft saved.")
+
+    form = django_form_class(initial=entry.data or {})
 
     context = {
         "form": form,
@@ -231,12 +157,23 @@ def form_edit(request, pk):
         "schema": schema,
         "current_step_number": current_step_number,
         "current_page_number": current_page_number,
-        "current_page": current_page,
-        "is_last_page": is_last_page(current_step_number, current_page_number),
+        "current_step": ui_components[current_step_number],
+        "is_last_page": next_step_number is None,
         "next_url": next_page_url,
         "prev_url": prev_page_url,
     }
 
-    current_page.set_extra_context(**context)
+    # add the context to all steps, even if we're not going to render that step
+    # on this page.
+    for component in ui_components:
+        component.set_extra_context(**context)
+
+    current_page = get_step_page(int(current_step_number or 0), current_page_number or 0)
+
+    context.update(
+        {
+            "current_page": current_page,
+        }
+    )
 
     return render(request, "form_manager/form_edit.html", context)

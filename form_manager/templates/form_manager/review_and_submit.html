@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+{% load form_manager_tags %}
+<div class="grid-container">
+  <div class="grid-row">
+    <div class="grid-col-12">
+      {% include "form_manager/_form_header.html" %}
+
+      {% include "form_manager/_step_indicator.html" with current_step_number=steps|length current_step_title="Review and Submit" %}
+
+      <h1 class="font-heading-2xl semibold font-family-sans font-weight-semibold">Review and Submit</h1>
+
+        <c-accordion type="multiselectable">
+        {% for step in steps|flatten_for_review %}
+
+            <c-accordion-item
+                heading="{{ step.title}}"
+                control-id="{{ step.title|cut:' ' }}"
+                :is-expanded="True"
+                button_class="usa-accordion__button text-normal font-heading-lg font-family-sans"
+            >
+                <div class="grid-container padding-0">
+
+                    <div class="grid-row">
+                        <div class="grid-col-10">
+                            {% for block in step.blocks %}
+                        
+                                {% if block.type == "review-subheading" %}
+                                <div class="font-heading-lg font-family-sans">{{ block.title }}</div>
+                                {% else %}
+                                    {% if not block.unbound_field.is_presentational_only %}
+                                    <div class="margin-bottom-3">
+                                        <div class="font-family-body text-semibold margin-bottom-05">{{ block.display_title }}</div>
+                                        <div class="font-family-body">{{ block.value }}</div>
+                                    </div>
+                                    {% endif %}
+                                {% endif %}
+                    
+                            {% endfor %}
+                        </div>
+                        <div class="grid-col-2 display-flex flex-justify-end">
+                            <p class="font-sans-sm text-primary">
+                                <c-link href="{% url "form_edit" entry.pk %}?step={{ forloop.counter0}}&page=0">
+                                    <c-icon icon="edit" class="usa-icon margin-right-1"/>Edit section
+                                </c-link>
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </c-accordion-item>
+            
+        {% endfor %}
+        </c-accordion>
+
+        <form id="csf-form" method="post" action="{% url 'form_finalize' entry.id %}" novalidate>
+            {% csrf_token %}
+            <div class="margin-top-4 padding-top-2 border-top-1px border-base-lighter">
+                <div class="display-flex flex-justify flex-wrap flex-gap-1 flex-align-end">
+
+                    {% if current_step_number != 0 or current_page_number != 0 %}
+                    <a href="{{ prev_url }}" class="usa-button usa-button--outline" type="submit">
+                    ← Back
+                    </a>
+                    {% endif %}
+
+                    <c-button 
+                        text="Submit Application"
+                        variant="base"
+                        state="active"
+                        type="submit"
+                    />
+                </div>
+            </div>
+
+        </form>
+
+      {% include "form_manager/_quick_actions.html" %}
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

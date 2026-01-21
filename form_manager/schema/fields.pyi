@@ -7,6 +7,8 @@ class EmailStr(str): ...
 class ACFFieldMixin:
     title: str | None
     description: str | None
+    review_title: str | None
+    is_presentational_only: bool = False
     def __init__(self, *args, title=None, description=None, **kwargs) -> None: ...
 
 class ACFFieldsMeta(type):

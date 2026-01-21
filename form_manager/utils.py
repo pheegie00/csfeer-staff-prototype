@@ -3,8 +3,16 @@ import decimal
 import json
 import logging
 from inspect import isclass
+from typing import Any, cast
 
-from form_manager.models import FormAuditDetail, UserOrganizationMembership
+from django.forms import MultipleChoiceField
+
+from form_manager.models import (
+    FormAuditDetail,
+    FormAuditTrail,
+    FormEntry,
+    UserOrganizationMembership,
+)
 from form_manager.schema import forms as form_schemas
 
 logger = logging.getLogger(__name__)
@@ -117,3 +125,41 @@ def get_form_definitions() -> list[form_schemas.BaseFormSchema]:
             ret.append(form_class)
 
     return ret
+
+
+def save_form_entry(form, form_entry: FormEntry, request):
+    is_valid = form.is_valid()
+    old = form_entry.data.copy() if form_entry.data else {}
+
+    # Only save fields that were actually in the POST request
+    # to avoid overwriting data from other pages
+    excluded_fields = {"csrfmiddlewaretoken"}
+    submitted_fields = set(request.POST.keys()) - excluded_fields
+
+    # Build new_data from cleaned_data when available, otherwise from POST
+    new_data = {}
+    for field_name in submitted_fields:
+        if is_valid and field_name in form.cleaned_data:
+            # Use cleaned data for validated fields (proper type conversion)
+            jsonable_dict = cast(
+                dict[str, Any], to_jsonable({field_name: form.cleaned_data[field_name]})
+            )
+            new_data[field_name] = jsonable_dict[field_name]
+        elif field_name in request.POST:
+            # For invalid forms or fields not in cleaned_data, use raw POST data
+            # Use getlist for multi-value fields (checkboxes, multi-select)
+            field = form.fields.get(field_name)
+            if field and isinstance(field, MultipleChoiceField):
+                new_data[field_name] = request.POST.getlist(field_name)
+            else:
+                new_data[field_name] = request.POST.get(field_name)
+
+    form_entry.data = (form_entry.data or {}) | new_data
+    FormAuditTrail.objects.create(form_entry=form_entry, user=request.user, action="submit")
+    record_field_diffs(form_entry, old, form_entry.data, user=request.user)
+
+    form_entry.save()
+
+    logger.info(
+        "FormEntry %s saved by user %s. Data: %s", form_entry.pk, request.user.pk, form_entry.data
+    )

@@ -41,3 +41,24 @@ def test_calculated_currency_field_form_invalid():
     assert form.is_valid() is False
 
     assert form.cleaned_data["total"] == 20.0
+    assert form["total"].value() == "20.00"
+
+
+def test_currency_fields_are_properly_formatted():
+    """Ensure the currency field correctly formats its value"""
+
+    class TestForm(BaseFields):
+        money = acf_fields.CurrencyField()
+
+    test_data = [
+        (30.00, "30.00"),
+        (30.0, "30.00"),
+        (30, "30.00"),
+        ("30", "30.00"),
+        ("", "0.00"),
+        (None, "0.00"),
+    ]
+
+    for input_value, expected in test_data:
+        form = TestForm(data={"money": input_value})
+        assert form["money"].value() == expected

@@ -1,6 +1,11 @@
+import json
+
 from django.contrib import admin
+from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from django_json_widget.widgets import JSONEditorWidget
 
 from form_manager.models import (
     FormAuditDetail,
@@ -10,6 +15,8 @@ from form_manager.models import (
     OrganizationProfile,
     UserOrganizationMembership,
 )
+
+# TODO: Review permission and remove any unnecessary admin actions like delete, save etc.
 
 
 @admin.register(OrganizationProfile)
@@ -45,6 +52,10 @@ class FormEntryAdmin(admin.ModelAdmin):
     )
     list_filter = ("status", "locked")
     search_fields = ("organization__name", "form_definition__name")
+
+    formfield_overrides = {
+        models.JSONField: {"widget": JSONEditorWidget},
+    }
 
     @admin.display(description="PDF")
     def download_pdf_link(self, obj):
