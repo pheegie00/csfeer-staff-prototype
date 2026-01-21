@@ -11,6 +11,7 @@ from form_manager.schema.layout import (
     FieldBlock,
     FieldGroupBlock,
     PageBlock,
+    PermanentPageBlock,
     ReviewSubheadingBlock,
     SectionBlock,
     StepBlock,
@@ -59,6 +60,10 @@ class TribalLongFormFields(BaseFields):
                 "Civic Engagement & Community Involvement",
             ),
             ("transportation_expenditure,transportation_services_description", "Transportation"),
+            (
+                "partnerships_expenditure",
+                "Partnerships, Linkages, and Coordination",
+            ),
             ("other_expenditure", "Other"),
         ],
     )
@@ -132,10 +137,6 @@ class TribalLongFormFields(BaseFields):
         title="Description",
     )
 
-    poverty_coordination_description = acf_fields.TextareaField(
-        title="Description",
-    )
-
     # region Demographic Questions
 
     total_individuals_served = acf_fields.IntegerField(title="Total number of people")
@@ -190,7 +191,7 @@ class TribalLongForm(BaseFormSchema):
             StepBlock(
                 title="Basic Information",
                 children=[
-                    PageBlock(
+                    PermanentPageBlock(
                         title="Your basic information",
                         children=[
                             SectionBlock(
@@ -217,11 +218,11 @@ class TribalLongForm(BaseFormSchema):
             StepBlock(
                 title="Expenditure categories",
                 children=[
-                    PageBlock(
+                    PermanentPageBlock(
                         title="Expenditure categories",
                         children=[FieldBlock(field_name="applicable_topics")],
                     ),
-                    PageBlock(
+                    PermanentPageBlock(
                         title="Expenditure categories",
                         children=[
                             FieldGroupBlock(
@@ -229,7 +230,9 @@ class TribalLongForm(BaseFormSchema):
                                 children=[
                                     FieldBlock(field_name="employment_expenditure"),
                                     FieldBlock(field_name="childcare_expenditure"),
+                                    FieldBlock(field_name="asset_building_expenditure"),
                                     FieldBlock(field_name="housing_expenditure"),
+                                    FieldBlock(field_name="health_expenditure"),
                                     FieldBlock(field_name="civic_expenditure"),
                                     FieldBlock(field_name="transportation_expenditure"),
                                     FieldBlock(field_name="partnerships_expenditure"),
@@ -239,7 +242,7 @@ class TribalLongForm(BaseFormSchema):
                             ),
                         ],
                     ),
-                    PageBlock(
+                    PermanentPageBlock(
                         title="Administration costs",
                         subtitle="To learn more about what qualifies as Administration costs, refer to guidance IM37.",
                         children=[FieldBlock(field_name="administration_expenditure")],
@@ -298,13 +301,6 @@ class TribalLongForm(BaseFormSchema):
                             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
                         ),
                         children=[FieldBlock(field_name="transportation_services_description")],
-                    ),
-                    PageBlock(
-                        title="Details on poverty coordination services",
-                        subtitle=(
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                        ),
-                        children=[FieldBlock(field_name="poverty_coordination_description")],
                     ),
                 ],
             ),

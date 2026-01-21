@@ -8,7 +8,7 @@ from django.urls import reverse
 
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
-from form_manager.schema.layout import FieldBlock, PageBlock
+from form_manager.schema.layout import FieldBlock, PageBlock, StepBlock
 from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
 
 logger = logging.getLogger(__name__)
@@ -61,44 +61,36 @@ def get_previous_step_and_page(
     return current_step, current_page - 1
 
 
-def remove_filterable_fields_from_components(components, fields_to_filter: list[str]):
-    """This function should do the following:
-
-    1. traverse the tree of components.
-    2. if a FieldBlock component is found, and the name attribute matches one of the
-       fields in `fields_to_filter`, remove that component from the tree.
-    3. if no fields are left in a PageBlock, remove that PageBlock from the tree.
+def remove_nodes_with_excluded_fields(components: list[StepBlock], fields_to_exclude: list[str]):
+    """This function takes a list of UI components (steps), removes any descendant FieldBlock components whose names are
+    listed in `fields_to_exclude`, and removes any PageBlock nodes that lack decendant FieldBlock nodes.
     """
 
-    # Create a deep copy of the components to avoid modifying the original
-    components_copy = []
-    for step in components:
-        step_copy = step.model_copy()
-        if hasattr(step_copy, "children"):
-            step_copy.children = []
-            for page in step.children:
-                page_copy = page.model_copy()
-                if hasattr(page_copy, "children"):
-                    page_copy.children = []
-                    for component in page.children:
-                        if isinstance(component, FieldBlock):
-                            if component.field_name not in fields_to_filter:
-                                page_copy.children.append(component)
-                        else:
-                            page_copy.children.append(component)
-                step_copy.children.append(page_copy)
-        components_copy.append(step_copy)
+    def remove_excluded_nodes(component):
 
-    # Remove empty PageBlocks
-    for i, step in enumerate(components_copy):
-        if hasattr(step, "children"):
-            components_copy[i].children = [
-                page
-                for page in step.children
-                if hasattr(page, "children") and len(page.children) > 0
-            ]
+        children_to_keep = []
 
-    return components_copy
+        for child in component.children:
+
+            if isinstance(child, FieldBlock) and child.field_name in fields_to_exclude:
+                logger.info("Removing field %s", child.field_name)
+                continue
+
+            if hasattr(child, "children") and child.children:
+                child = remove_excluded_nodes(child)
+
+            if isinstance(child, PageBlock):
+                # If the page has no remaining FieldBlock children, skip it
+                if not child.has_field_blocks(child):
+                    logger.info("Removing empty page %s", child.title)
+                    continue
+
+            children_to_keep.append(child)
+
+        component.children = children_to_keep
+        return component
+
+    return [remove_excluded_nodes(comp) for comp in components]
 
 
 @login_required
@@ -160,10 +152,9 @@ def form_edit(request, pk):
 
     form = django_form_class(initial=entry.data or {})
 
-    if form.has_filter_fields:
-        ui_components = remove_filterable_fields_from_components(
-            ui_components, form.fields_to_filter
-        )
+    if form.fields_to_exclude:
+        logger.info("Excluding the following fields: %s", form.fields_to_exclude)
+        ui_components = remove_nodes_with_excluded_fields(ui_components, form.fields_to_exclude)
 
     next_step_number, next_page_number = get_next_step_and_page(
         ui_components, current_step_number, current_page_number

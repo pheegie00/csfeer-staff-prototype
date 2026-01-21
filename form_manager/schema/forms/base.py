@@ -6,10 +6,10 @@ from typing import (
     Annotated,
     Any,
     Generic,
-    LiteralString,
     Optional,
     TypeAlias,
     TypeVar,
+    cast,
     get_type_hints,
 )
 
@@ -21,7 +21,7 @@ from pydantic_core import core_schema
 from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.constants import AllFormNames, FormFamilies
-from form_manager.schema.fields import acf_fields
+from form_manager.schema.fields import ACFBoundFieldFilterField, acf_fields
 from form_manager.schema.layout import StepBlock
 
 logger = logging.getLogger(__name__)
@@ -61,33 +61,25 @@ class BaseFields(forms.Form):
     @cached_property
     def has_filter_fields(self) -> bool:
         """Return True if the form has any filter fields."""
-        return bool(self.filter_fields)
+
+        for _, field in self.fields.items():
+            if isinstance(field, acf_fields.FieldFilterField):
+                return True
+
+        return False
 
     @cached_property
-    def filter_fields(self) -> list[BoundField]:
-        """Return a list of filter fields in the form."""
-        filter_fields = []
+    def fields_to_exclude(self) -> list[str]:
+        """Return a list of field names that should be excluded based on the filter fields."""
+
+        fields_to_exclude = []
+
         for name, field in self.fields.items():
             if isinstance(field, acf_fields.FieldFilterField):
-                filter_fields.append(self[name])
-        return filter_fields
+                bound_field = cast(ACFBoundFieldFilterField, self[name])
+                fields_to_exclude += bound_field.get_fields_to_exclude()
 
-    @cached_property
-    def fields_to_filter(self) -> list[LiteralString]:
-        """Return a list of field names that should be filtered based on the filter fields."""
-
-        fields_to_filter = []
-
-        for field in self.filter_fields:
-            if field.value():
-                fields_to_filter.extend(field.value())
-
-        if not fields_to_filter:
-            return []
-
-        combined_fields = ",".join(fields_to_filter)
-
-        return combined_fields.split(",")
+        return fields_to_exclude
 
 
 FormId = TypeVar("FormId", bound=str)
