@@ -6,7 +6,6 @@ context:
       name: "date_of_birth"
       legend: "Date of Birth"
       hint: "For example: January 19 2000"
-      month_value: ""
       day_value: ""
       year_value: ""
       required: ""
