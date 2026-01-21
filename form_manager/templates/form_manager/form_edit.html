@@ -16,7 +16,10 @@
       </div>
 
       <c-step-indicator
-          indicator_type="centered"
+          indicator_type="counters"
+          current_step="{{ current_step_number|add:1 }}"
+          total_steps="{{ steps|length|add:1 }}"
+          segment_name="{{ current_step.title }}"
       >
         {% for step in steps %}
             {% if forloop.counter0 < current_step_number %}
