@@ -215,7 +215,7 @@ class ACFBoundFieldFilterField(BoundField):
 
         field = cast(ACFFieldFilterField, self.field)
 
-        choices = cast(Iterable, field)
+        choices = cast(Iterable, field.choices)
 
         for value, _ in choices:
             all_filterable_fields += value.split(",")
