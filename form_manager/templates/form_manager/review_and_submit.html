@@ -16,24 +16,7 @@
         </div>
       </div>
 
-      <c-step-indicator
-          indicator_type="centered"
-          current_step="{{ steps|length|add:1 }}"
-          total_steps="{{ steps|length|add:1 }}"
-          segment_name="Review and Submit"
-      >
-        {% for step in steps %}
-            <c-step-indicator.step-item 
-                segment_state="complete" 
-                name="{{ step.title }}" 
-            />
-        {% endfor %}
-
-        <c-step-indicator.step-item 
-          segment_state="current" 
-          name="Review and Submit" 
-        />
-      </c-step-indicator>
+      {% include "form_manager/_step_indicator.html" with current_step_number=steps|length current_step_title="Review and Submit" %}
 
       <h1 class="font-heading-2xl semibold font-family-sans font-weight-semibold">Review and Submit</h1>
 

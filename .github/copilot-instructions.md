@@ -37,6 +37,7 @@ This is a Django application using USWDS (U.S. Web Design System) for all UI com
 - Use type hints in Python code
 - Write tests for new features
 - Do NOT use emojis in code, comments, or documentation
+- Do NOT add comments or docstrings unless explicitly requested by the user
 
 ## Key Resources
 
