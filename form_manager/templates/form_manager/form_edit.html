@@ -15,36 +15,7 @@
         </div>
       </div>
 
-      <c-step-indicator
-          indicator_type="counters"
-          current_step="{{ current_step_number|add:1 }}"
-          total_steps="{{ steps|length|add:1 }}"
-          segment_name="{{ current_step.title }}"
-      >
-        {% for step in steps %}
-            {% if forloop.counter0 < current_step_number %}
-              <c-step-indicator.step-item 
-                  segment_state="complete" 
-                  name="{{ step.title }}" 
-              />
-            {% elif forloop.counter0 == current_step_number %}
-              <c-step-indicator.step-item 
-                  segment_state="current" 
-                  name="{{ step.title }}" 
-              />
-            {% else %}
-              <c-step-indicator.step-item 
-                  segment_state="incomplete" 
-                  name="{{ step.title }}" 
-              />
-            {% endif %}
-        {% endfor %}
-        <c-step-indicator.step-item 
-          segment_state="incomplete" 
-          name="Review and Submit" 
-        />
-
-      </c-step-indicator>
+      {% include "form_manager/_step_indicator.html" with current_step_title=current_step.title %}
 
       <script>
         const updateCalculatedFields = (e) => {
