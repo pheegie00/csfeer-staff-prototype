@@ -45,7 +45,7 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
 
     @classmethod
     def has_field_blocks(cls, node) -> bool:
-
+        """Return True if the node has any descendant FieldBlocks. Otherwise, False."""
         for child in node.children or []:
 
             if isinstance(child, FieldBlock):
