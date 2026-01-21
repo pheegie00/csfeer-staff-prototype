@@ -155,7 +155,7 @@ def save_form_entry(form, form_entry: FormEntry, request):
                 new_data[field_name] = request.POST.get(field_name)
 
     form_entry.data = (form_entry.data or {}) | new_data
-    FormAuditTrail.objects.create(form_entry=form_entry, user=request.user, action="save")
+    FormAuditTrail.objects.create(form_entry=form_entry, user=request.user, action="submit")
     record_field_diffs(form_entry, old, form_entry.data, user=request.user)
 
     form_entry.save()

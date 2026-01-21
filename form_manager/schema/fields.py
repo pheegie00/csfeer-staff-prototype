@@ -200,7 +200,7 @@ class ACFCalculatedCurrencyField(ACFCalculatedField, ACFCurrencyField):
 class ACFTextareaField(ACFFieldMixin, forms.CharField):
     """A text area field"""
 
-    widget = forms.Textarea
+    widget = forms.Textarea(attrs={"rows": 20, "cols": 100})
 
 
 class ACFBoundFieldFilterField(BoundField):

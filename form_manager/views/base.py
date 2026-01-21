@@ -63,21 +63,17 @@ class BaseSingleFormView(BaseFormUpdateView):
 
     def get_form_kwargs(self):
         """Return the keyword arguments for instantiating the form."""
-
-        kwargs = super().get_form_kwargs()
-
-        schema_class = self.get_form_schema()
-
-        kwargs.update({"ui_components": schema_class.dump_ui_definition_from_json_schema()})
-
-        return kwargs
+        return super().get_form_kwargs()
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
 
+        schema_class = self.get_form_schema()
+
         context.update(
             {
                 "form": self.get_form(),
+                "ui_components": schema_class.dump_ui_definition_from_json_schema(),
             }
         )
 

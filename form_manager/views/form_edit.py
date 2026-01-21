@@ -198,6 +198,7 @@ def form_edit(request, pk):
         "schema": schema,
         "current_step_number": current_step_number,
         "current_page_number": current_page_number,
+        "current_step": ui_components[current_step_number],
         "is_last_page": next_step_number is None,
         "next_url": next_page_url,
         "prev_url": prev_page_url,
