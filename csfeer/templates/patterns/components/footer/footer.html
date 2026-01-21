@@ -1,0 +1,54 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Footer Component</h1>
+
+    {% for variant in variants %}
+    <h3 class="site-preview-heading">{{ variant.title }}</h3>
+
+    <c-footer
+        type="{{ variant.type }}"
+        return_to_top_href="{{ variant.return_to_top_href }}"
+        show_signup="{{ variant.show_signup|default:'false' }}"
+        signup_heading="{{ variant.signup_heading|default:'Sign up' }}"
+        signup_label="{{ variant.signup_label|default:'Your email address' }}"
+        agency_name="{{ variant.agency_name }}"
+        agency_logo="{{ variant.agency_logo }}"
+        contact_heading="{{ variant.contact_heading|default:'' }}"
+    >
+        {% if variant.nav_columns %}
+            {% for column in variant.nav_columns %}
+            <c-footer.nav_column title="{{ column.title }}">
+                {% for link in column.links %}
+                <c-footer.secondary_link href="{{ link.href }}" text="{{ link.text }}" />
+                {% endfor %}
+            </c-footer.nav_column>
+            {% endfor %}
+        {% elif variant.primary_links %}
+            {% for link in variant.primary_links %}
+            <c-footer.link href="{{ link.href }}" text="{{ link.text }}" type="{{ variant.type }}" />
+            {% endfor %}
+        {% endif %}
+
+        {% if variant.social_links %}
+        <c-slot name="social_links">
+            <c-footer.social_link>
+                {% for social in variant.social_links %}
+                <c-footer.social_link_item href="{{ social.href }}" icon="{{ social.icon }}" alt="{{ social.alt }}" />
+                {% endfor %}
+            </c-footer.social_link>
+        </c-slot>
+        {% endif %}
+
+        {% if variant.contact_items %}
+        <c-slot name="contact_info">
+            <c-footer.address type="{{ variant.type }}">
+                {% for item in variant.contact_items %}
+                <c-footer.contact_item href="{{ item.href }}" text="{{ item.text }}" type="{{ variant.type }}" />
+                {% endfor %}
+            </c-footer.address>
+        </c-slot>
+        {% endif %}
+    </c-footer>
+    {% endfor %}
+</div>
