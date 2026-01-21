@@ -1,0 +1,24 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Memorable Date Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-memorable_date
+            id="{{ variant.id }}"
+            name="{{ variant.name }}"
+            legend="{{ variant.legend }}"
+            hint="{{ variant.hint }}"
+            month_value="{{ variant.month_value }}"
+            day_value="{{ variant.day_value }}"
+            year_value="{{ variant.year_value }}"
+            required="{{ variant.required }}"
+            disabled="{{ variant.disabled }}"
+            error="{{ variant.error }}"
+        />
+    </div>
+    {% endfor %}
+</div>

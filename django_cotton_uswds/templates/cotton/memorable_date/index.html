@@ -1,0 +1,73 @@
+<c-vars
+    id=""
+    name=""
+    legend=""
+    hint="For example: January 19 2000"
+    month_value=""
+    day_value=""
+    year_value=""
+    required=""
+    disabled=""
+    error=""
+/>
+
+<c-fieldset legend="{{ legend }}" required="{{ required }}">
+  <span class="usa-hint" id="{{ id }}-hint">{{ hint }}</span>
+  <div class="usa-memorable-date">
+    <c-form_group extra_classes="usa-form-group--month usa-form-group--select" error="{{ error }}">
+      <c-label id="{{ id }}_month" label="Month" />
+      <c-select
+        id="{{ id }}_month"
+        name="{{ name }}_month"
+        default_option="- Select -"
+        default_value=""
+        value="{{ month_value }}"
+        required="{{ required }}"
+        disabled="{{ disabled }}"
+        :options='[
+          {"value": "1", "display": "January"},
+          {"value": "2", "display": "February"},
+          {"value": "3", "display": "March"},
+          {"value": "4", "display": "April"},
+          {"value": "5", "display": "May"},
+          {"value": "6", "display": "June"},
+          {"value": "7", "display": "July"},
+          {"value": "8", "display": "August"},
+          {"value": "9", "display": "September"},
+          {"value": "10", "display": "October"},
+          {"value": "11", "display": "November"},
+          {"value": "12", "display": "December"}
+        ]'
+      />
+    </c-form_group>
+    <c-form_group extra_classes="usa-form-group--day" error="{{ error }}">
+      <c-label id="{{ id }}_day" label="Day" />
+      <c-text_input
+        id="{{ id }}_day"
+        name="{{ name }}_day"
+        aria-describedby="{{ id }}-hint"
+        maxlength="2"
+        pattern="[0-9]*"
+        inputmode="numeric"
+        value="{{ day_value }}"
+        required="{{ required }}"
+        disabled="{{ disabled }}"
+      />
+    </c-form_group>
+    <c-form_group extra_classes="usa-form-group--year" error="{{ error }}">
+      <c-label id="{{ id }}_year" label="Year" />
+      <c-text_input
+        id="{{ id }}_year"
+        name="{{ name }}_year"
+        aria-describedby="{{ id }}-hint"
+        minlength="4"
+        maxlength="4"
+        pattern="[0-9]*"
+        inputmode="numeric"
+        value="{{ year_value }}"
+        required="{{ required }}"
+        disabled="{{ disabled }}"
+      />
+    </c-form_group>
+  </div>
+</c-fieldset>
