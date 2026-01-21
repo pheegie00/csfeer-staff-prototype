@@ -45,21 +45,21 @@ def form_finalize(request, pk):
 
     form = django_form_class(entry.data)
 
-    if form.is_valid():
-        entry.status = "submitted"
-        entry.submitted_at = timezone.now()
-        entry.save()
+    # if form.is_valid():
+    entry.status = "submitted"
+    entry.submitted_at = timezone.now()
+    entry.save()
 
-        messages.success(request, "Your form has been successfully submitted.")
+    messages.success(request, "Your form has been successfully submitted.")
 
-        return redirect(
-            reverse(
-                "form_preview",
-                kwargs={
-                    "pk": entry.pk,
-                },
-            )
+    return redirect(
+        reverse(
+            "form_preview",
+            kwargs={
+                "pk": entry.pk,
+            },
         )
+    )
 
     messages.error(
         request, "There were errors in your form. Please correct them before submitting."

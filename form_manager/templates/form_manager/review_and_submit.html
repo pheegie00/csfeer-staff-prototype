@@ -5,32 +5,9 @@
 <div class="grid-container">
   <div class="grid-row">
     <div class="grid-col-12">
-      <!-- Page Header -->
-      <div class="margin-bottom-4">
-        <h1 class="margin-bottom-1">{{ entry.form_definition.title }}</h1>
-        <div class="display-flex flex-align-center flex-gap-1 margin-bottom-2">
-          <span class="usa-tag bg-base-lighter text-ink">Version {{ entry.version_number }}</span>
-          <span class="usa-tag {% if entry.status == 'draft' %}bg-base-lighter text-ink{% elif entry.status == 'submitted' %}bg-success{% elif entry.status == 'locked' %}bg-warning{% else %}bg-info{% endif %}">
-            {{ entry.status|upper }}
-          </span>
-        </div>
-      </div>
+      {% include "form_manager/_form_header.html" %}
 
-      <c-step-indicator
-          indicator_type="centered"
-      >
-        {% for step in steps %}
-            <c-step-indicator.step-item 
-                segment_state="complete" 
-                name="{{ step.title }}" 
-            />
-        {% endfor %}
-
-        <c-step-indicator.step-item 
-          segment_state="current" 
-          name="Review and Submit" 
-        />
-      </c-step-indicator>
+      {% include "form_manager/_step_indicator.html" with current_step_number=steps|length current_step_title="Review and Submit" %}
 
       <h1 class="font-heading-2xl semibold font-family-sans font-weight-semibold">Review and Submit</h1>
 
@@ -53,10 +30,10 @@
                                 <div class="font-heading-lg font-family-sans">{{ block.title }}</div>
                                 {% else %}
                                     {% if not block.unbound_field.is_presentational_only %}
-                                    <p>
-                                        <strong>{% if block.review_title %}{{ block.review_title }}{% else %}{{ block.title }}{% endif %}</strong><br />
-                                        {{ block.value }}
-                                    </p>
+                                    <div class="margin-bottom-3">
+                                        <div class="font-family-body text-semibold margin-bottom-05">{{ block.display_title }}</div>
+                                        <div class="font-family-body">{{ block.value }}</div>
+                                    </div>
                                     {% endif %}
                                 {% endif %}
                     
@@ -99,30 +76,7 @@
 
         </form>
 
-      <!-- Quick Actions -->
-      <div class="margin-top-4 padding-3 bg-base-lightest radius-md">
-        <h3 class="margin-top-0 margin-bottom-2">Quick Actions</h3>
-        <ul class="usa-list usa-list--unstyled margin-bottom-0">
-          <li class="margin-bottom-1">
-            <a href="{% url 'form_preview' entry.pk %}" class="usa-link display-flex flex-align-center">
-              <img src="{% static 'frontend/uswds/img/usa-icons/visibility.svg' %}" class="usa-icon margin-right-1" aria-hidden="true" alt="">
-              Preview (read-only)
-            </a>
-          </li>
-          <li class="margin-bottom-1">
-            <a href="{% url 'form_download_pdf' entry.pk %}" class="usa-link display-flex flex-align-center">
-              <img src="{% static 'frontend/uswds/img/usa-icons/file_download.svg' %}" class="usa-icon margin-right-1" aria-hidden="true" alt="">
-              Download as PDF
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'form_history' entry.pk %}" class="usa-link display-flex flex-align-center">
-              <img src="{% static 'frontend/uswds/img/usa-icons/history.svg' %}" class="usa-icon margin-right-1" aria-hidden="true" alt="">
-              View submission history
-            </a>
-          </li>
-        </ul>
-      </div>
+      {% include "form_manager/_quick_actions.html" %}
     </div>
   </div>
 </div>

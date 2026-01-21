@@ -1,0 +1,24 @@
+{% load static %}
+<div class="margin-top-4 padding-3 bg-base-lightest radius-md">
+  <h3 class="margin-top-0 margin-bottom-2">Quick Actions</h3>
+  <ul class="usa-list usa-list--unstyled margin-bottom-0">
+    <li class="margin-bottom-1">
+      <a href="{% url 'form_preview' entry.pk %}" class="usa-link display-flex flex-align-center">
+        <img src="{% static 'frontend/uswds/img/usa-icons/visibility.svg' %}" class="usa-icon margin-right-1" aria-hidden="true" alt="">
+        Preview (read-only)
+      </a>
+    </li>
+    <li class="margin-bottom-1">
+      <a href="{% url 'form_download_pdf' entry.pk %}" class="usa-link display-flex flex-align-center">
+        <img src="{% static 'frontend/uswds/img/usa-icons/file_download.svg' %}" class="usa-icon margin-right-1" aria-hidden="true" alt="">
+        Download as PDF
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'form_history' entry.pk %}" class="usa-link display-flex flex-align-center">
+        <img src="{% static 'frontend/uswds/img/usa-icons/history.svg' %}" class="usa-icon margin-right-1" aria-hidden="true" alt="">
+        View submission history
+      </a>
+    </li>
+  </ul>
+</div>
