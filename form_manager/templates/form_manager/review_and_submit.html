@@ -18,6 +18,9 @@
 
       <c-step-indicator
           indicator_type="centered"
+          current_step="{{ steps|length|add:1 }}"
+          total_steps="{{ steps|length|add:1 }}"
+          segment_name="Review and Submit"
       >
         {% for step in steps %}
             <c-step-indicator.step-item 
