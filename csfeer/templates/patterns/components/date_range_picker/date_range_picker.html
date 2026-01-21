@@ -1,0 +1,24 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Date Range Picker Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-date-range-picker
+            start_date_id="{{ variant.start_date_id }}"
+            start_date_name="{{ variant.start_date_name }}"
+            start_date_label="{{ variant.start_date_label }}"
+            start_date_hint="{{ variant.start_date_hint }}"
+            end_date_id="{{ variant.end_date_id }}"
+            end_date_name="{{ variant.end_date_name }}"
+            end_date_label="{{ variant.end_date_label }}"
+            end_date_hint="{{ variant.end_date_hint }}"
+            required="{{ variant.required }}"
+            disabled="{{ variant.disabled }}"
+        />
+    </div>
+    {% endfor %}
+</div>
