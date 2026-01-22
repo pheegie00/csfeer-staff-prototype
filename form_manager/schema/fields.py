@@ -5,7 +5,7 @@ from __future__ import annotations
 import inspect
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Any, List
+from typing import Any, Iterable, List, cast
 
 from django import forms
 from django.forms.boundfield import BoundField
@@ -17,12 +17,24 @@ from form_manager.schema.widgets import CheckboxSelectMultiple, CurrencyInput
 
 class ACFFieldMixin:
     """A mixin class that provides some common ACF field functionality and makes
-    standard Django form fields usable in pydantic classes."""
+    standard Django form fields usable in pydantic classes.
+    """
 
     title: str | None = None
+    """Human-friendly short title for the field. Typically used as the label shown
+    on forms and in review screens."""
+
     review_title: str | None = None
+    """Description of the field to be displayed on the review page."""
+
     description: str | None = None
+    """Longer descriptive text or help/auxiliary information for the field. This
+    is commonly used as the Django form `help_text` and can guide users."""
+
     is_presentational_only: bool = False
+    """If True, the field is presentational only and does not represent user
+    input that should be persisted or used for business logic (e.g. decorative
+    headings or separators)."""
 
     def __init__(self, *args, **kwargs):
         self.title = kwargs.pop("title", None)
@@ -191,8 +203,35 @@ class ACFTextareaField(ACFFieldMixin, forms.CharField):
     widget = forms.Textarea(attrs={"rows": 20, "cols": 100})
 
 
-class FieldFilterField(ACFFieldMixin, forms.MultipleChoiceField):
-    """A special field that defines fields to exclude from interview questions."""
+class ACFBoundFieldFilterField(BoundField):
+
+    def get_fields_to_exclude(self):
+        """Return a list of field names that should be excluded based on the filter fields."""
+        all_filterable_fields = []
+        selected_fields = []
+
+        for value in self.value() or []:
+            selected_fields += value.split(",")
+
+        field = cast(ACFFieldFilterField, self.field)
+
+        choices = cast(Iterable, field.choices)
+
+        for value, _ in choices:
+            all_filterable_fields += value.split(",")
+
+        # If no fields were selected for inclusion, exclude everything
+        if not selected_fields:
+            return all_filterable_fields
+
+        # If some fields were selected, exclude the others that weren't selected
+        return list(set(all_filterable_fields) - set(selected_fields))
+
+
+class ACFFieldFilterField(ACFFieldMixin, forms.MultipleChoiceField):
+    """A special field that defines fields to exclude from subsequent interview questions."""
+
+    bound_field_class = ACFBoundFieldFilterField
 
     widget = CheckboxSelectMultiple
 
@@ -219,7 +258,7 @@ class ACFFieldsMeta(type):
                 "TextareaField": ACFTextareaField,
                 "CalculatedCurrencyField": ACFCalculatedCurrencyField,
                 "CalculatedField": ACFCalculatedField,
-                "PageFilterField": FieldFilterField,
+                "FieldFilterField": ACFFieldFilterField,
             }
         )
 

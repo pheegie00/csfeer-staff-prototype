@@ -1,6 +1,7 @@
 """Layout schema definitions for CSFEER forms."""
 
-from typing import Any, ClassVar, Optional, Self, cast
+import abc
+from typing import Any, ClassVar, Literal, Optional, Self, cast
 
 from django.forms.boundfield import BoundField
 from django.forms.renderers import TemplatesSetting
@@ -10,7 +11,7 @@ from pydantic import BaseModel, PrivateAttr
 from form_manager.schema.fields import ACFField
 
 
-class RenderableBaseModel[T, S](RenderableMixin, BaseModel):
+class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
     """A special Pydantic BaseModel that utilizes the Django forms rendering API
     for template rendering"""
 
@@ -19,7 +20,7 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel):
     children: Optional[list[T]] = None
     template_name: Optional[S] = None
 
-    def set_extra_context(self, **kwargs: dict) -> None:
+    def set_extra_context(self, **kwargs: Any) -> None:
         """Set global context that will also be made available to any descendant nodes."""
         self._global_context = kwargs
         for child in getattr(self, "children", []) or []:
@@ -42,6 +43,19 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel):
 
         return context
 
+    @classmethod
+    def has_field_blocks(cls, node) -> bool:
+        """Return True if the node has any descendant FieldBlocks. Otherwise, False."""
+        for child in node.children or []:
+
+            if isinstance(child, FieldBlock):
+                return True
+
+            if cls.has_field_blocks(child):
+                return True
+
+        return False
+
 
 class StepBlock(RenderableBaseModel):
     """Represents a step in a multi-step form UI. It is tied to an item
@@ -50,18 +64,32 @@ class StepBlock(RenderableBaseModel):
 
     type: str = "step"
     title: Optional[str] = None
-    children: Optional[list[Self | "SectionBlock" | "PageBlock"]] = None
+    children: Optional[list[Self | "SectionBlock" | "PageBlock" | "PermanentPageBlock"]] = None
 
 
-class PageBlock(RenderableBaseModel):
+class AbstractPageBlock(RenderableBaseModel, abc.ABC):
     """Represents a page in a multi-page form UI. A Page is a child of a step
     and represents a single page within that step."""
 
-    type: str = "page"
+    type: Literal["page", "permanent-page"]
     title: Optional[str] = None
     subtitle: Optional[str] = None
     children: Optional[list[Self | "FieldBlock" | "SectionBlock" | "FieldGroupBlock"]] = None
     template_name: str = "form_manager/page.html"
+
+
+class PageBlock(AbstractPageBlock):
+    """A PageBlock represents a single page within a step of a multi-page form."""
+
+    type: Literal["page", "permanent-page"] = "page"
+
+
+class PermanentPageBlock(AbstractPageBlock):
+    """A PermanentPageBlock is a special type of PageBlock that is always
+    included in the form, regardless of any conditional logic that may
+    be applied to other pages."""
+
+    type: Literal["page", "permanent-page"] = "permanent-page"
 
 
 class SectionBlock(RenderableBaseModel):

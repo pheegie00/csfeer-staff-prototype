@@ -1,6 +1,7 @@
 """Base form class definitions"""
 
 import logging
+from functools import cached_property
 from typing import (
     Annotated,
     Any,
@@ -19,6 +20,7 @@ from pydantic_core import core_schema
 from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.constants import AllFormNames, FormFamilies
+from form_manager.schema.fields import ACFBoundFieldFilterField, acf_fields
 from form_manager.schema.layout import StepBlock
 
 logger = logging.getLogger(__name__)
@@ -54,6 +56,29 @@ class BaseFields(forms.Form):
                 continue
 
         return core_schema.typed_dict_schema(fields)
+
+    @cached_property
+    def has_filter_fields(self) -> bool:
+        """Return True if the form has any filter fields."""
+
+        for _, field in self.fields.items():
+            if isinstance(field, acf_fields.FieldFilterField):
+                return True
+
+        return False
+
+    @cached_property
+    def fields_to_exclude(self) -> list[str]:
+        """Return a list of field names that should be excluded based on the filter fields."""
+
+        fields_to_exclude = []
+
+        for name, field in self.fields.items():
+            if isinstance(field, acf_fields.FieldFilterField):
+                bound_field = cast(ACFBoundFieldFilterField, self[name])
+                fields_to_exclude += bound_field.get_fields_to_exclude()
+
+        return fields_to_exclude
 
 
 FormId = TypeVar("FormId", bound=str)

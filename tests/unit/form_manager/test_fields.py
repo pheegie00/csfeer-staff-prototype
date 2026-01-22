@@ -62,3 +62,40 @@ def test_currency_fields_are_properly_formatted():
     for input_value, expected in test_data:
         form = TestForm(data={"money": input_value})
         assert form["money"].value() == expected
+
+
+def test_field_filter_field_excludes_correct_fields(subtests):
+    """Ensure the FieldFilterField works as expected."""
+
+    class TestForm(BaseFields):
+
+        topics = acf_fields.FieldFilterField(
+            choices=[
+                ("field1,field2", "Topic 1"),
+                ("field3", "Topic 2"),
+                ("field4,field5", "Topic 3"),
+            ],
+        )
+
+    test_data = [
+        # nothing selected, all fields excluded
+        ([], ["field1", "field2", "field3", "field4", "field5"]),
+        # field1 and field2 are selected, 3, 4 and 5 are excluded
+        (["field1,field2"], ["field3", "field4", "field5"]),
+        # field3 is selected, 1, 2, 4 and 5 are excluded
+        (["field3"], ["field1", "field2", "field4", "field5"]),
+        # all fields selected, none are excluded
+        (["field1,field2", "field3", "field4,field5"], []),
+    ]
+
+    for selected, expected_excluded in test_data:
+        with subtests.test(selected=selected, expected_excluded=expected_excluded):
+            form = TestForm(
+                data={
+                    "topics": selected,
+                }
+            )
+
+            form.is_valid()
+
+            assert set(form.fields_to_exclude) - set(expected_excluded) == set()
