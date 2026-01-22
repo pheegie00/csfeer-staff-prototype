@@ -1,24 +1,28 @@
 from typing import TYPE_CHECKING
+from unittest.mock import MagicMock, patch
 
 import pytest
 from django.core.management import call_command
 from django.urls import reverse
 
 from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
+from tests.unit.form_manager.schema import TestSchema
 
 if TYPE_CHECKING:
     from django.test.client import Client
-
-
-MODULE_PATH = "form_manager.management.commands.load_initial_forms"
 
 
 @pytest.fixture
 def seed_data(create_user):
     user, details = create_user
 
-    call_command("load_initial_forms")
     call_command("seed_demo_org", email=user.email, all=True)
+
+    with patch(
+        "form_manager.management.commands.load_initial_forms.get_form_definitions"
+    ) as get_form_defs:
+        get_form_defs.return_value = [TestSchema]
+        call_command("load_initial_forms")
 
     return user, details
 
@@ -71,6 +75,68 @@ def test_can_render_and_edit_form(django_db_setup, form_entry: "FormEntry", auth
 
     url = reverse("form_edit", args=[form_entry.pk])
 
-    response = authenticated_client.get(url)
+    with patch(
+        "form_manager.views.form_edit.import_form_schema", MagicMock(return_value=TestSchema)
+    ):
+        response = authenticated_client.get(url)
 
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+@patch("form_manager.views.form_edit.import_form_schema", MagicMock(return_value=TestSchema))
+def test_can_correctly_filter_fields(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    """Ensure the load_initial_forms command loads successfully."""
+
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    # Make a GET request to the form's first page
+    response = authenticated_client.get(url)
+
+    # It should be a 200 response
+    assert response.status_code == 200
+
+    # Now post some data for the first page
+    response = authenticated_client.post(
+        url,
+        data={
+            "first_name": "Steven",
+            "last_name": "Jones",
+        },
+        query_params={
+            "step": 1,
+            "page": 0,
+        },
+    )
+
+    # It should be a 200 response
+    assert response.status_code == 200
+
+    # The data should have been saved
+    form_entry.refresh_from_db()
+    assert form_entry.data.get("first_name") == "Steven"
+    assert form_entry.data.get("last_name") == "Jones"
+
+    # Make a post request to choose the applicable fields
+    response = authenticated_client.post(
+        url,
+        data={
+            "applicable_topics": ["item1_cost", "item2_cost"],
+        },
+        query_params={
+            "step": 1,
+            "page": 1,
+        },
+    )
+
+    # It should be a 200 response
+    assert response.status_code == 200
+
+    # there should be a field for item 1 and item 2 in the response
+    assert "item1_cost" in response.content.decode("utf-8")
+    assert "item2_cost" in response.content.decode("utf-8")
+
+    # but the item 3 field should not be in the response
+    assert "item3_cost" not in response.content.decode("utf-8")
