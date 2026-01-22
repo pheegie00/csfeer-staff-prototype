@@ -61,7 +61,9 @@ def get_previous_step_and_page(
     return current_step, current_page - 1
 
 
-def remove_nodes_with_excluded_fields(components: list[StepBlock], fields_to_exclude: list[str]):
+def remove_nodes_with_excluded_fields(
+    components: list[StepBlock], fields_to_exclude: list[str]
+) -> list[StepBlock]:
     """This function takes a list of UI components (steps), removes any descendant FieldBlock components whose names are
     listed in `fields_to_exclude`, and removes any PageBlock nodes that lack descendant FieldBlock nodes.
     """
