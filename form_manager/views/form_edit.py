@@ -180,7 +180,7 @@ def form_edit(request, pk):
                     "pk": entry.pk,
                 },
             )
-            + f"?page={next_page_number}&step={next_step_number}"
+            + f"?step={next_step_number}&page={next_page_number}"
         )
 
     prev_page_url = (
@@ -190,35 +190,26 @@ def form_edit(request, pk):
                 "pk": entry.pk,
             },
         )
-        + f"?page={previous_page_number}&step={previous_step_number}"
+        + f"?step={previous_step_number}&page={previous_page_number}"
     )
 
-    context = {
-        "form": form,
-        "steps": ui_components,
-        "entry": entry,
-        "schema": schema,
-        "current_step_number": current_step_number,
-        "current_page_number": current_page_number,
-        "current_step": ui_components[current_step_number],
-        "is_last_page": next_step_number is None,
-        "next_url": next_page_url,
-        "prev_url": prev_page_url,
-    }
-
-    # add the context to all steps, even if we're not going to render that step
-    # on this page.
-    for component in ui_components:
-        component.set_extra_context(**context)
-
-    current_page = get_step_page(
+    page_to_render = get_step_page(
         ui_components, int(current_step_number or 0), current_page_number or 0
     )
 
-    context.update(
-        {
-            "current_page": current_page,
-        }
+    page_to_render.set_extra_context(
+        prev_url=prev_page_url, form=form, is_last_page=next_step_number is None
     )
+
+    context = {
+        "steps": ui_components,
+        "entry": entry,
+        "current_step_number": current_step_number,
+        "current_page_number": current_page_number,
+        "current_step": ui_components[current_step_number],
+        "current_page": page_to_render,
+        "next_url": next_page_url,
+        "prev_url": prev_page_url,
+    }
 
     return render(request, "form_manager/form_edit.html", context)

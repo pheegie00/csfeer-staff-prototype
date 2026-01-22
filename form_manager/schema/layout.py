@@ -20,7 +20,7 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
     children: Optional[list[T]] = None
     template_name: Optional[S] = None
 
-    def set_extra_context(self, **kwargs: dict) -> None:
+    def set_extra_context(self, **kwargs: Any) -> None:
         """Set global context that will also be made available to any descendant nodes."""
         self._global_context = kwargs
         for child in getattr(self, "children", []) or []:
