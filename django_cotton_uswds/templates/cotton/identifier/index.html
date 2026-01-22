@@ -1,0 +1,61 @@
+<c-vars
+    domain=""
+    disclaimer=""
+    masthead_aria_label="Agency identifier"
+    identity_aria_label="Agency description"
+    links_aria_label="Important links"
+    usagov_aria_label="U.S. government information and services"
+    usagov_text="Looking for U.S. government information and services?"
+    usagov_link_text="Visit USA.gov"
+    usagov_link_href="https://www.usa.gov/"
+/>
+
+<div class="usa-identifier">
+  <section
+    class="usa-identifier__section usa-identifier__section--masthead"
+    aria-label="{{ masthead_aria_label }}"
+  >
+    <div class="usa-identifier__container">
+      {% if logos %}
+      <div class="usa-identifier__logos">
+        {{ logos }}
+      </div>
+      {% endif %}
+      <section
+        class="usa-identifier__identity"
+        aria-label="{{ identity_aria_label }}"
+      >
+        {% if domain %}
+        <p class="usa-identifier__identity-domain">{{ domain }}</p>
+        {% endif %}
+        {% if disclaimer %}
+        <p class="usa-identifier__identity-disclaimer">
+          {{ disclaimer|safe }}
+        </p>
+        {% endif %}
+      </section>
+    </div>
+  </section>
+  <nav
+    class="usa-identifier__section usa-identifier__section--required-links"
+    aria-label="{{ links_aria_label }}"
+  >
+    <div class="usa-identifier__container">
+      <ul class="usa-identifier__required-links-list">
+        {{ slot }}
+      </ul>
+    </div>
+  </nav>
+  <section
+    class="usa-identifier__section usa-identifier__section--usagov"
+    aria-label="{{ usagov_aria_label }}"
+  >
+    <div class="usa-identifier__container">
+      <div class="usa-identifier__usagov-description">
+        {{ usagov_text }}
+      </div>
+      <a href="{{ usagov_link_href }}" class="usa-link">{{ usagov_link_text }}</a>
+    </div>
+  </section>
+</div>
+
