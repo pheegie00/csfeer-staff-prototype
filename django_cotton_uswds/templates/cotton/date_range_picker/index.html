@@ -1,0 +1,49 @@
+<c-vars
+    start_date_id=""
+    start_date_name=""
+    start_date_label=""
+    start_date_hint=""
+    end_date_id=""
+    end_date_name=""
+    end_date_label=""
+    end_date_hint=""
+    required=""
+    disabled=""
+/>
+
+<div class="usa-date-range-picker">
+  <div class="usa-form-group">
+    <c-label 
+      id="{{ start_date_id }}"
+      label="{{ start_date_label }}"
+      hint="{{ start_date_hint }}"
+    />
+    <div class="usa-date-picker">
+      <c-date-picker
+        id="{{ start_date_id }}"
+        name="{{ start_date_name }}"
+        aria-labelledby="{{ start_date_id }}-date-start-label"
+        aria-describedby="{{ start_date_id }}-date-start-hint"
+        required="{{ required }}"
+        disabled="{{ disabled }}"
+      />
+    </div>
+  </div>
+  <div class="usa-form-group">
+    <c-label 
+      id="{{ end_date_id }}"
+      label="{{ end_date_label }}"
+      hint="{{ end_date_hint }}"
+    />
+    <div class="usa-date-picker">
+      <c-date-picker
+        id="{{ end_date_id }}"
+        name="{{ end_date_name }}"
+        aria-labelledby="{{ end_date_id }}-date-end-label"
+        aria-describedby="{{ end_date_id }}-date-end-hint"
+        required="{{ required }}"
+        disabled="{{ disabled }}"
+      />
+    </div>
+  </div>
+</div>

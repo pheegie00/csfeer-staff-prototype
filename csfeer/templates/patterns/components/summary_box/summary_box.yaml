@@ -1,34 +1,11 @@
 name: Summary Box
 context:
   variants:
-    - title: "Summary box with simple body"
-      summary_title: "Important Update"
-      body: "<p>Our office will be closed on Friday for maintenance.</p>"
+    - title: "Summary Box with List"
+      heading: "Key information"
       heading_level: "h4"
-      actions: ""
-    
-    - title: "Summary box with list and actions"
-      summary_title: "Key information"
-      heading_level: "h3"
-      body: |
-        <ul class="usa-list">
-          <li>
-            If you are under a winter storm warning,
-            <a class="usa-summary-box__link" href="">find shelter</a> right away.
-          </li>
-          <li>
-            Sign up for
-            <a class="usa-summary-box__link" href="">your community's warning system</a>.
-          </li>
-          <li>
-            Learn the signs of, and basic treatments for,
-            <a class="usa-summary-box__link" href="">frostbite</a> and
-            <a class="usa-summary-box__link" href="">hypothermia</a>.
-          </li>
-          <li>
-            Gather emergency supplies for your
-            <a class="usa-summary-box__link" href="">home</a> and your
-            <a class="usa-summary-box__link" href="">car</a>.
-          </li>
-        </ul>
-      actions: '<a class="usa-button" href="">Take action</a>'
+      items:
+        - text: 'If you are under a winter storm warning, <a class="usa-summary-box__link" href="#">find shelter</a> right away.'
+        - text: 'Sign up for <a class="usa-summary-box__link" href="#">your community''s warning system</a>.'
+        - text: 'Learn the signs of, and basic treatments for, <a class="usa-summary-box__link" href="#">frostbite</a> and <a class="usa-summary-box__link" href="#">hypothermia</a>.'
+        - text: 'Gather emergency supplies for your <a class="usa-summary-box__link" href="#">home</a> and your <a class="usa-summary-box__link" href="#">car</a>.'

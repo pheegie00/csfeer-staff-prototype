@@ -61,9 +61,11 @@ def get_previous_step_and_page(
     return current_step, current_page - 1
 
 
-def remove_nodes_with_excluded_fields(components: list[StepBlock], fields_to_exclude: list[str]):
+def remove_nodes_with_excluded_fields(
+    components: list[StepBlock], fields_to_exclude: list[str]
+) -> list[StepBlock]:
     """This function takes a list of UI components (steps), removes any descendant FieldBlock components whose names are
-    listed in `fields_to_exclude`, and removes any PageBlock nodes that lack decendant FieldBlock nodes.
+    listed in `fields_to_exclude`, and removes any PageBlock nodes that lack descendant FieldBlock nodes.
     """
 
     def remove_excluded_nodes(component):
@@ -97,12 +99,6 @@ def remove_nodes_with_excluded_fields(components: list[StepBlock], fields_to_exc
 def form_edit(request, pk):
     """
     Edit an existing FormEntry.
-
-    Context provided to the template:
-      - form: the django form (value of the form schema's `form_fields` property)
-      - ui_components: a dict representation of the form schema's `ui` property
-      - form_entry: the FormEntry instance
-      - schema: the instantiated schema object
     """
     entry: FormEntry = get_object_or_404(FormEntry, pk=pk)
 
@@ -164,10 +160,6 @@ def form_edit(request, pk):
         ui_components, current_step_number, current_page_number
     )
 
-    current_page = get_step_page(
-        ui_components, int(current_step_number or 0), current_page_number or 0
-    )
-
     if next_step_number is None:
         next_page_url = reverse("form_review", kwargs={"pk": entry.pk})
     else:
@@ -178,7 +170,7 @@ def form_edit(request, pk):
                     "pk": entry.pk,
                 },
             )
-            + f"?page={next_page_number}&step={next_step_number}"
+            + f"?step={next_step_number}&page={next_page_number}"
         )
 
     prev_page_url = (
@@ -188,34 +180,26 @@ def form_edit(request, pk):
                 "pk": entry.pk,
             },
         )
-        + f"?page={previous_page_number}&step={previous_step_number}"
+        + f"?step={previous_step_number}&page={previous_page_number}"
     )
 
-    context = {
-        "form": form,
-        "steps": ui_components,
-        "entry": entry,
-        "schema": schema,
-        "current_step_number": current_step_number,
-        "current_page_number": current_page_number,
-        "is_last_page": next_step_number is None,
-        "next_url": next_page_url,
-        "prev_url": prev_page_url,
-    }
-
-    # add the context to all steps, even if we're not going to render that step
-    # on this page.
-    for component in ui_components:
-        component.set_extra_context(**context)
-
-    current_page = get_step_page(
+    page_to_render = get_step_page(
         ui_components, int(current_step_number or 0), current_page_number or 0
     )
 
-    context.update(
-        {
-            "current_page": current_page,
-        }
+    page_to_render.set_extra_context(
+        prev_url=prev_page_url, form=form, is_last_page=next_step_number is None
     )
+
+    context = {
+        "steps": ui_components,
+        "entry": entry,
+        "current_step_number": current_step_number,
+        "current_page_number": current_page_number,
+        "current_step": ui_components[current_step_number],
+        "current_page": page_to_render,
+        "next_url": next_page_url,
+        "prev_url": prev_page_url,
+    }
 
     return render(request, "form_manager/form_edit.html", context)

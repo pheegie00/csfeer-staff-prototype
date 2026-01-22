@@ -6,7 +6,7 @@ from typing import Any, ClassVar, Literal, Optional, Self, cast
 from django.forms.boundfield import BoundField
 from django.forms.renderers import TemplatesSetting
 from django.forms.utils import RenderableMixin
-from pydantic import BaseModel
+from pydantic import BaseModel, PrivateAttr
 
 from form_manager.schema.fields import ACFField
 
@@ -15,12 +15,12 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
     """A special Pydantic BaseModel that utilizes the Django forms rendering API
     for template rendering"""
 
-    _global_context = {}
+    _global_context: dict[str, Any] = PrivateAttr(default_factory=dict)
     renderer: ClassVar[TemplatesSetting] = TemplatesSetting()
     children: Optional[list[T]] = None
     template_name: Optional[S] = None
 
-    def set_extra_context(self, **kwargs: dict) -> None:
+    def set_extra_context(self, **kwargs: Any) -> None:
         """Set global context that will also be made available to any descendant nodes."""
         self._global_context = kwargs
         for child in getattr(self, "children", []) or []:
@@ -153,6 +153,11 @@ class FieldBlock(RenderableBaseModel):
     @property
     def review_title(self) -> str | None:
         return self.unbound_field.review_title if self.unbound_field else None
+
+    @property
+    def display_title(self) -> str | None:
+        """Returns review_title if available, otherwise falls back to title"""
+        return self.review_title or self.title
 
 
 class ReviewSubheadingBlock(RenderableBaseModel):

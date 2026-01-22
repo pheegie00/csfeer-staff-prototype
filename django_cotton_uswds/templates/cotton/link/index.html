@@ -2,7 +2,6 @@
 
 <c-vars
     href=""
-    text=""
     variant=""
     is_current=""
     is_inverse=""
@@ -10,7 +9,7 @@
 />
 
 <a href="{{ href }}" class="{% if variant == 'nav' %}usa-nav__link{% elif variant == 'summary-box' %}usa-summary-box__link{% elif is_inverse %}usa-link--inverse{% elif is_external %}usa-link--external{% else %}usa-link{% endif %}{% if is_current == 'true' %} usa-current{% endif %}"{% if target %} target="{{ target }}"{% endif %}{% if rel %} rel="{{ rel }}"{% endif %} {{ attrs }}>
-  {{ text }}
+  {{ slot }}
   {% if is_external %}
     <svg class="usa-icon" aria-hidden="true" role="img">
       <use xlink:href="{% static 'frontend/external-link.svg' %}"></use>

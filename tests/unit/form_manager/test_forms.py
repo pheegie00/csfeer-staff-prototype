@@ -22,7 +22,7 @@ def test_has_filter_fields():
     assert form_without.has_filter_fields is False
 
 
-def test_fields_to_filter():
+def test_fields_to_exclude():
     """Ensure the BaseForm.fields_to_filter method works."""
 
     class FormWithFilterFields(BaseFields):
@@ -49,8 +49,8 @@ def test_fields_to_filter():
         }
     )
 
-    assert form.fields_to_filter == ["field1", "field2", "field3", "field6", "field7"]
+    assert set(form.fields_to_exclude) - set(["field4", "field5", "field8", "field9"]) == set()
 
     form = FormWithFilterFields()
 
-    assert form.fields_to_filter == []
+    assert set(form.fields_to_exclude) - set([f"field{i+1}" for i in range(9)]) == set()

@@ -34,57 +34,118 @@
         </div>
       </c-card>
 
-      <!-- Submissions History -->
+      <!-- Event History -->
       <div class="margin-top-4">
-        <h2 class="margin-bottom-2">Submission Events</h2>
+        <h2 class="margin-bottom-2">Event History</h2>
         
-        {% if events %}
-          <div class="usa-table-container--scrollable" tabindex="0">
-            <table class="usa-table usa-table--striped">
-              <caption class="usa-sr-only">
-                Form submission history for {{ current.form_definition.title }}
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">Action</th>
-                  <th scope="col">Timestamp</th>
-                  <th scope="col">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for event in events %}
-                  <tr>
-                    <td data-label="Action">
-                      <span class="text-bold">{{ event.action|title }}</span>
-                    </td>
-                    <td data-label="Timestamp">
-                      {{ event.timestamp|date:"M d, Y g:i A" }}
-                    </td>
-                    <td data-label="Actions">
-                      <a 
-                        href="{% url 'form_snapshot' current.pk event.pk %}" 
-                        class="usa-button usa-button--outline usa-button--unstyled"
-                        aria-label="Preview snapshot from {{ event.timestamp }}"
-                      >
-                        Preview Snapshot
-                      </a>
-                    </td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        {% else %}
-          <c-card>
-            <div class="usa-alert usa-alert--info usa-alert--slim">
-              <div class="usa-alert__body">
-                <p class="usa-alert__text">
-                  No submission events recorded yet.
-                </p>
+        <c-accordion type="multiselectable">
+          <!-- Submission Events -->
+          <c-accordion-item
+            heading="Submission Events"
+            control-id="submission-events"
+            :is-expanded="True"
+          >
+            {% if submission_events %}
+              <div class="usa-table-container--scrollable" tabindex="0">
+                <table class="usa-table usa-table--striped">
+                  <caption class="usa-sr-only">
+                    Form submission history for {{ current.form_definition.title }}
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Action</th>
+                      <th scope="col">Timestamp</th>
+                      <th scope="col">User</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for event in submission_events %}
+                      <tr>
+                        <td data-label="Action">
+                          <span class="text-bold">{{ event.action|title }}</span>
+                        </td>
+                        <td data-label="Timestamp">
+                          {{ event.timestamp|date:"M d, Y g:i A" }}
+                        </td>
+                        <td data-label="User">
+                          {{ event.user.email|default:"System" }}
+                        </td>
+                        <td data-label="Actions">
+                          <a 
+                            href="{% url 'form_snapshot' current.pk event.pk %}" 
+                            class="usa-button usa-button--outline usa-button--unstyled"
+                            aria-label="Preview snapshot from {{ event.timestamp }}"
+                          >
+                            Preview Snapshot
+                          </a>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
               </div>
-            </div>
-          </c-card>
-        {% endif %}
+            {% else %}
+              <div class="usa-alert usa-alert--info usa-alert--slim">
+                <div class="usa-alert__body">
+                  <p class="usa-alert__text">
+                    No submission events recorded yet.
+                  </p>
+                </div>
+              </div>
+            {% endif %}
+          </c-accordion-item>
+
+          <!-- All Events -->
+          <c-accordion-item
+            heading="All Events"
+            control-id="all-events"
+          >
+            {% if all_events %}
+              <div class="usa-table-container--scrollable" tabindex="0">
+                <table class="usa-table usa-table--striped">
+                  <caption class="usa-sr-only">
+                    All form events for {{ current.form_definition.title }}
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Action</th>
+                      <th scope="col">Timestamp</th>
+                      <th scope="col">User</th>
+                      <th scope="col">Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for event in all_events %}
+                      <tr>
+                        <td data-label="Action">
+                          <span class="usa-tag bg-base-lighter text-ink">{{ event.action|upper }}</span>
+                        </td>
+                        <td data-label="Timestamp">
+                          {{ event.timestamp|date:"M d, Y g:i A" }}
+                        </td>
+                        <td data-label="User">
+                          {{ event.user.email|default:"System" }}
+                        </td>
+                        <td data-label="Notes">
+                          {{ event.notes|default:"-" }}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div class="usa-alert usa-alert--info usa-alert--slim">
+                <div class="usa-alert__body">
+                  <p class="usa-alert__text">
+                    No events recorded yet.
+                  </p>
+                </div>
+              </div>
+            {% endif %}
+          </c-accordion-item>
+        </c-accordion>
       </div>
 
       <!-- Navigation Actions -->
