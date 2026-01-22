@@ -6,23 +6,25 @@ from django.core.management import call_command
 from django.urls import reverse
 
 from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
-from tests.unit.form_manager.schema import TestSchema
 
 if TYPE_CHECKING:
     from django.test.client import Client
 
 
 @pytest.fixture
-def seed_data(create_user):
+def seed_data(create_user, use_test_schema):
     user, details = create_user
 
-    call_command("seed_demo_org", email=user.email, all=True)
+    # call_command("seed_demo_org", email=user.email, all=True)
 
-    with patch(
-        "form_manager.management.commands.load_initial_forms.get_form_definitions"
-    ) as get_form_defs:
-        get_form_defs.return_value = [TestSchema]
-        call_command("load_initial_forms")
+    # with patch(
+    #     "form_manager.management.commands.load_initial_forms.get_form_definitions"
+    # ) as get_form_defs:
+    #     get_form_defs.return_value = [TestSchema]
+    #     call_command("load_initial_forms")
+
+    call_command("seed_demo_org", email=user.email, all=True)
+    call_command("load_initial_forms")
 
     return user, details
 
@@ -75,16 +77,12 @@ def test_can_render_and_edit_form(django_db_setup, form_entry: "FormEntry", auth
 
     url = reverse("form_edit", args=[form_entry.pk])
 
-    with patch(
-        "form_manager.views.form_edit.import_form_schema", MagicMock(return_value=TestSchema)
-    ):
-        response = authenticated_client.get(url)
+    response = authenticated_client.get(url)
 
     assert response.status_code == 200
 
 
 @pytest.mark.django_db
-@patch("form_manager.views.form_edit.import_form_schema", MagicMock(return_value=TestSchema))
 def test_can_correctly_filter_fields(
     django_db_setup, form_entry: "FormEntry", authenticated_client
 ):
