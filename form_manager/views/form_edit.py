@@ -166,10 +166,6 @@ def form_edit(request, pk):
         ui_components, current_step_number, current_page_number
     )
 
-    current_page = get_step_page(
-        ui_components, int(current_step_number or 0), current_page_number or 0
-    )
-
     if next_step_number is None:
         next_page_url = reverse("form_review", kwargs={"pk": entry.pk})
     else:
