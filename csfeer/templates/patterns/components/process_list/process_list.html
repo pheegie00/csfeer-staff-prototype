@@ -1,0 +1,31 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Process List Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-process_list>
+            {% for item in variant.items %}
+            <c-process_list.item 
+                heading="{{ item.heading }}"
+                heading_tag="{{ item.heading_tag|default:'h4' }}"
+                heading_classes="{{ item.heading_classes }}"
+                extra_classes="{{ item.extra_classes }}"
+            >
+                {% if item.content %}<p class="{{ item.content_classes }}">{{ item.content }}</p>{% endif %}
+                {% if item.list_items %}
+                <ul>
+                    {% for list_item in item.list_items %}
+                    <li>{{ list_item }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </c-process_list.item>
+            {% endfor %}
+        </c-process_list>
+    </div>
+    {% endfor %}
+</div>
