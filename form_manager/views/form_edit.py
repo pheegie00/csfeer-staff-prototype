@@ -99,12 +99,6 @@ def remove_nodes_with_excluded_fields(
 def form_edit(request, pk):
     """
     Edit an existing FormEntry.
-
-    Context provided to the template:
-      - form: the django form (value of the form schema's `form_fields` property)
-      - ui_components: a dict representation of the form schema's `ui` property
-      - form_entry: the FormEntry instance
-      - schema: the instantiated schema object
     """
     entry: FormEntry = get_object_or_404(FormEntry, pk=pk)
 
