@@ -15,14 +15,6 @@ if TYPE_CHECKING:
 def seed_data(create_user, use_test_schema):
     user, details = create_user
 
-    # call_command("seed_demo_org", email=user.email, all=True)
-
-    # with patch(
-    #     "form_manager.management.commands.load_initial_forms.get_form_definitions"
-    # ) as get_form_defs:
-    #     get_form_defs.return_value = [TestSchema]
-    #     call_command("load_initial_forms")
-
     call_command("seed_demo_org", email=user.email, all=True)
     call_command("load_initial_forms")
 
