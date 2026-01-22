@@ -1,0 +1,32 @@
+name: Site Alert
+context:
+  variants:
+    - title: "Standard Informational Site Alert"
+      type: "info"
+      heading: "Short alert message"
+      content: 'Additional context and followup information including <a class="usa-link" href="#">a link</a>.'
+    - title: "Standard Emergency Site Alert"
+      type: "emergency"
+      heading: "Emergency alert message"
+      content: 'Additional context and followup information including <a class="usa-link" href="#">a link</a>.'
+    - title: "Site Alert with No Header"
+      type: "emergency"
+      heading: ""
+      content: '<strong>Short alert message.</strong> Additional context and followup information including <a class="usa-link" href="#">a link</a>.'
+    - title: "Site Alert with List"
+      type: "emergency"
+      heading: "Emergency alert message"
+      list_items:
+        - 'The primary emergency message and <a class="usa-link" href="#">a link</a> for supporting context.'
+        - 'Another message, <a class="usa-link" href="#">and another link</a>.'
+        - 'A final emergency message.'
+    - title: "Slim Site Alert"
+      type: "emergency"
+      heading: ""
+      slim: "true"
+      content: '<strong>Short alert message.</strong> Additional context and followup information including <a class="usa-link" href="#">a link</a>.'
+    - title: "Site Alert with No Icon"
+      type: "emergency"
+      heading: ""
+      no_icon: "true"
+      content: '<strong>Short alert message.</strong> Additional context and followup information including <a class="usa-link" href="#">a link</a>.'

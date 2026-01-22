@@ -1,0 +1,29 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Site Alert Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-site_alert
+            type="{{ variant.type }}"
+            heading="{{ variant.heading }}"
+            aria_label="{{ variant.aria_label|default:'Site alert' }}"
+            slim="{{ variant.slim }}"
+            no_icon="{{ variant.no_icon }}"
+        >
+            {% if variant.list_items %}
+            <c-list>
+                {% for item in variant.list_items %}
+                <li>{{ item|safe }}</li>
+                {% endfor %}
+            </c-list>
+            {% else %}
+            {{ variant.content|safe }}
+            {% endif %}
+        </c-site_alert>
+    </div>
+    {% endfor %}
+</div>

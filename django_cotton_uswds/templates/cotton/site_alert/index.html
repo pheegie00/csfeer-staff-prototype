@@ -1,0 +1,16 @@
+<c-vars
+    type="info"
+    heading=""
+    aria_label="Site alert"
+    slim=""
+    no_icon=""
+/>
+
+<section 
+  class="usa-site-alert usa-site-alert--{{ type }}{% if slim %} usa-site-alert--slim{% endif %}{% if no_icon %} usa-site-alert--no-icon{% endif %}{% if not heading %} usa-site-alert--no-heading{% endif %}"
+  aria-label="{{ aria_label }}"
+>
+  <c-alert type="{{ type }}" heading="{{ heading }}" extra_classes="">
+    {{ slot }}
+  </c-alert>
+</section>
