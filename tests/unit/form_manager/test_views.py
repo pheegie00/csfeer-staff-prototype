@@ -1,5 +1,4 @@
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock, patch
 
 import pytest
 from django.core.management import call_command
