@@ -1,0 +1,12 @@
+<c-vars
+    title=""
+    position="top"
+    classes=""
+/>
+
+<span
+    class="usa-tooltip"
+    data-position="{{ position }}"
+    {% if classes %}data-classes="{{ classes }}"{% endif %}
+    title="{{ title }}"
+>{{ slot }}</span>

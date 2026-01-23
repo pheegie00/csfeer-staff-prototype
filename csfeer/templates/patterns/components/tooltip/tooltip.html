@@ -1,0 +1,25 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Tooltip Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <div class="padding-4">
+            {% for tooltip in variant.tooltips %}
+            <div class="margin-2 display-inline-block">
+                <c-tooltip
+                    title="{{ tooltip.title }}"
+                    position="{{ tooltip.position }}"
+                    {% if tooltip.classes %}classes="{{ tooltip.classes }}"{% endif %}
+                >
+                    <c-button>{{ tooltip.button_text }}</c-button>
+                </c-tooltip>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
