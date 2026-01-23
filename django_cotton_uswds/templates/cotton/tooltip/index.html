@@ -1,0 +1,16 @@
+<c-vars
+    tooltip_text=""
+    text=""
+    position="top"
+    data_classes=""
+/>
+
+<button
+    type="button"
+    class="usa-button usa-tooltip"
+    data-position="{{ position }}"
+    {% if data_classes %}data-classes="{{ data_classes }}"{% endif %}
+    title="{{ tooltip_text }}"
+>
+    {{ text }}
+</button>

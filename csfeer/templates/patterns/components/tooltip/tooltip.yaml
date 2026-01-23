@@ -1,0 +1,27 @@
+name: Tooltip
+context:
+  variants:
+    - title: "Standard Tooltip"
+      tooltips:
+        - tooltip_text: "Top"
+          position: "top"
+          text: "Show on top"
+        - tooltip_text: "Right"
+          position: "right"
+          text: "Show on right"
+        - tooltip_text: "Bottom"
+          position: "bottom"
+          text: "Show on bottom"
+        - tooltip_text: "Left"
+          position: "left"
+          text: "Show on left"
+    - title: "Tooltip with Utility Classes"
+      tooltips:
+        - tooltip_text: "Top with custom width"
+          position: "top"
+          data_classes: "width-full tablet:width-auto"
+          text: "Show on top"
+        - tooltip_text: "Bottom with custom width"
+          position: "bottom"
+          data_classes: "width-full tablet:width-auto"
+          text: "Show on bottom"
