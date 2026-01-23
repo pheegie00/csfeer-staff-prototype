@@ -21,6 +21,44 @@ def test_calculated_currency_field_form_valid():
     assert form.cleaned_data["total"] == 6.0
 
 
+def test_calculated_currency_field_ignores_initial_data():
+    """Ensure the calculated currency field ignores its initial data value and always
+    calculates a fresh value when instantiated."""
+
+    class TestForm(BaseFields):
+
+        item_1 = acf_fields.CurrencyField()
+        item_2 = acf_fields.CurrencyField()
+        item_3 = acf_fields.CurrencyField()
+        total = acf_fields.CalculatedCurrencyField(fields=["item_1", "item_2", "item_3"])
+
+    form = TestForm(
+        initial={
+            "item_1": 10,
+            "item_2": 10,
+            "item_3": 10,
+            "total": 1000,
+        }
+    )
+
+    form.is_valid()
+
+    assert form["total"].value() == "30.00"
+
+    form = TestForm(
+        data={
+            "item_1": 10,
+            "item_2": 10,
+            "item_3": 10,
+            "total": 1000,
+        },
+    )
+
+    assert form.is_valid()
+
+    assert form.cleaned_data["total"] == 30.00
+
+
 def test_calculated_currency_field_form_invalid():
     """Ensure the calculated currency field works as expected with an invalid form."""
 
