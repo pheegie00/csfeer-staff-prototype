@@ -1,12 +1,16 @@
 <c-vars
-    title=""
+    tooltip_text=""
+    text=""
     position="top"
-    classes=""
+    data_classes=""
 />
 
-<span
-    class="usa-tooltip"
+<button
+    type="button"
+    class="usa-button usa-tooltip"
     data-position="{{ position }}"
-    {% if classes %}data-classes="{{ classes }}"{% endif %}
-    title="{{ title }}"
->{{ slot }}</span>
+    {% if data_classes %}data-classes="{{ data_classes }}"{% endif %}
+    title="{{ tooltip_text }}"
+>
+    {{ text }}
+</button>

@@ -11,12 +11,11 @@
             {% for tooltip in variant.tooltips %}
             <div class="margin-2 display-inline-block">
                 <c-tooltip
-                    title="{{ tooltip.title }}"
+                    tooltip_text="{{ tooltip.tooltip_text }}"
                     position="{{ tooltip.position }}"
-                    {% if tooltip.classes %}classes="{{ tooltip.classes }}"{% endif %}
-                >
-                    <c-button>{{ tooltip.button_text }}</c-button>
-                </c-tooltip>
+                    data_classes="{{ tooltip.data_classes }}"
+                    text="{{ tooltip.text }}"
+                />
             </div>
             {% endfor %}
         </div>
