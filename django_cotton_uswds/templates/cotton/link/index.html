@@ -8,7 +8,7 @@
     is_external=""
 />
 
-<a href="{{ href }}" class="{% if variant == 'nav' %}usa-nav__link{% elif variant == 'summary-box' %}usa-summary-box__link{% elif is_inverse %}usa-link--inverse{% elif is_external %}usa-link--external{% else %}usa-link{% endif %}{% if is_current == 'true' %} usa-current{% endif %}"{% if target %} target="{{ target }}"{% endif %}{% if rel %} rel="{{ rel }}"{% endif %} {{ attrs }}>
+<a href="{{ href }}" class="{% if variant == 'nav' %}usa-nav__link{% elif variant == 'summary-box' %}usa-summary-box__link{% elif variant == 'identifier' %}usa-identifier__required-link usa-link{% elif is_inverse %}usa-link--inverse{% elif is_external %}usa-link--external{% else %}usa-link{% endif %}{% if is_current == 'true' %} usa-current{% endif %}"{% if target %} target="{{ target }}"{% endif %}{% if rel %} rel="{{ rel }}"{% endif %} {{ attrs }}>
   {{ slot }}
   {% if is_external %}
     <svg class="usa-icon" aria-hidden="true" role="img">

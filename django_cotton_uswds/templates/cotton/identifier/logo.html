@@ -1,0 +1,15 @@
+{% load static %}
+<c-vars
+    href=""
+    icon=""
+    alt=""
+/>
+
+<a href="{{ href }}" class="usa-identifier__logo">
+  <img
+    class="usa-identifier__logo-img"
+    src="{% static 'frontend/uswds/img/usa-icons/' %}{{ icon }}.svg"
+    alt="{{ alt }}"
+    role="img"
+  />
+</a>

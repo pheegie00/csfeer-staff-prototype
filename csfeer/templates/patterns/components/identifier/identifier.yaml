@@ -1,0 +1,93 @@
+name: Identifier
+context:
+  variants:
+    - title: "Default Identifier"
+      domain: "domain.gov"
+      disclaimer: '<span aria-hidden="true">An </span>official website of the <a href="#">Parent Agency</a>'
+      logos:
+        - href: "#"
+          icon: "instagram"
+          alt: "Parent agency logo"
+      links:
+        - href: "#"
+          text: "About Parent Agency"
+        - href: "#"
+          text: "Accessibility statement"
+        - href: "#"
+          text: "FOIA requests"
+        - href: "#"
+          text: "No FEAR Act data"
+        - href: "#"
+          text: "Office of the Inspector General"
+        - href: "#"
+          text: "Performance reports"
+        - href: "#"
+          text: "Privacy policy"
+
+    - title: "Multiple Logos"
+      domain: "domain.gov"
+      disclaimer: '<span aria-hidden="true">An </span>official website of the <a href="#">Parent Agency</a> and the <a href="#">Other Agency</a>'
+      logos:
+        - href: "#"
+          icon: "instagram"
+          alt: "Parent agency logo"
+        - href: "#"
+          icon: "instagram"
+          alt: "Other agency logo"
+      links:
+        - href: "#"
+          text: "About Parent Agency"
+        - href: "#"
+          text: "Accessibility statement"
+        - href: "#"
+          text: "FOIA requests"
+        - href: "#"
+          text: "No FEAR Act data"
+        - href: "#"
+          text: "Office of the Inspector General"
+        - href: "#"
+          text: "Performance reports"
+        - href: "#"
+          text: "Privacy policy"
+
+    - title: "No Logos"
+      domain: "domain.gov"
+      disclaimer: '<span aria-hidden="true">An </span>official website of the <a href="#">Parent Agency</a>'
+      links:
+        - href: "#"
+          text: "About Parent Agency"
+        - href: "#"
+          text: "Accessibility statement"
+        - href: "#"
+          text: "FOIA requests"
+        - href: "#"
+          text: "No FEAR Act data"
+        - href: "#"
+          text: "Office of the Inspector General"
+        - href: "#"
+          text: "Performance reports"
+        - href: "#"
+          text: "Privacy policy"
+
+    - title: "Taxpayer Disclaimer"
+      domain: "domain.gov"
+      disclaimer: '<span aria-hidden="true">An </span>official website of the <a href="#">Parent Agency</a>. Produced and published at taxpayer expense.'
+      logos:
+        - href: "#"
+          icon: "instagram"
+          alt: "Parent agency logo"
+      links:
+        - href: "#"
+          text: "About Parent Agency"
+        - href: "#"
+          text: "Accessibility statement"
+        - href: "#"
+          text: "FOIA requests"
+        - href: "#"
+          text: "No FEAR Act data"
+        - href: "#"
+          text: "Office of the Inspector General"
+        - href: "#"
+          text: "Performance reports"
+        - href: "#"
+          text: "Privacy policy"

@@ -1,0 +1,28 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Identifier Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-identifier
+            domain="{{ variant.domain }}"
+            disclaimer="{{ variant.disclaimer }}"
+        >
+            {% if variant.logos %}
+            <c-slot name="logos">
+                {% for logo in variant.logos %}
+                <c-identifier.logo href="{{ logo.href }}" icon="{{ logo.icon }}" alt="{{ logo.alt }}" />
+                {% endfor %}
+            </c-slot>
+            {% endif %}
+            
+            {% for link in variant.links %}
+            <c-identifier.link href="{{ link.href }}" text="{{ link.text }}" />
+            {% endfor %}
+        </c-identifier>
+    </div>
+    {% endfor %}
+</div>
