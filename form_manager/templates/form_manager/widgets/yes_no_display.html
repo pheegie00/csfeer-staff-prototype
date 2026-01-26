@@ -1,10 +1,14 @@
 {% spaceless %}
+    <div x-data="{ checked: 'foo'}" x-init="console.log(checked)" x-on:change="checked = $event.target.value; console.log(checked)">
     {% for widget in widget.subwidgets %}
         {% if forloop.counter0 == 0 %}
             <div class="margin-bottom-4">
                 {% include widget.template_name %}
             </div>
         {% else %}
+            {% if forloop.counter0 == 1 %}
+            <div class="subwidgets" x-show="checked == 'yes'" x-transition>
+            {% endif %}
             <div>
                 <c-label 
                     id="{{ widget.id_for_label }}" 
@@ -15,4 +19,6 @@
             </div>
         {% endif %}
     {% endfor %}
+            </div>
+    </div>
 {% endspaceless %}
