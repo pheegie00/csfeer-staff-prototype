@@ -1,0 +1,23 @@
+<c-vars
+    caption=""
+    striped=""
+    borderless=""
+    compact=""
+    scrollable=""
+    stacked=""
+    stacked_header=""
+    sticky_header=""
+/>
+
+{% if scrollable %}
+<div class="usa-table-container--scrollable" tabindex="0">
+{% endif %}
+  <table class="usa-table{% if striped %} usa-table--striped{% endif %}{% if borderless %} usa-table--borderless{% endif %}{% if compact %} usa-table--compact{% endif %}{% if stacked %} usa-table--stacked{% endif %}{% if stacked_header %} usa-table--stacked-header{% endif %}{% if sticky_header %} usa-table--sticky-header{% endif %}">
+    {% if caption %}
+    <caption>{{ caption }}</caption>
+    {% endif %}
+    {{ slot }}
+  </table>
+{% if scrollable %}
+</div>
+{% endif %}

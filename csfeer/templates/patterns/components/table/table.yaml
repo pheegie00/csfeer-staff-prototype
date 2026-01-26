@@ -1,0 +1,228 @@
+name: Table
+context:
+  variants:
+    - title: "Bordered Table"
+      caption: "Bordered table"
+      headers:
+        - "Document title"
+        - "Description"
+        - "Year"
+      rows:
+        - title: "Declaration of Independence"
+          cells:
+            - "Statement adopted by the Continental Congress declaring independence from the British Empire."
+            - "1776"
+        - title: "Bill of Rights"
+          cells:
+            - "The first ten amendments of the U.S. Constitution guaranteeing rights and freedoms."
+            - "1791"
+        - title: "Emancipation Proclamation"
+          cells:
+            - "An executive order granting freedom to slaves in designated southern states."
+            - "1863"
+    - title: "Striped Table"
+      caption: "Bordered table with horizontal stripes"
+      striped: "true"
+      headers:
+        - "Document title"
+        - "Description"
+        - "Year"
+      rows:
+        - title: "Declaration of Independence"
+          cells:
+            - "Statement adopted by the Continental Congress declaring independence from the British Empire."
+            - "1776"
+        - title: "Bill of Rights"
+          cells:
+            - "The first ten amendments of the U.S. Constitution guaranteeing rights and freedoms."
+            - "1791"
+        - title: "Emancipation Proclamation"
+          cells:
+            - "An executive order granting freedom to slaves in designated southern states."
+            - "1863"
+    - title: "Borderless Table"
+      caption: "Borderless table"
+      borderless: "true"
+      headers:
+        - "Document title"
+        - "Description"
+        - "Year"
+      rows:
+        - title: "Declaration of Independence"
+          cells:
+            - "Statement adopted by the Continental Congress declaring independence from the British Empire."
+            - "1776"
+        - title: "Bill of Rights"
+          cells:
+            - "The first ten amendments of the U.S. Constitution guaranteeing rights and freedoms."
+            - "1791"
+    - title: "Scrollable Table"
+      caption: "Scrollable table"
+      scrollable: "true"
+      headers:
+        - "Document title"
+        - "Description"
+        - "Year"
+      rows:
+        - title: "Declaration of Independence"
+          cells:
+            - "Statement adopted by the Continental Congress declaring independence from the British Empire."
+            - "1776"
+        - title: "Bill of Rights"
+          cells:
+            - "The first ten amendments of the U.S. Constitution guaranteeing rights and freedoms."
+            - "1791"
+    - title: "Compact Table"
+      caption: "Compact table"
+      compact: "true"
+      scrollable: "true"
+      headers:
+        - "Document title"
+        - "Description"
+        - "Year"
+      rows:
+        - title: "Declaration of Independence"
+          cells:
+            - "Statement adopted by the Continental Congress declaring independence from the British Empire."
+            - "1776"
+        - title: "Bill of Rights"
+          cells:
+            - "The first ten amendments of the U.S. Constitution guaranteeing rights and freedoms."
+            - "1791"
+
+    - title: "Sticky Header Table"
+      caption: "Table with sticky header"
+      sticky_header: "true"
+      headers:
+        - "Document title"
+        - "Description"
+        - "Year"
+      rows:
+        - title: "Declaration of Independence"
+          cells:
+            - "Statement adopted by the Continental Congress declaring independence from the British Empire."
+            - "1776"
+        - title: "Bill of Rights"
+          cells:
+            - "The first ten amendments of the U.S. Constitution guaranteeing rights and freedoms."
+            - "1791"
+        - title: "Declaration of Sentiments"
+          cells:
+            - "A document written during the Seneca Falls Convention outlining the rights that American women should be entitled to as citizens."
+            - "1848"
+        - title: "Emancipation Proclamation"
+          cells:
+            - "An executive order granting freedom to slaves in designated southern states."
+            - "1863"
+        - title: "Declaration of Independence"
+          cells:
+            - "Statement adopted by the Continental Congress declaring independence from the British Empire."
+            - "1776"
+        - title: "Bill of Rights"
+          cells:
+            - "The first ten amendments of the U.S. Constitution guaranteeing rights and freedoms."
+            - "1791"
+        - title: "Declaration of Sentiments"
+          cells:
+            - "A document written during the Seneca Falls Convention outlining the rights that American women should be entitled to as citizens."
+            - "1848"
+        - title: "Emancipation Proclamation"
+          cells:
+            - "An executive order granting freedom to slaves in designated southern states."
+            - "1863"
+        - title: "Declaration of Independence"
+          cells:
+            - "Statement adopted by the Continental Congress declaring independence from the British Empire."
+            - "1776"
+        - title: "Bill of Rights"
+          cells:
+            - "The first ten amendments of the U.S. Constitution guaranteeing rights and freedoms."
+            - "1791"
+        - title: "Declaration of Sentiments"
+          cells:
+            - "A document written during the Seneca Falls Convention outlining the rights that American women should be entitled to as citizens."
+            - "1848"
+        - title: "Emancipation Proclamation"
+          cells:
+            - "An executive order granting freedom to slaves in designated southern states."
+            - "1863"
+        - title: "Declaration of Independence"
+          cells:
+            - "Statement adopted by the Continental Congress declaring independence from the British Empire."
+            - "1776"
+        - title: "Bill of Rights"
+          cells:
+            - "The first ten amendments of the U.S. Constitution guaranteeing rights and freedoms."
+            - "1791"
+        - title: "Declaration of Sentiments"
+          cells:
+            - "A document written during the Seneca Falls Convention outlining the rights that American women should be entitled to as citizens."
+            - "1848"
+        - title: "Emancipation Proclamation"
+          cells:
+            - "An executive order granting freedom to slaves in designated southern states."
+            - "1863"
+        - title: "Declaration of Independence"
+          cells:
+            - "Statement adopted by the Continental Congress declaring independence from the British Empire."
+            - "1776"
+        - title: "Bill of Rights"
+          cells:
+            - "The first ten amendments of the U.S. Constitution guaranteeing rights and freedoms."
+            - "1791"
+        - title: "Declaration of Sentiments"
+          cells:
+            - "A document written during the Seneca Falls Convention outlining the rights that American women should be entitled to as citizens."
+            - "1848"
+        - title: "Emancipation Proclamation"
+          cells:
+            - "An executive order granting freedom to slaves in designated southern states."
+            - "1863"
+        - title: "Declaration of Independence"
+          cells:
+            - "Statement adopted by the Continental Congress declaring independence from the British Empire."
+            - "1776"
+        - title: "Bill of Rights"
+          cells:
+            - "The first ten amendments of the U.S. Constitution guaranteeing rights and freedoms."
+            - "1791"
+        - title: "Declaration of Sentiments"
+          cells:
+            - "A document written during the Seneca Falls Convention outlining the rights that American women should be entitled to as citizens."
+            - "1848"
+        - title: "Emancipation Proclamation"
+          cells:
+            - "An executive order granting freedom to slaves in designated southern states."
+            - "1863"
+        - title: "Declaration of Independence"
+          cells:
+            - "Statement adopted by the Continental Congress declaring independence from the British Empire."
+            - "1776"
+        - title: "Bill of Rights"
+          cells:
+            - "The first ten amendments of the U.S. Constitution guaranteeing rights and freedoms."
+            - "1791"
+        - title: "Declaration of Sentiments"
+          cells:
+            - "A document written during the Seneca Falls Convention outlining the rights that American women should be entitled to as citizens."
+            - "1848"
+        - title: "Emancipation Proclamation"
+          cells:
+            - "An executive order granting freedom to slaves in designated southern states."
+            - "1863"
+        - title: "Declaration of Independence"
+          cells:
+            - "Statement adopted by the Continental Congress declaring independence from the British Empire."
+            - "1776"
+        - title: "Bill of Rights"
+          cells:
+            - "The first ten amendments of the U.S. Constitution guaranteeing rights and freedoms."
+            - "1791"
+        - title: "Declaration of Sentiments"
+          cells:
+            - "A document written during the Seneca Falls Convention outlining the rights that American women should be entitled to as citizens."
+            - "1848"
+        - title: "Emancipation Proclamation"
+          cells:
+            - "An executive order granting freedom to slaves in designated southern states."
+            - "1863"
