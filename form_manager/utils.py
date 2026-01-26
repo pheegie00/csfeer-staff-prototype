@@ -127,39 +127,36 @@ def get_form_definitions() -> list[form_schemas.BaseFormSchema]:
     return ret
 
 
-def save_form_entry(form, form_entry: FormEntry, request):
-    is_valid = form.is_valid()
-    old = form_entry.data.copy() if form_entry.data else {}
+def save_form_entry(form_class, form_entry: FormEntry, request):
+    old_data = form_entry.data.copy() if form_entry.data else {}
 
-    # Only save fields that were actually in the POST request
-    # to avoid overwriting data from other pages
-    excluded_fields = {"csrfmiddlewaretoken"}
-    submitted_fields = set(request.POST.keys()) - excluded_fields
+    # Construct a form instance with POST vars and an initial empty dict in order to
+    # get normalized data from the form. The empty initial dict is important, because
+    # if we passed in the db data values as initial data, the form would indicate that
+    # all of the fields that aren't being passed in via POST vars have changed, and
+    # that's not what we want for this purpose.
+    form = form_class(request.POST, initial={})
 
-    # Build new_data from cleaned_data when available, otherwise from POST
     new_data = {}
-    for field_name in submitted_fields:
-        if is_valid and field_name in form.cleaned_data:
-            # Use cleaned data for validated fields (proper type conversion)
-            jsonable_dict = cast(
-                dict[str, Any], to_jsonable({field_name: form.cleaned_data[field_name]})
-            )
-            new_data[field_name] = jsonable_dict[field_name]
-        elif field_name in request.POST:
-            # For invalid forms or fields not in cleaned_data, use raw POST data
-            # Use getlist for multi-value fields (checkboxes, multi-select)
-            field = form.fields.get(field_name)
-            if field and isinstance(field, MultipleChoiceField):
-                new_data[field_name] = request.POST.getlist(field_name)
-            else:
-                new_data[field_name] = request.POST.get(field_name)
 
-    form_entry.data = (form_entry.data or {}) | new_data
+    logger.info("Found the following changed fields: %s", form.changed_data)
+
+    # construct a dict of changed data values
+    for field_name in form.changed_data:
+        new_data[field_name] = form[field_name].value()
+
+    # merge the old and new data
+    final_data = old_data | new_data
+
+    form_entry.data = final_data
     FormAuditTrail.objects.create(form_entry=form_entry, user=request.user, action="submit")
-    record_field_diffs(form_entry, old, form_entry.data, user=request.user)
+    record_field_diffs(form_entry, old_data, form_entry.data, user=request.user)
 
     form_entry.save()
 
     logger.info(
-        "FormEntry %s saved by user %s. Data: %s", form_entry.pk, request.user.pk, form_entry.data
+        "FormEntry %s saved by user %s. Data: %s",
+        form_entry.pk,
+        request.user.pk,
+        form_entry.data,
     )

@@ -110,7 +110,10 @@ class TribalLongFormFields(BaseFields):
         review_title="Total Expenditures (auto-calculated)",
     )
 
-    administration_expenditure = acf_fields.CurrencyField(title="Administration")
+    administration_expenditure = acf_fields.YesNoDisplayField(
+        title="Did you use any funds toward Administration costs?",
+        fields=[acf_fields.CurrencyField(title="Administration")],
+    )
 
     # region Expenditure Descriptions
 

@@ -1,0 +1,18 @@
+{% spaceless %}
+    {% for widget in widget.subwidgets %}
+        {% if forloop.counter0 == 0 %}
+            <div class="margin-bottom-4">
+                {% include widget.template_name %}
+            </div>
+        {% else %}
+            <div>
+                <c-label 
+                    id="{{ widget.id_for_label }}" 
+                    label="{{ widget.attrs.label }}" 
+                    required="{{ widget.required }}"
+                />
+                {% include widget.template_name %}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endspaceless %}

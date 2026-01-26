@@ -143,7 +143,7 @@ def form_edit(request, pk):
 
         form = django_form_class(request.POST)
 
-        save_form_entry(form, entry, request)
+        save_form_entry(django_form_class, entry, request)
         messages.success(request, "Draft saved.")
 
     form = django_form_class(initial=entry.data or {})

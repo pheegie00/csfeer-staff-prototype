@@ -12,7 +12,11 @@ from django.forms.boundfield import BoundField
 from django.utils import formats
 from pydantic_core import core_schema
 
-from form_manager.schema.widgets import CheckboxSelectMultiple, CurrencyInput
+from form_manager.schema.widgets import (
+    CheckboxSelectMultiple,
+    CurrencyInput,
+    YesNoDisplayWidget,
+)
 
 
 class ACFFieldMixin:
@@ -236,6 +240,52 @@ class ACFFieldFilterField(ACFFieldMixin, forms.MultipleChoiceField):
     widget = CheckboxSelectMultiple
 
 
+class ACFYesNoDisplayField(ACFFieldMixin, forms.MultiValueField):
+    """A form field that asks a question and shows a radio button with yes and no choices,
+    and conditionally displays a field based on the selection of yes or no."""
+
+    widget = YesNoDisplayWidget
+
+    error_messages = {}
+
+    def __init__(self, fields, *args, **kwargs):
+
+        fields = [
+            acf_fields.ChoiceField(
+                choices=[
+                    ("yes", "Yes"),
+                    ("no", "No"),
+                ],
+                widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
+                validators=[],
+                initial="no",
+            ),
+        ] + fields
+
+        subwidgets = []
+
+        for field in fields:
+
+            field = cast(ACFField, field)
+
+            field.widget.attrs.update(
+                {
+                    "label": field.title,
+                }
+            )
+            subwidgets.append(field.widget)
+
+        widget = self.widget(widgets=subwidgets)
+
+        super().__init__(fields, *args, widget=widget, **kwargs)
+
+    def compress(self, data_list):
+
+        # To Do: we probably need to store these values some other way, like not with
+        # a dash as a delimiter.
+        return "-".join([str(d) for d in data_list])
+
+
 class ACFFieldsMeta(type):
 
     def __new__(cls, name, bases=(), dct={}):
@@ -259,10 +309,13 @@ class ACFFieldsMeta(type):
                 "CalculatedCurrencyField": ACFCalculatedCurrencyField,
                 "CalculatedField": ACFCalculatedField,
                 "FieldFilterField": ACFFieldFilterField,
+                "YesNoDisplayField": ACFYesNoDisplayField,
             }
         )
 
         return super().__new__(cls, name, bases, dct)
 
 
-class acf_fields(metaclass=ACFFieldsMeta): ...
+class acf_fields(metaclass=ACFFieldsMeta):
+
+    ChoiceField: type[forms.ChoiceField]

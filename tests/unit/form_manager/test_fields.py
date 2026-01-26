@@ -137,3 +137,24 @@ def test_field_filter_field_excludes_correct_fields(subtests):
             form.is_valid()
 
             assert set(form.fields_to_exclude) - set(expected_excluded) == set()
+
+
+def test_yesno_display_field():
+
+    class TestForm(BaseFields):
+
+        spent = acf_fields.YesNoDisplayField(
+            title="Did you spend any money?",
+            fields=[acf_fields.CurrencyField(title="Enter the amount spent")],
+        )
+
+    data = {
+        "spent_0": "yes",
+        "spent_1": "10.00",
+    }
+
+    form = TestForm(data)
+
+    assert form.is_valid()
+
+    assert form.cleaned_data["spent"] == "-".join(data.values())
