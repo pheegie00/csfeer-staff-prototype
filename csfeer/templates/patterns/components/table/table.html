@@ -1,0 +1,40 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Table Component</h1>
+    
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-table
+            caption="{{ variant.caption }}"
+            striped="{{ variant.striped }}"
+            borderless="{{ variant.borderless }}"
+            compact="{{ variant.compact }}"
+            scrollable="{{ variant.scrollable }}"
+            stacked="{{ variant.stacked }}"
+            stacked_header="{{ variant.stacked_header }}"
+            sticky_header="{{ variant.sticky_header }}"
+        >
+            <thead>
+                <tr>
+                    {% for header in variant.headers %}
+                    <th scope="col">{{ header }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in variant.rows %}
+                <tr>
+                    <th scope="row">{{ row.title }}</th>
+                    {% for cell in row.cells %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </c-table>
+    </div>
+    {% endfor %}
+</div>
