@@ -3,9 +3,8 @@ import decimal
 import json
 import logging
 from inspect import isclass
-from typing import Any, cast
 
-from django.forms import MultipleChoiceField
+from django.forms import Form
 
 from form_manager.models import (
     FormAuditDetail,
@@ -127,7 +126,7 @@ def get_form_definitions() -> list[form_schemas.BaseFormSchema]:
     return ret
 
 
-def save_form_entry(form_class, form_entry: FormEntry, request):
+def save_form_entry(form_class: type[Form], form_entry: FormEntry, request):
     old_data = form_entry.data.copy() if form_entry.data else {}
 
     # Construct a form instance with POST vars and an initial empty dict in order to
