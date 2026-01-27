@@ -1,9 +1,8 @@
 from functools import cached_property
-from typing import Annotated, Any, Generic, TypeAlias, TypeVar
+from typing import Annotated, Any, Generic, TypeVar
 
 from _typeshed import Incomplete
 from django import forms
-from django.forms.boundfield import BoundField
 from django.forms.renderers import TemplatesSetting
 from django.forms.utils import ErrorList
 from pydantic import BaseModel
@@ -13,7 +12,6 @@ from pydantic_extra_types.semantic_version import SemanticVersion as SemanticVer
 
 from form_manager.constants import AllFormNames as AllFormNames
 from form_manager.constants import FormFamilies as FormFamilies
-from form_manager.schema.fields import acf_fields
 from form_manager.schema.layout import SectionBlock, StepBlock
 
 logger: Incomplete
@@ -47,7 +45,7 @@ class BaseFields(forms.Form):
 FormId = TypeVar("FormId", bound=str)
 FormVersion = TypeVar("FormVersion", bound=str)
 
-UIDefinition: TypeAlias = list[StepBlock | SectionBlock]
+type UIDefinition = list[StepBlock | SectionBlock]
 
 class SchemaValidationError(Exception):
     form_class: Incomplete

@@ -1,4 +1,4 @@
-from typing import Any, cast
+from typing import cast
 
 from django.contrib import messages
 from django.http import HttpResponse

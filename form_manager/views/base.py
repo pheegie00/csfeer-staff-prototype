@@ -1,9 +1,7 @@
-from functools import lru_cache
 from typing import cast
 
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import HttpRequest
-from django.utils.module_loading import import_string
 from django.views.generic.base import ContextMixin
 from django.views.generic.detail import (
     SingleObjectMixin,

@@ -3,7 +3,6 @@ API schemas for form_manager.
 """
 
 from datetime import datetime
-from typing import Optional
 
 from ninja import Schema
 from pydantic import ConfigDict, Field
@@ -24,7 +23,7 @@ class FormDefinitionSchema(Schema):
     family: str
     name: str
     variant: str
-    description: Optional[str] = None
+    description: str | None = None
     form_schema: dict = Field(..., alias="schema")
     schema_class: str
     is_active: bool
@@ -38,7 +37,7 @@ class FormDefinitionListSchema(Schema):
     family: str
     name: str
     variant: str
-    description: Optional[str] = None
+    description: str | None = None
     is_active: bool
 
 
@@ -46,11 +45,11 @@ class FormEntrySchema(Schema):
     id: int
     form_definition: FormDefinitionListSchema
     organization: OrganizationSchema
-    created_by_id: Optional[int] = None
+    created_by_id: int | None = None
     data: dict
     version_number: int
     status: str
-    submitted_at: Optional[datetime] = None
+    submitted_at: datetime | None = None
     updated_at: datetime
     locked: bool
     is_archived: bool
@@ -65,14 +64,14 @@ class FormEntryListSchema(Schema):
     organization_name: str
     version_number: int
     status: str
-    submitted_at: Optional[datetime] = None
+    submitted_at: datetime | None = None
     updated_at: datetime
     locked: bool
 
 
 class AuditTrailSchema(Schema):
     id: int
-    user_id: Optional[int] = None
+    user_id: int | None = None
     action: str
     timestamp: datetime
     notes: str
@@ -80,7 +79,7 @@ class AuditTrailSchema(Schema):
 
 class AuditDetailSchema(Schema):
     id: int
-    user_id: Optional[int] = None
+    user_id: int | None = None
     field_name: str
     old_value: str
     new_value: str

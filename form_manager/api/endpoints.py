@@ -3,13 +3,10 @@ REST API endpoints for form_manager using Django Ninja.
 Read-only (GET) endpoints only.
 """
 
-from typing import List, Optional
-
 from django.shortcuts import get_object_or_404
 from ninja import NinjaAPI
 from ninja.errors import HttpError
 from ninja.security import django_auth
-from ninja.security.http import HttpAuthBase
 
 from form_manager.api.schemas import (
     AuditDetailSchema,
@@ -58,7 +55,7 @@ def check_view_permission(request, entry: FormEntry) -> None:
 # ==================== Form Definitions Endpoints ====================
 
 
-@api.get("/forms/definitions", response=List[FormDefinitionListSchema], tags=["Forms"])
+@api.get("/forms/definitions", response=list[FormDefinitionListSchema], tags=["Forms"])
 def list_form_definitions(request):
     """List all active form definitions."""
     return FormDefinition.objects.filter(is_active=True).order_by("name", "variant")
@@ -79,12 +76,12 @@ def get_form_definition(request, definition_id: int):
 
 
 @api.get(
-    "/forms/definitions/{definition_id}/entries", response=List[FormEntryListSchema], tags=["Forms"]
+    "/forms/definitions/{definition_id}/entries", response=list[FormEntryListSchema], tags=["Forms"]
 )
 def list_form_entries_for_definition(
     request,
     definition_id: int,
-    status: Optional[str] = None,
+    status: str | None = None,
     include_archived: bool = False,
 ):
     """
@@ -143,7 +140,7 @@ def get_form_entry(request, entry_id: int):
 
 @api.get(
     "/forms/entries/{entry_id}/audit-trail",
-    response=List[AuditTrailSchema],
+    response=list[AuditTrailSchema],
     tags=["Forms"],
 )
 def get_audit_trail(request, entry_id: int):
@@ -158,7 +155,7 @@ def get_audit_trail(request, entry_id: int):
 
 @api.get(
     "/forms/entries/{entry_id}/audit-details",
-    response=List[AuditDetailSchema],
+    response=list[AuditDetailSchema],
     tags=["Forms"],
 )
 def get_audit_details(request, entry_id: int):

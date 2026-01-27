@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
 from form_manager.models import FormEntry

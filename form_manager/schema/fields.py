@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import inspect
+from collections.abc import Iterable
 from datetime import date, datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any, Iterable, List, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from django import forms
 from django.forms.boundfield import BoundField
@@ -130,7 +131,7 @@ class ACFCurrencyField(ACFFieldMixin, forms.DecimalField):
 class ACFCalculatedField(ACFFieldMixin, forms.DecimalField):
     """A field whose value is calculated from other form fields."""
 
-    fields: List[str]
+    fields: list[str]
 
     class ACFCalculatedBoundField(BoundField):
         """A BoundField for Calculated Fields."""
@@ -173,7 +174,7 @@ class ACFCalculatedField(ACFFieldMixin, forms.DecimalField):
 
     bound_field_class = ACFCalculatedBoundField
 
-    def __init__(self, *args, fields: List[str], **kwargs):
+    def __init__(self, *args, fields: list[str], **kwargs):
         """Overloaded to set the source field list and the disabled and required attributes."""
         self.fields = fields
         kwargs.update({"disabled": True, "required": False})
@@ -248,9 +249,11 @@ class ACFFieldFilterField(ACFFieldMixin, forms.MultipleChoiceField):
 
 class ACFFieldsMeta(type):
 
-    def __new__(cls, name, bases=(), dct={}):
+    def __new__(cls, name, bases=(), dct=None):
         """A metaclass that creates an object of custom ACF form fields from built-in Django
         form fields. They're all accessible on the acf_fields object below."""
+
+        dct = dct or {}
 
         for name, field_class in forms.fields.__dict__.items():
 

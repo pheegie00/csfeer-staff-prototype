@@ -43,7 +43,7 @@ def form_finalize(request, pk):
     # The django form is expected to be available on schema.form_fields
     django_form_class = schema_cls.get_form_fields_class()
 
-    form = django_form_class(entry.data)
+    form = django_form_class(entry.data)  # noqa: F841
 
     # if form.is_valid():
     entry.status = "submitted"

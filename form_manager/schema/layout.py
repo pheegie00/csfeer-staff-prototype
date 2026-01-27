@@ -1,7 +1,7 @@
 """Layout schema definitions for CSFEER forms."""
 
 import abc
-from typing import Any, ClassVar, Literal, Optional, Self, cast
+from typing import Any, ClassVar, Literal, Self, cast
 
 from django.forms.boundfield import BoundField
 from django.forms.renderers import TemplatesSetting
@@ -17,8 +17,8 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
 
     _global_context: dict[str, Any] = PrivateAttr(default_factory=dict)
     renderer: ClassVar[TemplatesSetting] = TemplatesSetting()
-    children: Optional[list[T]] = None
-    template_name: Optional[S] = None
+    children: list[T] | None = None
+    template_name: S | None = None
 
     def set_extra_context(self, **kwargs: Any) -> None:
         """Set global context that will also be made available to any descendant nodes."""
@@ -31,12 +31,13 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
                 print(err)
 
     def get_context(self) -> dict[str, Any]:
-        """Overloaded to inject global context and local variables into this node's template context"""
+        """Overloaded to inject global context and local variables into this
+        node's template context"""
         context = {}
 
         field_context = {
             field_name: getattr(self, field_name, None)
-            for field_name in self.__class__.model_fields.keys()
+            for field_name in self.__class__.model_fields
         }
 
         context = context | field_context | self._global_context
@@ -63,8 +64,8 @@ class StepBlock(RenderableBaseModel):
     """
 
     type: str = "step"
-    title: Optional[str] = None
-    children: Optional[list[Self | "SectionBlock" | "PageBlock" | "PermanentPageBlock"]] = None
+    title: str | None = None
+    children: list[Self | "SectionBlock" | "PageBlock" | "PermanentPageBlock"] | None = None
 
 
 class AbstractPageBlock(RenderableBaseModel, abc.ABC):
@@ -72,9 +73,9 @@ class AbstractPageBlock(RenderableBaseModel, abc.ABC):
     and represents a single page within that step."""
 
     type: Literal["page", "permanent-page"]
-    title: Optional[str] = None
-    subtitle: Optional[str] = None
-    children: Optional[list[Self | "FieldBlock" | "SectionBlock" | "FieldGroupBlock"]] = None
+    title: str | None = None
+    subtitle: str | None = None
+    children: list[Self | "FieldBlock" | "SectionBlock" | "FieldGroupBlock"] | None = None
     template_name: str = "form_manager/page.html"
 
 
@@ -96,11 +97,9 @@ class SectionBlock(RenderableBaseModel):
     """Represents a block of the UI (i.e. div, section, etc)"""
 
     type: str = "section"
-    title: Optional[str] = None
-    description: Optional[str] = None
-    children: Optional[list[Self | "FieldBlock" | "FieldGroupBlock" | "ReviewSubheadingBlock"]] = (
-        None
-    )
+    title: str | None = None
+    description: str | None = None
+    children: list[Self | "FieldBlock" | "FieldGroupBlock" | "ReviewSubheadingBlock"] | None = None
     template_name: str = "form_manager/section.html"
 
 
@@ -109,8 +108,8 @@ class FieldGroupBlock(RenderableBaseModel):
     with an explanatory note."""
 
     type: str = "field-group"
-    description: Optional[str] = None
-    children: Optional[list[Self | "FieldBlock"]] = None
+    description: str | None = None
+    children: list[Self | "FieldBlock"] | None = None
     template_name: str = "form_manager/field_group.html"
 
 
@@ -164,6 +163,6 @@ class ReviewSubheadingBlock(RenderableBaseModel):
     """Represents a subheading that will only be rendered on the review page."""
 
     type: str = "review-subheading"
-    title: Optional[str] = None
-    description: Optional[str] = None
+    title: str | None = None
+    description: str | None = None
     template_name: str = "form_manager/review_subheading.html"

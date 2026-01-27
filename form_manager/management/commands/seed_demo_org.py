@@ -11,8 +11,8 @@ if TYPE_CHECKING:
 
 class Command(BaseCommand):
     help = (
-        "Create a 'Demo Organization' and link it to an existing Django user as editor (non-admin). "
-        "Users must be created via OIDC login; this command will not create users."
+        "Create a 'Demo Organization' and link it to an existing Django user as editor "
+        "(non-admin). Users must be created via OIDC login; this command will not create users."
     )
 
     def add_arguments(self, parser):
@@ -49,10 +49,11 @@ class Command(BaseCommand):
 
             try:
                 user = UserModel.objects.get(email=email)
-            except UserModel.DoesNotExist:
+            except UserModel.DoesNotExist as err:
                 raise CommandError(
-                    f"User '{email}' not found. Have them sign in via OIDC first to provision the Django user."
-                )
+                    f"User '{email}' not found. Have them sign in via "
+                    "OIDC first to provision the Django user."
+                ) from err
 
             self._create_org(user, org_name)
 

@@ -1,5 +1,3 @@
-from typing import Generic
-
 from django import forms
 
 class EmailStr(str): ...

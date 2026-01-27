@@ -36,7 +36,7 @@ class Command(BaseCommand):
 
         for definition in form_definitions:
 
-            if type(definition) == BaseFormSchema:
+            if type(definition) is BaseFormSchema:
                 continue
 
             try:
