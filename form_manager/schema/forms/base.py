@@ -54,6 +54,20 @@ class BaseFields(forms.Form):
 
         return core_schema.typed_dict_schema(fields)
 
+    def is_valid(self, use_default_if_empty: bool = False) -> bool:
+        """Validate the form.
+
+        Args:
+            use_default_if_empty: If True, fields with value_if_excluded set will
+                use a cascading value lookup: POST value → initial value → default value.
+                The first non-empty value (not None or empty string) will be used.
+
+        Returns:
+            True if the form is valid, False otherwise.
+        """
+        self._use_default_if_empty = use_default_if_empty
+        return super().is_valid()
+
     @cached_property
     def has_filter_fields(self) -> bool:
         """Return True if the form has any filter fields."""
