@@ -59,10 +59,11 @@ class BaseFields(forms.Form):
 
         Args:
             use_default_if_empty: If True, fields with value_if_excluded will use
-                that value
+                that value for validation purposes. This happens by setting the value_if_excluded
+                variable as the field value in the incoming data dictonary.
 
-                se a cascading value lookup: POST value → initial value → default value.
-                The first non-empty value (not None or empty string) will be used.
+                This provides a way to validate the form when the user has excluded certain fields
+                from the form interview.
 
         Returns:
             True if the form is valid, False otherwise.
