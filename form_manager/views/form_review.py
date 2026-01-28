@@ -41,10 +41,14 @@ def form_review(request, pk):
     # The django form is expected to be available on schema.form_fields
     django_form_class = schema_cls.get_form_fields_class()
 
-    form = django_form_class(entry.data)
-
     if request.POST:
         save_form_entry(django_form_class, entry, request)
+
+    entry.refresh_from_db()
+
+    form = django_form_class(entry.data)
+
+    is_valid = form.is_valid(use_default_if_excluded=True)
 
     context = {
         "form": form,
@@ -58,6 +62,7 @@ def form_review(request, pk):
                 "page": len(schema.ui[-1].children) - 1,
             },
         ),
+        "is_valid": is_valid,
     }
 
     for component in schema.ui:

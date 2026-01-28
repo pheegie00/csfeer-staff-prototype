@@ -23,84 +23,6 @@ if TYPE_CHECKING:
     from form_manager.schema.forms.base import BaseFields
 
 
-class ACFBoundFieldWithExclusionDefault(BoundField):
-    """A BoundField that cascades through value sources when use_default_if_empty is True.
-
-    When the form's is_valid(use_default_if_empty=True) is called and this field has
-    a value_if_excluded attribute set, the field's value is determined by checking
-    in order:
-    1. The POST value (from form data)
-    2. The initial value (from form instantiation)
-    3. The value_if_excluded (default value)
-
-    The first non-empty value (not None or empty string) is used.
-    """
-
-    field: ACFFieldMixin  # type: ignore
-    form: BaseFields  # type: ignore
-
-    def _should_use_default_cascade(self):
-        """Check if this field should use the cascading default value logic.
-
-        Returns True only if:
-        - The field has a value_if_excluded attribute set (not None)
-        - The form's _use_default_if_empty flag is True
-        """
-        return (
-            hasattr(self.field, "value_if_excluded")
-            and self.field.value_if_excluded is not None
-            and getattr(self.form, "_use_default_if_empty", False)
-        )
-
-    def _is_empty(self, value):
-        """Check if a value is considered empty (None or empty string)."""
-        return value is None or value == ""
-
-    def _get_cascaded_value(self):
-        """Get the first non-empty value from: POST → initial → default.
-
-        Returns the first non-empty value from:
-        1. POST value (super().data)
-        2. Initial value (self.field.initial or form's initial for this field)
-        3. value_if_excluded (default value)
-        """
-        # 1. Check POST value
-        post_value = super().data
-        if not self._is_empty(post_value):
-            return post_value
-
-        # 2. Check initial value (from form instantiation or field definition)
-        field_initial = getattr(self.field, "initial", None)
-        initial_value = self.form.initial.get(self.name, field_initial)
-        if not self._is_empty(initial_value):
-            return initial_value
-
-        # 3. Use the default value
-        return self.field.value_if_excluded
-
-    def value(self):
-        """Return cascaded value if use_default_if_empty, otherwise normal value."""
-        if self._should_use_default_cascade():
-            return self._get_cascaded_value()
-        return super().value()
-
-    @property
-    def data(self):
-        """Return cascaded value for validation if use_default_if_empty."""
-        if self._should_use_default_cascade():
-            return self._get_cascaded_value()
-        return super().data
-
-    @property
-    def initial(self):
-        """Return the initial value for the field."""
-        # When using default cascade, return the normal initial
-        # The cascade happens in data/value, not here
-        if hasattr(super(), "initial"):
-            return super().initial
-        return self.field.initial
-
-
 class ACFFieldMixin:
     """A mixin class that provides some common ACF field functionality and makes
     standard Django form fields usable in pydantic classes.
@@ -122,56 +44,12 @@ class ACFFieldMixin:
     input that should be persisted or used for business logic (e.g. decorative
     headings or separators)."""
 
-    value_if_excluded: Any = None
-    """Default value to use as a fallback when the field's value is empty.
-
-    When is_valid(use_default_if_empty=True) is called, fields with this attribute
-    set will use a cascading value lookup. The first non-empty value is used:
-    1. The POST value (from form data submission)
-    2. The initial value (from form instantiation or field definition)
-    3. The value_if_excluded (this default value)
-
-    A value is considered "empty" if it is None or an empty string ("").
-
-    This is useful for:
-    - Required fields that should have a sensible default when excluded
-    - Fields that need a fallback value when no user input is provided
-
-    Example:
-        class MyForm(BaseFields):
-            topics = acf_fields.FieldFilterField(
-                choices=[("employment", "Employment"), ("other", "Other")]
-            )
-            employment_expenditure = acf_fields.CurrencyField(
-                required=True,
-                value_if_excluded=0
-            )
-
-        # Without use_default_if_empty, empty fields fail validation:
-        form = MyForm(data={"topics": ["other"]})
-        form.is_valid()  # Returns False
-
-        # With use_default_if_empty, empty fields cascade to defaults:
-        form.is_valid(use_default_if_empty=True)  # Returns True
-
-        # If POST has a value, it takes precedence:
-        form = MyForm(data={"topics": ["employment"], "employment_expenditure": 100})
-        form.is_valid(use_default_if_empty=True)  # Uses 100, not default
-
-    Note: value_if_excluded should match the field's expected type. For
-    CurrencyField, use 0 or Decimal('0.00'). For CharField, use a string.
-    """
-
     def __init__(self, *args, **kwargs):
         self.title = kwargs.pop("title", None)
         self.description = kwargs.pop("description", None)
         self.is_presentational_only = kwargs.pop("is_presentational_only", False)
         self.review_title = kwargs.pop("review_title", False)
-        self.value_if_excluded = kwargs.pop("value_if_excluded", None)
-
-        # Dynamically set bound_field_class if value_if_excluded is provided
-        if self.value_if_excluded is not None:
-            self.bound_field_class = ACFBoundFieldWithExclusionDefault
+        self.default_if_excluded = kwargs.pop("default_if_excluded", None)
 
         kwargs["help_text"] = kwargs.get("help_text", self.description)
         super().__init__(*args, **kwargs)

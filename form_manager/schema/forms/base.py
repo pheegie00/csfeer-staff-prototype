@@ -54,7 +54,7 @@ class BaseFields(forms.Form):
 
         return core_schema.typed_dict_schema(fields)
 
-    def is_valid(self, use_default_if_empty: bool = False) -> bool:
+    def is_valid(self, use_default_if_excluded: bool = False) -> bool:
         """Validate the form.
 
         Args:
@@ -65,7 +65,19 @@ class BaseFields(forms.Form):
         Returns:
             True if the form is valid, False otherwise.
         """
-        self._use_default_if_empty = use_default_if_empty
+        if use_default_if_excluded:
+
+            for name, instance in self.fields.items():
+
+                if (
+                    name in self.fields_to_exclude
+                    and getattr(instance, "default_if_excluded", None)
+                    # and self.data[name] in ["", None]
+                ):
+                    print("settings default for", name)
+
+                    self.data[name] = instance.default_if_excluded
+
         return super().is_valid()
 
     @cached_property
