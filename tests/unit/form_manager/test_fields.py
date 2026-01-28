@@ -21,6 +21,44 @@ def test_calculated_currency_field_form_valid():
     assert form.cleaned_data["total"] == 6.0
 
 
+def test_calculated_currency_field_ignores_initial_data():
+    """Ensure the calculated currency field ignores its initial data value and always
+    calculates a fresh value when instantiated."""
+
+    class TestForm(BaseFields):
+
+        item_1 = acf_fields.CurrencyField()
+        item_2 = acf_fields.CurrencyField()
+        item_3 = acf_fields.CurrencyField()
+        total = acf_fields.CalculatedCurrencyField(fields=["item_1", "item_2", "item_3"])
+
+    form = TestForm(
+        initial={
+            "item_1": 10,
+            "item_2": 10,
+            "item_3": 10,
+            "total": 1000,
+        }
+    )
+
+    form.is_valid()
+
+    assert form["total"].value() == "30.00"
+
+    form = TestForm(
+        data={
+            "item_1": 10,
+            "item_2": 10,
+            "item_3": 10,
+            "total": 1000,
+        },
+    )
+
+    assert form.is_valid()
+
+    assert form.cleaned_data["total"] == 30.00
+
+
 def test_calculated_currency_field_form_invalid():
     """Ensure the calculated currency field works as expected with an invalid form."""
 
@@ -99,3 +137,24 @@ def test_field_filter_field_excludes_correct_fields(subtests):
             form.is_valid()
 
             assert set(form.fields_to_exclude) - set(expected_excluded) == set()
+
+
+def test_yesno_display_field():
+
+    class TestForm(BaseFields):
+
+        spent = acf_fields.YesNoDisplayField(
+            title="Did you spend any money?",
+            fields=[acf_fields.CurrencyField(title="Enter the amount spent")],
+        )
+
+    data = {
+        "spent_0": "yes",
+        "spent_1": "10.00",
+    }
+
+    form = TestForm(data)
+
+    assert form.is_valid()
+
+    assert form.cleaned_data["spent"] == "-".join(data.values())

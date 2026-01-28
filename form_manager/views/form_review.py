@@ -45,7 +45,7 @@ def form_review(request, pk):
     form = django_form_class(entry.data)
 
     if request.POST:
-        save_form_entry(form, entry, request)
+        save_form_entry(django_form_class, entry, request)
 
     context = {
         "form": form,

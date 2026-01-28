@@ -11,3 +11,19 @@ class CheckboxSelectMultiple(forms.CheckboxSelectMultiple):
     """A multi-checkbox component."""
 
     template_name = "form_manager/widgets/checkbox_select_multiple.html"
+
+
+class YesNoDisplayWidget(forms.MultiWidget):
+
+    template_name = "form_manager/widgets/yes_no_display.html"
+
+    def decompress(self, value):
+        """This splits the single value into separate subwidget values."""
+
+        # To Do: we probably need to store these values some other way, like not with
+        # a dash as a delimiter.
+
+        if value:
+            return value.split("-")
+
+        return "", ""
