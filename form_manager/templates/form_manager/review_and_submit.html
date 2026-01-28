@@ -11,6 +11,17 @@
 
       <h1 class="font-heading-2xl semibold font-family-sans font-weight-semibold">Review and Submit</h1>
 
+      <div class="margin-bottom-5">
+      {% if form.errors %}
+        <c-alert 
+            type="error"
+            slim="True"
+        >
+            We found some errors. Please check your answers and correct them.
+        </c-alert>
+      {% endif %}
+      </div>
+
         <c-accordion type="multiselectable">
         {% for step in steps|flatten_for_review %}
 
@@ -32,7 +43,17 @@
                                     {% if not block.unbound_field.is_presentational_only %}
                                     <div class="margin-bottom-3">
                                         <div class="font-family-body text-semibold margin-bottom-05">{{ block.display_title }}</div>
-                                        <div class="font-family-body">{{ block.value }}</div>
+                                        
+                                        <div class="{% if block.errors %}text-error{% endif %} font-family-body">
+
+                                        {% if block.value is None and block.errors %}
+                                            {{ block.errors.0 }}
+                                        {% else %}
+                                            {{ block.value }} {% if block.errors %}{{ block.errors.0 }}{% endif %}
+                                        
+                                        {% endif %}
+                                        </div>
+
                                     </div>
                                     {% endif %}
                                 {% endif %}

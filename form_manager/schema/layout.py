@@ -150,6 +150,10 @@ class FieldBlock(RenderableBaseModel):
         return self.field.value if self.field else None
 
     @property
+    def errors(self) -> Any:
+        return self.field.errors if self.field else None
+
+    @property
     def review_title(self) -> str | None:
         return self.unbound_field.review_title if self.unbound_field else None
 

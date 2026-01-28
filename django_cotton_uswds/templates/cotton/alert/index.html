@@ -4,9 +4,10 @@
     actions=""
     extra_classes=""
     role=""
+    :slim="False"
 />
 
-<div class="usa-alert usa-alert--{{ type }} {{ extra_classes }}"
+<div class="usa-alert usa-alert--{{ type }} {{ extra_classes }} {% if slim %}usa-alert--slim{% endif %}"
      role="{% if type == 'error' or type == 'emergency' %}alert{% else %}{{ role }}{% endif %}"
      {{ attrs }}>
   
