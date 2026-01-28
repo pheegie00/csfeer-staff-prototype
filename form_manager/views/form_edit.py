@@ -123,13 +123,12 @@ def form_edit(request, pk):
     ui_components = schema.ui
 
     def has_permission():
-        if entry.locked:
-            return False
 
-        if "save" in request.POST and not user_can_edit(request.user, entry.organization):
-            return False
-
-        return "submit" in request.POST and not user_can_submit(request.user, entry.organization)
+        return not (
+            entry.locked
+            or not user_can_edit(request.user, entry.organization)
+            or not user_can_submit(request.user, entry.organization)
+        )
 
     if request.method == "POST":
 
