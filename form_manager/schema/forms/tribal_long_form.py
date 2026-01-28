@@ -19,7 +19,6 @@ from form_manager.schema.layout import (
 
 
 class TribalLongFormFields(BaseFields):
-
     # region Basic Information
     org_name = acf_fields.CharField(title="Name of Tribe or Tribal Organization", max_length=100)
     contact_name = acf_fields.CharField(title="Full name")
@@ -190,7 +189,6 @@ class TribalLongFormFields(BaseFields):
 
 
 class TribalLongForm(BaseFormSchema):
-
     family: FormFamilies = Field(FormFamilies.CSBG_ANNUAL_REPORT, frozen=True)
     name: AllFormNames = Field(CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0, frozen=True)
     variant: SemanticVersion = Field(SemanticVersion(3, 0, 4), frozen=True)
@@ -254,7 +252,10 @@ class TribalLongForm(BaseFormSchema):
                     ),
                     PermanentPageBlock(
                         title="Administration costs",
-                        subtitle="To learn more about what qualifies as Administration costs, refer to guidance IM37.",
+                        subtitle=(
+                            "To learn more about what qualifies as Administration costs, refer "
+                            "to guidance IM37."
+                        ),
                         children=[FieldBlock(field_name="administration_expenditure")],
                     ),
                 ],
@@ -265,50 +266,57 @@ class TribalLongForm(BaseFormSchema):
                     PageBlock(
                         title="Details on employment services",
                         subtitle=(
-                            "Describe all employment related services, such as support for job placement, "
-                            "vocational and skill training, job development and elminiating barriers to work."
+                            "Describe all employment related services, such as support for job "
+                            "placement, vocational and skill training, job development and "
+                            "elminiating barriers to work."
                         ),
                         children=[FieldBlock(field_name="employment_related_services_description")],
                     ),
                     PageBlock(
                         title="Details on education services",
                         subtitle=(
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do "
+                            "eiusmod tempor incididunt ut labore et dolore magna aliqua."
                         ),
                         children=[FieldBlock(field_name="education_related_service_description")],
                     ),
                     PageBlock(
                         title="Details on income services",
                         subtitle=(
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do "
+                            "eiusmod tempor incididunt ut labore et dolore magna aliqua."
                         ),
                         children=[FieldBlock(field_name="income_services_description")],
                     ),
                     PageBlock(
                         title="Details on housing services",
                         subtitle=(
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do "
+                            "eiusmod tempor incididunt ut labore et dolore magna aliqua."
                         ),
                         children=[FieldBlock(field_name="housing_services_description")],
                     ),
                     PageBlock(
                         title="Details on health services",
                         subtitle=(
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do "
+                            "eiusmod tempor incididunt ut labore et dolore magna aliqua."
                         ),
                         children=[FieldBlock(field_name="health_services_description")],
                     ),
                     PageBlock(
                         title="Details on civic services",
                         subtitle=(
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do "
+                            "eiusmod tempor incididunt ut labore et dolore magna aliqua."
                         ),
                         children=[FieldBlock(field_name="civic_services_description")],
                     ),
                     PageBlock(
                         title="Details on transportation services",
                         subtitle=(
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do "
+                            "eiusmod tempor incididunt ut labore et dolore magna aliqua."
                         ),
                         children=[FieldBlock(field_name="transportation_services_description")],
                     ),

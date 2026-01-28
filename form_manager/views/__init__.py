@@ -7,14 +7,14 @@ from form_manager.views.form_views import *
 __ALL__ = [
     "form_list",
     "form_start",
-    "form_edit",
-    "form_finalize",
-    "form_review",
+    form_edit.__name__,
+    form_finalize.__name__,
+    form_review.__name__,
     "FormPreviewView",
     "form_history",
     "FormSnapshotView",
     "form_lock",
     "form_unlock",
     "form_archive",
-    "FormDownloadPDFView",
+    FormDownloadPDFView.__name__,
 ]

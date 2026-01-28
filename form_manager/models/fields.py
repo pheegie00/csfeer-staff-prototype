@@ -20,11 +20,11 @@ class SemVerField(models.CharField):
             return
         try:
             semver.VersionInfo.parse(value)
-        except ValueError as e:
+        except ValueError as err:
             raise ValidationError(
-                f"Invalid semantic version: {value}. Error: {str(e)}",
+                f"Invalid semantic version: {value}. Error: {str(err)}",
                 code="invalid_semver",
-            )
+            ) from err
 
     def get_prep_value(self, value):
         """Prepare the value for database storage."""

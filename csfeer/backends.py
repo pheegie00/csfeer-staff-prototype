@@ -2,8 +2,8 @@
 Custom Authentication Backends and OIDC Hooks for CSFEER.
 
 This module contains:
-1. EmailOIDCAuthenticationBackend: A custom OIDC backend that authenticates users based on email address
-   instead of username, allowing for auto-provisioning of users via OIDC.
+1. EmailOIDCAuthenticationBackend: A custom OIDC backend that authenticates users based on email
+   address instead of username, allowing for auto-provisioning of users via OIDC.
 2. extend_user_with_roles: A hook function called after successful OIDC login to synchronize
    user roles, groups, and organization membership based on OIDC claims.
 """
@@ -58,8 +58,8 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
         if not email:
             # If we still don't have an email, we can't create/get a user
             # This might raise an error or return None depending on desired behavior
-            # For now, let's raise an exception or let the parent handle it (which would fail on username)
-            # But since we are overriding, we must handle it.
+            # For now, let's raise an exception or let the parent handle it (which would fail
+            # on username). But since we are overriding, we must handle it.
             from django.core.exceptions import SuspiciousOperation
 
             raise SuspiciousOperation("Email claim not found in OIDC token")

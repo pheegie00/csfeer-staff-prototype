@@ -3,8 +3,9 @@ Pytest configuration and fixtures for e2e tests.
 """
 
 import os
+from collections.abc import Generator
 from pathlib import Path
-from typing import TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING
 
 import pytest
 from django.test.client import Client
@@ -145,7 +146,6 @@ def pytest_configure(config: pytest.Config) -> None:
 
 
 import pytest
-from django.contrib.auth import get_user_model
 
 
 @pytest.fixture

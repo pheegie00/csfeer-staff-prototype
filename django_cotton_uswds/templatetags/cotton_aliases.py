@@ -9,13 +9,12 @@ module so that its `register` definition is imported by Django's template
 library loader.
 """
 
+import contextlib
+
 from django_cotton.templatetags import cotton  # noqa: F401
 
 # expose the `register` object so Django's template loader accepts this
 # module as a template library when used in TEMPLATES[...]['OPTIONS']['builtins']
-try:
+
+with contextlib.suppress(Exception):
     register = cotton.register
-except Exception:
-    # fallback: if the cotton module doesn't expose register for any reason,
-    # leave `register` undefined so Django will surface an informative error.
-    pass

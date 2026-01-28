@@ -1,5 +1,3 @@
-from typing import Generic
-
 from django import forms
 
 from form_manager.schema.widgets import YesNoDisplayWidget

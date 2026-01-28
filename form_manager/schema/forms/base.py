@@ -6,15 +6,12 @@ from typing import (
     Annotated,
     Any,
     Generic,
-    Optional,
-    TypeAlias,
     TypeVar,
     cast,
     get_type_hints,
 )
 
 from django import forms
-from django.forms.boundfield import BoundField
 from django.forms.renderers import TemplatesSetting
 from pydantic import BaseModel, Field, GetCoreSchemaHandler
 from pydantic_core import core_schema
@@ -22,7 +19,6 @@ from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.constants import AllFormNames, FormFamilies
 from form_manager.schema.fields import ACFBoundFieldFilterField, acf_fields
-from form_manager.schema.layout import StepBlock
 
 logger = logging.getLogger(__name__)
 
@@ -85,13 +81,13 @@ class BaseFields(forms.Form):
 FormId = TypeVar("FormId", bound=str)
 FormVersion = TypeVar("FormVersion", bound=str)
 
-UIDefinition: TypeAlias = list[StepBlock]
+UIDefinition = type[list]
 
 
 class SchemaValidationError(Exception):
     form_class = None
 
-    def __init__(self, message: str, form_class: Optional[object] = None):
+    def __init__(self, message: str, form_class: object | None = None):
         self.form_class = form_class
         super().__init__(message)
 
@@ -115,9 +111,7 @@ class BaseFormSchema(BaseModel, Generic[FormId, FormVersion], arbitrary_types_al
         return get_type_hints(cls).get("form_fields")
 
     @classmethod
-    def dump_ui_definition_from_json_schema(
-        cls, json_schema: Optional[dict[str, Any]] = None
-    ) -> dict:
+    def dump_ui_definition_from_json_schema(cls, json_schema: dict[str, Any] | None = None) -> dict:
         """Dump the UI definition as a dictionary"""
 
         if not json_schema:

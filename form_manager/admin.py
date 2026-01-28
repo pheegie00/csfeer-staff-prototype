@@ -1,10 +1,7 @@
-import json
-
 from django.contrib import admin
 from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from django_json_widget.widgets import JSONEditorWidget
 
 from form_manager.models import (

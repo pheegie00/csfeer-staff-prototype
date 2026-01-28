@@ -61,13 +61,13 @@ class CrispyUSWDSFieldNode(CrispyFieldNode):
         }
         converters.update(getattr(settings, "CRISPY_CLASS_CONVERTERS", {}))
 
-        for widget, attr in zip(widgets, attrs):
+        for widget, attr in zip(widgets, attrs, strict=True):
             class_name = widget.__class__.__name__.lower()
             class_name = converters.get(class_name, "")
             css_class: str = widget.attrs.get("class", "")
             if css_class:
                 if css_class.find(class_name) == -1:
-                    css_class += " %s" % class_name
+                    css_class += f" { class_name }"
             else:
                 css_class = class_name
 
@@ -80,12 +80,16 @@ class CrispyUSWDSFieldNode(CrispyFieldNode):
             widget.attrs["class"] = css_class
 
             # HTML5 required attribute
-            if html5_required and field.field.required and "required" not in widget.attrs:
-                if (
+            if (
+                html5_required
+                and field.field.required
+                and "required" not in widget.attrs
+                and (
                     field.field.widget.__class__.__name__ != "RadioSelect"
                     and field.field.widget.__class__.__name__ != "CheckboxSelectMultiple"
-                ):
-                    widget.attrs["required"] = "required"
+                )
+            ):
+                widget.attrs["required"] = "required"
 
             for attribute_name, attribute in attr.items():
                 attribute_name = template.Variable(attribute_name).resolve(context)

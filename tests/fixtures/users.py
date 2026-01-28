@@ -2,7 +2,7 @@
 Test user fixtures and helpers.
 """
 
-from typing import Generator
+from collections.abc import Generator
 
 import pytest
 from playwright.sync_api import Page

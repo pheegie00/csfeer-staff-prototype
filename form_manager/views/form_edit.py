@@ -64,9 +64,9 @@ def get_previous_step_and_page(
 def remove_nodes_with_excluded_fields(
     components: list[StepBlock], fields_to_exclude: list[str]
 ) -> list[StepBlock]:
-    """This function takes a list of UI components (steps), removes any descendant FieldBlock components whose names are
-    listed in `fields_to_exclude`, and removes any PageBlock nodes that lack descendant FieldBlock nodes.
-    """
+    """This function takes a list of UI components (steps), removes any descendant FieldBlock
+    components whose names are listed in `fields_to_exclude`, and removes any PageBlock nodes that
+    lack descendant FieldBlock nodes."""
 
     def remove_excluded_nodes(component):
 
@@ -81,11 +81,10 @@ def remove_nodes_with_excluded_fields(
             if hasattr(child, "children") and child.children:
                 child = remove_excluded_nodes(child)
 
-            if isinstance(child, PageBlock):
+            if isinstance(child, PageBlock) and not child.has_field_blocks(child):
                 # If the page has no remaining FieldBlock children, skip it
-                if not child.has_field_blocks(child):
-                    logger.info("Removing empty page %s", child.title)
-                    continue
+                logger.info("Removing empty page %s", child.title)
+                continue
 
             children_to_keep.append(child)
 
@@ -130,10 +129,7 @@ def form_edit(request, pk):
         if "save" in request.POST and not user_can_edit(request.user, entry.organization):
             return False
 
-        if "submit" in request.POST and not user_can_submit(request.user, entry.organization):
-            return False
-
-        return True
+        return "submit" in request.POST and not user_can_submit(request.user, entry.organization)
 
     if request.method == "POST":
 
