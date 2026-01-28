@@ -58,8 +58,10 @@ class BaseFields(forms.Form):
         """Validate the form.
 
         Args:
-            use_default_if_empty: If True, fields with value_if_excluded set will
-                use a cascading value lookup: POST value → initial value → default value.
+            use_default_if_empty: If True, fields with value_if_excluded will use
+                that value
+
+                se a cascading value lookup: POST value → initial value → default value.
                 The first non-empty value (not None or empty string) will be used.
 
         Returns:
@@ -69,12 +71,9 @@ class BaseFields(forms.Form):
 
             for name, instance in self.fields.items():
 
-                if (
-                    name in self.fields_to_exclude
-                    and getattr(instance, "default_if_excluded", None)
-                    # and self.data[name] in ["", None]
+                if name in self.fields_to_exclude and getattr(
+                    instance, "default_if_excluded", None
                 ):
-                    print("settings default for", name)
 
                     self.data[name] = instance.default_if_excluded
 
