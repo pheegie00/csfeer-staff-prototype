@@ -1,4 +1,4 @@
-.PHONY: create-erds down down-all rm-volume restart restart-fresh oauth-setup test-e2e test-e2e-headed test-e2e-debug
+.PHONY: create-erds down down-all rm-volume restart restart-fresh oauth-setup test-e2e test-e2e-headed test-e2e-debug test-e2e-webkit
 
 UV := $(shell which uv || echo $$HOME/.local/bin/uv)
 PATH := /opt/homebrew/bin:/usr/local/bin:$(PATH)
@@ -67,6 +67,14 @@ test-e2e-debug:
 	@echo "Waiting for app to be ready..."
 	@sleep 5
 	$(UV) run pytest tests/e2e/ -v -m e2e --headed --slowmo 1000
+
+test-e2e-webkit:
+	@echo "Starting services..."
+	@docker compose up -d app
+	@echo "Waiting for app to be ready..."
+	@sleep 5
+	@echo "Running tests with WebKit (for macOS Sequoia compatibility)..."
+	$(UV) run pytest tests/e2e/ -v -m e2e --headed --browser=webkit --slowmo 1000
 
 test-e2e-auth:
 	@echo "Starting services..."
