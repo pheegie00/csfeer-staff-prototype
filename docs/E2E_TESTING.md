@@ -14,6 +14,9 @@ uv sync
 
 # Install Playwright browsers
 uv run playwright install chromium
+
+# For macOS Sequoia users: Install WebKit for headed mode
+uv run playwright install webkit
 ```
 
 ### 2. Start Services
@@ -40,6 +43,9 @@ make test-e2e-headed
 
 # Run tests with slow motion for debugging
 make test-e2e-debug
+
+# Run tests with WebKit (for macOS Sequoia)
+make test-e2e-webkit
 
 # Run only authentication tests
 make test-e2e-auth
@@ -159,6 +165,29 @@ make test-e2e-headed
 # Even slower for debugging
 make test-e2e-debug
 ```
+
+### macOS Headed Mode (WebKit)
+
+**Important for macOS Sequoia users:** Chromium has compatibility issues on macOS Sequoia 26.1+. Use WebKit (Safari engine) for headed mode testing:
+
+```bash
+# Install WebKit browser
+uv run playwright install webkit
+
+# Quick way: Use Makefile target (runs all E2E tests)
+make test-e2e-webkit
+
+# Run single test with visible browser (1 second delays)
+uv run pytest tests/e2e/test_tribal_short_form.py::test_tribal_short_form_complete_workflow -v --headed --browser=webkit --slowmo=1000
+
+# Run with slower motion for easier observation (1.5 second delays)
+uv run pytest tests/e2e/test_tribal_short_form.py::test_tribal_short_form_complete_workflow -v --headed --browser=webkit --slowmo=1500
+
+# Run all E2E tests in headed WebKit mode
+uv run pytest tests/e2e/ -v --headed --browser=webkit --slowmo=1000
+```
+
+**Note:** CI/CD pipelines use headless Chromium and are unaffected by this issue.
 
 ### Screenshots and Videos
 
