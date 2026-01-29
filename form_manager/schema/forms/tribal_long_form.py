@@ -117,31 +117,45 @@ class TribalLongFormFields(BaseFields):
     # region Expenditure Descriptions
 
     employment_related_services_description = acf_fields.TextareaField(
-        title="Description", review_title="Details about employment related services"
+        title="Description",
+        review_title="Details about employment related services",
+        default_if_excluded="N/A",
     )
 
     education_related_service_description = acf_fields.TextareaField(
-        title="Description", review_title="Details about education related services"
+        title="Description",
+        review_title="Details about education related services",
+        default_if_excluded="N/A",
     )
 
     income_services_description = acf_fields.TextareaField(
-        title="Description", review_title="Details about income and asset services"
+        title="Description",
+        review_title="Details about income and asset services",
+        default_if_excluded="N/A",
     )
 
     housing_services_description = acf_fields.TextareaField(
-        title="Description", review_title="Details about housing services"
+        title="Description",
+        review_title="Details about housing services",
+        default_if_excluded="N/A",
     )
 
     health_services_description = acf_fields.TextareaField(
-        title="Description", review_title="Details about health services"
+        title="Description",
+        review_title="Details about health services",
+        default_if_excluded="N/A",
     )
 
     civic_services_description = acf_fields.TextareaField(
-        title="Description", review_title="Details about civic services"
+        title="Description",
+        review_title="Details about civic services",
+        default_if_excluded="N/A",
     )
 
     transportation_services_description = acf_fields.TextareaField(
-        title="Description", review_title="Details about transportation services"
+        title="Description",
+        review_title="Details about transportation services",
+        default_if_excluded="N/A",
     )
 
     # region Demographic Questions

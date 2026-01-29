@@ -54,6 +54,32 @@ class BaseFields(forms.Form):
 
         return core_schema.typed_dict_schema(fields)
 
+    def is_valid(self, use_default_if_excluded: bool = False) -> bool:
+        """Validate the form.
+
+        Args:
+            use_default_if_empty: If True, fields with value_if_excluded will use
+                that value for validation purposes. This happens by setting the value_if_excluded
+                variable as the field value in the incoming data dictonary.
+
+                This provides a way to validate the form when the user has excluded certain fields
+                from the form interview.
+
+        Returns:
+            True if the form is valid, False otherwise.
+        """
+        if use_default_if_excluded:
+
+            for name, instance in self.fields.items():
+
+                if name in self.fields_to_exclude and getattr(
+                    instance, "default_if_excluded", None
+                ):
+
+                    self.data[name] = instance.default_if_excluded
+
+        return super().is_valid()
+
     @cached_property
     def has_filter_fields(self) -> bool:
         """Return True if the form has any filter fields."""

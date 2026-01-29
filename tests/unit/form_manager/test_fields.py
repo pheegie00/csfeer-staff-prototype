@@ -158,3 +158,170 @@ def test_yesno_display_field():
     assert form.is_valid()
 
     assert form.cleaned_data["spent"] == "-".join(data.values())
+
+
+def test_excluded_required_field_uses_default_with_use_default_if_empty():
+    """When required field with default_if_excluded is excluded and use_default_if_empty=True, use default."""
+    from decimal import Decimal
+
+    class TestForm(BaseFields):
+        topics = acf_fields.FieldFilterField(
+            choices=[
+                ("field1", "Topic 1"),
+                ("field2", "Topic 2"),
+            ],
+        )
+        field1 = acf_fields.CurrencyField(title="Field 1", required=True, default_if_excluded=0)
+        field2 = acf_fields.CharField(title="Field 2", required=True, default_if_excluded="N/A")
+
+    # Select only field1, so field2 is excluded
+    form = TestForm(data={"topics": ["field1"], "field1": "100"})
+
+    # With use_default_if_empty=True, excluded field should use default
+    assert form.is_valid(use_default_if_excluded=True), f"Form errors: {form.errors}"
+    assert form.cleaned_data["field1"] == Decimal("100")
+    assert form.cleaned_data["field2"] == "N/A"  # Should use default
+
+
+def test_excluded_required_field_fails_without_use_default_if_empty():
+    """When required field with default_if_excluded is excluded but use_default_if_empty=False, fail validation."""
+
+    class TestForm(BaseFields):
+        topics = acf_fields.FieldFilterField(
+            choices=[
+                ("field1", "Topic 1"),
+                ("field2", "Topic 2"),
+            ],
+        )
+        field1 = acf_fields.CurrencyField(title="Field 1", required=True, default_if_excluded=0)
+        field2 = acf_fields.CharField(title="Field 2", required=True, default_if_excluded="N/A")
+
+    # Select only field1, so field2 is excluded
+    form = TestForm(data={"topics": ["field1"], "field1": "100"})
+
+    # Without use_default_if_empty=True, excluded required field should fail
+    assert not form.is_valid()
+    assert "field2" in form.errors
+
+
+def test_excluded_field_user_can_override_when_not_excluded():
+    """When field is not excluded, user input takes precedence."""
+    from decimal import Decimal
+
+    class TestForm(BaseFields):
+        topics = acf_fields.FieldFilterField(
+            choices=[
+                ("field1", "Topic 1"),
+                ("field2", "Topic 2"),
+            ],
+        )
+        field1 = acf_fields.CurrencyField(title="Field 1", required=True, default_if_excluded=0)
+        field2 = acf_fields.CharField(title="Field 2", required=True, default_if_excluded="N/A")
+
+    # Select both fields
+    form = TestForm(data={"topics": ["field1", "field2"], "field1": "100", "field2": "User Input"})
+
+    assert form.is_valid(use_default_if_excluded=True), f"Form errors: {form.errors}"
+    assert form.cleaned_data["field1"] == Decimal("100")
+    assert form.cleaned_data["field2"] == "User Input"  # User input, not default
+
+
+def test_required_field_without_default_if_excluded_fails_when_excluded():
+    """Without default_if_excluded, excluded required field should fail validation even with use_default_if_empty=True."""
+
+    class TestForm(BaseFields):
+        topics = acf_fields.FieldFilterField(
+            choices=[
+                ("field1", "Topic 1"),
+                ("field2", "Topic 2"),
+            ],
+        )
+        field1 = acf_fields.CurrencyField(title="Field 1", required=True)
+        field2 = acf_fields.CharField(title="Field 2", required=True, default_if_excluded="N/A")
+
+    # Select only field2, field1 is excluded but has no default_if_excluded
+    form = TestForm(data={"topics": ["field2"], "field2": "Value"})
+
+    # Form should be invalid because field1 is required but has no default
+    assert not form.is_valid(use_default_if_excluded=True)
+    assert "field1" in form.errors
+
+
+def test_optional_field_with_default_if_excluded():
+    """Optional field with default_if_excluded uses default when excluded and use_default_if_empty=True."""
+
+    class TestForm(BaseFields):
+        topics = acf_fields.FieldFilterField(
+            choices=[
+                ("field1", "Topic 1"),
+                ("field2", "Topic 2"),
+            ],
+        )
+        field1 = acf_fields.CharField(title="Field 1", required=True)
+        field2 = acf_fields.CharField(
+            title="Field 2", required=False, default_if_excluded="Optional Default"
+        )
+
+    # Select only field1, field2 is excluded
+    form = TestForm(data={"topics": ["field1"], "field1": "Value"})
+
+    assert form.is_valid(use_default_if_excluded=True), f"Form errors: {form.errors}"
+    assert form.cleaned_data["field1"] == "Value"
+    assert form.cleaned_data["field2"] == "Optional Default"
+
+
+def test_default_if_excluded_with_different_field_types():
+    """Test default_if_excluded with different field types when use_default_if_empty=True."""
+    from decimal import Decimal
+
+    class TestForm(BaseFields):
+        topics = acf_fields.FieldFilterField(
+            choices=[
+                ("selected", "Selected Topic"),
+                ("currency_field,char_field,integer_field", "Other Fields"),
+            ],
+        )
+        selected = acf_fields.CharField(title="Selected", required=True)
+        currency_field = acf_fields.CurrencyField(
+            title="Currency", required=True, default_if_excluded="0.00"
+        )
+        char_field = acf_fields.CharField(
+            title="Char", required=True, default_if_excluded="Default Text"
+        )
+        integer_field = acf_fields.IntegerField(
+            title="Integer", required=True, default_if_excluded="0"
+        )
+
+    # Select only "selected" topic, so other fields are excluded
+    form = TestForm(
+        data={
+            "topics": ["selected"],
+            "selected": "Value",
+        }
+    )
+
+    assert form.is_valid(use_default_if_excluded=True)
+    assert form.cleaned_data["selected"] == "Value"
+    assert form.cleaned_data["currency_field"] == Decimal("0.00")
+    assert form.cleaned_data["char_field"] == "Default Text"
+    assert form.cleaned_data["integer_field"] == 0
+
+
+def test_default_if_excluded_none_behaves_normally():
+    """Field with default_if_excluded=None should behave like normal field."""
+
+    class TestForm(BaseFields):
+        topics = acf_fields.FieldFilterField(
+            choices=[
+                ("field1", "Topic 1"),
+            ],
+        )
+        field1 = acf_fields.CharField(title="Field 1", required=True)
+        field2 = acf_fields.CharField(title="Field 2", required=True, default_if_excluded=None)
+
+    # Select only field1, field2 is excluded
+    form = TestForm(data={"topics": ["field1"], "field1": "Value"})
+
+    # Form should be invalid because field2 is required and has no default
+    assert not form.is_valid(use_default_if_excluded=True)
+    assert "field2" in form.errors

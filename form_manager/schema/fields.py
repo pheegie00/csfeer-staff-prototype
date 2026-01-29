@@ -49,6 +49,8 @@ class ACFFieldMixin:
         self.description = kwargs.pop("description", None)
         self.is_presentational_only = kwargs.pop("is_presentational_only", False)
         self.review_title = kwargs.pop("review_title", False)
+        self.default_if_excluded = kwargs.pop("default_if_excluded", None)
+
         kwargs["help_text"] = kwargs.get("help_text", self.description)
         super().__init__(*args, **kwargs)
 
@@ -90,6 +92,7 @@ class ACFFieldMixin:
             "step_size",
             "max_digits",
             "decimal_places",
+            "value_if_excluded",
         ]
 
         data = {
