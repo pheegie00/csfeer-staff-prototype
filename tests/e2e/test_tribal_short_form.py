@@ -23,9 +23,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     assert short_form_heading.is_visible(), "TribalShortForm should be available"
 
     # Click "Start New Form" for TribalShortForm
-    # Find all Start New Form links and click the one in the card with our form
-    all_start_links = page.get_by_role("link", name="Start New Form")
-    # Get the index by finding which card contains our heading
+    # Find the card containing our form and click its Start New Form link
     form_cards = page.locator(".grid-col-12.tablet\\:grid-col-6")
     for i in range(form_cards.count()):
         card = form_cards.nth(i)
@@ -42,6 +40,10 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     page.get_by_label("Role *").fill("Test Program Manager")
     page.get_by_label("Primary phone number *").fill("555-000-1111")
     page.get_by_label("Email address *").fill("e2etest@example.org")
+
+    # Scroll to bottom to show footer
+    page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
+    page.wait_for_timeout(500)
 
     # Click Save & Continue
     page.get_by_role("button", name="Save & Continue →").click()
@@ -60,14 +62,18 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     page.evaluate(
         """
         () => {
-            const employmentCheckbox = document.querySelector('input[type="checkbox"][value*="employment"]');
-            const housingCheckbox = document.querySelector('input[type="checkbox"][value*="housing"]');
-            
+            const employmentCheckbox = document.querySelector(
+                'input[type="checkbox"][value*="employment"]'
+            );
+            const housingCheckbox = document.querySelector(
+                'input[type="checkbox"][value*="housing"]'
+            );
+
             if (employmentCheckbox) {
                 const label = document.querySelector(`label[for="${employmentCheckbox.id}"]`);
                 if (label) label.click();
             }
-            
+
             if (housingCheckbox) {
                 const label = document.querySelector(`label[for="${housingCheckbox.id}"]`);
                 if (label) label.click();
@@ -78,6 +84,10 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
 
     # Wait for Alpine.js to process the changes
     page.wait_for_timeout(1000)
+
+    # Scroll to bottom to show footer
+    page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
+    page.wait_for_timeout(500)
 
     # Continue to expenditure amounts
     with page.expect_navigation(timeout=5000):
@@ -91,6 +101,10 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     # Fill expenditure amounts
     page.get_by_label("Employment *").fill("80000.00")
     page.get_by_label("Housing *").fill("20000.00")
+
+    # Scroll to bottom to show footer
+    page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
+    page.wait_for_timeout(500)
 
     # Continue to administration costs
     with page.expect_navigation(timeout=5000):
@@ -118,6 +132,10 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     # Wait for Alpine.js to process the changes
     page.wait_for_timeout(1000)
 
+    # Scroll to bottom to show footer
+    page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
+    page.wait_for_timeout(500)
+
     # Continue to Step 3: Expenditure details
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Save & Continue →").click()
@@ -134,6 +152,10 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
         "E2E test: Employment services including job training and placement assistance."
     )
 
+    # Scroll to bottom to show footer
+    page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
+    page.wait_for_timeout(500)
+
     # Continue to housing services description
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Save & Continue →").click()
@@ -145,6 +167,10 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     page.get_by_label("Description *").fill(
         "E2E test: Housing assistance including emergency shelter and rental support."
     )
+
+    # Scroll to bottom to show footer
+    page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
+    page.wait_for_timeout(500)
 
     # Continue to Step 4: Review and Submit
     with page.expect_navigation(timeout=5000):
@@ -170,6 +196,10 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     assert page.get_by_text("80,000.00").is_visible()  # Employment amount
     assert page.get_by_text("20,000.00").is_visible()  # Housing amount
     assert page.get_by_text("100,000.00").is_visible()  # Total
+
+    # Scroll to bottom to show footer before submission
+    page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
+    page.wait_for_timeout(500)
 
     # Submit the form
     with page.expect_navigation(timeout=10000):

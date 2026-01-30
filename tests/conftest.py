@@ -47,7 +47,7 @@ def browser_context_args(browser_context_args: dict) -> dict:
     """
     return {
         **browser_context_args,
-        "viewport": {"width": 1920, "height": 1080},
+        "viewport": {"width": 1920, "height": 1600},
         "locale": "en-US",
         "timezone_id": "America/New_York",
         "ignore_https_errors": True,
@@ -73,7 +73,7 @@ def context(
     context = browser.new_context(
         **browser_context_args,
         record_video_dir="tests/videos/",
-        record_video_size={"width": 1920, "height": 1080},
+        record_video_size={"width": 1920, "height": 1600},
     )
 
     # Start tracing for debugging
