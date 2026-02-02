@@ -1,0 +1,9 @@
+<c-vars
+    extra_classes=""
+    is_tag=""
+    tag_new=""
+/>
+
+<li class="usa-collection__meta-item{% if is_tag %} usa-tag{% endif %}{% if tag_new %} usa-tag--new{% endif %} {{ extra_classes }}">
+    {{ slot }}
+</li>
