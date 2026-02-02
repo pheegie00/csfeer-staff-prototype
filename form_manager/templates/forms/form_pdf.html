@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ entry.form_definition.title }} - Version {{ entry.version_number }}</title>
+  <title>{{ entry.form_definition.name }} - Version {{ entry.version_number }}</title>
   <style>
     /* PDF-optimized styles using USWDS design tokens */
     @page {
       size: letter;
       margin: 0.75in;
       @top-center {
-        content: "{{ entry.form_definition.title|escapejs }}";
+        content: "{{ entry.form_definition.name|escapejs }}";
         font-size: 10pt;
         color: #71767a;
       }
@@ -221,7 +221,7 @@
 </head>
 <body>
   <div class="header">
-    <h1>{{ entry.form_definition.title }}</h1>
+    <h1>{{ entry.form_definition.name }}</h1>
     <div class="metadata">
       <span class="metadata-item">
         <span class="metadata-label">Version:</span> {{ entry.version_number }}
