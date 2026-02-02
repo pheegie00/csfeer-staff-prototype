@@ -1,0 +1,41 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Side Navigation Component</h1>
+
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-side_nav aria_label="{{ variant.aria_label }}">
+            {% for item in variant.items %}
+            <c-side_nav.item
+                text="{{ item.text }}"
+                href="{{ item.href }}"
+                is_current="{{ item.is_current|default:'' }}"
+            >
+                {% if item.children %}
+                    {% for child in item.children %}
+                    <c-side_nav.item
+                        text="{{ child.text }}"
+                        href="{{ child.href }}"
+                        is_current="{{ child.is_current|default:'' }}"
+                    >
+                        {% if child.children %}
+                            {% for grandchild in child.children %}
+                            <c-side_nav.item
+                                text="{{ grandchild.text }}"
+                                href="{{ grandchild.href }}"
+                                is_current="{{ grandchild.is_current|default:'' }}"
+                            />
+                            {% endfor %}
+                        {% endif %}
+                    </c-side_nav.item>
+                    {% endfor %}
+                {% endif %}
+            </c-side_nav.item>
+            {% endfor %}
+        </c-side_nav>
+    </div>
+    {% endfor %}
+</div>
