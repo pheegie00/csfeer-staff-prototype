@@ -35,10 +35,12 @@ class AppConfig(BaseSettings):
     secret_key: str = "REPLACE ME"
     debug: bool = True
     allowed_hosts: list[str] = ["localhost", "0.0.0.0", "ui.csfeer", "127.0.0.1"]
+    csrf_trusted_origins: list[str] = ["http://localhost:8000", "http://127.0.0.1:8000"]
     time_zone: str = "EST"
     language_code: str = "en-us"
     use_i18n: bool = True
     use_tz: bool = True
+    use_oidc: bool = True  # Set to False to use Django auth instead
     oidc_config: OIDCConfig = OIDCConfig()
     db_config: DBConfig = DBConfig()
     logging_config: LoggingConfig = LoggingConfig()

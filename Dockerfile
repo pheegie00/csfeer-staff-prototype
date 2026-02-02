@@ -63,10 +63,15 @@ COPY pyproject.toml uv.lock ./
 ARG UV_INDEX_CODEARTIFACT_PASSWORD UV_INDEX_CODEARTIFACT_USERNAME
 RUN uv sync --frozen --no-install-project --quiet --no-dev
 ENV PATH="/app/.venv/bin:$PATH"
-COPY --chown=python:python ./csfeer .
-COPY --chown=python:python --from=static /app/csfeer/node_modules /app/node_modules
-COPY --chown=python:python --from=static /app/csfeer/static /app/static
-RUN python manage.py collectstatic --noinput
+COPY --chown=python:python manage.py ./
+COPY --chown=python:python ./core ./core
+COPY --chown=python:python ./csfeer ./csfeer
+COPY --chown=python:python ./form_manager ./form_manager
+COPY --chown=python:python ./users ./users
+COPY --chown=python:python ./django_cotton_uswds ./django_cotton_uswds
+COPY --chown=python:python --from=static /app/staticfiles ./staticfiles
+COPY --chown=python:python --from=static /app/csfeer/static ./csfeer/static
+RUN mkdir -p /app/logs && chown python:python /app/logs
 
 # Prod
 FROM python:3.12.10-slim AS app
@@ -74,9 +79,12 @@ FROM python:3.12.10-slim AS app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install only runtime dependencies (no build tools)
+# Install only runtime dependencies (no build tools) + postgresql-client for pg_isready + curl for health checks
+# Note: Using postgresql-client (not -16) as Debian 12 only has PostgreSQL 15 in default repos
 RUN apt-get update && apt-get upgrade --yes \
     && apt-get install --no-install-recommends --yes \
+    postgresql-client \
+    curl \
     libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 \
     && apt-get autoremove -y && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/* \
@@ -88,8 +96,18 @@ RUN groupadd -g 10001 python && \
 RUN mkdir /app && chown python:python /app
 WORKDIR /app
 
-COPY --chown=python:python ./csfeer .
+COPY --chown=python:python manage.py ./
+COPY --chown=python:python ./core ./core
+COPY --chown=python:python ./csfeer ./csfeer
+COPY --chown=python:python ./form_manager ./form_manager
+COPY --chown=python:python ./users ./users
+COPY --chown=python:python ./django_cotton_uswds ./django_cotton_uswds
 COPY --chown=python:python --from=app-build /app/.venv /app/.venv
+COPY --chown=python:python --from=app-build /app/staticfiles /app/staticfiles
+
+# Copy and configure entrypoint script
+COPY --chown=python:python docker-entrypoint.sh /app/
+RUN chmod +x /app/docker-entrypoint.sh
 
 # Create logs directory for Django logging
 RUN mkdir -p /app/logs && chown python:python /app/logs
@@ -98,7 +116,9 @@ USER python
 
 ENV UVLOOP_DISABLE=1
 ENV PATH="/app/.venv/bin:$PATH"
-CMD [ "gunicorn", "--bind", "0.0.0.0:8000", "csfeer.wsgi:application"  ]
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "csfeer.wsgi:application"]
 
 
 FROM nginxinc/nginx-unprivileged:stable-alpine3.21-perl AS serve-static

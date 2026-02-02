@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     "crispy_forms",
     "django_cotton",
     "django_cotton_uswds",
-    "django_extensions",
     "django_json_widget",
     # Local
     "core",
@@ -57,6 +56,14 @@ INSTALLED_APPS = [
     "django.forms",
 ]
 
+# Add django_extensions only if available (dev dependency)
+try:
+    import django_extensions  # noqa: F401
+
+    INSTALLED_APPS.append("django_extensions")
+except ImportError:
+    pass
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -64,14 +71,18 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "oauth2_authcodeflow.middleware.LoginRequiredMiddleware",
-    "oauth2_authcodeflow.middleware.RefreshAccessTokenMiddleware",
-    "oauth2_authcodeflow.middleware.RefreshSessionMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-AUTHENTICATION_BACKENDS = ["csfeer.backends.EmailOIDCAuthenticationBackend"]
+# Add OIDC middleware only if enabled
+if settings.use_oidc:
+    MIDDLEWARE.insert(6, "oauth2_authcodeflow.middleware.LoginRequiredMiddleware")
+    MIDDLEWARE.insert(7, "oauth2_authcodeflow.middleware.RefreshAccessTokenMiddleware")
+    MIDDLEWARE.insert(8, "oauth2_authcodeflow.middleware.RefreshSessionMiddleware")
+    AUTHENTICATION_BACKENDS = ["csfeer.backends.EmailOIDCAuthenticationBackend"]
+else:
+    AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 ROOT_URLCONF = "csfeer.urls"
 APPEND_SLASH = False
 
@@ -155,13 +166,25 @@ TIME_ZONE = settings.time_zone
 USE_I18N = settings.use_i18n
 USE_TZ = settings.use_tz
 
+# Proxy/Load Balancer settings
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# CSRF trusted origins (for load balancer URLs)
+CSRF_TRUSTED_ORIGINS = settings.csrf_trusted_origins
+
 # OIDC Configuration
 OIDC_OP_DISCOVERY_DOCUMENT_URL = settings.oidc_config.document_url
 OIDC_RP_CLIENT_ID = settings.oidc_config.client_id
 OIDC_RP_CLIENT_SECRET = settings.oidc_config.client_secret
 OIDC_RP_FORCE_SECRET_WITH_PKCE = settings.oidc_config.force_secret_with_pkce
 OIDC_RP_SCOPES = settings.oidc_config.scopes
-OIDC_MIDDLEWARE_NO_AUTH_URL_PATTERNS = settings.oidc_config.no_auth_urls
+# Exempt health check endpoints and configured URLs from authentication
+OIDC_MIDDLEWARE_NO_AUTH_URL_PATTERNS = settings.oidc_config.no_auth_urls + [
+    "health",  # Liveness probe
+    "ready",  # Readiness probe
+]
 OIDC_EXTEND_USER = (
     "csfeer.backends.extend_user_with_roles"  # Custom function to extend user with roles
 )

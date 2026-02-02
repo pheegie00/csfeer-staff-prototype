@@ -45,7 +45,7 @@ class Command(BaseCommand):
             for user in UserModel.objects.all():
                 self._create_org(user, org_name)
         else:
-            email: str | None = options.get("username")
+            email: str | None = options.get("email")
 
             try:
                 user = UserModel.objects.get(email=email)

@@ -223,3 +223,4 @@ tests/videos/
 tests/traces/
 test-results/
 playwright-report/
+cookies.txt

@@ -25,6 +25,9 @@ from django.views.generic import TemplateView
 from form_manager.api import api as form_api
 
 urlpatterns = [
+    # Health checks (must be first - exempted from authentication)
+    path("", include("core.urls")),
+    # Application URLs
     path("", TemplateView.as_view(template_name="index.html"), name="index"),
     path("admin/", admin.site.urls),
     path("oidc/", include("oauth2_authcodeflow.urls")),
