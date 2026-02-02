@@ -159,6 +159,30 @@ def test_yesno_display_field():
 
     assert form.cleaned_data["spent"] == "-".join(data.values())
 
+    assert form["spent"].value() == list(data.values())
+
+
+def test_yesno_display_field_as_list():
+
+    class TestForm(BaseFields):
+
+        spent = acf_fields.YesNoDisplayField(
+            title="Did you spend any money?",
+            fields=[acf_fields.CurrencyField(title="Enter the amount spent")],
+        )
+
+    data = {
+        "spent": ["yes", "10.00"],
+    }
+
+    form = TestForm(data)
+
+    assert form.is_valid()
+
+    assert form.cleaned_data["spent"] == "-".join(data["spent"])
+
+    assert form["spent"].value() == data["spent"]
+
 
 def test_excluded_required_field_uses_default_with_use_default_if_empty():
     """When required field with default_if_excluded is excluded and use_default_if_empty=True, use default."""

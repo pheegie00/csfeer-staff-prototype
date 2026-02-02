@@ -1,0 +1,10 @@
+<div class="font-family-body text-semibold margin-bottom-05">{{ block.display_title }}</div>
+
+<div class="{% if block.errors %}text-error{% endif %} font-family-body">
+
+{% if block.value is None and block.errors %}
+    {{ block.errors.0 }}
+{% else %}
+    {{ block.value }} {% if block.errors %}{{ block.errors.0 }}{% endif %}
+{% endif %}
+</div>

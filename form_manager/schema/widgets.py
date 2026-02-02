@@ -27,3 +27,10 @@ class YesNoDisplayWidget(forms.MultiWidget):
             return value.split("-")
 
         return "", ""
+
+    def value_from_datadict(self, data, files, name):
+
+        if name in data:
+            return data.get(name, [])
+
+        return super().value_from_datadict(data, files, name)

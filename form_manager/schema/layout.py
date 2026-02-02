@@ -1,6 +1,7 @@
 """Layout schema definitions for CSFEER forms."""
 
 import abc
+import logging
 from typing import Any, ClassVar, Literal, Self, cast
 
 from django.forms.boundfield import BoundField
@@ -9,6 +10,8 @@ from django.forms.utils import RenderableMixin
 from pydantic import BaseModel, PrivateAttr
 
 from form_manager.schema.fields import ACFField
+
+logger = logging.getLogger(__name__)
 
 
 class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
@@ -19,6 +22,7 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
     renderer: ClassVar[TemplatesSetting] = TemplatesSetting()
     children: list[T] | None = None
     template_name: S | None = None
+    review_template_name: str | None = None
 
     def set_extra_context(self, **kwargs: Any) -> None:
         """Set global context that will also be made available to any descendant nodes."""
@@ -38,11 +42,25 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
         field_context = {
             field_name: getattr(self, field_name, None)
             for field_name in self.__class__.model_fields
+        } | {
+            "block": self,
         }
 
         context = context | field_context | self._global_context
 
         return context
+
+    def as_review_block(self):
+
+        if self.review_template_name:
+            return self.render(self.review_template_name)
+
+        logger.warning(
+            f"You're trying to call `as_review_block` on {self.__class__.__name__} "
+            "without specifying a `review_template_name` property."
+        )
+
+        return ""
 
     @classmethod
     def has_field_blocks(cls, node) -> bool:
@@ -119,13 +137,18 @@ class FieldBlock(RenderableBaseModel):
     type: str = "field"
     field_name: str
     template_name: str = "form_manager/forms/field.html"
+    review_template_name: str | None = "form_manager/forms/field_review.html"
 
     def get_context(self):
         context = super().get_context()
         form = context.get("form")
         if form:
             bound_field = form[self.field_name]
-            context.update({"field": bound_field})
+            context.update(
+                {
+                    "field": bound_field,
+                }
+            )
         return context
 
     @property
