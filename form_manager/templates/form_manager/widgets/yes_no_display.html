@@ -1,5 +1,6 @@
 {% spaceless %}
-    <div x-data="{ checked: 'foo'}" x-init="console.log(checked)" x-on:change="checked = $event.target.value; console.log(checked)">
+    <div x-data="{ checked: '{{ widget.subwidgets.0.value.0 }}'}" x-on:change="checked = $event.target.value">
+    
     {% for widget in widget.subwidgets %}
         {% if forloop.counter0 == 0 %}
             <div class="margin-bottom-4">

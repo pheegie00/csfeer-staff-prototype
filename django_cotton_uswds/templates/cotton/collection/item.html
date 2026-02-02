@@ -1,0 +1,52 @@
+<c-vars
+    heading=""
+    heading_tag="h4"
+    link_url=""
+    description=""
+    img_src=""
+    img_alt=""
+    calendar_date=""
+    calendar_month=""
+    calendar_day=""
+    extra_classes=""
+    heading_classes=""
+/>
+
+<li class="usa-collection__item {{ extra_classes }}">
+    {% if img_src %}
+    <img
+        class="usa-collection__img"
+        src="{{ img_src }}"
+        alt="{{ img_alt }}"
+    />
+    {% endif %}
+
+    {% if calendar_date %}
+    <div class="usa-collection__calendar-date">
+        <time datetime="{{ calendar_date }}">
+            {% if calendar_month %}<span class="usa-collection__calendar-date-month">{{ calendar_month }}</span>{% endif %}
+            {% if calendar_day %}<span class="usa-collection__calendar-date-day">{{ calendar_day }}</span>{% endif %}
+        </time>
+    </div>
+    {% endif %}
+
+    <div class="usa-collection__body">
+        {% if heading %}
+        <{{ heading_tag }} class="usa-collection__heading {{ heading_classes }}">
+            {% if link_url %}
+            <a class="usa-link" href="{{ link_url }}">{{ heading }}</a>
+            {% else %}
+            {{ heading }}
+            {% endif %}
+        </{{ heading_tag }}>
+        {% endif %}
+
+        {% if description %}
+        <p class="usa-collection__description">
+            {{ description }}
+        </p>
+        {% endif %}
+
+        {{ slot }}
+    </div>
+</li>

@@ -1,0 +1,50 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Collection Component</h1>
+
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-collection condensed="{{ variant.condensed|default:'' }}">
+            {% for item in variant.items %}
+            <c-collection.item
+                heading="{{ item.heading }}"
+                link_url="{{ item.link_url }}"
+                description="{{ item.description|default:'' }}"
+                img_src="{{ item.img_src|default:'' }}"
+                img_alt="{{ item.img_alt|default:'' }}"
+                calendar_date="{{ item.calendar_date|default:'' }}"
+                calendar_month="{{ item.calendar_month|default:'' }}"
+                calendar_day="{{ item.calendar_day|default:'' }}"
+            >
+                {% if item.meta_info %}
+                <c-collection.meta>
+                    {% for meta in item.meta_info %}
+                    <c-collection.meta_item extra_classes="{{ meta.extra_classes|default:'' }}">
+                        {% if meta.datetime %}
+                        <time datetime="{{ meta.datetime }}">{{ meta.text }}</time>
+                        {% else %}
+                        {{ meta.text }}
+                        {% endif %}
+                    </c-collection.meta_item>
+                    {% endfor %}
+                </c-collection.meta>
+                {% endif %}
+
+                {% if item.tags %}
+                <c-collection.meta aria_label="Topics">
+                    {% for tag in item.tags %}
+                    <c-collection.meta_item is_tag="true" tag_new="{{ tag.is_new|default:'' }}">
+                        {{ tag.text }}
+                    </c-collection.meta_item>
+                    {% endfor %}
+                </c-collection.meta>
+                {% endif %}
+            </c-collection.item>
+            {% endfor %}
+        </c-collection>
+    </div>
+    {% endfor %}
+</div>
