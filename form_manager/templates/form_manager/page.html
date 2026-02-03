@@ -13,8 +13,6 @@
 <div class="margin-top-4 padding-top-2 border-top-1px border-base-lighter">
     <div class="display-flex flex-justify flex-wrap flex-gap-1 flex-align-end">
 
-        <p style="background: yellow; padding: 5px;">DEBUG: Step {{ current_step_number }} / Page {{ current_page_number }}</p>
-
         {% if current_step_number != 0 or current_page_number != 0 %}
         <a href="{{ prev_url }}" class="usa-button usa-button--outline" type="submit" name="page-action" value="previous">
         ← Back
