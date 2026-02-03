@@ -160,18 +160,34 @@ class FieldBlock(RenderableBaseModel):
         """This will automatically search for a template name like `[field_name]_review.html`
         and use that template to render it, if it exists."""
 
-        if hasattr(self, "field") and self.field:
+        def find_template():
 
-            field_class = self.field.field.__class__.__name__
+            if hasattr(self, "field") and self.field:
 
-            field_class = field_class.replace("ACF", "").replace("Field", "")
+                field_class = self.field.field.__class__.__name__
 
-            try:
-                review_template_name = f"form_manager/forms/{field_class.lower()}_review.html"
-                get_template(review_template_name)
-                return super().as_review_block(template_name=review_template_name)
-            except TemplateDoesNotExist:
-                pass
+                field_class = field_class.replace("ACF", "").replace("Field", "")
+
+                try:
+                    _review_template_name = f"form_manager/forms/{field_class.lower()}_review.html"
+                    get_template(_review_template_name)
+                    return _review_template_name
+                except TemplateDoesNotExist:
+                    pass
+
+        if template_name:
+            pass
+
+        elif (
+            self.review_template_name != self.__class__.model_fields["review_template_name"].default
+        ):
+            template_name = self.template_name
+
+        elif find_template():
+            template_name = find_template()
+
+        else:
+            template_name = self.review_template_name
 
         return super().as_review_block(template_name=template_name)
 
