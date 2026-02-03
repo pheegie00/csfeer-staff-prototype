@@ -129,3 +129,54 @@ def test_can_correctly_filter_fields(
 
     # but the item 3 field should not be in the response
     assert "item3_cost" not in response.content.decode("utf-8")
+
+
+@pytest.mark.django_db
+def test_back_button_not_shown_on_first_page(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    """
+    Test that the back button is not displayed on the first page (step=0, page=0).
+    This regression test ensures that current_step_number and current_page_number
+    are correctly passed to the page template context.
+    """
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    # Request the first page explicitly
+    response = authenticated_client.get(url, {"step": 0, "page": 0})
+
+    assert response.status_code == 200
+
+    content = response.content.decode("utf-8")
+
+    # Verify the back button link is not in the response
+    assert "← Back" not in content
+
+    # Verify that current_step_number and current_page_number are in the context
+    assert response.context["current_step_number"] == 0
+    assert response.context["current_page_number"] == 0
+
+
+@pytest.mark.django_db
+def test_back_button_shown_on_second_page(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    """
+    Test that the back button is displayed when not on the first page.
+    This verifies the back button appears for step > 0 or page > 0.
+    """
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    # Request the second page
+    response = authenticated_client.get(url, {"step": 0, "page": 1})
+
+    assert response.status_code == 200
+
+    content = response.content.decode("utf-8")
+
+    # Verify the back button link IS in the response
+    assert "← Back" in content
+
+    # Verify that current_step_number and current_page_number are in the context
+    assert response.context["current_step_number"] == 0
+    assert response.context["current_page_number"] == 1
