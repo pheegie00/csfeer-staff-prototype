@@ -1,0 +1,23 @@
+<c-vars
+    title_text="On this page"
+    title_heading_level="h4"
+    scroll_offset="0"
+    root_margin="0px 0px 0px 0px"
+    threshold="1"
+    content_id="main-content"
+    extra_classes=""
+/>
+
+<div class="usa-in-page-nav-container {{ extra_classes }}">
+    <aside
+        class="usa-in-page-nav"
+        data-title-text="{{ title_text }}"
+        data-title-heading-level="{{ title_heading_level }}"
+        data-scroll-offset="{{ scroll_offset }}"
+        data-root-margin="{{ root_margin }}"
+        data-threshold="{{ threshold }}"
+    ></aside>
+    <main id="{{ content_id }}" class="main-content usa-prose">
+        {{ slot }}
+    </main>
+</div>

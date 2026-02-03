@@ -1,0 +1,64 @@
+name: In-Page Navigation
+context:
+  variants:
+    - title: "Default In-Page Navigation"
+      title_text: "On this page"
+      title_heading_level: "h4"
+      scroll_offset: "0"
+      content_id: "main-content"
+      page_title: "Sample in-page navigation page"
+      sections:
+        - heading: "Lorem ipsum dolor"
+          paragraphs:
+            - "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi commodo, ipsum sed pharetra gravida, orci magna rhoncus neque, id pulvinar odio lorem non turpis. Nullam sit amet enim."
+            - "Suspendisse id velit vitae ligula volutpat condimentum. Aliquam erat volutpat. Sed quis velit. Nulla facilisi. Nulla libero. Vivamus pharetra posuere sapien."
+        - heading: "Consectetuer adipiscing elit"
+          paragraphs:
+            - "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi commodo, ipsum sed pharetra gravida, orci magna rhoncus neque, id pulvinar odio lorem non turpis."
+            - "Nullam sit amet enim. Suspendisse id velit vitae ligula volutpat condimentum. Aliquam erat volutpat. Sed quis velit. Nulla facilisi."
+          subsections:
+            - heading: "Nullam sit amet enim"
+              paragraphs:
+                - "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi commodo, ipsum sed pharetra gravida, orci magna rhoncus neque, id pulvinar odio lorem non turpis."
+            - heading: "Vivamus pharetra posuere sapien"
+              paragraphs:
+                - "Suspendisse id velit vitae ligula volutpat condimentum. Aliquam erat volutpat. Sed quis velit. Nulla facilisi. Nulla libero."
+            - heading: "Suspendisse id velit"
+              paragraphs:
+                - "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi commodo, ipsum sed pharetra gravida, orci magna rhoncus neque."
+            - heading: "Orci magna rhoncus neque"
+              paragraphs:
+                - "Nullam sit amet enim. Suspendisse id velit vitae ligula volutpat condimentum. Aliquam erat volutpat."
+        - heading: "Aliquam erat volutpat"
+          paragraphs:
+            - "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi commodo, ipsum sed pharetra gravida, orci magna rhoncus neque."
+            - "Nullam sit amet enim. Suspendisse id velit vitae ligula volutpat condimentum. Aliquam erat volutpat. Sed quis velit."
+          subsections:
+            - heading: "Vitae ligula"
+              paragraphs:
+                - "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi commodo, ipsum sed pharetra gravida, orci magna rhoncus neque, id pulvinar odio lorem non turpis."
+                - "Nullam sit amet enim. Suspendisse id velit vitae ligula volutpat condimentum. Aliquam erat volutpat. Sed quis velit. Nulla facilisi."
+
+    - title: "Custom Title In-Page Navigation"
+      title_text: "Page contents"
+      title_heading_level: "h3"
+      scroll_offset: "0"
+      content_id: "page-content"
+      page_title: "Documentation page"
+      sections:
+        - heading: "Getting started"
+          paragraphs:
+            - "This section covers the basics of getting started with the component. Follow these steps to integrate it into your project."
+        - heading: "Configuration"
+          paragraphs:
+            - "Learn how to configure the component to meet your specific needs. There are several options available."
+          subsections:
+            - heading: "Basic options"
+              paragraphs:
+                - "These are the most commonly used configuration options that you'll need to set up."
+            - heading: "Advanced options"
+              paragraphs:
+                - "For more complex use cases, these advanced options provide additional control."
+        - heading: "Examples"
+          paragraphs:
+            - "Here are some practical examples showing how to use the component in real-world scenarios."
