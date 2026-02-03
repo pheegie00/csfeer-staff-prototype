@@ -181,7 +181,7 @@ class FieldBlock(RenderableBaseModel):
         elif (
             self.review_template_name != self.__class__.model_fields["review_template_name"].default
         ):
-            template_name = self.template_name
+            template_name = self.review_template_name
 
         elif find_template():
             template_name = find_template()
