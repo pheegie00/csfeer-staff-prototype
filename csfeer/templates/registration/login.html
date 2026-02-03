@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="grid-container">
+  <div class="grid-row grid-gap">
+    <div class="tablet:grid-col-6 tablet:grid-offset-3">
+      <h1>Login</h1>
+
+      {% if form.errors %}
+        <div class="usa-alert usa-alert--error" role="alert">
+          <div class="usa-alert__body">
+            <p class="usa-alert__text">
+              Your username and password didn't match. Please try again.
+            </p>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if next %}
+        {% if user.is_authenticated %}
+          <div class="usa-alert usa-alert--warning" role="alert">
+            <div class="usa-alert__body">
+              <p class="usa-alert__text">
+                Your account doesn't have access to this page. To proceed,
+                please login with an account that has access.
+              </p>
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+
+      <form method="post" action="{% url 'login' %}" class="usa-form">
+        {% csrf_token %}
+
+        <div class="usa-form-group{% if form.username.errors %} usa-form-group--error{% endif %}">
+          <label class="usa-label" for="id_username">Username</label>
+          {% if form.username.errors %}
+            <span class="usa-error-message">{{ form.username.errors.0 }}</span>
+          {% endif %}
+          <input class="usa-input" type="text" name="username" id="id_username" required>
+        </div>
+
+        <div class="usa-form-group{% if form.password.errors %} usa-form-group--error{% endif %}">
+          <label class="usa-label" for="id_password">Password</label>
+          {% if form.password.errors %}
+            <span class="usa-error-message">{{ form.password.errors.0 }}</span>
+          {% endif %}
+          <input class="usa-input" type="password" name="password" id="id_password" required>
+        </div>
+
+        <button type="submit" class="usa-button">Login</button>
+        <input type="hidden" name="next" value="{{ next }}" />
+      </form>
+
+      <p class="margin-top-2">
+        Don't have an account? Contact your administrator.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

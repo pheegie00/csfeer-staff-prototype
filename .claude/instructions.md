@@ -270,15 +270,17 @@ docker compose logs app
 
 ### Before Committing
 ```bash
-# 1. Ensure tests pass
-docker compose exec app pytest
+# 1. ALWAYS run pre-commit on changed files
+pre-commit run --files path/to/changed/file.py
 
-# 2. Format code (if pre-commit hooks not setup)
-# Run formatters/linters
+# 2. Ensure tests pass
+docker compose exec app pytest
 
 # 3. Rebuild static files if changed
 npm run build
 ```
+
+**CRITICAL:** Always run `pre-commit` after making any code changes to catch linting/formatting issues before deployment.
 
 ### Commit Message Style
 - Use conventional commits format
@@ -291,10 +293,11 @@ npm run build
 ## Reminders for Claude
 
 1. **NEVER run `python` commands directly** - always use `docker compose exec app`
-2. **Check if services are running** before executing commands
-3. **Use the deploy script** for AWS operations, don't run terraform directly
-4. **WhiteNoise is production-ready** - no need for Nginx or S3 for MVP
-5. **Secrets in plaintext** in ECS is a known issue to address later
-6. **Always rebuild frontend** (`npm run build`) when SCSS/JS changes
-7. **Database connection** requires SSL in production, disabled in local dev
-8. **Git hooks and beads workflow** are available if needed
+2. **ALWAYS run pre-commit after making code changes** - Use `pre-commit run --files <changed_files>` to catch linting/formatting issues before deployment
+3. **Check if services are running** before executing commands
+4. **Use the deploy script** for AWS operations, don't run terraform directly
+5. **WhiteNoise is production-ready** - no need for Nginx or S3 for MVP
+6. **Secrets in plaintext** in ECS is a known issue to address later
+7. **Always rebuild frontend** (`npm run build`) when SCSS/JS changes
+8. **Database connection** requires SSL in production, disabled in local dev
+9. **Git hooks and beads workflow** are available if needed

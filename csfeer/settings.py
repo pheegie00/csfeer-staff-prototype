@@ -224,6 +224,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "users.CoreUser"
 
+# Authentication URLs
+LOGIN_URL = "/oidc/authenticate" if settings.use_oidc else "/accounts/login/"
+
 # Logging Configuration
 # https://docs.djangoproject.com/en/5.2/topics/logging/
 LOGGING = {

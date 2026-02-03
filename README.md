@@ -314,6 +314,9 @@ uv run pre-commit install
 # Run all hooks on all files
 uv run pre-commit run --all-files
 
+# Run on specific files (useful after AI-assisted code changes)
+pre-commit run --files path/to/file1.py path/to/file2.py
+
 # Run specific hook
 uv run pre-commit run black --all-files
 uv run pre-commit run isort --all-files
@@ -322,6 +325,8 @@ uv run pre-commit run pyright --all-files
 # Update hook versions
 uv run pre-commit autoupdate
 ```
+
+**Important:** Always run pre-commit checks after making code changes, especially when using AI coding assistants or making manual edits outside of git commits. This ensures code quality and catches issues before deployment.
 
 **Skipping hooks** (not recommended):
 
