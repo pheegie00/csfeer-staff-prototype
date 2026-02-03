@@ -183,7 +183,11 @@ def form_edit(request, pk):
     )
 
     page_to_render.set_extra_context(
-        prev_url=prev_page_url, form=form, is_last_page=next_step_number is None
+        prev_url=prev_page_url,
+        form=form,
+        is_last_page=next_step_number is None,
+        current_step_number=current_step_number,
+        current_page_number=current_page_number,
     )
 
     context = {
