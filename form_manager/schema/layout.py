@@ -53,7 +53,7 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
         return context
 
     def as_review_block(self, template_name: str | None = None):
-        print(self.__dict__)
+
         if template_name:
             return self.render(template_name)
 
@@ -207,7 +207,6 @@ class FieldBlock(RenderableBaseModel):
     @property
     def display_title(self) -> str | None:
         """Returns review_title if available, otherwise falls back to title"""
-        print(self.__dict__)
         return self.review_title or self.title
 
 
