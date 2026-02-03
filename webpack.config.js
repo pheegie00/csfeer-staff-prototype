@@ -64,6 +64,17 @@ module.exports = {
           ),
           to: "uswds/img",
         },
+        {
+          from: path.resolve(
+            __dirname,
+            "node_modules",
+            "@uswds",
+            "uswds",
+            "dist",
+            "fonts"
+          ),
+          to: "uswds/fonts",
+        },
       ],
     }),
     new MiniCssExtractPlugin(),

@@ -119,6 +119,21 @@ STATICFILES_DIRS = [
     BASE_DIR / "csfeer" / "static",  # Where Django looks for static files
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise Configuration for optimized static file serving
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+# WhiteNoise settings
+WHITENOISE_KEEP_ONLY_HASHED_FILES = True  # Remove unhashed files (saves space)
+WHITENOISE_MANIFEST_STRICT = False  # Don't break if a file is missing
+
 NPM_ROOT_PATH = str(BASE_DIR / "csfeer")  # Where your package.json is located
 NPM_FILE_PATTERNS = {
     "@uswds/uswds": [
