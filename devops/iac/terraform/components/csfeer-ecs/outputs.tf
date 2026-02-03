@@ -67,3 +67,24 @@ output "ecs_security_group_id" {
   description = "ID of the ECS tasks security group"
   value       = aws_security_group.ecs_tasks.id
 }
+
+# AWS Secrets Manager outputs
+output "app_secrets_arn" {
+  description = "ARN of the application secrets in AWS Secrets Manager"
+  value       = aws_secretsmanager_secret.app_secrets.arn
+}
+
+output "app_secrets_name" {
+  description = "Name of the application secrets in AWS Secrets Manager"
+  value       = aws_secretsmanager_secret.app_secrets.name
+}
+
+output "db_credentials_arn" {
+  description = "ARN of the database credentials in AWS Secrets Manager"
+  value       = aws_secretsmanager_secret.db_credentials.arn
+}
+
+output "db_credentials_name" {
+  description = "Name of the database credentials in AWS Secrets Manager"
+  value       = aws_secretsmanager_secret.db_credentials.name
+}

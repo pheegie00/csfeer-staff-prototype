@@ -69,14 +69,14 @@ class BaseFields(forms.Form):
             True if the form is valid, False otherwise.
         """
         if use_default_if_excluded:
+            # Make data mutable if it's a QueryDict
+            if hasattr(self.data, "_mutable"):
+                self.data._mutable = True  # type: ignore[attr-defined]
 
             for name, instance in self.fields.items():
-
-                if name in self.fields_to_exclude and getattr(
-                    instance, "default_if_excluded", None
-                ):
-
-                    self.data[name] = instance.default_if_excluded
+                default_value = getattr(instance, "default_if_excluded", None)
+                if name in self.fields_to_exclude and default_value is not None:
+                    self.data[name] = default_value  # type: ignore[index]
 
         return super().is_valid()
 

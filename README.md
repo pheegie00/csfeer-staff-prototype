@@ -48,11 +48,15 @@ Choose your development approach based on your needs:
 
 2. **Environment configuration**
 
-   Copy the example environment file and configure as needed:
+   **For Docker development:** No `.env` file needed - [compose.yml](compose.yml) has all required settings.
+
+   **For local development (outside Docker) or AWS deployments:** Copy the example environment file:
 
    ```bash
-   cp example.env .env
+   cp .env.example .env
    ```
+
+   Then configure as needed for your environment.
 
 3. **Install pre-commit hooks** (recommended)
 
@@ -93,6 +97,8 @@ npm run build
 ## Local Development (Outside Docker)
 
 **Recommended** for faster iteration and debugging. Run Django locally while using Docker only for database and OAuth services.
+
+**Important:** Local development requires a `.env` file. Copy `.env.example` to `.env` if you haven't already (see [Initial Setup](#initial-setup-required-for-both-approaches)).
 
 ### Initial Setup (One-Time)
 

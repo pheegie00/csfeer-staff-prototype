@@ -16,7 +16,10 @@ override.tf.json
 *.pem
 *.key
 *credentials*
-*secret*
+*secret.txt
+*secret.json
+*.secret
+secret.tfvars
 
 # Environment files
 *-env.sh

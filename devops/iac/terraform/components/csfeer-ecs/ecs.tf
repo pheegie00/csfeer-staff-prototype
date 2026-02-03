@@ -46,14 +46,26 @@ resource "aws_ecs_task_definition" "app" {
       { name = "DJANGO_SETTINGS_MODULE", value = "csfeer.settings" },
       { name = "ENVIRONMENT", value = var.environment },
       { name = "DEBUG", value = var.django_debug },
+
+      # AWS Secrets Manager Configuration
+      { name = "USE_SECRETS_MANAGER", value = tostring(var.use_secrets_manager) },
+      { name = "AWS_SECRET_NAME", value = var.use_secrets_manager ? aws_secretsmanager_secret.app_secrets.name : "" },
+      { name = "AWS_DB_SECRET_NAME", value = var.use_secrets_manager ? aws_secretsmanager_secret.db_credentials.name : "" },
+      { name = "AWS_REGION", value = var.aws_region },
+
+      # Database Configuration (fallback when Secrets Manager is disabled)
       { name = "DB_CONFIG__PGHOST", value = var.db_host },
       { name = "DB_CONFIG__PGPORT", value = "5432" },
       { name = "DB_CONFIG__PGDATABASE", value = var.db_name },
       { name = "DB_CONFIG__PGUSER", value = var.db_username },
       { name = "DB_CONFIG__PGPASSWORD", value = var.db_password },
+
+      # Django Configuration (fallback when Secrets Manager is disabled)
       { name = "SECRET_KEY", value = var.django_secret_key },
       { name = "ALLOWED_HOSTS", value = var.allowed_hosts },
       { name = "CSRF_TRUSTED_ORIGINS", value = var.csrf_trusted_origins },
+
+      # OIDC Configuration
       { name = "USE_OIDC", value = var.use_oidc },
       { name = "OIDC_CONFIG__DOCUMENT_URL", value = var.oidc_document_url },
     ]
@@ -72,7 +84,7 @@ resource "aws_ecs_task_definition" "app" {
       interval    = 30
       timeout     = 5
       retries     = 3
-      startPeriod = 120  # Increased to allow time for migrations
+      startPeriod = 120 # Increased to allow time for migrations
     }
 
     linuxParameters = {
@@ -110,7 +122,7 @@ resource "aws_ecs_service" "app" {
   # Deployment configuration using argument-based syntax
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 100
-  
+
   deployment_circuit_breaker {
     enable   = true
     rollback = true

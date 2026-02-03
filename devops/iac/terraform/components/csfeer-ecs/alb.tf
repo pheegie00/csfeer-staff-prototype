@@ -6,8 +6,8 @@ resource "aws_lb" "main" {
   security_groups    = [aws_security_group.alb.id]
   subnets            = var.public_subnet_ids
 
-  enable_deletion_protection = false
-  enable_http2              = true
+  enable_deletion_protection       = false
+  enable_http2                     = true
   enable_cross_zone_load_balancing = true
 
   tags = {
@@ -27,8 +27,8 @@ resource "aws_lb_target_group" "app" {
     enabled             = true
     healthy_threshold   = var.health_check_healthy_threshold
     interval            = var.health_check_interval
-    matcher             = "200"  # Only 200 for readiness check
-    path                = "/ready/"  # Readiness probe checks migrations
+    matcher             = "200"     # Only 200 for readiness check
+    path                = "/ready/" # Readiness probe checks migrations
     port                = "traffic-port"
     protocol            = "HTTP"
     timeout             = var.health_check_timeout

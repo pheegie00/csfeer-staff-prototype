@@ -77,6 +77,30 @@ resource "aws_iam_role_policy" "ecs_exec" {
   })
 }
 
+# Policy to allow access to AWS Secrets Manager
+resource "aws_iam_role_policy" "secrets_manager" {
+  count = var.use_secrets_manager ? 1 : 0
+  name  = "secrets-manager-policy"
+  role  = aws_iam_role.ecs_task.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ]
+        Resource = [
+          aws_secretsmanager_secret.app_secrets.arn,
+          aws_secretsmanager_secret.db_credentials.arn
+        ]
+      }
+    ]
+  })
+}
+
 # TODO: Add policies for S3, SES, etc. as needed
 # resource "aws_iam_role_policy" "app_s3" {
 #   name = "s3-access"

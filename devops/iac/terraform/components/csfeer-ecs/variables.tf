@@ -169,3 +169,30 @@ variable "assign_public_ip" {
   type        = bool
   default     = true
 }
+
+# AWS Secrets Manager Configuration
+variable "use_secrets_manager" {
+  description = "Enable AWS Secrets Manager for storing sensitive configuration"
+  type        = bool
+  default     = true
+}
+
+variable "secret_recovery_days" {
+  description = "Number of days to retain deleted secrets (0-30, 0 = immediate deletion)"
+  type        = number
+  default     = 7
+}
+
+variable "oidc_client_secret" {
+  description = "OIDC client secret for authentication"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "api_key" {
+  description = "API key for application"
+  type        = string
+  sensitive   = true
+  default     = "SECRET123"
+}

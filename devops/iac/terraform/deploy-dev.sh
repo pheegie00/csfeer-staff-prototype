@@ -144,7 +144,7 @@ echo -e "${GREEN}✅ Environment:${NC} ${ENVIRONMENT}"
 echo -e "${BLUE}═══════════════════════════════════════════════${NC}"
 echo ""
 echo -e "${YELLOW}⚠️  This will deploy to YOUR PERSONAL AWS ACCOUNT${NC}"
-echo -e "${YELLOW}⚠️  Estimated cost: ~\$45-50/month${NC}"
+echo -e "${YELLOW}⚠️  Estimated cost: ~\$51/month (ECS: \$11, RDS: \$17, ALB: \$16, Secrets Manager: \$1, Other: \$6)${NC}"
 echo ""
 read -p "Continue with this account? [y/N]: " confirm
 if [[ ! $confirm =~ ^[Yy]$ ]]; then
@@ -196,6 +196,8 @@ export SUBNET_IDS="${SUBNET_IDS}"
 export DB_PASSWORD="${DB_PASSWORD}"
 export DB_HOST="${DB_HOST}"
 export DJANGO_SECRET="${DJANGO_SECRET}"
+export OIDC_CLIENT_SECRET="${OIDC_CLIENT_SECRET}"
+export API_KEY="${API_KEY}"
 EOF
 }
 
@@ -365,7 +367,19 @@ if [[ $STEPS == *"ecs"* ]]; then
         export DJANGO_SECRET=$(openssl rand -base64 50)
         echo -e "${YELLOW}⚠️  Generated Django secret key${NC}"
     fi
-    
+
+    # Generate OIDC client secret if not exists
+    if [ -z "$OIDC_CLIENT_SECRET" ]; then
+        export OIDC_CLIENT_SECRET=$(openssl rand -base64 32 | tr -d '/@ "')
+        echo -e "${YELLOW}⚠️  Generated OIDC client secret${NC}"
+    fi
+
+    # Generate API key if not exists
+    if [ -z "$API_KEY" ]; then
+        export API_KEY=$(openssl rand -base64 32 | tr -d '/@ "')
+        echo -e "${YELLOW}⚠️  Generated API key${NC}"
+    fi
+
     # Initialize Terraform
     echo ""
     echo "Initializing Terraform..."
@@ -421,6 +435,9 @@ if [[ $STEPS == *"ecs"* ]]; then
         -var="db_host=${DB_HOST}" \
         -var="db_password=${DB_PASSWORD}" \
         -var="django_secret_key=${DJANGO_SECRET}" \
+        -var="oidc_client_secret=${OIDC_CLIENT_SECRET}" \
+        -var="api_key=${API_KEY}" \
+        -var="use_secrets_manager=true" \
         -var="use_oidc=${USE_OIDC}" \
         -var="oidc_document_url=${OIDC_DOCUMENT_URL}"
 
@@ -439,9 +456,37 @@ if [[ $STEPS == *"ecs"* ]]; then
         -var="db_host=${DB_HOST}" \
         -var="db_password=${DB_PASSWORD}" \
         -var="django_secret_key=${DJANGO_SECRET}" \
+        -var="oidc_client_secret=${OIDC_CLIENT_SECRET}" \
+        -var="api_key=${API_KEY}" \
+        -var="use_secrets_manager=true" \
         -var="use_oidc=${USE_OIDC}" \
         -var="oidc_document_url=${OIDC_DOCUMENT_URL}" \
         -var="csrf_trusted_origins=[\"http://${APP_URL}\"]"
+
+    # Update AWS Secrets Manager with the correct CSRF_TRUSTED_ORIGINS
+    echo ""
+    echo "Updating AWS Secrets Manager with CSRF_TRUSTED_ORIGINS..."
+    aws secretsmanager update-secret \
+        --secret-id csfeer-${ENVIRONMENT}-secrets \
+        --secret-string "{
+            \"SECRET_KEY\": \"${DJANGO_SECRET}\",
+            \"OIDC_CLIENT_SECRET\": \"${OIDC_CLIENT_SECRET}\",
+            \"API_KEY\": \"${API_KEY}\",
+            \"DEBUG\": \"False\",
+            \"ALLOWED_HOSTS\": \"[\\\"*\\\"]\",
+            \"CSRF_TRUSTED_ORIGINS\": \"[\\\"http://${APP_URL}\\\"]\"
+        }" --no-cli-pager > /dev/null
+
+    echo -e "${GREEN}✅ Secrets updated${NC}"
+
+    # Force new deployment to pick up the updated secrets
+    echo ""
+    echo "Forcing new deployment to use updated secrets..."
+    aws ecs update-service \
+        --cluster csfeer-${ENVIRONMENT} \
+        --service csfeer-${ENVIRONMENT} \
+        --force-new-deployment \
+        --no-cli-pager > /dev/null
 
     save_env
 
