@@ -117,6 +117,7 @@ STATICFILES_FINDERS = [
 ]
 STATICFILES_DIRS = [
     BASE_DIR / "csfeer" / "static",  # Where Django looks for static files
+    BASE_DIR / "frontend" / "built",  # Webpack-built frontend assets
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 

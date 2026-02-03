@@ -1,2 +1,66 @@
+# Git
+.git
+.gitignore
+.github
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv
+venv/
+ENV/
+env/
+*.egg-info/
+
+# Testing & QA
+tests/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+
+# IDE & Tools
+.vscode/
+.idea/
+.claude/
+.beads/
+*.swp
+*.swo
+.DS_Store
+
+# Development
+.env
+.env.local
+compose.yml
+docker-compose*.yml
+Makefile
+.pre-commit-config.yaml
+
+# Documentation
+docs/
+*.md
+
+# DevOps & Config
+devops/
 .python-version
+
+# Build artifacts
+node_modules/
 frontend/built
+staticfiles/
+tmp/
+logs/
+*.log
+
+# Local development files
+main.py
+setup.cfg
+playwright.config.py
+nginx.conf
+
+# Note: package.json, package-lock.json, and webpack.config.js are needed for Docker builds

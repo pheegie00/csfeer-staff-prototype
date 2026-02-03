@@ -144,9 +144,9 @@ echo -e "${GREEN}✅ Environment:${NC} ${ENVIRONMENT}"
 echo -e "${BLUE}═══════════════════════════════════════════════${NC}"
 echo ""
 echo -e "${YELLOW}⚠️  This will deploy to YOUR PERSONAL AWS ACCOUNT${NC}"
-echo -e "${YELLOW}⚠️  Estimated cost: ~\$51/month (ECS: \$11, RDS: \$17, ALB: \$16, Secrets Manager: \$1, Other: \$6)${NC}"
 echo ""
-read -p "Continue with this account? [y/N]: " confirm
+read -p "Continue with this account? [Y/n]: " confirm
+confirm=${confirm:-y}
 if [[ ! $confirm =~ ^[Yy]$ ]]; then
     echo "Cancelled"
     exit 0
@@ -164,8 +164,9 @@ echo "6. Show application status"
 echo "7. Connect to container (shell)"
 echo "8. Create superuser & organization (automated)"
 echo "9. Teardown (destroy all resources)"
-echo "10. Deploy new code (rebuild image + force redeploy)"
+echo "10. Deploy new code (rebuild image + force redeploy) [DEFAULT]"
 read -p "Enter choice [1-10]: " action
+action=${action:-10}
 
 case $action in
     1) STEPS="setup docker rds ecs superuser";;

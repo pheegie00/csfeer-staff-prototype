@@ -63,15 +63,14 @@ COPY pyproject.toml uv.lock ./
 ARG UV_INDEX_CODEARTIFACT_PASSWORD UV_INDEX_CODEARTIFACT_USERNAME
 RUN uv sync --frozen --no-install-project --quiet --no-dev
 ENV PATH="/app/.venv/bin:$PATH"
-COPY --chown=python:python manage.py ./
-COPY --chown=python:python ./core ./core
-COPY --chown=python:python ./csfeer ./csfeer
-COPY --chown=python:python ./form_manager ./form_manager
-COPY --chown=python:python ./users ./users
-COPY --chown=python:python ./django_cotton_uswds ./django_cotton_uswds
-COPY --chown=python:python --from=static /app/staticfiles ./staticfiles
-COPY --chown=python:python --from=static /app/csfeer/static ./csfeer/static
-RUN mkdir -p /app/logs && chown python:python /app/logs
+COPY --chown=python:python . .
+COPY --chown=python:python --from=static /app/frontend/built ./frontend/built
+RUN mkdir -p /app/logs /app/staticfiles && chown -R python:python /app/logs /app/staticfiles
+
+# Collect static files as python user
+USER python
+RUN python manage.py collectstatic --noinput
+USER root
 
 # Prod
 FROM python:3.12.10-slim AS app
@@ -96,21 +95,10 @@ RUN groupadd -g 10001 python && \
 RUN mkdir /app && chown python:python /app
 WORKDIR /app
 
-COPY --chown=python:python manage.py ./
-COPY --chown=python:python ./core ./core
-COPY --chown=python:python ./csfeer ./csfeer
-COPY --chown=python:python ./form_manager ./form_manager
-COPY --chown=python:python ./users ./users
-COPY --chown=python:python ./django_cotton_uswds ./django_cotton_uswds
-COPY --chown=python:python --from=app-build /app/.venv /app/.venv
-COPY --chown=python:python --from=app-build /app/staticfiles /app/staticfiles
+COPY --chown=python:python --from=app-build /app /app
 
-# Copy and configure entrypoint script
-COPY --chown=python:python docker-entrypoint.sh /app/
+# Configure entrypoint script
 RUN chmod +x /app/docker-entrypoint.sh
-
-# Create logs directory for Django logging
-RUN mkdir -p /app/logs && chown python:python /app/logs
 
 USER python
 
