@@ -111,7 +111,11 @@ class TribalLongFormFields(BaseFields):
 
     administration_expenditure = acf_fields.YesNoDisplayField(
         title="Did you use any funds toward Administration costs?",
-        fields=[acf_fields.CurrencyField(title="Administration")],
+        fields=[
+            acf_fields.CurrencyField(
+                title="Administration", review_title="Total administration costs"
+            )
+        ],
     )
 
     # region Expenditure Descriptions
@@ -270,7 +274,12 @@ class TribalLongForm(BaseFormSchema):
                             "To learn more about what qualifies as Administration costs, refer "
                             "to guidance IM37."
                         ),
-                        children=[FieldBlock(field_name="administration_expenditure")],
+                        children=[
+                            FieldBlock(
+                                field_name="administration_expenditure",
+                                review_template_name="form_manager/forms/yes_no_display_review.html",
+                            )
+                        ],
                     ),
                 ],
             ),
