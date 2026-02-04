@@ -50,6 +50,9 @@ def form_finalize(request, pk):
     entry.submitted_at = timezone.now()
     entry.save()
 
+    # Clear the show_errors flag since form is now submitted
+    request.session.pop(f"show_errors_{entry.pk}", None)
+
     messages.success(request, "Your form has been successfully submitted.")
 
     return redirect(

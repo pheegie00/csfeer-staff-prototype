@@ -279,9 +279,9 @@ request.session.pop(f"show_errors_{entry.pk}", None)
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Python syntax is correct: `cd /Users/ryanbagwell/projects/csfeer && python -m py_compile form_manager/views/form_finalize.py`
-- [ ] Type checking passes: `cd /Users/ryanbagwell/projects/csfeer && mypy form_manager/views/form_finalize.py`
-- [ ] Existing tests pass: `cd /Users/ryanbagwell/projects/csfeer && pytest tests/form_manager/`
+- [x] Python syntax is correct: `cd /Users/ryanbagwell/projects/csfeer && python -m py_compile form_manager/views/form_finalize.py`
+- [x] Type checking passes: `cd /Users/ryanbagwell/projects/csfeer && mypy form_manager/views/form_finalize.py`
+- [x] Existing tests pass: `cd /Users/ryanbagwell/projects/csfeer && pytest tests/form_manager/`
 
 #### Manual Verification:
 - [ ] After form submission, session variable is cleared
