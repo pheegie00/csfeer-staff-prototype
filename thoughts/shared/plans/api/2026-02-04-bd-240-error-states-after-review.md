@@ -143,8 +143,8 @@ Modify the field template to render validation errors inline below each field us
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Templates parse without syntax errors: `python manage.py check --deploy`
-- [ ] No template rendering errors in tests: `cd /Users/ryanbagwell/projects/csfeer && pytest tests/ -k template`
+- [x] Templates parse without syntax errors: `python manage.py check --deploy`
+- [x] No template rendering errors in tests: `cd /Users/ryanbagwell/projects/csfeer && pytest tests/ -k template`
 
 #### Manual Verification:
 - [ ] When viewing a form page without session flag, no errors are shown (existing behavior preserved)
