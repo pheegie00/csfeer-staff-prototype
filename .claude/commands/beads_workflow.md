@@ -12,7 +12,7 @@ When beginning a work session:
 
 ```bash
 # 1. Sync latest from git
-bd jira sync --pull
+bd sync && bd jira sync
 
 # 2. See what's ready to work on (no blockers)
 bd ready
@@ -87,9 +87,9 @@ bd comment <id> "Found the root cause - see file.py:123"
 bd comment <id> "Blocked waiting for API response"
 
 # Update task status
-bd update <id> --status in_progress
-bd update <id> --status blocked
-bd update <id> --status review
+bd update <id> --status in_progress && bd jira sync --push
+bd update <id> --status blocked && bd jira sync --push
+bd update <id> --status review && bd jira sync --push
 
 # Create sub-tasks discovered during work
 bd create "Edge case: empty input" -t bug -p 2
@@ -101,14 +101,22 @@ bd dep add <new-id> <parent-id>
 ```bash
 # 1. Close completed work
 bd close <id> --reason "Completed in PR #123"
+bd jira sync --push
 
 # 2. Sync changes to git
+bd sync
 bd jira sync
 
 # 3. Commit beads changes (if not auto-synced)
 git add .beads/issues.jsonl
 git commit -m "beads: update task status"
 git push
+```
+
+## Reopen a ticket
+
+```bash
+bd reopen <id> && bd jira sync --push
 ```
 
 ## Useful Queries
@@ -182,10 +190,10 @@ bd comment <id> "Plan: thoughts/shared/plans/2025-01-22-feature.md"
 ### With `/implement_plan`
 ```bash
 # Update status when starting
-bd update <id> --status in_progress
+bd update <id> --status in_progress && bd jira sync --push
 
 # Close when done
-bd close <id> --reason "Implemented per plan, PR #123"
+bd close <id> --reason "Implemented per plan, PR #123" && bd jira sync --push
 ```
 
 ### With `/create_handoff`

@@ -56,10 +56,5 @@
     "tests"
   ],
   "claudeCode.environmentVariables": [
-
-    {
-      "name": "BD_JIRA_SCRIPT",
-      "value":"${workspaceFolder}/.beads/jira2jsonl.py"
-    }
   ],
 }
