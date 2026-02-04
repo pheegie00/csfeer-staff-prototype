@@ -10,25 +10,6 @@ Beads is issue tracking that lives in your repo, making it perfect for AI coding
 
 ## Quick Start
 
-
-Configure beads with the ACF jira repo:
-
-```bash
-bd init --prefix FE
-bd migrate sync beads-sync
-bd config set jira.url "https://jira.acf.gov"
-bd config set jira.project "FE"
-bd config set  jira.api_token "<your jira personal access token>"
-bd config set allowed_prefixes "bd"
-# Important - don't set a jira.username value. The auth won't work
-```
-
-Now you should be able to pull jira issues:
-
-```bash
-bd jira sync --pull
-```
-
 ### Essential Commands
 
 ```bash
