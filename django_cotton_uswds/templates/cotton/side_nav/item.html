@@ -1,0 +1,15 @@
+<c-vars
+    text=""
+    href=""
+    is_current=""
+    extra_classes=""
+/>
+
+<li class="usa-sidenav__item {{ extra_classes }}">
+    <a href="{{ href }}"{% if is_current %} class="usa-current"{% endif %}>{{ text }}</a>
+    {% if slot %}
+    <ul class="usa-sidenav__sublist">
+        {{ slot }}
+    </ul>
+    {% endif %}
+</li>
