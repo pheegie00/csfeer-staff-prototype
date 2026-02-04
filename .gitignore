@@ -223,3 +223,10 @@ tests/videos/
 tests/traces/
 test-results/
 playwright-report/
+
+
+.beads/beads.db
+.beads/beads.db-*
+.beads/jsonl2jira.py
+.beads/jira2jsonl.py
+.beads/SETUP.md
