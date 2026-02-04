@@ -1,0 +1,36 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>In-Page Navigation Component</h1>
+
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-in_page_nav
+            title_text="{{ variant.title_text }}"
+            title_heading_level="{{ variant.title_heading_level }}"
+            scroll_offset="{{ variant.scroll_offset }}"
+            content_id="{{ variant.content_id }}"
+        >
+            <h1>{{ variant.page_title }}</h1>
+
+            {% for section in variant.sections %}
+            <h2>{{ section.heading }}</h2>
+            {% for paragraph in section.paragraphs %}
+            <p>{{ paragraph }}</p>
+            {% endfor %}
+
+            {% if section.subsections %}
+                {% for subsection in section.subsections %}
+                <h3>{{ subsection.heading }}</h3>
+                {% for paragraph in subsection.paragraphs %}
+                <p>{{ paragraph }}</p>
+                {% endfor %}
+                {% endfor %}
+            {% endif %}
+            {% endfor %}
+        </c-in_page_nav>
+    </div>
+    {% endfor %}
+</div>
