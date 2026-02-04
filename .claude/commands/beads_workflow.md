@@ -12,7 +12,7 @@ When beginning a work session:
 
 ```bash
 # 1. Sync latest from git
-bd sync
+bd jira sync --pull
 
 # 2. See what's ready to work on (no blockers)
 bd ready
@@ -103,7 +103,7 @@ bd dep add <new-id> <parent-id>
 bd close <id> --reason "Completed in PR #123"
 
 # 2. Sync changes to git
-bd jira sync --pull
+bd jira sync
 
 # 3. Commit beads changes (if not auto-synced)
 git add .beads/issues.jsonl
@@ -164,9 +164,6 @@ bd --no-daemon sync
 # Check beads health
 bd doctor
 
-# Force sync
-bd sync --force
-
 # Import from JSONL (after git pull)
 bd import -i .beads/issues.jsonl
 
@@ -207,4 +204,5 @@ bd comment <id> "Handoff: thoughts/shared/handoffs/<id>/2025-01-22.md"
 | Complete a task | `bd close <id> --reason "done"` |
 | Create linked task | `bd create "title" && bd dep add <new> <parent>` |
 | Sync with git | `bd sync` |
+| Sync with jira | `bd jira sync` |
 | Check health | `bd doctor` |
