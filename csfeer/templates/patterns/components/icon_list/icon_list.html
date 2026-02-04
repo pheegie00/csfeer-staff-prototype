@@ -1,0 +1,26 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Icon List Component</h1>
+
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-icon_list variant="{{ variant.variant|default:'' }}" size="{{ variant.size|default:'' }}">
+            {% for item in variant.items %}
+            <c-icon_list.item
+                icon="{{ item.icon }}"
+                icon_color="{{ item.icon_color|default:'' }}"
+                title="{{ item.title|default:'' }}"
+                title_tag="{{ item.title_tag|default:'h4' }}"
+            >
+                {% if item.content %}
+                {{ item.content }}
+                {% endif %}
+            </c-icon_list.item>
+            {% endfor %}
+        </c-icon_list>
+    </div>
+    {% endfor %}
+</div>
