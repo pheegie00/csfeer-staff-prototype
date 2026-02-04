@@ -34,20 +34,25 @@ When users navigate from the review page back to form sections via "Edit section
 
 ### Previous Implementation Attempt
 
-Commit `20fe02e` added:
-- `from_review=1` query parameter to edit section links
+Commit `20fe02e` attempted to solve this with a query parameter approach:
+- Added `from_review=1` query parameter to edit section links
 - View logic to detect parameter and create bound form with validation
-- **But failed because** `field.html` template was never updated to display errors
+- **But failed because**:
+  1. `field.html` template was never updated to display errors
+  2. Query parameter approach required propagating `&from_review=1` through all navigation URLs
+
+**Better Approach**: This plan uses Django session storage instead of query parameters, providing cleaner URLs and automatic state persistence.
 
 ## Desired End State
 
-When a user clicks "Edit section" from the review page:
+Once a user has visited the review page for a form entry:
 
-1. They are taken to the first page of that section with `from_review=1` in the URL
-2. The form is bound with existing data and validated
+1. A session variable is set indicating they've seen the review page
+2. All subsequent visits to form edit pages show validation errors
 3. Fields with errors display error messages inline below the field
-4. The `from_review=1` parameter persists as they navigate between pages
+4. Error state persists naturally across all page navigation (no query parameters needed)
 5. No general error alert is shown at the top of the page
+6. Session variable is cleared when form is successfully submitted
 
 ### Verification
 
@@ -57,26 +62,28 @@ When a user clicks "Edit section" from the review page:
 3. Observe errors displayed on the review page
 4. Click "Edit section" for a section with errors
 5. Verify:
-   - URL includes `from_review=1` parameter
    - Fields with errors show red error messages below them
    - Error messages match those shown on review page
-   - Navigating to next/prev page maintains `from_review=1` parameter
-   - Errors persist across page navigation within the form
+   - No `from_review` query parameter in URL
+6. Navigate to next/prev pages
+7. Verify errors persist across all pages without query parameters
+8. Save a draft and verify errors refresh to reflect new data
 
 ## What We're NOT Doing
 
 - NOT adding a general error banner/alert at the top of edit pages
 - NOT changing the validation logic or when validation occurs
 - NOT changing the review page's error display
-- NOT persisting `from_review` after a successful form save (draft saved clears the parameter)
+- NOT using query parameters to track state
 
 ## Implementation Approach
 
 This is a focused enhancement that:
-1. Reuses the existing validation mechanism from the review page
-2. Updates the field template to display errors using existing USWDS components
-3. Ensures `from_review` persists through navigation URLs
-4. Maintains backward compatibility (forms without `from_review` work unchanged)
+1. Uses Django session storage to track when a user has visited the review page
+2. Reuses the existing validation mechanism from the review page
+3. Updates the field template to display errors using existing USWDS components
+4. Maintains clean URLs without query parameters
+5. Maintains backward compatibility (users who haven't visited review page see no errors)
 
 ## Phase 1: Update Field Template to Display Errors
 
@@ -140,40 +147,81 @@ Modify the field template to render validation errors inline below each field us
 - [ ] No template rendering errors in tests: `cd /Users/ryanbagwell/projects/csfeer && pytest tests/ -k template`
 
 #### Manual Verification:
-- [ ] When viewing a form page without `from_review=1`, no errors are shown (existing behavior preserved)
-- [ ] When viewing a form page with `from_review=1` and invalid fields, error messages appear below each invalid field
+- [ ] When viewing a form page without session flag, no errors are shown (existing behavior preserved)
+- [ ] When viewing a form page after visiting review, error messages appear below each invalid field
 - [ ] Error messages have proper ARIA attributes for screen readers
 - [ ] Error styling matches USWDS design patterns (red text, error icon)
 
 ---
 
-## Phase 2: Add View Logic to Detect `from_review` and Validate
+## Phase 2: Set Session Variable on Review Page Visit
 
 ### Overview
-Update the `form_edit` view to detect the `from_review` query parameter, create a bound form, and trigger validation when present.
+Update the `form_review` view to set a session variable when the user views the review page, indicating they should see validation errors on subsequent form edits.
+
+### Changes Required:
+
+#### 1. Form Review View
+**File**: `form_manager/views/form_review.py`
+**Changes**: Set session variable when review page is visited
+
+**Location**: Around line 51 (after form validation)
+
+**Add after validation** (after line 51):
+```python
+# Set session flag to indicate user has seen the review page
+# This will cause form_edit to show validation errors
+request.session[f"show_errors_{entry.pk}"] = True
+```
+
+**Explanation**:
+- Use a per-form-entry session key: `show_errors_{entry.pk}`
+- Set to `True` when user visits review page
+- This persists across all subsequent page loads for this form entry
+- No query parameters needed - state is stored server-side in session
+
+### Success Criteria:
+
+#### Automated Verification:
+- [ ] Python syntax is correct: `cd /Users/ryanbagwell/projects/csfeer && python -m py_compile form_manager/views/form_review.py`
+- [ ] Type checking passes: `cd /Users/ryanbagwell/projects/csfeer && mypy form_manager/views/form_review.py`
+- [ ] Existing tests pass: `cd /Users/ryanbagwell/projects/csfeer && pytest tests/form_manager/`
+
+#### Manual Verification:
+- [ ] Visiting review page sets the session variable (can verify with Django debug toolbar)
+- [ ] Session variable is specific to the form entry
+- [ ] Multiple form entries can have independent session states
+
+---
+
+## Phase 3: Check Session Variable in Form Edit View
+
+### Overview
+Update the `form_edit` view to check for the session variable and trigger validation when present.
 
 ### Changes Required:
 
 #### 1. Form Edit View
 **File**: `form_manager/views/form_edit.py`
-**Changes**: Add logic to handle `from_review` parameter
+**Changes**: Check session variable and validate form accordingly
 
 **Location**: Lines 106-144 (around where form is instantiated)
 
 **Add after line 107** (after current_page_number):
 ```python
-from_review = request.GET.get("from_review", False)
+# Check if user has visited the review page for this entry
+show_errors = request.session.get(f"show_errors_{entry.pk}", False)
 ```
 
-**Replace lines 144** (form instantiation):
+**Replace line 144** (form instantiation):
 ```python
 # Old:
 form = django_form_class(initial=entry.data or {})
 
 # New:
-# If user came from review page, create a bound form with validation
+# If user has visited the review page, create a bound form with validation
 # to show error states. Otherwise, create an unbound form.
-if from_review and entry.data:
+if show_errors and entry.data:
     form = django_form_class(entry.data)
     form.is_valid(use_default_if_excluded=True)
 else:
@@ -181,10 +229,11 @@ else:
 ```
 
 **Explanation**:
-- Extract `from_review` from query parameters
-- When `from_review=1` and entry has data, create a bound form (data instead of initial)
+- Check session for `show_errors_{entry.pk}` flag
+- When flag is `True` and entry has data, create a bound form (data instead of initial)
 - Call `is_valid(use_default_if_excluded=True)` to trigger validation and populate field errors
 - Otherwise, use existing behavior (unbound form with initial data)
+- No URL manipulation needed - state persists via session
 
 ### Success Criteria:
 
@@ -194,152 +243,50 @@ else:
 - [ ] Existing tests pass: `cd /Users/ryanbagwell/projects/csfeer && pytest tests/form_manager/`
 
 #### Manual Verification:
-- [ ] Navigating to form edit page without `from_review` works as before (no validation)
-- [ ] Navigating to form edit page with `from_review=1` triggers validation
+- [ ] Navigating to form edit page without visiting review first shows no errors
+- [ ] After visiting review page, all form edit pages show errors
 - [ ] Bound form correctly populates with existing data
 - [ ] Field errors are accessible in the template context
+- [ ] Errors persist across page navigation without query parameters
 
 ---
 
-## Phase 3: Persist `from_review` Through Navigation
+## Phase 4: Clear Session Variable on Form Submission
 
 ### Overview
-Update URL generation for next/previous page links to include `from_review` parameter when present.
+Update the `form_finalize` view to clear the session variable when the form is successfully submitted.
 
 ### Changes Required:
 
-#### 1. Form Edit View - Next Page URL
-**File**: `form_manager/views/form_edit.py`
-**Changes**: Add `from_review` to next_page_url
+#### 1. Form Finalize View
+**File**: `form_manager/views/form_finalize.py`
+**Changes**: Clear session variable after successful submission
 
-**Location**: Lines 158-169
+**Location**: Around line 53 (after success message)
 
-**Replace**:
+**Add after success message** (after line 53):
 ```python
-# Old:
-if next_step_number is None:
-    next_page_url = reverse("form_review", kwargs={"pk": entry.pk})
-else:
-    next_page_url = (
-        reverse(
-            "form_edit",
-            kwargs={
-                "pk": entry.pk,
-            },
-        )
-        + f"?step={next_step_number}&page={next_page_number}"
-    )
-
-# New:
-if next_step_number is None:
-    next_page_url = reverse("form_review", kwargs={"pk": entry.pk})
-else:
-    next_page_url = (
-        reverse(
-            "form_edit",
-            kwargs={
-                "pk": entry.pk,
-            },
-        )
-        + f"?step={next_step_number}&page={next_page_number}"
-    )
-    if from_review:
-        next_page_url += "&from_review=1"
-```
-
-#### 2. Form Edit View - Previous Page URL
-**File**: `form_manager/views/form_edit.py`
-**Changes**: Add `from_review` to prev_page_url
-
-**Location**: Lines 171-179
-
-**Replace**:
-```python
-# Old:
-prev_page_url = (
-    reverse(
-        "form_edit",
-        kwargs={
-            "pk": entry.pk,
-        },
-    )
-    + f"?step={previous_step_number}&page={previous_page_number}"
-)
-
-# New:
-prev_page_url = (
-    reverse(
-        "form_edit",
-        kwargs={
-            "pk": entry.pk,
-        },
-    )
-    + f"?step={previous_step_number}&page={previous_page_number}"
-)
-if from_review:
-    prev_page_url += "&from_review=1"
+# Clear the show_errors flag since form is now submitted
+request.session.pop(f"show_errors_{entry.pk}", None)
 ```
 
 **Explanation**:
-- When `from_review` is present in the current request, append `&from_review=1` to navigation URLs
-- This ensures error states persist as users navigate between form pages
-- Review page link doesn't need the parameter (review page always validates)
+- Remove the session flag for this form entry after successful submission
+- Uses `pop()` with default `None` to avoid KeyError if flag doesn't exist
+- This ensures clean state if user needs to edit a submitted form later
+- Session naturally times out if user doesn't submit
 
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Python syntax is correct: `cd /Users/ryanbagwell/projects/csfeer && python -m py_compile form_manager/views/form_edit.py`
-- [ ] Type checking passes: `cd /Users/ryanbagwell/projects/csfeer && mypy form_manager/views/form_edit.py`
+- [ ] Python syntax is correct: `cd /Users/ryanbagwell/projects/csfeer && python -m py_compile form_manager/views/form_finalize.py`
+- [ ] Type checking passes: `cd /Users/ryanbagwell/projects/csfeer && mypy form_manager/views/form_finalize.py`
 - [ ] Existing tests pass: `cd /Users/ryanbagwell/projects/csfeer && pytest tests/form_manager/`
 
 #### Manual Verification:
-- [ ] Starting from review page with `from_review=1`, clicking "Next" includes parameter in URL
-- [ ] Starting from review page with `from_review=1`, clicking "Back" includes parameter in URL
-- [ ] Errors remain visible when navigating between pages
-- [ ] "Continue to Review" button works correctly (no parameter needed for review page)
-
----
-
-## Phase 4: Add `from_review` to Review Page Edit Links
-
-### Overview
-Update the review page template to include `from_review=1` in the "Edit section" links.
-
-### Changes Required:
-
-#### 1. Review and Submit Template
-**File**: `form_manager/templates/form_manager/review_and_submit.html`
-**Changes**: Add query parameter to edit section links
-
-**Location**: Line 54
-
-**Replace**:
-```django
-<!-- Old: -->
-<c-link href="{% url "form_edit" entry.pk %}?step={{ forloop.counter0}}&page=0">
-    <c-icon icon="edit" class="usa-icon margin-right-1"/>Edit section
-</c-link>
-
-<!-- New: -->
-<c-link href="{% url "form_edit" entry.pk %}?step={{ forloop.counter0}}&page=0&from_review=1">
-    <c-icon icon="edit" class="usa-icon margin-right-1"/>Edit section
-</c-link>
-```
-
-**Explanation**:
-- Append `&from_review=1` to the edit section URL
-- This triggers validation when user lands on the form page from review
-
-### Success Criteria:
-
-#### Automated Verification:
-- [ ] Templates parse without errors: `python manage.py check --deploy`
-- [ ] No template rendering errors: `cd /Users/ryanbagwell/projects/csfeer && pytest tests/ -k review`
-
-#### Manual Verification:
-- [ ] "Edit section" links include `from_review=1` parameter
-- [ ] Clicking "Edit section" takes user to form page with errors displayed
-- [ ] URL in browser includes `from_review=1` parameter
+- [ ] After form submission, session variable is cleared
+- [ ] If user somehow returns to edit pages after submission, errors don't show (unless they visit review again)
+- [ ] Session cleanup doesn't cause errors if variable doesn't exist
 
 ---
 
@@ -361,39 +308,54 @@ from django.urls import reverse
 from form_manager.models import FormEntry
 
 @pytest.mark.django_db
-def test_error_states_shown_from_review_page(client, form_entry_with_invalid_data):
-    """Test that clicking Edit from review page shows errors."""
+def test_error_states_shown_after_review_page_visit(client, form_entry_with_invalid_data):
+    """Test that visiting review page enables error display on form edit pages."""
     entry = form_entry_with_invalid_data
 
-    # Navigate to form edit with from_review parameter
+    # First, visit form edit page before review - should not show errors
     url = reverse("form_edit", kwargs={"pk": entry.pk})
-    response = client.get(f"{url}?step=0&page=0&from_review=1")
-
+    response = client.get(f"{url}?step=0&page=0")
     assert response.status_code == 200
-    # Check that form is bound and has errors
+    assert not response.context["current_page"].form.is_bound
+
+    # Visit review page to set session variable
+    review_url = reverse("form_review", kwargs={"pk": entry.pk})
+    response = client.get(review_url)
+    assert response.status_code == 200
+    assert client.session[f"show_errors_{entry.pk}"] is True
+
+    # Now revisit form edit page - should show errors
+    response = client.get(f"{url}?step=0&page=0")
+    assert response.status_code == 200
     assert response.context["current_page"].form.is_bound
     assert response.context["current_page"].form.errors
 
-    # Check that navigation URLs include from_review
-    assert "from_review=1" in response.context["next_url"]
+    # Navigate to another page - errors should persist
+    response = client.get(f"{url}?step=0&page=1")
+    assert response.status_code == 200
+    assert response.context["current_page"].form.is_bound
 ```
 
 ### Manual Testing Steps
 
 1. **Setup**: Create a new form entry and leave required fields blank
-2. **Navigate to review**: Complete form navigation to reach review page
-3. **Verify review errors**: Confirm errors are shown on review page
-4. **Click Edit section**: Click "Edit section" for a section with errors
-5. **Verify edit page errors**: Confirm:
-   - URL includes `from_review=1`
+2. **Navigate through form**: Fill out some pages, leaving some required fields blank
+3. **Before review visit**: Navigate to a form edit page and verify NO errors are shown
+4. **Navigate to review**: Complete form navigation to reach review page
+5. **Verify review errors**: Confirm errors are shown on review page
+6. **Click Edit section**: Click "Edit section" for a section with errors
+7. **Verify edit page errors**: Confirm:
    - Error messages appear below invalid fields
    - Error styling matches USWDS patterns
-6. **Test persistence**: Click "Next" or "Back" buttons
-7. **Verify continued errors**: Confirm:
-   - URL still includes `from_review=1`
+   - URL is clean (no `from_review` parameter)
+8. **Test persistence**: Click "Next" or "Back" buttons
+9. **Verify continued errors**: Confirm:
    - Errors remain visible on other pages with invalid fields
-8. **Test draft save**: Make changes and save draft
-9. **Verify error refresh**: Return to review page and click edit again - errors should reflect updated data
+   - URLs remain clean without query parameters
+10. **Test draft save**: Make changes and save draft
+11. **Verify error refresh**: Errors should update to reflect new data
+12. **Test form submission**: Submit the form successfully
+13. **Verify cleanup**: If somehow returning to form edit, errors should not show (session cleared)
 
 ### Edge Cases to Test
 
@@ -402,12 +364,17 @@ def test_error_states_shown_from_review_page(client, form_entry_with_invalid_dat
 3. **Multi-page forms**: Verify errors show correctly across multiple pages in a step
 4. **Valid data**: Test that no errors appear when all data is valid
 5. **Mixed valid/invalid**: Pages with both valid and invalid fields
+6. **Session timeout**: Verify graceful handling if session expires between review and edit
+7. **Multiple form entries**: Verify session variables don't conflict between different form entries
+8. **Direct URL access**: Test accessing form edit page directly without visiting review first
 
 ## Performance Considerations
 
-**Impact**: Minimal - validation already occurs on review page. We're simply moving the same validation to an earlier point when coming from review.
+**Impact**: Minimal - validation already occurs on review page. We're simply moving the same validation to form edit pages when appropriate.
 
-**Optimization**: The `is_valid()` call is only made when `from_review=1`, so normal form navigation remains unaffected.
+**Session Storage**: Session variables are lightweight (boolean flag per form entry). Django's default session backend handles this efficiently.
+
+**Optimization**: The `is_valid()` call is only made when the session flag is set, so users who haven't visited the review page experience no performance impact.
 
 ## Migration Notes
 
