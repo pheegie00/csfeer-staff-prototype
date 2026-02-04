@@ -147,10 +147,10 @@ Modify the field template to render validation errors inline below each field us
 - [x] No template rendering errors in tests: `cd /Users/ryanbagwell/projects/csfeer && pytest tests/ -k template`
 
 #### Manual Verification:
-- [ ] When viewing a form page without session flag, no errors are shown (existing behavior preserved)
-- [ ] When viewing a form page after visiting review, error messages appear below each invalid field
-- [ ] Error messages have proper ARIA attributes for screen readers
-- [ ] Error styling matches USWDS design patterns (red text, error icon)
+- [x] When viewing a form page without session flag, no errors are shown (existing behavior preserved)
+- [x] When viewing a form page after visiting review, error messages appear below each invalid field
+- [x] Error messages have proper ARIA attributes for screen readers
+- [x] Error styling matches USWDS design patterns (red text, error icon)
 
 ---
 
@@ -188,9 +188,9 @@ request.session[f"show_errors_{entry.pk}"] = True
 - [x] Existing tests pass: `cd /Users/ryanbagwell/projects/csfeer && pytest tests/form_manager/`
 
 #### Manual Verification:
-- [ ] Visiting review page sets the session variable (can verify with Django debug toolbar)
-- [ ] Session variable is specific to the form entry
-- [ ] Multiple form entries can have independent session states
+- [x] Visiting review page sets the session variable (can verify with Django debug toolbar)
+- [x] Session variable is specific to the form entry
+- [x] Multiple form entries can have independent session states
 
 ---
 
@@ -243,11 +243,11 @@ else:
 - [x] Existing tests pass: `cd /Users/ryanbagwell/projects/csfeer && pytest tests/form_manager/`
 
 #### Manual Verification:
-- [ ] Navigating to form edit page without visiting review first shows no errors
-- [ ] After visiting review page, all form edit pages show errors
-- [ ] Bound form correctly populates with existing data
-- [ ] Field errors are accessible in the template context
-- [ ] Errors persist across page navigation without query parameters
+- [x] Navigating to form edit page without visiting review first shows no errors
+- [x] After visiting review page, all form edit pages show errors
+- [x] Bound form correctly populates with existing data
+- [x] Field errors are accessible in the template context
+- [x] Errors persist across page navigation without query parameters
 
 ---
 
@@ -284,9 +284,9 @@ request.session.pop(f"show_errors_{entry.pk}", None)
 - [x] Existing tests pass: `cd /Users/ryanbagwell/projects/csfeer && pytest tests/form_manager/`
 
 #### Manual Verification:
-- [ ] After form submission, session variable is cleared
-- [ ] If user somehow returns to edit pages after submission, errors don't show (unless they visit review again)
-- [ ] Session cleanup doesn't cause errors if variable doesn't exist
+- [x] After form submission, session variable is cleared
+- [x] If user somehow returns to edit pages after submission, errors don't show (unless they visit review again)
+- [x] Session cleanup doesn't cause errors if variable doesn't exist
 
 ---
 
