@@ -1,22 +1,22 @@
-{% for subfield in block.field.field.fields %}
+{% for subfield in component.field.field.fields %}
 
     {% if forloop.counter0 == 0 %}
-        <div class="font-family-body text-semibold margin-bottom-05">{{ block.display_title }}</div>
-        <div class="{% if block.errors %}text-error{% endif %} font-family-body margin-bottom-3">
+        <div class="font-family-body text-semibold margin-bottom-05">{{ component.display_title }}</div>
+        <div class="{% if component.errors %}text-error{% endif %} font-family-body margin-bottom-3">
 
-            {% for choice in block.field.field.fields.0.choices %}
-                {% if block.value.0 == choice.0 %}
+            {% for choice in component.field.field.fields.0.choices %}
+                {% if component.value.0 == choice.0 %}
                     {{ choice.1 }}
                 {% endif %}
             {% endfor %}
         </div>
 
-    {% elif block.value.0 == "yes" %}
+    {% elif component.value.0 == "yes" %}
         <div class="font-family-body text-semibold margin-bottom-05">
             {{ subfield.review_title }}
         </div>
-        <div class="{% if block.errors %}text-error{% endif %} font-family-body">
-            {% for value in block.value %}
+        <div class="{% if component.errors %}text-error{% endif %} font-family-body">
+            {% for value in component.value %}
                 {% if forloop.parentloop.counter0 == forloop.counter0 %}
                     {{ value }}
                 {% endif %}

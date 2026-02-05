@@ -1,10 +1,13 @@
-<div class="font-family-body text-semibold margin-bottom-05">{{ block.display_title }}</div>
+<div class="font-family-body text-semibold margin-bottom-05">
+    {% block item_title %}{{ component.display_title }}{% endblock %}
+</div>
 
-<div class="{% if block.errors %}text-error{% endif %} font-family-body">
+<div class="{% if component.errors %}text-error{% endif %} font-family-body">
 
-{% if block.value is None and block.errors %}
-    {{ block.errors.0 }}
+{% if component.value is None and component.errors %}
+    {{ component.errors.0 }}
 {% else %}
-    {{ block.value }} {% if block.errors %}{{ block.errors.0 }}{% endif %}
+    {% block component_value %}{{ component.value }}{% endblock %} {% if component.errors %}{{ component.errors.0 }}{% endif %}
 {% endif %}
+
 </div>

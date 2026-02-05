@@ -1,0 +1,5 @@
+{% extends "form_manager/forms/field_review.html" %}
+
+{% block component_value %}
+${{ component.value|floatformat:"2g" }}
+{% endblock %}

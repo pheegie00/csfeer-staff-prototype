@@ -1,12 +1,15 @@
 """Layout schema definitions for CSFEER forms."""
 
 import abc
+import contextlib
 import logging
 from typing import Any, ClassVar, Literal, Self, cast
 
 from django.forms.boundfield import BoundField
 from django.forms.renderers import TemplatesSetting
 from django.forms.utils import RenderableMixin
+from django.template.exceptions import TemplateDoesNotExist
+from django.template.loader import get_template
 from pydantic import BaseModel, PrivateAttr
 
 from form_manager.schema.fields import ACFField
@@ -28,11 +31,7 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
         """Set global context that will also be made available to any descendant nodes."""
         self._global_context = kwargs
         for child in getattr(self, "children", []) or []:
-            child = cast(Self, child)
-            try:
-                child.set_extra_context(**self._global_context)
-            except Exception as err:
-                print(err)
+            child.set_extra_context(**self._global_context)
 
     def get_context(self) -> dict[str, Any]:
         """Overloaded to inject global context and local variables into this
@@ -43,14 +42,17 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
             field_name: getattr(self, field_name, None)
             for field_name in self.__class__.model_fields
         } | {
-            "block": self,
+            "component": self,
         }
 
         context = context | field_context | self._global_context
 
         return context
 
-    def as_review_block(self):
+    def as_review_block(self, template_name: str | None = None):
+
+        if template_name:
+            return self.render(template_name)
 
         if self.review_template_name:
             return self.render(self.review_template_name)
@@ -150,6 +152,41 @@ class FieldBlock(RenderableBaseModel):
                 }
             )
         return context
+
+    def as_review_block(self, template_name: str | None = None):
+        """This will automatically search for a template name like `[field_name]_review.html`
+        and use that template to render it, if it exists."""
+
+        def find_template():
+
+            if hasattr(self, "field") and self.field:
+
+                field_class = self.field.field.__class__.__name__
+
+                field_class = field_class.replace("ACF", "").replace("Field", "")
+
+                try:
+                    _review_template_name = f"form_manager/forms/{field_class.lower()}_review.html"
+                    get_template(_review_template_name)
+                    return _review_template_name
+                except TemplateDoesNotExist:
+                    pass
+
+        if template_name:
+            pass
+
+        elif (
+            self.review_template_name != self.__class__.model_fields["review_template_name"].default
+        ):
+            template_name = self.review_template_name
+
+        elif find_template():
+            template_name = find_template()
+
+        else:
+            template_name = self.review_template_name
+
+        return super().as_review_block(template_name=template_name)
 
     @property
     def field(self) -> BoundField | None:
