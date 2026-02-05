@@ -1,4 +1,4 @@
-{% load static %}
+{% load static cotton %}
 <c-vars
     type="page"
     page_number=""
@@ -10,21 +10,21 @@
 
 {% if type == "previous" %}
 <li class="usa-pagination__item usa-pagination__arrow {{ extra_classes }}">
-    <a href="{{ href }}" class="usa-pagination__link usa-pagination__previous-page" aria-label="{{ aria_label }}">
+    <c-link href="{{ href }}" variant="pagination-previous" aria_label="{{ aria_label }}">
         <svg class="usa-icon" aria-hidden="true" role="img">
             <use href="{% static 'frontend/uswds/img/usa-icons/close.svg' %}#navigate_before"></use>
         </svg>
         <span class="usa-pagination__link-text">{{ slot }}</span>
-    </a>
+    </c-link>
 </li>
 {% elif type == "next" %}
 <li class="usa-pagination__item usa-pagination__arrow {{ extra_classes }}">
-    <a href="{{ href }}" class="usa-pagination__link usa-pagination__next-page" aria-label="{{ aria_label }}">
+    <c-link href="{{ href }}" variant="pagination-next" aria_label="{{ aria_label }}">
         <span class="usa-pagination__link-text">{{ slot }}</span>
         <svg class="usa-icon" aria-hidden="true" role="img">
             <use href="{% static 'frontend/uswds/img/usa-icons/close.svg' %}#navigate_next"></use>
         </svg>
-    </a>
+    </c-link>
 </li>
 {% elif type == "overflow" %}
 <li class="usa-pagination__item usa-pagination__overflow {{ extra_classes }}" aria-label="ellipsis indicating non-visible pages">
@@ -32,8 +32,8 @@
 </li>
 {% else %}
 <li class="usa-pagination__item usa-pagination__page-no {{ extra_classes }}">
-    <a href="{{ href }}" class="usa-pagination__button{% if is_current %} usa-current{% endif %}" aria-label="{{ aria_label }}"{% if is_current %} aria-current="page"{% endif %}>
+    <c-link href="{{ href }}" variant="pagination-page" is_current="{{ is_current }}" aria_label="{{ aria_label }}">
         {{ page_number }}
-    </a>
+    </c-link>
 </li>
 {% endif %}
