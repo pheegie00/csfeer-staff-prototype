@@ -31,10 +31,7 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
         """Set global context that will also be made available to any descendant nodes."""
         self._global_context = kwargs
         for child in getattr(self, "children", []) or []:
-            child = cast(Self, child)
-            with contextlib.suppress(Exception):
-                child.set_extra_context(**self._global_context)
-                pass
+            child.set_extra_context(**self._global_context)
 
     def get_context(self) -> dict[str, Any]:
         """Overloaded to inject global context and local variables into this
