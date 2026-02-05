@@ -63,12 +63,12 @@ class FormEntryAdmin(admin.ModelAdmin):
 
 @admin.register(FormAuditTrail)
 class FormAuditTrailAdmin(admin.ModelAdmin):
-    list_display = ("form_entry", "user", "action", "timestamp")
+    list_display = ("form_entry", "user", "action", "created_at")
     list_filter = ("action",)
 
 
 @admin.register(FormAuditDetail)
 class FormAuditDetailAdmin(admin.ModelAdmin):
-    list_display = ("form_entry", "user", "user__email", "field_name", "timestamp")
+    list_display = ("form_entry", "user", "user__email", "field_name", "created_at")
     search_fields = ("field_name",)
     list_filter = ("form_entry__form_definition__name",)

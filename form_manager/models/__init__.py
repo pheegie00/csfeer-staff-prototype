@@ -96,7 +96,6 @@ class FormAuditTrail(BaseModel):
     action = models.CharField(
         max_length=50
     )  # create, save, submit, amend, lock, unlock, archive, unarchive
-    timestamp = models.DateTimeField(auto_now_add=True)
     notes = models.TextField(blank=True)
 
     def __str__(self) -> str:  # pragma: no cover - trivial
@@ -111,7 +110,6 @@ class FormAuditDetail(BaseModel):
     field_name = models.CharField(max_length=200)
     old_value = models.TextField(blank=True)
     new_value = models.TextField(blank=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:  # pragma: no cover - trivial
         return f"{self.form_entry} {self.field_name} changed by {self.user}"

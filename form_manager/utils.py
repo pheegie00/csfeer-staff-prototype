@@ -44,8 +44,8 @@ def reconstruct_state(entry, upto=None):
     """Reconstruct form entry state from audit details up to a given timestamp."""
     qs = FormAuditDetail.objects.filter(form_entry=entry)
     if upto is not None:
-        qs = qs.filter(timestamp__lte=upto)
-    qs = qs.order_by("timestamp", "id")
+        qs = qs.filter(created_at__lte=upto)
+    qs = qs.order_by("created_at", "id")
     state = {}
     for d in qs:
         state[d.field_name] = try_parse_json(d.new_value)
