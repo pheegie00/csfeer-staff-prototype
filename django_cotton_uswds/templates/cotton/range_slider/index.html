@@ -6,6 +6,7 @@
     required=""
     extra_classes=""
     disabled=""
+    readonly=""
 />
 
 <c-form class="usa-form {{ extra_classes }}">
@@ -28,5 +29,7 @@
         {% if error %}aria-describedby="{{ id }}-error-message"{% endif %}
         {{ attrs }}
         {% if disabled %}disabled{% endif %}
+        {% if readonly %}readonly{% endif %}
+        {% if required %}required{% endif %}
     />
 </c-form>

@@ -1,6 +1,6 @@
 # Range Slider
 
-A form input component for selecting a numeric value from a range using a slider, following USWDS patterns. Uses the c-form and c-label components for consistent styling.
+A form input component for selecting a numeric value from a range using a slider, following USWDS patterns. Uses the c-form, c-label, and c-error-message components for consistent styling.
 
 ## Props
 
@@ -10,9 +10,11 @@ A form input component for selecting a numeric value from a range using a slider
 | `hint`          |         | Optional hint text displayed below the label         |
 | `error`         |         | Error message to display                             |
 | `required`      |         | Set to `"true"` to mark the field as required        |
+| `disabled`      |         | Set to `"true"` to disable the input                 |
+| `readonly`      |         | Set to `"true"` to make the input readonly           |
 | `extra_classes` |         | Additional CSS classes for the form                  |
 
-**Note:** All input attributes (`id`, `name`, `min`, `max`, `step`, `value`, `disabled`, `readonly`, etc.) are passed through the `{{ attrs }}` mechanism. Simply add them as attributes to the component.
+**Note:** All other input attributes (`id`, `name`, `min`, `max`, `step`, `value`, etc.) are passed through the `{{ attrs }}` mechanism. Simply add them as attributes to the component.
 
 ## Example Usage
 
@@ -90,10 +92,26 @@ A form input component for selecting a numeric value from a range using a slider
 
 ```django
 <c-range_slider
-    label="Locked setting"
-    id="locked"
-    name="locked"
-    disabled
+    label="Disabled range slider"
+    hint="This slider is disabled"
+    disabled="true"
+    id="range-disabled"
+    name="disabled"
+    min="0"
+    max="100"
+    value="60"
+/>
+```
+
+### Readonly Range Slider
+
+```django
+<c-range_slider
+    label="Readonly range slider"
+    hint="This slider is readonly"
+    readonly="true"
+    id="range-readonly"
+    name="readonly"
     min="0"
     max="100"
     value="75"
@@ -104,7 +122,8 @@ A form input component for selecting a numeric value from a range using a slider
 
 - Always provide a descriptive `label` for accessibility
 - Use `hint` text to provide additional guidance on acceptable values
-- All HTML input attributes (`id`, `name`, `min`, `max`, `step`, `value`, `disabled`, `readonly`, etc.) are passed directly to the input via `{{ attrs }}`
-- The component uses the `c-form` and `c-label` components internally for consistent styling
+- The `disabled`, `readonly`, and `required` attributes are handled directly by the component via c-vars
+- All other HTML input attributes (`id`, `name`, `min`, `max`, `step`, `value`, etc.) are passed directly to the input via `{{ attrs }}`
+- The component uses the `c-form`, `c-label`, and `c-error-message` components internally for consistent styling
 - Error messages are properly associated with the input via `aria-describedby`
 - The component automatically wraps content in a `<form class="usa-form">` element
