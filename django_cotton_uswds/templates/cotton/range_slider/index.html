@@ -17,14 +17,15 @@
         required="{{ required }}"
     />
 
-    {% if error %}
-    <span class="usa-error-message" id="{{ id }}-error" role="alert">{{ error }}</span>
-    {% endif %}
+    <c-error-message
+        id="{{ id }}"
+        error="{{ error }}"
+    />
 
     <input
         class="usa-range"
         type="range"
-        {% if error %}aria-describedby="{{ id }}-error"{% endif %}
+        {% if error %}aria-describedby="{{ id }}-error-message"{% endif %}
         {{ attrs }}
         {% if disabled %}disabled{% endif %}
     />
