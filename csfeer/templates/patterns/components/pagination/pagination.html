@@ -1,0 +1,43 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Pagination Component</h1>
+
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-pagination aria_label="{{ variant.aria_label }}">
+            {% if variant.show_previous %}
+            <c-pagination.item
+                type="previous"
+                href="{{ variant.previous_href }}"
+                aria_label="{{ variant.previous_aria_label }}"
+            >{{ variant.previous_text }}</c-pagination.item>
+            {% endif %}
+
+            {% for item in variant.items %}
+                {% if item.type == "overflow" %}
+                <c-pagination.item type="overflow" />
+                {% else %}
+                <c-pagination.item
+                    type="page"
+                    page_number="{{ item.page }}"
+                    href="{{ item.href }}"
+                    is_current="{{ item.is_current|default:'' }}"
+                    aria_label="{{ item.aria_label }}"
+                />
+                {% endif %}
+            {% endfor %}
+
+            {% if variant.show_next %}
+            <c-pagination.item
+                type="next"
+                href="{{ variant.next_href }}"
+                aria_label="{{ variant.next_aria_label }}"
+            >{{ variant.next_text }}</c-pagination.item>
+            {% endif %}
+        </c-pagination>
+    </div>
+    {% endfor %}
+</div>
