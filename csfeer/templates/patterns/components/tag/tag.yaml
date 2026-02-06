@@ -1,0 +1,10 @@
+name: Tag
+context:
+  variants:
+    - title: "Default Tag"
+      text: "Info"
+      variant: ""
+
+    - title: "Big Tag"
+      text: "Big"
+      variant: "big"
