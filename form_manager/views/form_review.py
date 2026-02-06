@@ -50,6 +50,10 @@ def form_review(request, pk):
 
     is_valid = form.is_valid(use_default_if_excluded=True)
 
+    # Set session flag to indicate user has seen the review page
+    # This will cause form_edit to show validation errors
+    request.session[f"show_errors_{entry.pk}"] = True
+
     context = {
         "form": form,
         "entry": entry,

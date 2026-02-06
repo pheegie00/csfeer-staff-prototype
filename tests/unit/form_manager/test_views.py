@@ -1,39 +1,12 @@
 from typing import TYPE_CHECKING
 
 import pytest
-from django.core.management import call_command
 from django.urls import reverse
 
 from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
 
 if TYPE_CHECKING:
     from django.test.client import Client
-
-
-@pytest.fixture
-def seed_data(create_user, use_test_schema):
-    user, details = create_user
-
-    call_command("seed_demo_org", email=user.email, all=True)
-    call_command("load_initial_forms")
-
-    return user, details
-
-
-@pytest.fixture
-def form_entry(seed_data, create_user) -> FormEntry:
-
-    user, user_details = create_user
-
-    org = OrganizationProfile.objects.filter(userorganizationmembership__user=user).first()
-
-    form_def = FormDefinition.objects.first()
-
-    entry = FormEntry.objects.create(
-        form_definition=form_def, organization=org, created_by=user, version_number="1"
-    )
-
-    return entry
 
 
 @pytest.mark.django_db
@@ -168,7 +141,7 @@ def test_back_button_shown_on_second_page(
     url = reverse("form_edit", args=[form_entry.pk])
 
     # Request the second page
-    response = authenticated_client.get(url, {"step": 0, "page": 1})
+    response = authenticated_client.get(url, {"step": 1, "page": 0})
 
     assert response.status_code == 200
 
@@ -178,5 +151,5 @@ def test_back_button_shown_on_second_page(
     assert "← Back" in content
 
     # Verify that current_step_number and current_page_number are in the context
-    assert response.context["current_step_number"] == 0
-    assert response.context["current_page_number"] == 1
+    assert response.context["current_step_number"] == 1
+    assert response.context["current_page_number"] == 0
