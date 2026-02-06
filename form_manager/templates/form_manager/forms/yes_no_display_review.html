@@ -18,7 +18,7 @@
         <div class="{% if component.errors %}text-error{% endif %} font-family-body">
             {% for value in component.value %}
                 {% if forloop.parentloop.counter0 == forloop.counter0 %}
-                    {{ value }}
+                    ${{ value|cut:","|floatformat:"2g" }}
                 {% endif %}
             {% endfor %}
         </div>
