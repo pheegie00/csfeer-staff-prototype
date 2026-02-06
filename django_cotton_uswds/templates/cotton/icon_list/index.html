@@ -1,0 +1,9 @@
+<c-vars
+    variant=""
+    size=""
+    extra_classes=""
+/>
+
+<ul class="usa-icon-list{% if variant %} usa-icon-list--{{ variant }}{% endif %}{% if size %} usa-icon-list--size-{{ size }}{% endif %} {{ extra_classes }}">
+    {{ slot }}
+</ul>

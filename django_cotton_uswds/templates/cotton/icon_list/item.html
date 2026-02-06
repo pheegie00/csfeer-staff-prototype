@@ -1,0 +1,26 @@
+{% load static %}
+<c-vars
+    icon=""
+    icon_color=""
+    title=""
+    title_tag="h4"
+    content=""
+    extra_classes=""
+/>
+
+<li class="usa-icon-list__item {{ extra_classes }}">
+    <div class="usa-icon-list__icon{% if icon_color %} {{ icon_color }}{% endif %}">
+        <svg class="usa-icon" aria-hidden="true" role="img">
+            <use href="{% static 'frontend/uswds/img/sprite.svg' %}#{{ icon }}"></use>
+        </svg>
+    </div>
+    <div class="usa-icon-list__content">
+        {% if title %}
+        <{{ title_tag }} class="usa-icon-list__title">{{ title }}</{{ title_tag }}>
+        {% endif %}
+        {% if content %}
+        {{ content }}
+        {% endif %}
+        {{ slot }}
+    </div>
+</li>
