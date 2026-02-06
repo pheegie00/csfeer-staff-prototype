@@ -106,6 +106,9 @@ def form_edit(request, pk):
     current_step_number = int(request.GET.get("step", 0))
     current_page_number = int(request.GET.get("page", 0))
 
+    # Check if user has visited the review page for this entry
+    show_errors = request.session.get(f"show_errors_{entry.pk}", False)
+
     if not schema_class_ref:
         raise Http404("FormEntry has no schema_class defined")
 
@@ -141,7 +144,13 @@ def form_edit(request, pk):
         save_form_entry(django_form_class, entry, request)
         messages.success(request, "Draft saved.")
 
-    form = django_form_class(initial=entry.data or {})
+    # If user has visited the review page, create a bound form with validation
+    # to show error states. Otherwise, create an unbound form.
+    if show_errors and entry.data:
+        form = django_form_class(entry.data)
+        form.is_valid(use_default_if_excluded=True)
+    else:
+        form = django_form_class(initial=entry.data or {})
 
     if form.fields_to_exclude:
         logger.info("Excluding the following fields: %s", form.fields_to_exclude)

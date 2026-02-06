@@ -1,0 +1,62 @@
+name: Pagination
+context:
+  variants:
+    - title: "Default Pagination"
+      aria_label: "Pagination"
+      show_previous: "true"
+      previous_text: "Previous"
+      previous_href: "#"
+      previous_aria_label: "Previous page"
+      show_next: "true"
+      next_text: "Next"
+      next_href: "#"
+      next_aria_label: "Next page"
+      items:
+        - page: 1
+          href: "#"
+          aria_label: "Page 1"
+        - type: "overflow"
+        - page: 9
+          href: "#"
+          aria_label: "Page 9"
+        - page: 10
+          href: "#"
+          is_current: "true"
+          aria_label: "Page 10"
+        - page: 11
+          href: "#"
+          aria_label: "Page 11"
+        - type: "overflow"
+        - page: 24
+          href: "#"
+          aria_label: "Last page, page 24"
+          
+    - title: "Unbounded Pagination"
+      aria_label: "Pagination"
+      show_previous: "true"
+      previous_text: "Previous"
+      previous_href: "#"
+      previous_aria_label: "Previous page"
+      show_next: "true"
+      next_text: "Next"
+      next_href: "#"
+      next_aria_label: "Next page"
+      items:
+        - page: 1
+          href: "#"
+          aria_label: "Page 1"
+        - type: "overflow"
+        - page: 9
+          href: "#"
+          aria_label: "Page 9"
+        - page: 10
+          href: "#"
+          is_current: "true"
+          aria_label: "Page 10"
+        - page: 11
+          href: "#"
+          aria_label: "Page 11"
+        - page: 12
+          href: "#"
+          aria_label: "Page 12"
+        - type: "overflow"

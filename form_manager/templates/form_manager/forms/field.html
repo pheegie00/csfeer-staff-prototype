@@ -1,12 +1,18 @@
-<c-form-group>
+<c-form-group error="{% if field.errors %}{{ field.errors.0 }}{% endif %}">
    {% if field.label and field.field.widget.input_type != "checkbox" %}
-    <c-label 
-        id="{{ field.id_for_label }}" 
-        label="{{ field.field.title }}" 
+    <c-label
+        id="{{ field.id_for_label }}"
+        label="{{ field.field.title }}"
         required="{{ field.field.required }}"
+        error="{% if field.errors %}{{ field.errors.0 }}{% endif %}"
     />
     {% endif %}
-  
+
+    <c-error-message
+        id="{{ field.id_for_label }}"
+        error="{% if field.errors %}{{ field.errors.0 }}{% endif %}"
+    />
+
     {{ field.as_widget|safe }}
-  
+
 </c-form-group>
