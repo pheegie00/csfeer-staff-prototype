@@ -129,7 +129,7 @@ class FieldGroupBlock(RenderableBaseModel):
 
     type: str = "field-group"
     description: str | None = None
-    children: list[Self | "FieldBlock"] | None = None
+    children: list[Self | "FieldBlock" | "ReviewSubheadingBlock"] | None = None
     template_name: str = "form_manager/field_group.html"
 
 

@@ -164,9 +164,13 @@ class TribalLongFormFields(BaseFields):
 
     # region Demographic Questions
 
-    total_individuals_served = acf_fields.IntegerField(title="Total number of people")
+    total_individuals_served = acf_fields.IntegerField(
+        title="Total number of people", review_title="Total number of people served"
+    )
 
-    total_individuals_served_over_18 = acf_fields.IntegerField(title="Total number of people")
+    total_individuals_served_over_18 = acf_fields.IntegerField(
+        title="Total number of people", review_title="Total served under 18"
+    )
 
     male_individuals_served = acf_fields.IntegerField(title="Male")
     female_individuals_served = acf_fields.IntegerField(title="Female")
@@ -371,6 +375,9 @@ class TribalLongForm(BaseFormSchema):
                                 children=[
                                     FieldGroupBlock(
                                         children=[
+                                            ReviewSubheadingBlock(
+                                                title="Sex of individuals served (Age 18 and older)"
+                                            ),
                                             FieldBlock(field_name="male_individuals_served"),
                                             FieldBlock(field_name="female_individuals_served"),
                                             FieldBlock(
@@ -390,6 +397,9 @@ class TribalLongForm(BaseFormSchema):
                                 children=[
                                     FieldGroupBlock(
                                         children=[
+                                            ReviewSubheadingBlock(
+                                                title="Work status of adults served (age 18 and older)"
+                                            ),
                                             FieldBlock(field_name="employment__full_time"),
                                             FieldBlock(field_name="employment__part_time"),
                                             FieldBlock(field_name="employment__migrant_seasonal"),
