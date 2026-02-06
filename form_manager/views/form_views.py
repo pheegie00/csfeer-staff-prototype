@@ -98,7 +98,7 @@ class FormSnapshotView(BaseSingleFormView, FormPermissionMixin):
 
     def get_initial(self):
         audit = self.get_audit()
-        return reconstruct_state(self.object, upto=audit.timestamp)
+        return reconstruct_state(self.object, upto=audit.created_at)
 
     @lru_cache
     def get_audit(self):
@@ -111,7 +111,7 @@ class FormSnapshotView(BaseSingleFormView, FormPermissionMixin):
         audit = self.get_audit()
         context.update(
             {
-                "snapshot_at": audit.timestamp,
+                "snapshot_at": audit.created_at,
                 "snapshot_action": audit.action,
             }
         )
