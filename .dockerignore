@@ -1,2 +1,3 @@
 .python-version
-frontend/built
+staticfiles
+staticfiles.json
