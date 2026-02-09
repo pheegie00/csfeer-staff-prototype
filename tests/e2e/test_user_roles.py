@@ -32,35 +32,6 @@ def test_demo_user_login(demo_page: Page, base_url: str) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.auth
-@pytest.mark.skip(reason="Requires admin-only pages to be implemented")
-def test_admin_can_access_admin_pages(admin_page: Page, base_url: str) -> None:
-    """Test that admin user can access admin-only pages."""
-    page = admin_page
-
-    # Navigate to admin page
-    page.goto(f"{base_url}/admin/")
-
-    # Should not be redirected away
-    page.wait_for_url(f"{base_url}/admin/**")
-
-
-@pytest.mark.e2e
-@pytest.mark.auth
-@pytest.mark.skip(reason="Requires role-based access control to be implemented")
-def test_regular_user_cannot_access_admin_pages(demo_page: Page, base_url: str) -> None:
-    """Test that regular users cannot access admin pages."""
-    page = demo_page
-
-    # Try to access admin page
-    page.goto(f"{base_url}/admin/")
-
-    # Should be redirected or show 403
-    # Adjust assertion based on actual implementation
-    assert page.url != f"{base_url}/admin/" and "403" in page.content()
-
-
-@pytest.mark.e2e
-@pytest.mark.auth
 def test_login_with_different_users(page: Page, base_url: str) -> None:
     """Test that we can login with different test users."""
     # Test logging in as demo-1
