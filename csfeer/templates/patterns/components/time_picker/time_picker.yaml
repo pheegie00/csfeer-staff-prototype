@@ -1,0 +1,34 @@
+name: Time Picker
+context:
+  variants:
+    - title: "Basic Time Picker"
+      id: "appointment-time"
+      name: "appointment-time"
+      label: "Appointment time"
+
+    - title: "Time Picker with Hint"
+      id: "appointment-time-hint"
+      name: "appointment-time-hint"
+      label: "Appointment time"
+      hint: "Select a time from the dropdown. Type into the input to filter options."
+
+    - title: "Required Time Picker"
+      id: "appointment-time-required"
+      name: "appointment-time-required"
+      label: "Appointment time"
+      hint: "This field is required"
+      required: "true"
+
+    - title: "Time Picker with Error"
+      id: "appointment-time-error"
+      name: "appointment-time-error"
+      label: "Appointment time"
+      hint: "Select a time from the dropdown"
+      error: "Please select a valid time"
+
+    - title: "Disabled Time Picker"
+      id: "appointment-time-disabled"
+      name: "appointment-time-disabled"
+      label: "Appointment time"
+      hint: "This time picker is disabled"
+      disabled: "true"

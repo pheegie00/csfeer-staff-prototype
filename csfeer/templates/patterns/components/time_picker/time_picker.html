@@ -1,0 +1,33 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Time Picker Component</h1>
+
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-form>
+            <c-label
+                id="{{ variant.id }}"
+                label="{{ variant.label }}"
+                hint="{{ variant.hint }}"
+                error="{{ variant.error }}"
+                required="{{ variant.required }}"
+            />
+
+            <c-error-message
+                id="{{ variant.id }}"
+                error="{{ variant.error }}"
+            />
+
+            <c-time_picker
+                id="{{ variant.id }}"
+                name="{{ variant.name }}"
+                disabled="{{ variant.disabled }}"
+                required="{{ variant.required }}"
+            />
+        </c-form>
+    </div>
+    {% endfor %}
+</div>
