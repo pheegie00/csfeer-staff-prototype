@@ -8,26 +8,6 @@
 
       {% include "form_manager/_step_indicator.html" with current_step_title=current_step.title %}
 
-      <script>
-        const updateCalculatedFields = (e) => {
-          const calculatedFields = e.currentTarget.querySelectorAll(".calculated-currency-field, .calculated-field");
-          calculatedFields.forEach((field) => {
-            let sourceFields = field.getAttribute("data-source-fields");
-            sourceFields = sourceFields.split(',')
-            const total = sourceFields.reduce((total, fieldName, index) => {
-              const sourceField = e.currentTarget.querySelector(`[name=${fieldName}]`)
-              if (sourceField === null) {
-                return total;
-              }
-              const value = parseFloat(sourceField.value || 0.0)
-              const newTotal = value + total;
-              return newTotal
-            }, 0.0);
-            field.value = total;
-          })
-        }
-      </script>
-
       <c-form id="csf-form" class="" method="post" action="{{ next_url }}" x-data="" novalidate @change="updateCalculatedFields">
         {% csrf_token %}
         {{ current_page }}
