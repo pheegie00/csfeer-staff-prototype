@@ -1,0 +1,26 @@
+{% load cotton %}
+
+<div class="component-variants">
+    <h1>Range Slider Component</h1>
+
+    {% for variant in variants %}
+    <div class="component-variant">
+        <h2 class="variant-title">{{ variant.title }}</h2>
+
+        <c-range_slider
+            label="{{ variant.label }}"
+            hint="{{ variant.hint }}"
+            error="{{ variant.error }}"
+            required="{{ variant.required }}"
+            id="{{ variant.id }}"
+            name="{{ variant.name }}"
+            min="{{ variant.min }}"
+            max="{{ variant.max }}"
+            step="{{ variant.step }}"
+            value="{{ variant.value }}"
+            disabled="{{ variant.disabled }}"
+            readonly="{{ variant.readonly }}"
+        />
+    </div>
+    {% endfor %}
+</div>

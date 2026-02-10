@@ -1,0 +1,35 @@
+{% load cotton %}
+<c-vars
+    label=""
+    hint=""
+    error=""
+    required=""
+    extra_classes=""
+    disabled=""
+    readonly=""
+/>
+
+<c-form class="usa-form {{ extra_classes }}">
+    <c-label
+        id="{{ id }}"
+        label="{{ label }}"
+        hint="{{ hint }}"
+        error="{{ error }}"
+        required="{{ required }}"
+    />
+
+    <c-error-message
+        id="{{ id }}"
+        error="{{ error }}"
+    />
+
+    <input
+        class="usa-range"
+        type="range"
+        {% if error %}aria-describedby="{{ id }}-error-message"{% endif %}
+        {{ attrs }}
+        {% if disabled %}disabled{% endif %}
+        {% if readonly %}readonly{% endif %}
+        {% if required %}required{% endif %}
+    />
+</c-form>
