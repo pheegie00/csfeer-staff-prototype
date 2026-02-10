@@ -57,7 +57,9 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
     page.wait_for_selector('h4:has-text("Step 2 of 4 Expenditure categories")')
 
     # Go back to Step 1
-    page.get_by_role("button", name="← Back").click()
+    page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
+    page.wait_for_timeout(500)
+    page.get_by_text("← Back").click()
 
     # Wait for Step 1 to load again
     page.wait_for_selector('h4:has-text("Step 1 of 4 Basic Information")')
@@ -83,9 +85,10 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
     page.wait_for_selector('h4:has-text("Step 2 of 4 Expenditure categories")')
 
     # Go back to Step 1 again to verify the cleared value persisted
-    page.get_by_role("button", name="← Back").click()
+    page.get_by_text("← Back").click()
     page.wait_for_selector('h4:has-text("Step 1 of 4 Basic Information")')
 
     # Verify the field is still empty (the bug would cause it to show the old value)
     final_value = tribe_name_field.input_value()
+
     assert final_value == "", f"Expected empty field, but got: {final_value}"
