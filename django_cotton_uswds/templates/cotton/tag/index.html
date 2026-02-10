@@ -1,0 +1,9 @@
+{% load cotton %}
+<c-vars
+    variant=""
+    extra_classes=""
+/>
+
+<span class="usa-tag{% if variant == 'big' %} usa-tag--big{% endif %} {{ extra_classes }}" {{ attrs }}>
+    {{ slot }}
+</span>
