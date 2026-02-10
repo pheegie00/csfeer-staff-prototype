@@ -1,0 +1,16 @@
+{% load cotton %}
+<c-vars
+    disabled=""
+    required=""
+    extra_classes=""
+/>
+
+<div class="usa-time-picker {{ extra_classes }}">
+  <input
+    class="usa-input"
+    {{ attrs }}
+    {% if disabled %}disabled{% endif %}
+    {% if required %}required{% endif %}
+  />
+</div>
+
