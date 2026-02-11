@@ -69,29 +69,36 @@ class TribalShortFormFields(BaseFields):
 
     # region Expenditure Amounts
     employment_expenditure = acf_fields.CurrencyField(
-        title="Employment", min_value=0, review_title="Employment expenses"
+        title="Employment", min_value=0, review_title="Employment expenses", default_if_excluded=0
     )
     childcare_expenditure = acf_fields.CurrencyField(
         title="Childcare, Early Childhood, Youth Development, and Adult Education",
         min_value=0,
         review_title="Childcare, Early Childhood, Youth Development, and Adult Education expenses",
+        default_if_excluded=0,
     )
 
     asset_building_expenditure = acf_fields.CurrencyField(
-        title="Income and Asset Building", min_value=0
+        title="Income and Asset Building", min_value=0, default_if_excluded=0
     )
-    housing_expenditure = acf_fields.CurrencyField(title="Housing", min_value=0)
-    health_expenditure = acf_fields.CurrencyField(title="Health and Nutrition", min_value=0)
+    housing_expenditure = acf_fields.CurrencyField(
+        title="Housing", min_value=0, default_if_excluded=0
+    )
+    health_expenditure = acf_fields.CurrencyField(
+        title="Health and Nutrition", min_value=0, default_if_excluded=0
+    )
     civic_expenditure = acf_fields.CurrencyField(
-        title="Civic Engagement and Community Involvement", min_value=0
+        title="Civic Engagement and Community Involvement", min_value=0, default_if_excluded=0
     )
-    transportation_expenditure = acf_fields.CurrencyField(title="Transportation", min_value=0)
+    transportation_expenditure = acf_fields.CurrencyField(
+        title="Transportation", min_value=0, default_if_excluded=0
+    )
 
     partnerships_expenditure = acf_fields.CurrencyField(
-        title="Partnerships, Linkages, and Coordination", min_value=0
+        title="Partnerships, Linkages, and Coordination", min_value=0, default_if_excluded=0
     )
 
-    other_expenditure = acf_fields.CurrencyField(title="Other", min_value=0)
+    other_expenditure = acf_fields.CurrencyField(title="Other", min_value=0, default_if_excluded=0)
 
     total_expenditures = acf_fields.CalculatedCurrencyField(
         title="Total Expenditures",
