@@ -120,7 +120,9 @@ class TribalLongFormFields(BaseFields):
         title="Did you use any funds toward Administration costs?",
         fields=[
             acf_fields.CurrencyField(
-                title="Administration", review_title="Total administration costs"
+                title="Administration",
+                review_title="Total administration costs",
+                required=False,
             )
         ],
     )
@@ -416,6 +418,7 @@ class TribalLongForm(BaseFormSchema):
                                             FieldBlock(
                                                 field_name="employment__unemployed_long_term"
                                             ),
+                                            FieldBlock(field_name="employment__retired"),
                                             FieldBlock(
                                                 field_name="employment__permanently_unemployed"
                                             ),
