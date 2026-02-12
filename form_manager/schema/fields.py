@@ -130,7 +130,9 @@ class ACFCurrencyField(ACFFieldMixin, forms.DecimalField):
 
     def prepare_value(self, value):
         """Format the value as a currency string for display in the form field."""
-        value = value or "0.00"
+        # value = value or "0.00"
+        if value in [None, ""]:
+            return ""
         sanitized = formats.sanitize_separators(value)
         return formats.number_format(sanitized, 2, True)
 
@@ -262,7 +264,7 @@ class ACFYesNoDisplayField(ACFFieldMixin, forms.MultiValueField):
 
     error_messages = {}
 
-    def __init__(self, fields, *args, **kwargs):
+    def __init__(self, fields, *args, require_all_fields=False, **kwargs):
 
         fields = [
             acf_fields.ChoiceField(
@@ -271,7 +273,6 @@ class ACFYesNoDisplayField(ACFFieldMixin, forms.MultiValueField):
                     ("no", "No"),
                 ],
                 widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
-                validators=[],
                 initial="no",
             ),
         ] + fields
@@ -291,7 +292,9 @@ class ACFYesNoDisplayField(ACFFieldMixin, forms.MultiValueField):
 
         widget = self.widget(widgets=subwidgets)
 
-        super().__init__(fields, *args, widget=widget, **kwargs)
+        super().__init__(
+            fields, *args, widget=widget, require_all_fields=require_all_fields, **kwargs
+        )
 
     def compress(self, data_list):
 

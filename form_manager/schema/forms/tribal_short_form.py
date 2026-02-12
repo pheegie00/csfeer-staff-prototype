@@ -3,6 +3,7 @@
 from django import forms
 from pydantic import ConfigDict, Field
 from pydantic_extra_types.semantic_version import SemanticVersion
+from traitlets import default
 
 from form_manager.constants import AllFormNames, CSBGAnnualReportForms, FormFamilies
 from form_manager.schema.fields import acf_fields
@@ -69,29 +70,36 @@ class TribalShortFormFields(BaseFields):
 
     # region Expenditure Amounts
     employment_expenditure = acf_fields.CurrencyField(
-        title="Employment", min_value=0, review_title="Employment expenses"
+        title="Employment", min_value=0, review_title="Employment expenses", default_if_excluded=0
     )
     childcare_expenditure = acf_fields.CurrencyField(
         title="Childcare, Early Childhood, Youth Development, and Adult Education",
         min_value=0,
         review_title="Childcare, Early Childhood, Youth Development, and Adult Education expenses",
+        default_if_excluded=0,
     )
 
     asset_building_expenditure = acf_fields.CurrencyField(
-        title="Income and Asset Building", min_value=0
+        title="Income and Asset Building", min_value=0, default_if_excluded=0
     )
-    housing_expenditure = acf_fields.CurrencyField(title="Housing", min_value=0)
-    health_expenditure = acf_fields.CurrencyField(title="Health and Nutrition", min_value=0)
+    housing_expenditure = acf_fields.CurrencyField(
+        title="Housing", min_value=0, default_if_excluded=0
+    )
+    health_expenditure = acf_fields.CurrencyField(
+        title="Health and Nutrition", min_value=0, default_if_excluded=0
+    )
     civic_expenditure = acf_fields.CurrencyField(
-        title="Civic Engagement and Community Involvement", min_value=0
+        title="Civic Engagement and Community Involvement", min_value=0, default_if_excluded=0
     )
-    transportation_expenditure = acf_fields.CurrencyField(title="Transportation", min_value=0)
+    transportation_expenditure = acf_fields.CurrencyField(
+        title="Transportation", min_value=0, default_if_excluded=0
+    )
 
     partnerships_expenditure = acf_fields.CurrencyField(
-        title="Partnerships, Linkages, and Coordination", min_value=0
+        title="Partnerships, Linkages, and Coordination", min_value=0, default_if_excluded=0
     )
 
-    other_expenditure = acf_fields.CurrencyField(title="Other", min_value=0)
+    other_expenditure = acf_fields.CurrencyField(title="Other", min_value=0, default_if_excluded=0)
 
     total_expenditures = acf_fields.CalculatedCurrencyField(
         title="Total Expenditures",
@@ -111,37 +119,59 @@ class TribalShortFormFields(BaseFields):
 
     administration_expenditure = acf_fields.YesNoDisplayField(
         title="Did you use any funds toward Administration costs?",
-        fields=[acf_fields.CurrencyField(title="Administration")],
+        fields=[
+            acf_fields.CurrencyField(
+                title="Administration",
+                review_title="Total administration costs",
+                initial="",
+                required=False,
+            )
+        ],
+        validators=[],
     )
 
     # region Expenditure Descriptions
 
     employment_related_services_description = acf_fields.TextareaField(
-        title="Description", review_title="Details about employment related services"
+        title="Description",
+        review_title="Details about employment related services",
+        default_if_excluded="N/A",
     )
 
     education_related_service_description = acf_fields.TextareaField(
-        title="Description", review_title="Details about education related services"
+        title="Description",
+        review_title="Details about education related services",
+        default_if_excluded="N/A",
     )
 
     income_services_description = acf_fields.TextareaField(
-        title="Description", review_title="Details about income and asset services"
+        title="Description",
+        review_title="Details about income and asset services",
+        default_if_excluded="N/A",
     )
 
     housing_services_description = acf_fields.TextareaField(
-        title="Description", review_title="Details about housing services"
+        title="Description",
+        review_title="Details about housing services",
+        default_if_excluded="N/A",
     )
 
     health_services_description = acf_fields.TextareaField(
-        title="Description", review_title="Details about health services"
+        title="Description",
+        review_title="Details about health services",
+        default_if_excluded="N/A",
     )
 
     civic_services_description = acf_fields.TextareaField(
-        title="Description", review_title="Details about civic services"
+        title="Description",
+        review_title="Details about civic services",
+        default_if_excluded="N/A",
     )
 
     transportation_services_description = acf_fields.TextareaField(
-        title="Description", review_title="Details about transportation services"
+        title="Description",
+        review_title="Details about transportation services",
+        default_if_excluded="N/A",
     )
 
 
@@ -213,7 +243,12 @@ class TribalShortForm(BaseFormSchema):
                             "To learn more about what qualifies as Administration costs, refer "
                             "to guidance IM37."
                         ),
-                        children=[FieldBlock(field_name="administration_expenditure")],
+                        children=[
+                            FieldBlock(
+                                field_name="administration_expenditure",
+                                review_template_name="form_manager/forms/yes_no_display_review.html",
+                            )
+                        ],
                     ),
                 ],
             ),

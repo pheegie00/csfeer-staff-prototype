@@ -46,6 +46,9 @@ oauth-setup:
 test-unit:
 	$(UV) run pytest tests/unit -v
 
+test-unit-with-docker:
+	docker exec -it csfeer-app-1 bash -c "make test-unit"
+
 # E2E Testing targets
 test-e2e:
 	@echo "Starting services..."

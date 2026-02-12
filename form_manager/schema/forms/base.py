@@ -71,11 +71,10 @@ class BaseFields(forms.Form):
         if use_default_if_excluded:
 
             for name, instance in self.fields.items():
-
-                if name in self.fields_to_exclude and getattr(
-                    instance, "default_if_excluded", None
+                if (
+                    name in self.fields_to_exclude
+                    and getattr(instance, "default_if_excluded", None) is not None
                 ):
-
                     self.data[name] = instance.default_if_excluded
 
         return super().is_valid()

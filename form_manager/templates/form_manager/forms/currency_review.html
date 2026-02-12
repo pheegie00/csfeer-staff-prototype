@@ -2,5 +2,7 @@
 
 
 {% block component_value %}
+{% if component.value %}
 ${{ component.value|cut:","|floatformat:"2g" }}
+{% endif %}
 {% endblock %}

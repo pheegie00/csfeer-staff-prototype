@@ -93,8 +93,8 @@ def test_currency_fields_are_properly_formatted():
         (30.0, "30.00"),
         (30, "30.00"),
         ("30", "30.00"),
-        ("", "0.00"),
-        (None, "0.00"),
+        ("", ""),
+        (None, ""),
     ]
 
     for input_value, expected in test_data:
