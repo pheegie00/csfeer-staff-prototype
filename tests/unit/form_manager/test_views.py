@@ -153,3 +153,42 @@ def test_back_button_shown_on_second_page(
     # Verify that current_step_number and current_page_number are in the context
     assert response.context["current_step_number"] == 1
     assert response.context["current_page_number"] == 0
+
+
+@pytest.mark.django_db
+def test_review_back_button_accounts_for_excluded_fields(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    """
+    When fields are excluded and entire pages are removed from the UI,
+    the review page back button should point to the last *visible* page,
+    not the last page in the unfiltered UI definition.
+    """
+    edit_url = reverse("form_edit", args=[form_entry.pk])
+
+    # Post data with NO topics selected — this excludes all cost fields
+    # (item1_cost, item2_cost, item3_cost), causing the "Specific costs"
+    # PageBlock to be removed entirely from the UI.
+    authenticated_client.post(
+        edit_url,
+        data={"applicable_topics": []},
+        query_params={"step": 1, "page": 0},
+    )
+
+    # Navigate to the review page
+    review_url = reverse("form_review", args=[form_entry.pk])
+    response = authenticated_client.get(review_url)
+
+    assert response.status_code == 200
+
+    prev_url = response.context["prev_url"]
+
+    # With the "Specific costs" page removed, step 1 has only 1 page (the
+    # PermanentPageBlock at index 0). So the back button should point to
+    # step=1, page=0 — NOT step=1, page=1 which would cause a 500.
+    expected_url = reverse(
+        "form_edit",
+        kwargs={"pk": form_entry.pk},
+        query={"step": 1, "page": 0},
+    )
+    assert prev_url == expected_url
