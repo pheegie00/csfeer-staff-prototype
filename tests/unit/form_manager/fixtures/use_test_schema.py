@@ -58,6 +58,17 @@ class TestSchemaForm(BaseFields):
         review_title="The cost you entered for item 3 is:",
     )
 
+    total_cost = acf_fields.CalculatedCurrencyField(
+        fields=["item1_cost", "item2_cost", "item3_cost"]
+    )
+
+    extra_funding = acf_fields.YesNoDisplayField(
+        fields=[
+            acf_fields.CurrencyField(title="Funding Amount"),
+        ],
+        title="Do you have funding?",
+    )
+
 
 class TestSchema(BaseFormSchema):
 

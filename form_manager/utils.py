@@ -13,6 +13,11 @@ from form_manager.models import (
     UserOrganizationMembership,
 )
 from form_manager.schema import forms as form_schemas
+from form_manager.schema.fields import (
+    ACFCalculatedCurrencyField,
+    ACFCalculatedField,
+    ACFYesNoDisplayField,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -126,6 +131,52 @@ def get_form_definitions() -> list[form_schemas.BaseFormSchema]:
     return ret
 
 
+def get_fields_to_save(form, request):
+    """
+    Determine which fields should be saved from POST data.
+
+    Returns fields that:
+    - Are valid form fields
+    - Have data submitted in POST (including empty values)
+    - Are NOT calculated fields (auto-generated)
+
+    Note: Uses Django's widget API to detect submitted data, which
+    correctly handles MultiValueField (like ACFYesNoDisplayField) that
+    uses multiple POST keys for a single field.
+    """
+    fields_to_save = []
+
+    for field_name, field in form.fields.items():
+        # Skip calculated fields (disabled, auto-generated)
+        if isinstance(field, (ACFCalculatedField, ACFCalculatedCurrencyField)):
+            continue
+
+        # Use Django's widget API to check if field has data in POST
+        # This works for all field types including MultiValueField
+        value = field.widget.value_from_datadict(
+            request.POST, request.FILES, form.add_prefix(field_name)
+        )
+
+        logger.info("Evaluating %s with value %s", field_name, value)
+
+        # If widget found data (even empty string), include this field
+        # value_from_datadict returns None if field not in POST
+        if isinstance(field, (ACFYesNoDisplayField)):
+            if value and any(value):
+                fields_to_save.append(field_name)
+
+        elif value is not None:
+
+            if isinstance(value, list):
+                if any(value):
+                    logger.info("Adding %s to fields_to_save", field_name)
+                    fields_to_save.append(field_name)
+            else:
+                fields_to_save.append(field_name)
+
+    return fields_to_save
+
+
 def save_form_entry(form_class: type[Form], form_entry: FormEntry, request):
     old_data = form_entry.data.copy() if form_entry.data else {}
 
@@ -138,11 +189,16 @@ def save_form_entry(form_class: type[Form], form_entry: FormEntry, request):
 
     new_data = {}
 
-    logger.info("Found the following changed fields: %s", form.changed_data)
+    fields_to_save = get_fields_to_save(form, request)
+    logger.info("Saving the following fields: %s", fields_to_save)
 
     # construct a dict of changed data values
-    for field_name in form.changed_data:
+    for field_name in fields_to_save:
         new_data[field_name] = form[field_name].value()
+
+    logger.info("Old data: %s", old_data)
+
+    logger.info("New data: %s", new_data)
 
     # merge the old and new data
     final_data = old_data | new_data

@@ -58,7 +58,7 @@ def test_calculated_currency_field_auto_updates(authenticated_page: Page, base_u
     for i in range(form_cards.count()):
         card = form_cards.nth(i)
         if "Tribal Short Form" in card.inner_text():
-            card.get_by_role("link", name="Start New Form").click()
+            card.get_by_text("Start New Form").click()
             break
 
     # Wait for form to load - Step 1 of 4: Basic Information
