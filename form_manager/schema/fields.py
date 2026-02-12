@@ -130,7 +130,9 @@ class ACFCurrencyField(ACFFieldMixin, forms.DecimalField):
 
     def prepare_value(self, value):
         """Format the value as a currency string for display in the form field."""
-        value = value or "0.00"
+        # value = value or "0.00"
+        if value in [None, ""]:
+            return ""
         sanitized = formats.sanitize_separators(value)
         return formats.number_format(sanitized, 2, True)
 
