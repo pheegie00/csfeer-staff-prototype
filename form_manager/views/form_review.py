@@ -9,6 +9,7 @@ from django.views.decorators.http import require_http_methods
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.utils import save_form_entry
+from form_manager.views.form_edit import remove_nodes_with_excluded_fields
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,11 @@ def form_review(request, pk):
     # This will cause form_edit to show validation errors
     request.session[f"show_errors_{entry.pk}"] = True
 
+    ui_components = [step.model_copy(deep=True) for step in schema.ui]
+
+    if form.fields_to_exclude:
+        ui_components = remove_nodes_with_excluded_fields(ui_components, form.fields_to_exclude)
+
     context = {
         "form": form,
         "entry": entry,
@@ -62,8 +68,8 @@ def form_review(request, pk):
             "form_edit",
             kwargs={"pk": entry.pk},
             query={
-                "step": len(schema.ui) - 1,
-                "page": len(schema.ui[-1].children) - 1,
+                "step": len(ui_components) - 1,
+                "page": len(ui_components[-1].children) - 1,
             },
         ),
         "is_valid": is_valid,
