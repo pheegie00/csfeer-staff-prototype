@@ -12,7 +12,7 @@ When beginning a work session:
 
 ```bash
 # 1. Sync latest from git
-bd sync && bd jira sync
+bd jira sync && bd sync
 
 # 2. See what's ready to work on (no blockers)
 bd ready
@@ -22,7 +22,7 @@ bd ready -l api           # API tasks only
 bd ready -l infra         # Infrastructure tasks only
 
 # 4. Pick a task and claim it
-bd update <id> --status in_progress
+bd update <id> --status in_progress && bd jira sync
 
 # 5. Check task details
 bd show <id>
