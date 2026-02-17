@@ -83,8 +83,8 @@ def record_field_diffs(form_entry, old_data, new_data, user=None):
     for k in all_keys:
         old = old_data.get(k, "") if old_data else ""
         new = new_data.get(k, "") if new_data else ""
-        old_s = json.dumps(old, sort_keys=True) if isinstance(old, (dict, list)) else str(old)
-        new_s = json.dumps(new, sort_keys=True) if isinstance(new, (dict, list)) else str(new)
+        old_s = json.dumps(old, sort_keys=True) if isinstance(old, dict | list) else str(old)
+        new_s = json.dumps(new, sort_keys=True) if isinstance(new, dict | list) else str(new)
         if old_s != new_s:
             details.append(
                 FormAuditDetail(
@@ -103,11 +103,11 @@ def to_jsonable(value):
     """
     if isinstance(value, decimal.Decimal):
         return float(value)
-    if isinstance(value, (_dt.datetime, _dt.date)):
+    if isinstance(value, _dt.datetime | _dt.date):
         return value.isoformat()
     if isinstance(value, dict):
         return {k: to_jsonable(v) for k, v in value.items()}
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, list | tuple):
         return [to_jsonable(v) for v in value]
     return value
 
@@ -148,7 +148,7 @@ def get_fields_to_save(form, request):
 
     for field_name, field in form.fields.items():
         # Skip calculated fields (disabled, auto-generated)
-        if isinstance(field, (ACFCalculatedField, ACFCalculatedCurrencyField)):
+        if isinstance(field, ACFCalculatedField | ACFCalculatedCurrencyField):
             continue
 
         # Use Django's widget API to check if field has data in POST
@@ -161,7 +161,7 @@ def get_fields_to_save(form, request):
 
         # If widget found data (even empty string), include this field
         # value_from_datadict returns None if field not in POST
-        if isinstance(field, (ACFYesNoDisplayField)):
+        if isinstance(field, ACFYesNoDisplayField):
             if value and any(value):
                 fields_to_save.append(field_name)
 

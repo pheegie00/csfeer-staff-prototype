@@ -19,7 +19,8 @@ Usage:
     python jira2jsonl.py --from-config | bd import
 
     # With JQL query
-    python jira2jsonl.py --url https://company.atlassian.net --jql "project=PROJ AND status!=Done" | bd import
+    python jira2jsonl.py --url https://company.atlassian.net \\
+        --jql "project=PROJ AND status!=Done" | bd import
 
     # Hash-based IDs (matches bd create behavior)
     python jira2jsonl.py --from-config --id-mode hash | bd import
@@ -32,15 +33,16 @@ Usage:
 """
 
 import base64
+import contextlib
 import hashlib
 import json
 import os
 import re
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 from urllib.request import Request, urlopen
@@ -165,9 +167,7 @@ def adf_to_text(node: Any) -> str:
         level = node.get("attrs", {}).get("level", 1)
         prefix = "#" * level
         return f"{prefix} {children_text}\n\n"
-    elif node_type == "bulletList":
-        return children_text
-    elif node_type == "orderedList":
+    elif node_type == "bulletList" or node_type == "orderedList":
         return children_text
     elif node_type == "listItem":
         return f"- {children_text.strip()}\n"
@@ -191,7 +191,7 @@ def adf_to_text(node: Any) -> str:
         return children_text
 
 
-def get_bd_config(key: str) -> Optional[str]:
+def get_bd_config(key: str) -> str | None:
     """Get a configuration value from bd config."""
     try:
         result = subprocess.run(
@@ -205,7 +205,7 @@ def get_bd_config(key: str) -> Optional[str]:
     return None
 
 
-def get_status_mapping() -> Dict[str, str]:
+def get_status_mapping() -> dict[str, str]:
     """
     Get status mapping from bd config.
 
@@ -255,7 +255,7 @@ def get_status_mapping() -> Dict[str, str]:
     return defaults
 
 
-def get_type_mapping() -> Dict[str, str]:
+def get_type_mapping() -> dict[str, str]:
     """
     Get issue type mapping from bd config.
 
@@ -299,7 +299,7 @@ def get_type_mapping() -> Dict[str, str]:
     return defaults
 
 
-def get_priority_mapping() -> Dict[str, int]:
+def get_priority_mapping() -> dict[str, int]:
     """
     Get priority mapping from bd config.
 
@@ -331,10 +331,8 @@ def get_priority_mapping() -> Dict[str, int]:
             for key, value in config.items():
                 if key.startswith("jira.priority_map."):
                     jira_priority = key[len("jira.priority_map.") :].lower()
-                    try:
+                    with contextlib.suppress(ValueError):
                         defaults[jira_priority] = int(value)
-                    except ValueError:
-                        pass
     except (subprocess.TimeoutExpired, json.JSONDecodeError, FileNotFoundError):
         pass
 
@@ -355,8 +353,8 @@ class JiraToBeads:
         self.issue_counter = start_id
         self.id_mode = id_mode  # "sequential" or "hash"
         self.hash_length = hash_length  # 3-8 chars for hash mode
-        self.issues: List[Dict[str, Any]] = []
-        self.jira_key_to_bd_id: Dict[str, str] = {}
+        self.issues: list[dict[str, Any]] = []
+        self.jira_key_to_bd_id: dict[str, str] = {}
         self.used_ids: set = set()  # Track generated IDs for collision detection
 
         # Load mappings
@@ -367,12 +365,12 @@ class JiraToBeads:
     def fetch_from_api(
         self,
         url: str,
-        project: Optional[str] = None,
-        jql: Optional[str] = None,
-        username: Optional[str] = None,
-        api_token: Optional[str] = None,
+        project: str | None = None,
+        jql: str | None = None,
+        username: str | None = None,
+        api_token: str | None = None,
         state: str = "all",
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Fetch issues from Jira REST API."""
 
         # Get credentials
@@ -436,7 +434,10 @@ class JiraToBeads:
             params = (
                 f"jql={quote(query)}&startAt={start_at}&maxResults={max_results}&expand=changelog"
             )
-            # params = f"jql={quote(query)}&startAt={start_at}&maxResults={max_results}&fields=*all&expand=changelog"
+            # params = (
+            #     f"jql={quote(query)}&startAt={start_at}&maxResults={max_results}"
+            #     "&fields=*all&expand=changelog"
+            # )
             full_url = f"{api_url}?{params}"
 
             headers = {
@@ -470,9 +471,15 @@ class JiraToBeads:
                     msg += "\nAuthentication failed. Check your credentials."
                     if is_cloud:
                         msg += "\nFor Jira Cloud, use your email as username and an API token."
-                        msg += "\nCreate a token at: https://id.atlassian.com/manage-profile/security/api-tokens"
+                        msg += (
+                            "\nCreate a token at: "
+                            "https://id.atlassian.com/manage-profile/security/api-tokens"
+                        )
                     else:
-                        msg += "\nFor Jira Server/DC, use a Personal Access Token or username/password."
+                        msg += (
+                            "\nFor Jira Server/DC, use a Personal "
+                            "Access Token or username/password."
+                        )
                 elif e.code == 403:
                     msg += f"\nAccess forbidden. Check permissions for project.\n{error_body}"
                 elif e.code == 400:
@@ -480,20 +487,20 @@ class JiraToBeads:
                 else:
                     msg += f"\n{error_body}"
 
-                raise RuntimeError(msg)
+                raise RuntimeError(msg) from e
             except URLError as e:
-                raise RuntimeError(f"Network error connecting to Jira: {e.reason}")
+                raise RuntimeError(f"Network error connecting to Jira: {e.reason}") from e
 
         print(f"Fetched {len(all_issues)} issues total", file=sys.stderr)
         return all_issues
 
-    def parse_json_file(self, filepath: Path) -> List[Dict[str, Any]]:
+    def parse_json_file(self, filepath: Path) -> list[dict[str, Any]]:
         """Parse Jira issues from JSON file."""
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             try:
                 data = json.load(f)
             except json.JSONDecodeError as e:
-                raise ValueError(f"Invalid JSON in {filepath}: {e}")
+                raise ValueError(f"Invalid JSON in {filepath}: {e}") from e
 
         # Handle various export formats
         if isinstance(data, dict):
@@ -509,7 +516,7 @@ class JiraToBeads:
         else:
             raise ValueError("JSON must be an object or array of issues")
 
-    def map_priority(self, jira_priority: Optional[Dict[str, Any]]) -> int:
+    def map_priority(self, jira_priority: dict[str, Any] | None) -> int:
         """Map Jira priority to bd priority (0-4)."""
         if not jira_priority:
             return 2  # Default medium
@@ -517,7 +524,7 @@ class JiraToBeads:
         name = jira_priority.get("name", "").lower()
         return self.priority_map.get(name, 2)
 
-    def map_issue_type(self, jira_type: Optional[Dict[str, Any]]) -> str:
+    def map_issue_type(self, jira_type: dict[str, Any] | None) -> str:
         """Map Jira issue type to bd issue type."""
         if not jira_type:
             return "task"
@@ -525,7 +532,7 @@ class JiraToBeads:
         name = jira_type.get("name", "").lower()
         return self.type_map.get(name, "task")
 
-    def map_status(self, jira_status: Optional[Dict[str, Any]]) -> str:
+    def map_status(self, jira_status: dict[str, Any] | None) -> str:
         """Map Jira status to bd status."""
         if not jira_status:
             return "open"
@@ -533,7 +540,7 @@ class JiraToBeads:
         name = jira_status.get("name", "").lower()
         return self.status_map.get(name, "open")
 
-    def extract_labels(self, jira_labels: List[str]) -> List[str]:
+    def extract_labels(self, jira_labels: list[str]) -> list[str]:
         """Extract and filter labels from Jira."""
         if not jira_labels:
             return []
@@ -541,7 +548,7 @@ class JiraToBeads:
         # Jira labels are just strings
         return [label for label in jira_labels if label]
 
-    def parse_jira_timestamp(self, timestamp: Optional[str]) -> Optional[datetime]:
+    def parse_jira_timestamp(self, timestamp: str | None) -> datetime | None:
         """Parse Jira timestamp format to datetime."""
         if not timestamp:
             return None
@@ -568,7 +575,7 @@ class JiraToBeads:
             except ValueError:
                 return None
 
-    def format_timestamp(self, dt: Optional[datetime]) -> Optional[str]:
+    def format_timestamp(self, dt: datetime | None) -> str | None:
         """Format datetime to ISO 8601 string for bd."""
         if not dt:
             return None
@@ -579,7 +586,7 @@ class JiraToBeads:
             + dt.strftime("%z")[3:]
         )
 
-    def convert_issue(self, jira_issue: Dict[str, Any], jira_url: str) -> Dict[str, Any]:
+    def convert_issue(self, jira_issue: dict[str, Any], jira_url: str) -> dict[str, Any]:
         """Convert a single Jira issue to bd format."""
         key = jira_issue["key"]
         fields = jira_issue.get("fields", {})
@@ -596,7 +603,7 @@ class JiraToBeads:
             created_str = fields.get("created", "")
             created_at = self.parse_jira_timestamp(created_str)
             if not created_at:
-                created_at = datetime.now(timezone.utc)
+                created_at = datetime.now(UTC)
 
             # Generate hash ID with collision detection
             bd_id = None
@@ -681,7 +688,7 @@ class JiraToBeads:
 
         return issue
 
-    def extract_issue_links(self, jira_issue: Dict[str, Any]) -> List[Tuple[str, str, str]]:
+    def extract_issue_links(self, jira_issue: dict[str, Any]) -> list[tuple[str, str, str]]:
         """
         Extract issue links from a Jira issue.
 
@@ -730,7 +737,7 @@ class JiraToBeads:
 
         return links
 
-    def add_dependencies(self, jira_issues: List[Dict[str, Any]]):
+    def add_dependencies(self, jira_issues: list[dict[str, Any]]):
         """Add dependencies based on Jira issue links."""
         for jira_issue in jira_issues:
             key = jira_issue["key"]
@@ -764,7 +771,7 @@ class JiraToBeads:
                         issue["dependencies"] = dependencies
                         break
 
-    def convert(self, jira_issues: List[Dict[str, Any]], jira_url: str):
+    def convert(self, jira_issues: list[dict[str, Any]], jira_url: str):
         """Convert all Jira issues to bd format."""
         # Sort by key for consistent ID assignment
         sorted_issues = sorted(jira_issues, key=lambda x: x["key"])
@@ -867,7 +874,10 @@ Configuration:
         "--id-mode",
         choices=["sequential", "hash"],
         default="sequential",
-        help="ID generation mode: sequential (bd-1, bd-2) or hash (bd-a3f2dd) (default: sequential)",
+        help=(
+            "ID generation mode: sequential (bd-1, bd-2) or hash (bd-a3f2dd) "
+            "(default: sequential)"
+        ),
     )
     parser.add_argument(
         "--hash-length",

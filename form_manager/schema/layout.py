@@ -1,7 +1,6 @@
 """Layout schema definitions for CSFEER forms."""
 
 import abc
-import contextlib
 import logging
 from typing import Any, ClassVar, Literal, Self, cast
 

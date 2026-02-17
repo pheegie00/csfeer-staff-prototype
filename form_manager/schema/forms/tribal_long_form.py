@@ -407,7 +407,8 @@ class TribalLongForm(BaseFormSchema):
                                     FieldGroupBlock(
                                         children=[
                                             ReviewSubheadingBlock(
-                                                title="Work status of adults served (age 18 and older)"
+                                                title="Work status of adults served "
+                                                "(age 18 and older)"
                                             ),
                                             FieldBlock(field_name="employment__full_time"),
                                             FieldBlock(field_name="employment__part_time"),

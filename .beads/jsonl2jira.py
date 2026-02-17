@@ -25,21 +25,16 @@ import os
 import re
 import subprocess
 import sys
-from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 
-def get_bd_config(key: str) -> Optional[str]:
+def get_bd_config(key: str) -> str | None:
     """Get a configuration value from bd config."""
     try:
         result = subprocess.run(
-            ["bd", "config", "get", "--json", key],
-            capture_output=True,
-            text=True,
-            timeout=10
+            ["bd", "config", "get", "--json", key], capture_output=True, text=True, timeout=10
         )
         if result.returncode == 0:
             data = json.loads(result.stdout)
@@ -49,14 +44,11 @@ def get_bd_config(key: str) -> Optional[str]:
     return None
 
 
-def get_all_bd_config() -> Dict[str, str]:
+def get_all_bd_config() -> dict[str, str]:
     """Get all configuration values from bd config."""
     try:
         result = subprocess.run(
-            ["bd", "config", "list", "--json"],
-            capture_output=True,
-            text=True,
-            timeout=10
+            ["bd", "config", "list", "--json"], capture_output=True, text=True, timeout=10
         )
         if result.returncode == 0:
             return json.loads(result.stdout)
@@ -65,7 +57,7 @@ def get_all_bd_config() -> Dict[str, str]:
     return {}
 
 
-def get_reverse_status_mapping() -> Dict[str, str]:
+def get_reverse_status_mapping() -> dict[str, str]:
     """
     Get reverse status mapping (bd status -> Jira status).
 
@@ -78,7 +70,7 @@ def get_reverse_status_mapping() -> Dict[str, str]:
     reverse_map = {}
     for key, value in config.items():
         if key.startswith("jira.reverse_status_map."):
-            bd_status = key[len("jira.reverse_status_map."):]
+            bd_status = key[len("jira.reverse_status_map.") :]
             reverse_map[bd_status] = value
 
     if reverse_map:
@@ -87,7 +79,7 @@ def get_reverse_status_mapping() -> Dict[str, str]:
     # Invert the forward mapping
     for key, value in config.items():
         if key.startswith("jira.status_map."):
-            jira_status = key[len("jira.status_map."):]
+            jira_status = key[len("jira.status_map.") :]
             # Value is bd status, key suffix is jira status
             if value not in reverse_map:
                 reverse_map[value] = jira_status.replace("_", " ").title()
@@ -107,7 +99,7 @@ def get_reverse_status_mapping() -> Dict[str, str]:
     return reverse_map
 
 
-def get_reverse_type_mapping() -> Dict[str, str]:
+def get_reverse_type_mapping() -> dict[str, str]:
     """
     Get reverse type mapping (bd type -> Jira issue type).
 
@@ -120,7 +112,7 @@ def get_reverse_type_mapping() -> Dict[str, str]:
     reverse_map = {}
     for key, value in config.items():
         if key.startswith("jira.reverse_type_map."):
-            bd_type = key[len("jira.reverse_type_map."):]
+            bd_type = key[len("jira.reverse_type_map.") :]
             reverse_map[bd_type] = value
 
     if reverse_map:
@@ -129,7 +121,7 @@ def get_reverse_type_mapping() -> Dict[str, str]:
     # Invert the forward mapping
     for key, value in config.items():
         if key.startswith("jira.type_map."):
-            jira_type = key[len("jira.type_map."):]
+            jira_type = key[len("jira.type_map.") :]
             if value not in reverse_map:
                 reverse_map[value] = jira_type.replace("_", " ").title()
 
@@ -149,7 +141,7 @@ def get_reverse_type_mapping() -> Dict[str, str]:
     return reverse_map
 
 
-def get_reverse_priority_mapping() -> Dict[int, str]:
+def get_reverse_priority_mapping() -> dict[int, str]:
     """
     Get reverse priority mapping (bd priority -> Jira priority name).
 
@@ -163,7 +155,7 @@ def get_reverse_priority_mapping() -> Dict[int, str]:
     for key, value in config.items():
         if key.startswith("jira.reverse_priority_map."):
             try:
-                bd_priority = int(key[len("jira.reverse_priority_map."):])
+                bd_priority = int(key[len("jira.reverse_priority_map.") :])
                 reverse_map[bd_priority] = value
             except ValueError:
                 pass
@@ -188,10 +180,10 @@ class BeadsToJira:
         self,
         jira_url: str,
         project: str,
-        username: Optional[str] = None,
-        api_token: Optional[str] = None,
+        username: str | None = None,
+        api_token: str | None = None,
         create_only: bool = False,
-        dry_run: bool = False
+        dry_run: bool = False,
     ):
         self.jira_url = jira_url.rstrip("/")
         self.project = project
@@ -224,22 +216,17 @@ class BeadsToJira:
         self.priority_map = get_reverse_priority_mapping()
 
         # Cache for Jira metadata
-        self._transitions_cache: Dict[str, List[Dict]] = {}
-        self._issue_types_cache: Optional[List[Dict]] = None
-        self._priorities_cache: Optional[List[Dict]] = None
+        self._transitions_cache: dict[str, list[dict]] = {}
+        self._issue_types_cache: list[dict] | None = None
+        self._priorities_cache: list[dict] | None = None
 
         # Results tracking
-        self.created: List[Tuple[str, str]] = []  # (bd_id, jira_key)
-        self.updated: List[Tuple[str, str]] = []  # (bd_id, jira_key)
-        self.skipped: List[Tuple[str, str]] = []  # (bd_id, reason)
-        self.errors: List[Tuple[str, str]] = []   # (bd_id, error)
+        self.created: list[tuple[str, str]] = []  # (bd_id, jira_key)
+        self.updated: list[tuple[str, str]] = []  # (bd_id, jira_key)
+        self.skipped: list[tuple[str, str]] = []  # (bd_id, reason)
+        self.errors: list[tuple[str, str]] = []  # (bd_id, error)
 
-    def _make_request(
-        self,
-        method: str,
-        endpoint: str,
-        data: Optional[Dict] = None
-    ) -> Optional[Dict]:
+    def _make_request(self, method: str, endpoint: str, data: dict | None = None) -> dict | None:
         """Make an authenticated request to Jira API."""
         url = f"{self.jira_url}/rest/api/2/{endpoint}"
 
@@ -261,11 +248,11 @@ class BeadsToJira:
                 return {}
         except HTTPError as e:
             error_body = e.read().decode(errors="replace")
-            raise RuntimeError(f"Jira API error {e.code}: {error_body}")
+            raise RuntimeError(f"Jira API error {e.code}: {error_body}") from e
         except URLError as e:
-            raise RuntimeError(f"Network error: {e.reason}")
+            raise RuntimeError(f"Network error: {e.reason}") from e
 
-    def get_issue_types(self) -> List[Dict]:
+    def get_issue_types(self) -> list[dict]:
         """Get available issue types for the project."""
         if self._issue_types_cache is not None:
             return self._issue_types_cache
@@ -277,8 +264,7 @@ class BeadsToJira:
             # Fallback: try createmeta endpoint
             try:
                 result = self._make_request(
-                    "GET",
-                    f"issue/createmeta?projectKeys={self.project}&expand=projects.issuetypes"
+                    "GET", f"issue/createmeta?projectKeys={self.project}&expand=projects.issuetypes"
                 )
                 projects = result.get("projects", [])
                 if projects:
@@ -290,7 +276,7 @@ class BeadsToJira:
 
         return self._issue_types_cache
 
-    def get_priorities(self) -> List[Dict]:
+    def get_priorities(self) -> list[dict]:
         """Get available priorities."""
         if self._priorities_cache is not None:
             return self._priorities_cache
@@ -302,7 +288,7 @@ class BeadsToJira:
 
         return self._priorities_cache
 
-    def get_transitions(self, issue_key: str) -> List[Dict]:
+    def get_transitions(self, issue_key: str) -> list[dict]:
         """Get available transitions for an issue."""
         if issue_key in self._transitions_cache:
             return self._transitions_cache[issue_key]
@@ -315,7 +301,7 @@ class BeadsToJira:
         except Exception:
             return []
 
-    def find_issue_type_id(self, bd_type: str) -> Optional[str]:
+    def find_issue_type_id(self, bd_type: str) -> str | None:
         """Find Jira issue type ID for a bd type."""
         jira_type_name = self.type_map.get(bd_type, "Task")
         issue_types = self.get_issue_types()
@@ -337,7 +323,7 @@ class BeadsToJira:
 
         return None
 
-    def find_priority_id(self, bd_priority: int) -> Optional[str]:
+    def find_priority_id(self, bd_priority: int) -> str | None:
         """Find Jira priority ID for a bd priority."""
         jira_priority_name = self.priority_map.get(bd_priority, "Medium")
         priorities = self.get_priorities()
@@ -357,7 +343,7 @@ class BeadsToJira:
 
         return None
 
-    def find_transition(self, issue_key: str, target_status: str) -> Optional[str]:
+    def find_transition(self, issue_key: str, target_status: str) -> str | None:
         """Find transition ID to move issue to target status."""
         jira_status = self.status_map.get(target_status, "To Do")
         transitions = self.get_transitions(issue_key)
@@ -376,17 +362,17 @@ class BeadsToJira:
 
         return None
 
-    def extract_jira_key_from_external_ref(self, external_ref: str) -> Optional[str]:
+    def extract_jira_key_from_external_ref(self, external_ref: str) -> str | None:
         """Extract Jira issue key from external_ref URL."""
         # Match patterns like:
         # https://company.atlassian.net/browse/PROJ-123
         # https://jira.company.com/browse/PROJ-123
-        match = re.search(r'/browse/([A-Z]+-\d+)', external_ref)
+        match = re.search(r"/browse/([A-Z]+-\d+)", external_ref)
         if match:
             return match.group(1)
         return None
 
-    def create_issue(self, bd_issue: Dict) -> Optional[str]:
+    def create_issue(self, bd_issue: dict) -> str | None:
         """Create a new Jira issue. Returns the Jira key."""
         issue_type_id = self.find_issue_type_id(bd_issue.get("issue_type", "task"))
         priority_id = self.find_priority_id(bd_issue.get("priority", 2))
@@ -420,7 +406,7 @@ class BeadsToJira:
         result = self._make_request("POST", "issue", {"fields": fields})
         return result.get("key")
 
-    def update_issue(self, jira_key: str, bd_issue: Dict) -> bool:
+    def update_issue(self, jira_key: str, bd_issue: dict) -> bool:
         """Update an existing Jira issue. Returns True if updated."""
         # First, get current issue to compare
         try:
@@ -471,20 +457,23 @@ class BeadsToJira:
             transition_id = self.find_transition(jira_key, target_status)
             if transition_id:
                 if self.dry_run:
-                    print(f"[DRY RUN] Would transition {jira_key} to {target_jira_status}", file=sys.stderr)
+                    print(
+                        f"[DRY RUN] Would transition {jira_key} to {target_jira_status}",
+                        file=sys.stderr,
+                    )
                 else:
                     try:
                         self._make_request(
                             "POST",
                             f"issue/{jira_key}/transitions",
-                            {"transition": {"id": transition_id}}
+                            {"transition": {"id": transition_id}},
                         )
                     except RuntimeError as e:
                         print(f"Warning: Could not transition {jira_key}: {e}", file=sys.stderr)
 
         return bool(updates) or current_status != target_jira_status
 
-    def process_issue(self, bd_issue: Dict) -> None:
+    def process_issue(self, bd_issue: dict) -> None:
         """Process a single bd issue."""
         bd_id = bd_issue.get("id", "unknown")
         external_ref = bd_issue.get("external_ref", "")
@@ -516,14 +505,16 @@ class BeadsToJira:
                     if not self.dry_run:
                         new_ref = f"{self.jira_url}/browse/{new_key}"
                         print(
-                            json.dumps({"bd_id": bd_id, "jira_key": new_key, "external_ref": new_ref}),
-                            file=sys.stdout
+                            json.dumps(
+                                {"bd_id": bd_id, "jira_key": new_key, "external_ref": new_ref}
+                            ),
+                            file=sys.stdout,
                         )
 
         except RuntimeError as e:
             self.errors.append((bd_id, str(e)))
 
-    def process_issues(self, issues: List[Dict]) -> None:
+    def process_issues(self, issues: list[dict]) -> None:
         """Process all issues."""
         total = len(issues)
         for i, issue in enumerate(issues, 1):
@@ -551,7 +542,7 @@ class BeadsToJira:
                 print(f"  {bd_id}: {error}", file=sys.stderr)
 
 
-def update_bd_external_refs(mappings: List[Dict]) -> None:
+def update_bd_external_refs(mappings: list[dict]) -> None:
     """Update bd issues with external_ref from created Jira issues."""
     for mapping in mappings:
         bd_id = mapping.get("bd_id")
@@ -562,7 +553,7 @@ def update_bd_external_refs(mappings: List[Dict]) -> None:
                 subprocess.run(
                     ["bd", "update", bd_id, f"--external-ref={external_ref}"],
                     capture_output=True,
-                    timeout=10
+                    timeout=10,
                 )
             except (subprocess.TimeoutExpired, FileNotFoundError):
                 print(f"Warning: Could not update external_ref for {bd_id}", file=sys.stderr)
@@ -609,49 +600,31 @@ Configuration:
     bd config set jira.reverse_status_map.closed "Done"
     bd config set jira.reverse_type_map.feature "Story"
     bd config set jira.reverse_priority_map.0 "Highest"
-        """
+        """,
     )
 
+    parser.add_argument("--url", help="Jira instance URL (e.g., https://company.atlassian.net)")
+    parser.add_argument("--project", help="Jira project key (e.g., PROJ)")
     parser.add_argument(
-        "--url",
-        help="Jira instance URL (e.g., https://company.atlassian.net)"
+        "--file", type=Path, help="JSONL file containing bd issues (default: read from stdin)"
     )
     parser.add_argument(
-        "--project",
-        help="Jira project key (e.g., PROJ)"
+        "--from-config", action="store_true", help="Read Jira settings from bd config"
     )
-    parser.add_argument(
-        "--file",
-        type=Path,
-        help="JSONL file containing bd issues (default: read from stdin)"
-    )
-    parser.add_argument(
-        "--from-config",
-        action="store_true",
-        help="Read Jira settings from bd config"
-    )
-    parser.add_argument(
-        "--username",
-        help="Jira username/email (or set JIRA_USERNAME env var)"
-    )
-    parser.add_argument(
-        "--api-token",
-        help="Jira API token (or set JIRA_API_TOKEN env var)"
-    )
+    parser.add_argument("--username", help="Jira username/email (or set JIRA_USERNAME env var)")
+    parser.add_argument("--api-token", help="Jira API token (or set JIRA_API_TOKEN env var)")
     parser.add_argument(
         "--create-only",
         action="store_true",
-        help="Only create new issues, don't update existing ones"
+        help="Only create new issues, don't update existing ones",
     )
     parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Preview what would happen without making changes"
+        "--dry-run", action="store_true", help="Preview what would happen without making changes"
     )
     parser.add_argument(
         "--update-refs",
         action="store_true",
-        help="Automatically update bd issues with external_ref after creation"
+        help="Automatically update bd issues with external_ref after creation",
     )
 
     args = parser.parse_args()
@@ -689,7 +662,7 @@ Configuration:
     # Load issues
     issues = []
     if args.file:
-        with open(args.file, 'r', encoding='utf-8') as f:
+        with open(args.file, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line:
@@ -714,7 +687,7 @@ Configuration:
         username=username,
         api_token=api_token,
         create_only=args.create_only,
-        dry_run=args.dry_run
+        dry_run=args.dry_run,
     )
 
     exporter.process_issues(issues)
