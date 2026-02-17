@@ -1,0 +1,12 @@
+[general]
+verbosity=2
+ignore=B6
+
+[title-max-length]
+line-length=72
+
+[title-match-regex]
+regex=^(feat|fix|chore|docs|style|refactor|test|perf|ci|build)(\([a-z0-9-]+\))?: (\[FE-\d+\] )?[a-z].+[^.]$
+
+[body-max-line-length]
+line-length=72

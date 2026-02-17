@@ -18,7 +18,18 @@ You are tasked with creating git commits for the changes made during this sessio
 2. **Plan your commit(s):**
    - Identify which files belong together
    - Draft clear, descriptive commit messages
-   - Use imperative mood in commit messages
+   - **Use the project's Conventional Commits hybrid format:**
+     ```
+     <type>(<scope>): [FE-<issue>] <description>
+     ```
+     - Types: `feat`, `fix`, `chore`, `docs`, `style`, `refactor`, `test`, `perf`, `ci`, `build`
+     - Scope: the area of the codebase affected (e.g., `review`, `schema`, `auth`, `api`)
+     - Issue number: the Jira ticket (e.g., `FE-521`). Omit if no ticket applies.
+     - Description: imperative mood, lowercase, no period (e.g., `prevent back button skipping excluded pages`)
+     - Examples:
+       - `fix(review): [FE-521] prevent back button skipping excluded pages`
+       - `feat(schema): [FE-489] add tribal long form fields`
+       - `chore(deps): upgrade Django to 6.1`
    - Focus on why the changes were made, not just what
 
 3. **Present your plan to the user:**

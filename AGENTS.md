@@ -91,7 +91,9 @@ This file contains rules that are injected into every AI coding session. Keep it
 - Functions/variables: `snake_case` (e.g., `get_next_step_and_page`, `save_form_entry`)
 - Constants: `SCREAMING_SNAKE_CASE` (e.g., `ALL_FORM_NAME_CHOICES`)
 - Test files: `test_*.py` (e.g., `test_form_error_states.py`)
-- Commit messages: `FE-{ISSUE} - Description (#PR)` (e.g., `FE-521 - Fix review page back button (#168)`)
+- Commit messages: `<type>(<scope>): [FE-<issue>] <description>` ([Conventional Commits](https://www.conventionalcommits.org/) hybrid)
+  - Types: `feat`, `fix`, `chore`, `docs`, `style`, `refactor`, `test`, `perf`, `ci`, `build`
+  - Example: `fix(review): [FE-521] prevent back button skipping excluded pages`
 
 ### Testing Requirements
 
