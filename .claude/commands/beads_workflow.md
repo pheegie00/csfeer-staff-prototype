@@ -1,5 +1,6 @@
 ---
-description: Common beads workflow commands and patterns
+name: beads-workflow
+description: Common beads workflow commands and patterns. Use when working with bd task management, creating tasks, claiming work, managing dependencies, or syncing beads state.
 ---
 
 # Beads Workflow

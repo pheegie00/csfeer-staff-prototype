@@ -1,5 +1,6 @@
 ---
-description: Clean up plans and handoffs after PR merge or task completion
+name: cleanup
+description: Clean up working documents (plans, handoffs) after PR merge or task completion according to retention policy. Use after merging a PR or closing a task.
 ---
 
 # Post-Merge Cleanup

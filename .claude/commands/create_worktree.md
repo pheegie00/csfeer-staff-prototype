@@ -1,5 +1,6 @@
 ---
-description: Create worktree for parallel feature development with beads
+name: create-worktree
+description: Create isolated git worktree for parallel feature development. Use when working on multiple features simultaneously, reviewing branches, or needing isolation from current workspace. Integrates with beads for task tracking.
 ---
 
 # Create Worktree

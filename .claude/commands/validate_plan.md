@@ -1,5 +1,6 @@
 ---
-description: Validate implementation against plan, verify success criteria, identify issues
+name: validate-plan
+description: Verify implementation matches plan by checking all success criteria and identifying deviations. Use after implementation is complete, before creating a PR. Runs automated tests and generates validation report.
 ---
 
 # Validate Plan

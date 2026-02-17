@@ -1,5 +1,6 @@
 ---
-description: Set up worktree for reviewing colleague's branch
+name: local-review
+description: Set up isolated worktree for reviewing a colleague's branch locally with full environment. Use when doing code review that requires running or testing the code.
 ---
 
 # Local Review

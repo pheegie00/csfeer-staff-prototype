@@ -1,5 +1,6 @@
 ---
-description: Document codebase as-is with thoughts directory for historical context
+name: research-codebase
+description: Document and explain codebase as it exists without suggestions or critique. Use when you need to understand how current code works, find patterns, or document implementation details. Saves research to thoughts/shared/research/.
 model: opus
 ---
 

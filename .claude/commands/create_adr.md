@@ -1,5 +1,6 @@
 ---
-description: Create an Architecture Decision Record (ADR) to document significant technical decisions
+name: create-adr
+description: Create an Architecture Decision Record (ADR) to document significant technical decisions that affect architecture, patterns, or long-term development. Use when making choices about frameworks, design patterns, or architectural trade-offs.
 ---
 
 # Create ADR

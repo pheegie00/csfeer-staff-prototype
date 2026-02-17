@@ -1,5 +1,6 @@
 ---
-description: Create handoff document for transferring work to another session
+name: create-handoff
+description: Create handoff document to transfer work context to another session or agent. Use when ending a work session mid-task, switching contexts, or pausing work that will be resumed later.
 ---
 
 # Create Handoff

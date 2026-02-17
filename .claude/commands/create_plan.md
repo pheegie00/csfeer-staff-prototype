@@ -1,5 +1,6 @@
 ---
-description: Create detailed implementation plans through interactive research and iteration
+name: create-plan
+description: Create detailed implementation plans through interactive research and iteration. Use when starting a new feature, bug fix, or significant change that needs planning. Researches codebase patterns and creates phased implementation with success criteria.
 model: opus
 ---
 

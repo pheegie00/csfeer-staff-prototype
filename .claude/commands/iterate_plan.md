@@ -1,5 +1,6 @@
 ---
-description: Iterate on existing implementation plans with thorough research and updates
+name: iterate-plan
+description: Update existing implementation plans based on feedback, discoveries, or changed requirements. Use when a plan needs revision after review, during implementation, or when new constraints emerge.
 model: opus
 ---
 

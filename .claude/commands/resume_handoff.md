@@ -1,5 +1,6 @@
 ---
-description: Resume work from handoff document with context analysis and validation
+name: resume-handoff
+description: Resume work from previous session using handoff document. Validates context, verifies current state, and proposes next actions. Use when continuing work after a break or starting a new session with existing handoff.
 ---
 
 # Resume work from a handoff document

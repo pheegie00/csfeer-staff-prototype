@@ -1,5 +1,6 @@
 ---
-description: Implement technical plans from thoughts/shared/plans with verification
+name: implement-plan
+description: Execute approved implementation plans phase-by-phase with automated verification. Use when you have a completed plan in thoughts/shared/plans/ ready to implement. Runs tests and validation after each phase.
 ---
 
 # Implement Plan

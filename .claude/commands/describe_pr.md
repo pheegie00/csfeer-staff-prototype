@@ -1,5 +1,6 @@
 ---
-description: Generate comprehensive PR descriptions following repository templates
+name: describe-pr
+description: Generate comprehensive PR descriptions with embedded implementation plans and verification results. Use after completing implementation and before creating or updating a pull request.
 ---
 
 # Generate PR Description

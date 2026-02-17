@@ -1,5 +1,6 @@
 ---
-description: Create git commits with user approval and no Claude attribution
+name: commit
+description: Create atomic git commits with clear messages. Presents a plan for user approval before committing. Use when ready to commit changes after implementing a feature or fix.
 ---
 
 # Commit Changes
