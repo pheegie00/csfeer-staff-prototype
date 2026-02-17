@@ -103,6 +103,7 @@ This file contains rules that are injected into every AI coding session. Keep it
 - E2E tests use Playwright with Page Object Model (`tests/e2e/pages/`)
 - Mark tests: `@pytest.mark.e2e`, `@pytest.mark.unit`, `@pytest.mark.auth`
 - Use `authenticated_page` / `admin_page` fixtures for E2E auth
+- **CRITICAL**: E2E tests require form definitions. Run `make load-form` (or `python manage.py load_initial_forms`) before running E2E tests.
 - Prefer deterministic waits (`expect().to_be_visible()`) over `wait_for_timeout()`
 
 ---
@@ -211,22 +212,22 @@ make create-erds           # Generate ER diagrams
 
 ### Available Commands
 
-| Command | Purpose |
-|---|---|
-| `/create_plan` | Create implementation plan (researches codebase first) |
-| `/implement_plan` | Execute a plan phase-by-phase with verification |
-| `/iterate_plan` | Update existing plan based on feedback |
-| `/validate_plan` | Verify implementation matches plan |
-| `/create_adr` | Document architectural decision |
-| `/create_handoff` | Save session state for next session |
-| `/resume_handoff` | Continue from a previous handoff |
-| `/describe_pr` | Generate PR description (embeds plan) |
-| `/commit` | Create git commits with approval |
-| `/research_codebase` | Document codebase to `thoughts/shared/research/` |
-| `/create_worktree` | Create parallel worktree for isolation |
-| `/beads_workflow` | Beads task tracking quick reference |
-| `/cleanup` | Clean up working documents after PR merge |
-| `/local_review` | Set up worktree for reviewing a colleague's branch |
+| Command              | Purpose                                                |
+| -------------------- | ------------------------------------------------------ |
+| `/create_plan`       | Create implementation plan (researches codebase first) |
+| `/implement_plan`    | Execute a plan phase-by-phase with verification        |
+| `/iterate_plan`      | Update existing plan based on feedback                 |
+| `/validate_plan`     | Verify implementation matches plan                     |
+| `/create_adr`        | Document architectural decision                        |
+| `/create_handoff`    | Save session state for next session                    |
+| `/resume_handoff`    | Continue from a previous handoff                       |
+| `/describe_pr`       | Generate PR description (embeds plan)                  |
+| `/commit`            | Create git commits with approval                       |
+| `/research_codebase` | Document codebase to `thoughts/shared/research/`       |
+| `/create_worktree`   | Create parallel worktree for isolation                 |
+| `/beads_workflow`    | Beads task tracking quick reference                    |
+| `/cleanup`           | Clean up working documents after PR merge              |
+| `/local_review`      | Set up worktree for reviewing a colleague's branch     |
 
 ### Branch Workflow
 
@@ -252,10 +253,12 @@ Branch naming: `feature/<task-id>-description` for features, `fix/<task-id>-desc
 3. Run tests: `make test-unit`
 4. Run `/describe_pr` to generate description (embeds plan in PR)
 5. Push and create PR:
+
    ```bash
    git push -u origin feature/<branch-name>
    gh pr create --base main --body-file thoughts/shared/prs/<task-id>_description.md
    ```
+
 6. PRs require review before merge to main
 7. After merge: Run `/cleanup <task-id>` to delete plan files
 
@@ -272,6 +275,7 @@ This project uses `bd` (beads) for task tracking. At session start:
 ### Parallel Development
 
 For complex features, use git worktrees via `/create_worktree`:
+
 - Each worktree is isolated with its own venv
 - Worktrees share the beads database
 - Use `BEADS_NO_DAEMON=1` in worktrees
@@ -280,17 +284,17 @@ For complex features, use git worktrees via `/create_worktree`:
 
 **Prefer project-specific tools over generic ones:**
 
-| Task | Prefer | Avoid |
-|---|---|---|
-| Find files/components | `codebase-locator` agent | Generic `Explore` agent |
-| Deep implementation analysis | `codebase-analyzer` agent | Generic `Explore` agent |
-| Find examples to model after | `codebase-pattern-finder` agent | Generic `Explore` agent |
-| Find existing research/notes | `thoughts-locator` agent | Duplicating work |
-| Document findings | `/research_codebase` skill | Ad-hoc notes |
-| Create plans | `/create_plan` (saves to `thoughts/shared/plans/`) | `EnterPlanMode` (ephemeral) |
-| Git commits | `/commit` skill | Raw git commands |
-| PR descriptions | `/describe_pr` skill | Manual PR body |
-| Implementation | `/implement_plan` (when plan exists) | Ad-hoc coding |
+| Task                         | Prefer                                             | Avoid                       |
+| ---------------------------- | -------------------------------------------------- | --------------------------- |
+| Find files/components        | `codebase-locator` agent                           | Generic `Explore` agent     |
+| Deep implementation analysis | `codebase-analyzer` agent                          | Generic `Explore` agent     |
+| Find examples to model after | `codebase-pattern-finder` agent                    | Generic `Explore` agent     |
+| Find existing research/notes | `thoughts-locator` agent                           | Duplicating work            |
+| Document findings            | `/research_codebase` skill                         | Ad-hoc notes                |
+| Create plans                 | `/create_plan` (saves to `thoughts/shared/plans/`) | `EnterPlanMode` (ephemeral) |
+| Git commits                  | `/commit` skill                                    | Raw git commands            |
+| PR descriptions              | `/describe_pr` skill                               | Manual PR body              |
+| Implementation               | `/implement_plan` (when plan exists)               | Ad-hoc coding               |
 
 ### Document Retention Policy
 
@@ -322,6 +326,7 @@ Work is NOT complete until `git push` succeeds. Never stop before pushing.
 6. **Hand off** - Use `/create_handoff` if work remains
 
 **CRITICAL:**
+
 - NEVER stop before pushing - that leaves work stranded locally
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
