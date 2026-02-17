@@ -1,4 +1,4 @@
-# AGENTS.md - Project Golden Rules
+# Project Golden Rules
 
 ## About This File
 
@@ -60,50 +60,48 @@ This file contains rules that are injected into every AI coding session. Keep it
 ## 📋 Project-Specific Conventions
 
 ### Language/Framework Rules
-<!-- Python 3.12+ -->
+<!-- Python 3.12+, Django 6, Pydantic -->
 - Avoid using `# type: ignore` if you must, leave comment as to why
 - Prefer `Type | None` over `Optional[Type]`
-- Use async/await for I/O operations
-- Prefer `asyncio.gather` for concurrent operations
-- Use `scoped_session[Session]` for web request contexts
-- Prefer ORM queries over raw SQL
-- Do not use explicit transactions (handled by context generators)
+- Prefer Django ORM querysets over raw SQL
 - Use `model_dump()` over `.dict()` for Pydantic models
 - Prefer strict validation in Pydantic models
 - Use specific exception types, not bare `Exception`
 - Log errors before re-raising
+- Follow existing `form_manager/schema/` patterns for new form types
+- Use django-cotton components for USWDS markup, don't write raw USWDS HTML
 
 ### File Organization
-<!-- api/checkin_api structure -->
-- SQLAlchemy models go in `checkin_api/models/`
-- Business logic goes in `checkin_api/services/`
-- AI/LLM agents go in `checkin_api/agents/`
-- External service clients go in `checkin_api/integrations/`
-- Shared utilities go in `checkin_api/utils/`
-- Database config and migrations go in `checkin_api/db/`
-- Background workers go in `checkin_api/workers/`
-- Streamlit UI pages go in `checkin_api/ui/`
-- Tests mirror source structure in `tests/` (e.g., `tests/services/`)
+<!-- Django project structure -->
+- Django project config goes in `csfeer/` (settings, urls, auth backend)
+- Django ORM models go in `form_manager/models/`
+- View functions and CBVs go in `form_manager/views/`
+- Pydantic form schemas, field definitions, and layout go in `form_manager/schema/`
+- Django Ninja API endpoints go in `form_manager/api/`
+- Form and widget templates go in `form_manager/templates/`
+- USWDS component templates go in `django_cotton_uswds/templates/cotton/`
+- SCSS and JS source go in `frontend/src/` (webpack builds to `frontend/built/`)
+- Tests mirror source structure in `tests/` (e.g., `tests/unit/form_manager/`)
+- Infrastructure and deployment go in `devops/` (Terraform, Helm, Docker)
 
 ### Naming Conventions
 
-- Modules: `snake_case.py` (e.g., `fetch_user_checkins.py`)
-- Classes: `PascalCase` (e.g., `CheckIn`, `UserStatus`)
-- Functions/variables: `snake_case` (e.g., `get_user_recent_checkins`)
-- Constants: `SCREAMING_SNAKE_CASE` (e.g., `CONVERSATION_CACHE_PREFIX`)
-- Test files: `test_*.py` (e.g., `test_conversation_state.py`)
-- Test classes: `Test*` (e.g., `TestGetConversationState`)
+- Modules: `snake_case.py` (e.g., `form_edit.py`, `form_review.py`)
+- Classes: `PascalCase` (e.g., `FormEntry`, `BaseFormSchema`)
+- Functions/variables: `snake_case` (e.g., `get_next_step_and_page`, `save_form_entry`)
+- Constants: `SCREAMING_SNAKE_CASE` (e.g., `ALL_FORM_NAME_CHOICES`)
+- Test files: `test_*.py` (e.g., `test_form_error_states.py`)
+- Commit messages: `FE-{ISSUE} - Description (#PR)` (e.g., `FE-521 - Fix review page back button (#168)`)
 
 ### Testing Requirements
 
-- Use pytest with class-based test organization
-- Use fixtures from `tests/conftest.py` for database sessions and mocks
-- Mock external dependencies (Redis, Slack, Google Calendar, AWS SES)
-- Use `fakeredis` for Redis testing, `freezegun` for time-dependent tests
-- Test classes: `class TestFunctionName:` with methods `def test_behavior:`
-- Use `db_scoped_session` fixture for tests requiring database access
-- **100% code coverage is required**
-- Prefer comprehensive integration tests over small unit tests
+- Use pytest with **function-based** test organization (not class-based)
+- Use fixtures from `tests/conftest.py` and `tests/unit/form_manager/conftest.py`
+- Use `freezegun` for time-dependent tests
+- E2E tests use Playwright with Page Object Model (`tests/e2e/pages/`)
+- Mark tests: `@pytest.mark.e2e`, `@pytest.mark.unit`, `@pytest.mark.auth`
+- Use `authenticated_page` / `admin_page` fixtures for E2E auth
+- Prefer deterministic waits (`expect().to_be_visible()`) over `wait_for_timeout()`
 
 ---
 
@@ -111,59 +109,73 @@ This file contains rules that are injected into every AI coding session. Keep it
 
 ### Python Environment
 
-This project uses a Python virtual environment. **Always activate it before running Python commands.**
+This project uses `uv` for dependency management. **No manual venv activation needed** - use `uv run` or Makefile targets.
 
 ```bash
-# Activate virtual environment (do this before any Python/pip/pytest commands)
-source api/.venv/bin/activate
+# uv handles the venv automatically
+uv run python manage.py runserver 0.0.0.0:8000
+uv run pytest
 ```
 
 ### Build Commands
 
 ```bash
-# Install dependencies
-uv sync
+# Dependencies
+uv sync                    # Install dependencies
+uv add <package>           # Add a dependency
+uv add --dev <package>     # Add a dev dependency
 
-# Add a dependency
-uv add <package>
+# Development (local app + Docker infrastructure)
+make start-local           # Start db + mock-oauth only (run app locally)
+make start                 # Start ALL services in Docker (db, oauth, app)
+make stop                  # Stop services
+make migrate               # Run Django migrations (locally)
+npm run build              # Build frontend assets (SCSS + JS)
 
-# Add a dev dependency
-uv add --dev <package>
+# Running commands in Docker app container
+docker exec -it csfeer-app-1 bash -c "<command>"  # Run in container
+make test-unit-with-docker # Run unit tests inside container
 
-# Upgrade dependencies
-uv lock --upgrade
+# Testing
+make test-unit             # Run unit tests (locally)
+make test-e2e              # Run E2E tests (headless, starts app container)
+make test-e2e-headed       # E2E with visible browser
 
-# Run all tests
-pytest
+# Quality
+uv run pre-commit run --all-files  # Run all hooks
+pyright                    # Type checking
+ruff check .               # Linting
+ruff format .              # Formatting
 
-# Run with coverage
-pytest --cov=src
-
-# Type checking
-pyright
-
-# Linting and formatting
-ruff check .
-ruff format .
+# Utilities
+make create-erds           # Generate ER diagrams
 ```
 
 ### Key Files to Know
 
 ```
 # Configuration
-- pyproject.toml - dependencies and project config
-- pyrightconfig.json - type checking config
-- .env.example - required environment variables
+- pyproject.toml          - Dependencies, tool config (black, ruff, pyright, pytest)
+- example.env             - Required environment variables
+- csfeer/settings.py      - Django settings
+- csfeer/config.py        - Pydantic settings (env var loading)
+- compose.yml             - Local development services (db, mock-oauth)
+- Makefile                - Common dev commands
 
 # Entry Points
-- checkin_api/__init__.py - package init
-- checkin_api/integrations/slack/app.py - Slack bot entry
-- checkin_api/ui/app.py - Streamlit UI entry
+- manage.py               - Django management entry point
+- csfeer/urls.py          - Root URL routing
+- csfeer/backends.py      - OIDC authentication backend
 
-# Key Directories
-- checkin_api/models/ - SQLAlchemy models (User, CheckIn, FollowUp)
-- checkin_api/services/ - core business logic
-- tests/conftest.py - shared test fixtures
+# Core Domain
+- form_manager/schema/    - Form definitions, field types, layout components
+- form_manager/views/     - Form lifecycle (edit, review, finalize)
+- form_manager/models/    - Django ORM models (FormEntry, FormDefinition, etc.)
+- form_manager/api/       - Django Ninja REST API
+
+# Testing
+- tests/conftest.py       - Shared test fixtures and Playwright config
+- tests/e2e/pages/        - Page Object Model for E2E tests
 ```
 
 ---
@@ -193,89 +205,59 @@ ruff format .
 
 ---
 
-## Branch Workflow
+## Workflows & Tool Preferences
 
-**Main branch is protected.** All work must be done on feature branches.
+### Available Commands
 
-### Starting Work on a Task
+| Command | Purpose |
+|---|---|
+| `/create_plan` | Create implementation plan (researches codebase first) |
+| `/implement_plan` | Execute a plan phase-by-phase with verification |
+| `/iterate_plan` | Update existing plan based on feedback |
+| `/validate_plan` | Verify implementation matches plan |
+| `/create_adr` | Document architectural decision |
+| `/create_handoff` | Save session state for next session |
+| `/resume_handoff` | Continue from a previous handoff |
+| `/describe_pr` | Generate PR description (embeds plan) |
+| `/commit` | Create git commits with approval |
+| `/research_codebase` | Document codebase to `thoughts/shared/research/` |
+| `/create_worktree` | Create parallel worktree for isolation |
+| `/beads_workflow` | Beads task tracking quick reference |
+| `/cleanup` | Clean up working documents after PR merge |
+| `/local_review` | Set up worktree for reviewing a colleague's branch |
+
+### Branch Workflow
+
+**Main branch is protected.** All work on feature branches.
 
 ```bash
-# 1. Claim the task in beads
-bd update <task-id> --status in_progress
-
-# 2. Create feature branch
+# 1. Create feature branch
 git checkout -b feature/<task-id>-short-description
-
 # Examples:
-git checkout -b feature/bd-f7a3-integration-tests
-git checkout -b feature/issue-42-test-coverage
-```
+git checkout -b feature/FE-123-add-date-picker
+git checkout -b fix/FE-456-review-page-bug
 
-### Branch Naming Convention
-
-- `feature/<task-id>-description` for features
-- `fix/<task-id>-description` for bugs
-
-### Before Any Commits
-
-Always verify you're on the correct branch:
-
-```bash
+# 2. Always verify you're on the correct branch before committing
 git branch --show-current  # Should NOT be 'main'
 ```
 
-## PR Workflow
+Branch naming: `feature/<task-id>-description` for features, `fix/<task-id>-description` for bugs.
 
-1. Create feature branch (or use worktree)
-2. Make changes and commit
-3. Run component-specific tests
+### PR Workflow
+
+1. Create feature branch (or use `/create_worktree`)
+2. Make changes and commit using `/commit`
+3. Run tests: `make test-unit`
 4. Run `/describe_pr` to generate description (embeds plan in PR)
-5. Create PR: `gh pr create --base main --body-file thoughts/shared/prs/<task-id>_description.md`
+5. Push and create PR:
+   ```bash
+   git push -u origin feature/<branch-name>
+   gh pr create --base main --body-file thoughts/shared/prs/<task-id>_description.md
+   ```
 6. PRs require review before merge to main
 7. After merge: Run `/cleanup <task-id>` to delete plan files
 
----
-
-## Document Retention Policy
-
-| Document Type | Location | Retention |
-|---------------|----------|-----------|
-| **ADRs** | `thoughts/shared/adrs/` | **Forever** - architectural decisions |
-| **Plans** | `thoughts/shared/plans/` | Delete after PR merges (embedded in PR) |
-| **Handoffs** | `thoughts/shared/handoffs/` | Delete after task closes |
-| **PR Descriptions** | `thoughts/shared/prs/` | Never commit (local working files) |
-| **Research** | `thoughts/shared/research/` | Keep if reusable, delete if one-off |
-
-**Why this works:**
-
-- ADRs document *why* decisions were made - permanent reference value
-- Plans document *how* to implement - preserved in PR description, then deletable
-- Handoffs bridge sessions - no value after task completion
-- PR descriptions are working files - the PR itself is the record
-
-
----
-
-## Available Commands
-
-| Command | Purpose |
-|---------|---------|
-| `/create_plan` | Create implementation plan (asks for component) |
-| `/implement_plan` | Execute a plan |
-| `/iterate_plan` | Update existing plan |
-| `/validate_plan` | Verify implementation |
-| `/create_adr` | Document architectural decision |
-| `/create_handoff` | Save session state |
-| `/resume_handoff` | Continue from handoff |
-| `/describe_pr` | Generate PR description (embeds plan) |
-| `/commit` | Create git commits |
-| `/research_codebase` | Document codebase |
-| `/create_worktree` | Create parallel worktree |
-| `/beads_workflow` | Beads quick reference |
-
----
-
-## Task Tracking with Beads
+### Task Tracking with Beads
 
 This project uses `bd` (beads) for task tracking. At session start:
 
@@ -285,81 +267,46 @@ This project uses `bd` (beads) for task tracking. At session start:
 4. Close when done: `bd close <id> --reason "Completed in PR #X"`
 5. Sync changes: `bd sync`
 
-## Parallel Development
+### Parallel Development
 
-For complex features, use git worktrees:
+For complex features, use git worktrees via `/create_worktree`:
+- Each worktree is isolated with its own venv
+- Worktrees share the beads database
+- Use `BEADS_NO_DAEMON=1` in worktrees
 
-1. Create worktree: `/create_worktree` command
-2. Each worktree is isolated with its own venv
-3. Worktrees share the beads database
-4. Use `BEADS_NO_DAEMON=1` in worktrees
+### Agent & Skill Preferences
 
-## Plans and Handoffs
+**Prefer project-specific tools over generic ones:**
 
-- Implementation plans: `thoughts/shared/plans/`
-- Session handoffs: `thoughts/shared/handoffs/`
-- Research docs: `thoughts/shared/research/`
+| Task | Prefer | Avoid |
+|---|---|---|
+| Find files/components | `codebase-locator` agent | Generic `Explore` agent |
+| Deep implementation analysis | `codebase-analyzer` agent | Generic `Explore` agent |
+| Find examples to model after | `codebase-pattern-finder` agent | Generic `Explore` agent |
+| Find existing research/notes | `thoughts-locator` agent | Duplicating work |
+| Document findings | `/research_codebase` skill | Ad-hoc notes |
+| Create plans | `/create_plan` (saves to `thoughts/shared/plans/`) | `EnterPlanMode` (ephemeral) |
+| Git commits | `/commit` skill | Raw git commands |
+| PR descriptions | `/describe_pr` skill | Manual PR body |
+| Implementation | `/implement_plan` (when plan exists) | Ad-hoc coding |
 
-Use `/create_plan` for complex features requiring multiple sessions.
-Use `/create_handoff` before ending a session with work in progress.
+### Document Retention Policy
 
-## PR Workflow
+| Document Type       | Location                    | Retention                               |
+| ------------------- | --------------------------- | --------------------------------------- |
+| **ADRs**            | `thoughts/shared/adrs/`     | **Forever** - architectural decisions   |
+| **Plans**           | `thoughts/shared/plans/`    | Delete after PR merges (embedded in PR) |
+| **Handoffs**        | `thoughts/shared/handoffs/` | Delete after task closes                |
+| **PR Descriptions** | `thoughts/shared/prs/`      | Never commit (local working files)      |
+| **Research**        | `thoughts/shared/research/` | Keep if reusable, delete if one-off     |
 
-1. Create feature branch (see Branch Workflow above)
-2. Make changes and commit to feature branch
-3. Run `/describe_pr` to generate PR description
-4. Push and create PR:
+### Session Completion (Landing the Plane)
 
-   ```bash
-   git push -u origin feature/<branch-name>
-   gh pr create --base main
-   ```
-
-5. PRs require review before merge to main
-
----
-
-## Agent & Skill Preferences
-
-When exploring or planning, prefer project-specific tools over generic ones:
-
-### For Codebase Exploration
-
-- **Prefer**: `codebase-locator` to find files/components by description
-- **Prefer**: `codebase-analyzer` for deep implementation analysis
-- **Prefer**: `codebase-pattern-finder` to find examples to model after
-- **Avoid**: Generic `Explore` agent unless the above don't fit
-
-### For Research
-
-- **Prefer**: `research_codebase` skill to document findings in `thoughts/`
-- **Prefer**: `thoughts-locator` to find existing research/notes
-
-### For Planning
-
-- **Prefer**: `/create_plan` skill (saves to `thoughts/shared/plans/`)
-- **Avoid**: `EnterPlanMode` tool (saves to `.claude/plans/`, ephemeral)
-
-### For GIT and finishing work
-
-- **Prefer**: `/commit` and `/describe_pr` skills
-
-### For Implementation
-
-- **Prefer**: `/implement_plan` skill when a plan exists in `thoughts/shared/plans/`
-
----
-
-## Landing the Plane (Session Completion)
-
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
-
-**MANDATORY WORKFLOW:**
+Work is NOT complete until `git push` succeeds. Never stop before pushing.
 
 1. **File issues for remaining work** - Create issues for anything that needs follow-up
 2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
+3. **Push to remote** - This is MANDATORY:
 
    ```bash
    git pull --rebase
@@ -368,16 +315,14 @@ When exploring or planning, prefer project-specific tools over generic ones:
    git status  # MUST show "up to date with origin"
    ```
 
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
+4. **Clean up** - Clear stashes, prune remote branches
+5. **Verify** - All changes committed AND pushed
+6. **Hand off** - Use `/create_handoff` if work remains
 
-**CRITICAL RULES:**
-
-- Work is NOT complete until `git push` succeeds
+**CRITICAL:**
 - NEVER stop before pushing - that leaves work stranded locally
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
 
-*Last updated: 1/23/2026*
-*Version: 1.1*
+*Last updated: 2/17/2026*
+*Version: 2.0*
