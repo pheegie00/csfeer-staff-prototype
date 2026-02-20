@@ -14,6 +14,8 @@ bd init --prefix bd && \
   bd config set jira.project "FE" && \
   bd config set allowed_prefixes "FE" && \
   bd config set  jira.api_token "<your jira personal access token>" && \
+  bd config set jira.status_map.review "review" && \
+  bd config set jira.status_map.testing "testing" && \
   mkdir -p ~/.local/bin/examples/jira-import && \
   cp ./.beads/*.py ~/.local/bin/examples/jira-import/
   # Important - don't set a jira.username value. The auth won't work
