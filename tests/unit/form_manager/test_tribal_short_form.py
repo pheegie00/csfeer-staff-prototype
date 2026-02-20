@@ -24,8 +24,8 @@ def test_tribal_short_form_has_correct_fields():
     form = TribalShortFormFields()
     field_names = list(form.fields.keys())
 
-    # Should have basic + expenditure + descriptions (24 fields)
-    assert len(field_names) == 24
+    # Should have basic + expenditure + descriptions (26 fields)
+    assert len(field_names) == 26
 
     # Verify demographic fields are NOT present
     demographic_fields = [
@@ -54,7 +54,9 @@ def test_tribal_short_form_has_correct_fields():
         "contact_name",
         "contact_title",
         "phone",
+        "extension",
         "email",
+        "fax",
         "applicable_topics",
         "employment_expenditure",
         "childcare_expenditure",

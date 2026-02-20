@@ -18,12 +18,14 @@
         ← Back
         </a>
         {% endif %}
-        
-        <c-button 
-            text="{% if is_last_page %}Save & Begin Final Review →{% else %}Save & Continue →{% endif %}"
-            variant="base"
-            state="active"
-            type="submit"
-        />
+
+        <div class="margin-left-auto">
+            <c-button
+                text="{% if is_last_page %}Save & Begin Final Review →{% else %}Next →{% endif %}"
+                variant="base"
+                state="active"
+                type="submit"
+            />
+        </div>
     </div>
 </div>
