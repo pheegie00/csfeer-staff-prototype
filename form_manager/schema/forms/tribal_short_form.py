@@ -30,7 +30,7 @@ class TribalShortFormFields(BaseFields):
     )
     extension = acf_fields.CharField(
         title="Extension (Optional)",
-        widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
+        widget=forms.NumberInput,
     )
     email = acf_fields.CharField(title="Email address", widget=forms.EmailInput)
     fax = acf_fields.CharField(
