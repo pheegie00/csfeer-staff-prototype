@@ -44,7 +44,7 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
 
     # Fill other required fields
     page.get_by_label("Full name *").fill("Test User")
-    page.get_by_label("Role *").fill("Tester")
+    page.get_by_label("Title *").fill("Tester")
     page.get_by_label("Primary phone number *").fill("555-0000")
     page.get_by_label("Email address *").fill("test@example.org")
 

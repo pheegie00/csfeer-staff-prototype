@@ -67,7 +67,7 @@ def test_calculated_currency_field_auto_updates(authenticated_page: Page, base_u
     # Fill minimal required data for Step 1
     page.get_by_label("Name of Tribe or Tribal Organization *").fill("E2E Calculated Field Test")
     page.get_by_label("Full name *").fill("Test User")
-    page.get_by_label("Role *").fill("Tester")
+    page.get_by_label("Title *").fill("Tester")
     page.get_by_label("Primary phone number *").fill("555-0000")
     page.get_by_label("Email address *").fill("test@example.org")
 

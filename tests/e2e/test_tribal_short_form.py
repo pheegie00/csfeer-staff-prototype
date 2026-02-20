@@ -37,9 +37,11 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     # Step 1: Fill Basic Information
     page.get_by_label("Name of Tribe or Tribal Organization *").fill("E2E Test Tribal Nation")
     page.get_by_label("Full name *").fill("E2E Test User")
-    page.get_by_label("Role *").fill("Test Program Manager")
+    page.get_by_label("Title *").fill("Test Program Manager")
     page.get_by_label("Primary phone number *").fill("555-000-1111")
+    page.get_by_label("Extension (Optional)").fill("1234")
     page.get_by_label("Email address *").fill("e2etest@example.org")
+    page.get_by_label("Fax number (Optional)").fill("555-000-2222")
 
     # Scroll to bottom to show footer
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
