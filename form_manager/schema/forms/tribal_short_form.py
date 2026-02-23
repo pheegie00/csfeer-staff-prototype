@@ -182,6 +182,17 @@ class TribalShortFormFields(BaseFields):
         default_if_excluded="N/A",
     )
 
+    # region Demographic Details
+    demographic_detail_total_people = acf_fields.CharField(
+        title="Total number of people",
+        required=True,
+    )
+    
+    demographic_detail_total_people_adult = acf_fields.CharField(
+        title="Total number of people",
+        required=True,
+    )
+
 
 class TribalShortForm(BaseFormSchema):
     family: FormFamilies = Field(FormFamilies.CSBG_ANNUAL_REPORT, frozen=True)
@@ -322,6 +333,28 @@ class TribalShortForm(BaseFormSchema):
                         ),
                         children=[FieldBlock(field_name="transportation_services_description")],
                     ),
+                ],
+            ),
+            StepBlock(
+                title="Demographic details",
+                children=[
+                    PermanentPageBlock(
+                        title="Let's collect demographic details",
+                        children=[
+                            SectionBlock(
+                                title="How many individuals did you serve in total?",
+                                children=[
+                                    FieldBlock(field_name="demographic_detail_total_people"),
+                                ],
+                            ),
+                            SectionBlock(
+                                title="How many individuals did you serve that are over 18?",
+                                children=[
+                                    FieldBlock(field_name="demographic_detail_total_people_adult"),
+                                ],
+                            ),
+                        ],
+                    )
                 ],
             ),
         ],

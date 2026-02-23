@@ -31,8 +31,8 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
             card.get_by_role("link", name="Start New Form").click()
             break
 
-    # Wait for form to load - should be on Step 1 of 4
-    page.wait_for_selector('h4:has-text("Step 1 of 4 Basic Information")')
+    # Wait for form to load - should be on Step 1 of 5
+    page.wait_for_selector('h4:has-text("Step 1 of 5 Basic Information")')
 
     # Step 1: Fill Basic Information
     page.get_by_label("Name of Tribe or Tribal Organization *").fill("E2E Test Tribal Nation")
@@ -51,7 +51,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     page.get_by_role("button", name="Next →").click()
 
     # Wait for Step 2: Expenditure categories
-    page.wait_for_selector('h4:has-text("Step 2 of 4 Expenditure categories")')
+    page.wait_for_selector('h4:has-text("Step 2 of 5 Expenditure categories")')
 
     # Verify Basic Information is marked completed
     assert page.locator('text="Basic Information" >> text="completed"').is_visible()
@@ -143,7 +143,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
         page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText")
-    assert "3 of 4" in body_text
+    assert "3 of 5" in body_text
     assert "Expenditure details" in body_text
 
     # Verify Expenditure categories is marked completed
@@ -174,23 +174,39 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
 
-    # Continue to Step 4: Review and Submit
+    # Continue to Step 4: Demographic details
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText")
-    assert "4 of 4" in body_text
-    assert "Review and Submit" in body_text
+    assert "4 of 5" in body_text
+    assert "Demographic details" in body_text
 
-    # Critical assertion: Verify NO demographic information step
-    assert not page.locator(
-        'text="Demographic information"'
-    ).is_visible(), "TribalShortForm should NOT have demographic information step"
+    # Verify Expenditure details is marked completed
+    assert page.locator('text="Expenditure details" >> text="completed"').is_visible()
+
+    # Fill demographic details
+    # Both fields have the same label, so use nth selectors
+    page.get_by_label("Total number of people *").nth(0).fill("150")
+    page.get_by_label("Total number of people *").nth(1).fill("120")
+
+    # Scroll to bottom to show footer
+    page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
+    page.wait_for_timeout(500)
+
+    # Continue to Step 5: Review and Submit
+    with page.expect_navigation(timeout=5000):
+        page.get_by_role("button", name="Next →").click()
+    page.wait_for_timeout(1000)
+    body_text = page.evaluate("() => document.body.innerText")
+    assert "5 of 5" in body_text
+    assert "Review and Submit" in body_text
 
     # Verify all sections are completed
     assert page.locator('text="Basic Information" >> text="completed"').is_visible()
     assert page.locator('text="Expenditure categories" >> text="completed"').is_visible()
     assert page.locator('text="Expenditure details" >> text="completed"').is_visible()
+    assert page.locator('text="Demographic details" >> text="completed"').is_visible()
 
     # Verify data in review page
     assert page.get_by_text("E2E Test Tribal Nation").is_visible()
@@ -243,11 +259,11 @@ def test_tribal_short_form_has_four_steps(authenticated_page: Page, base_url: st
             break
 
     # Wait for form to load
-    page.wait_for_selector('h4:has-text("Step 1 of 4")')
+    page.wait_for_selector('h4:has-text("Step 1 of 5")')
 
     # Verify step indicator shows 4 steps total
-    step_indicator = page.locator('h4:has-text("Step 1 of 4")')
-    assert step_indicator.is_visible(), "Should show Step 1 of 4"
+    step_indicator = page.locator('h4:has-text("Step 1 of 5")')
+    assert step_indicator.is_visible(), "Should show Step 1 of 5"
 
     # Verify no demographic information in step list
     step_list = page.locator(".usa-step-indicator__segments")
@@ -318,5 +334,5 @@ def test_tribal_short_form_vs_long_form_comparison(authenticated_page: Page, bas
             card.get_by_role("link", name="Start New Form").click()
             break
 
-    page.wait_for_selector('h4:has-text("Step 1 of 4")')
-    assert page.locator('h4:has-text("Step 1 of 4")').is_visible(), "ShortForm should have 4 steps"
+    page.wait_for_selector('h4:has-text("Step 1 of 5")')
+    assert page.locator('h4:has-text("Step 1 of 5")').is_visible(), "ShortForm should have 4 steps"
