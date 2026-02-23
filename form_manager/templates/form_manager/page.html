@@ -4,6 +4,14 @@
 <p class="font-body-sm">{{ subtitle }}</p>
 {% endif %}
 
+{% if title == "Expenditure categories" and current_step_number == 1 and current_page_number == 0 %}
+<div class="margin-top-2 margin-bottom-2">
+    <c-alert type="info" heading="How to select expenditure categories">
+        When you select a category, related questions will appear in the following pages. </br >Be sure to save to ensure that all changes are preserved.
+    </c-alert>
+</div>
+{% endif %}
+
 <c-fieldset class="usa-fieldset usa-form usa-form--large">
     {% for child in children %}
         {{ child.render }}
@@ -19,9 +27,19 @@
         </a>
         {% endif %}
 
-        <div class="margin-left-auto">
+        <div class="margin-left-auto display-flex flex-gap-1">
+            {% if current_step_number != 0 or current_page_number != 0 %}
             <c-button
-                text="{% if is_last_page %}Save & Begin Final Review →{% else %}Next →{% endif %}"
+                text="Save & Exit"
+                variant="outline"
+                state="active"
+                type="submit"
+                name="page-action"
+                value="save-exit"
+            />
+            {% endif %}
+            <c-button
+                text="Next →"
                 variant="base"
                 state="active"
                 type="submit"

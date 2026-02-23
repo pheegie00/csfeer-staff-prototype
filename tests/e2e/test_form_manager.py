@@ -51,7 +51,7 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
     # Save & Continue
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
-    page.get_by_role("button", name="Save & Continue →").click()
+    page.get_by_role("button", name="Next →").click()
 
     # Wait for Step 2 to load
     page.wait_for_selector('h4:has-text("Step 2 of 4 Expenditure categories")')
@@ -79,7 +79,7 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
     # Save & Continue
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
-    page.get_by_role("button", name="Save & Continue →").click()
+    page.get_by_role("button", name="Next →").click()
 
     # Wait for Step 2
     page.wait_for_selector('h4:has-text("Step 2 of 4 Expenditure categories")')

@@ -50,7 +50,7 @@ def test_error_states_display_after_review_visit(authenticated_page: Page, base_
     # Scroll and continue
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
-    page.get_by_role("button", name="Save & Continue →").click()
+    page.get_by_role("button", name="Next →").click()
 
     # Wait for Step 2
     page.wait_for_selector('h4:has-text("Step 2 of 5 Expenditure categories")')
@@ -76,7 +76,7 @@ def test_error_states_display_after_review_visit(authenticated_page: Page, base_
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Fill expenditure amount
@@ -86,7 +86,7 @@ def test_error_states_display_after_review_visit(authenticated_page: Page, base_
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Select "No" for administration costs
@@ -111,7 +111,7 @@ def test_error_states_display_after_review_visit(authenticated_page: Page, base_
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Fill employment description (required)
@@ -122,7 +122,7 @@ def test_error_states_display_after_review_visit(authenticated_page: Page, base_
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Fill individuals served (required)
@@ -131,7 +131,7 @@ def test_error_states_display_after_review_visit(authenticated_page: Page, base_
     # Continue to review page
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
-    page.get_by_role("button", name="Save & Continue →").click()
+    page.get_by_role("button", name="Next →").click()
 
     # Wait for review page to load
     page.wait_for_timeout(2000)
@@ -200,7 +200,7 @@ def test_errors_cleared_after_form_submission(authenticated_page: Page, base_url
     # Continue through all steps with valid data
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
-    page.get_by_role("button", name="Save & Continue →").click()
+    page.get_by_role("button", name="Next →").click()
 
     # Step 2: Select category
     page.wait_for_selector('h4:has-text("Step 2 of 5 Expenditure categories")')
@@ -222,7 +222,7 @@ def test_errors_cleared_after_form_submission(authenticated_page: Page, base_url
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Fill expenditure amount
@@ -231,7 +231,7 @@ def test_errors_cleared_after_form_submission(authenticated_page: Page, base_url
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Select "No" for admin costs
@@ -256,7 +256,7 @@ def test_errors_cleared_after_form_submission(authenticated_page: Page, base_url
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     description_field = page.get_by_label("Description")
@@ -266,7 +266,7 @@ def test_errors_cleared_after_form_submission(authenticated_page: Page, base_url
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Fill individuals served (required)
@@ -275,7 +275,7 @@ def test_errors_cleared_after_form_submission(authenticated_page: Page, base_url
     # Navigate to review
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
-    page.get_by_role("button", name="Save & Continue →").click()
+    page.get_by_role("button", name="Next →").click()
 
     page.wait_for_timeout(2000)
 
@@ -333,7 +333,7 @@ def test_errors_persist_across_page_navigation(authenticated_page: Page, base_ur
     # Navigate through to review page quickly
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
-    page.get_by_role("button", name="Save & Continue →").click()
+    page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Step 2: Select a category
@@ -355,7 +355,7 @@ def test_errors_persist_across_page_navigation(authenticated_page: Page, base_ur
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Leave employment amount empty, continue
@@ -367,7 +367,7 @@ def test_errors_persist_across_page_navigation(authenticated_page: Page, base_ur
     try:
         # Try to navigate forward multiple times to reach review
         for _ in range(5):
-            buttons = page.get_by_role("button", name="Save & Continue →")
+            buttons = page.get_by_role("button", name="Next →")
             review_button = page.get_by_role("button", name="Review & Submit →")
 
             if review_button.is_visible():
@@ -398,7 +398,7 @@ def test_errors_persist_across_page_navigation(authenticated_page: Page, base_ur
             page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
             page.wait_for_timeout(500)
 
-            next_buttons = page.get_by_role("button", name="Save & Continue →")
+            next_buttons = page.get_by_role("button", name="Next →")
             if next_buttons.count() > 0 and next_buttons.first.is_visible():
                 next_buttons.first.click()
                 page.wait_for_timeout(1000)
