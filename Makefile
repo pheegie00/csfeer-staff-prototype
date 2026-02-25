@@ -1,4 +1,4 @@
-.PHONY: create-erds down down-all rm-volume restart restart-fresh oauth-setup test-e2e test-e2e-headed test-e2e-debug test-e2e-webkit
+.PHONY: create-erds down down-all rm-volume restart restart-fresh oauth-setup test-e2e test-e2e-headed test-e2e-debug test-e2e-webkit install-beads
 
 UV := $(shell which uv || echo $$HOME/.local/bin/uv)
 PATH := /opt/homebrew/bin:/usr/local/bin:$(PATH)
@@ -85,3 +85,22 @@ test-e2e-auth:
 	@echo "Waiting for app to be ready..."
 	@sleep 5
 	$(UV) run pytest tests/e2e/ -v -m "e2e and auth"
+
+configure-beads:
+	@bd init --prefix bd --server-port 3307 --force
+	@bd config set jira.url "https://jira.acf.gov"
+	@bd config set jira.project "FE"
+	@bd config set allowed_prefixes "FE"
+	@bd config set jira.status_map.review "Review"
+	@bd config set jira.status_map.testing "Testing"
+	@bd config set jira.api_version 2
+	@echo "Beads has been configured, but you need to set your personal jira access token. Run the following command with your token: "
+	@echo "bd config set  jira.api_token \"<your jira personal access token>\""
+
+install-beads:
+	rm -rf /tmp/beads
+	git clone git@github.com:ryanbagwell/beads.git --branch feat/change-jira-status /tmp/beads
+	cd /tmp/beads && go build -o bd ./cmd/bd
+	mv /tmp/beads/bd ~/.local/bin/bd
+	rm -rf /tmp/beads
+
