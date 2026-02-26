@@ -74,7 +74,7 @@ def test_calculated_currency_field_auto_updates(authenticated_page: Page, base_u
     # Continue to Step 2: Expenditure categories
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
-    page.get_by_role("button", name="Save & Continue →").click()
+    page.get_by_role("button", name="Next →").click()
 
     # Wait for Step 2 to load
     page.wait_for_selector('h4:has-text("Step 2 of 4 Expenditure categories")')
@@ -108,7 +108,7 @@ def test_calculated_currency_field_auto_updates(authenticated_page: Page, base_u
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Verify we're on the expenditure amounts page
