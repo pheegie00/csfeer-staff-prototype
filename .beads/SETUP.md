@@ -1,28 +1,56 @@
 # Configure beads with the ACF jira repo:
 
+1. Install beads and jira-beads-sync from source:
 
-1. Generate a personal jira access token:
+    ```
+    make install-beads
+    ```
 
-https://jira.acf.gov/secure/ViewProfile.jspa?selectedTab=com.atlassian.pats.pats-plugin:jira-user-personal-access-tokens
+2. Install dolt:
 
-2. Run the following commands with your personal access token:
+    ```
+    brew install dolt
+    ```
 
-```bash
-bd init --prefix bd && \
-  bd migrate sync beads-sync && \
-  bd config set jira.url "https://jira.acf.gov" && \
-  bd config set jira.project "FE" && \
-  bd config set allowed_prefixes "FE" && \
-  bd config set  jira.api_token "<your jira personal access token>" && \
-  bd config set jira.status_map.review "review" && \
-  bd config set jira.status_map.testing "testing" && \
-  mkdir -p ~/.local/bin/examples/jira-import && \
-  cp ./.beads/*.py ~/.local/bin/examples/jira-import/
-  # Important - don't set a jira.username value. The auth won't work
+3. Configure beads to work with our project:
+
+    ```
+    make configure-beads
+    ```
+
+4. Generate a [jira API token](https://jira.acf.gov/secure/ViewProfile.jspa?selectedTab=com.atlassian.pats.pats-plugin:jira-user-personal-access-tokens)
+
+5. Set that token in your bd config:
+
+    ```
+    bd config set  jira.api_token "<your jira personal access token>"
+    ```
+
+6. Pull tickets from jira
+
+    ```
+    bd jira sync --pull
+    ```
+7. Use `jira-beads-sync` to work with individual issues:
+
+```
+$ jira-beads-sync quickstart FE-501
+jira-beads-sync quickstart
+========================
+
+Using issue key: FE-501
+
+Fetching FE-501 and its dependencies...
+Fetching FE-501...
+
+✓ Fetched 1 issue(s)
+
+Converting to beads format...
+
+✓ Conversion complete!
+  1 issue(s) written to /Users/ryanbagwell/projects/csfeer/.beads/issues.jsonl
+
+
 ```
 
-Now you should be able to pull jira issues:
 
-```bash
-bd jira sync --pull
-```
