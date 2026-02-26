@@ -109,6 +109,38 @@ class ACFFieldMixin:
 class ACFField(ACFFieldMixin, forms.Field): ...
 
 
+class ACFIntegerField(ACFFieldMixin, forms.IntegerField):
+    """An integer field with comma formatting."""
+
+    widget = forms.TextInput
+
+    def widget_attrs(self, widget: forms.Widget) -> dict[str, Any]:
+        attrs = super().widget_attrs(widget)
+        attrs.update(
+            {
+                "class": "usa-input integer-input",
+                "inputmode": "numeric",
+                "x-mask:dynamic": "$money($input, '.', ',', 0)",
+            }
+        )
+        return attrs
+
+    def to_python(self, value):
+        """Strip commas from the input before validation."""
+        if isinstance(value, str):
+            value = value.replace(",", "")
+        return super().to_python(value)
+
+    def prepare_value(self, value):
+        """Format the value with comma separators for display."""
+        if value in [None, ""]:
+            return ""
+        try:
+            return formats.number_format(int(value), 0, True)
+        except (ValueError, TypeError):
+            return value
+
+
 class ACFCurrencyField(ACFFieldMixin, forms.DecimalField):
     """A currency field"""
 
@@ -323,6 +355,7 @@ class ACFFieldsMeta(type):
 
         dct.update(
             {
+                "IntegerField": ACFIntegerField,
                 "CurrencyField": ACFCurrencyField,
                 "TextareaField": ACFTextareaField,
                 "CalculatedCurrencyField": ACFCalculatedCurrencyField,

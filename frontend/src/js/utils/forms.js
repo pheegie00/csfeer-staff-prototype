@@ -23,6 +23,10 @@ export function updateCalculatedFields(e) {
       const newTotal = numericValue + total;
       return newTotal
     }, 0.0);
-    field.value = Intl.NumberFormat("en-US", {"style": "decimal", minimumFractionDigits: 2}).format(total);
+    const isCurrency = field.classList.contains("calculated-currency-field");
+    const formatOptions = isCurrency
+      ? { style: "decimal", minimumFractionDigits: 2 }
+      : { style: "decimal", minimumFractionDigits: 0, maximumFractionDigits: 0 };
+    field.value = Intl.NumberFormat("en-US", formatOptions).format(total);
   })
 }
