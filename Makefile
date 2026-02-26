@@ -96,11 +96,19 @@ configure-beads:
 	@bd config set jira.api_version 2
 	@echo "Beads has been configured, but you need to set your personal jira access token. Run the following command with your token: "
 	@echo "bd config set  jira.api_token \"<your jira personal access token>\""
+	@echo "We nede to configure jira-beads-sync"
+	@jira-beads-sync configure
 
 install-beads:
 	rm -rf /tmp/beads
+	rm -rf /tmp/jira-beads-sync
 	git clone git@github.com:ryanbagwell/beads.git --branch feat/change-jira-status /tmp/beads
 	cd /tmp/beads && go build -o bd ./cmd/bd
 	mv /tmp/beads/bd ~/.local/bin/bd
 	rm -rf /tmp/beads
+	git clone --depth 1 --revision 08a02a7bce125a0545ced2f45f594ac8a4b53b71  git@github.com:ryanbagwell/jira-beads-sync.git /tmp/jira-beads-sync
+	cd /tmp/jira-beads-sync && go build -o jira-beads-sync ./cmd/jira-beads-sync
+	mv /tmp/jira-beads-sync/jira-beads-sync ~/.local/bin/jira-beads-sync
+	cd /tmp && rm -rf /tmp/jira-beads-sync
+	echo "Beads and jira-beads-sync have been installed. You can now run 'bd' and 'jira-beads-sync' from your terminal."
 
