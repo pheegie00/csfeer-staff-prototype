@@ -96,7 +96,13 @@ class AbstractPageBlock(RenderableBaseModel, abc.ABC):
     title: str | None = None
     subtitle: str | None = None
     children: list[
-        Self | "FieldBlock" | "SectionBlock" | "FieldGroupBlock" | "PageTitleBlock" | "AlertBoxBlock"
+        Self
+        | "FieldBlock"
+        | "SectionBlock"
+        | "FieldGroupBlock"
+        | "PageTitleBlock"
+        | "PageSubtitleBlock"
+        | "AlertBoxBlock"
     ] | None = None
     template_name: str = "form_manager/page.html"
 
@@ -241,6 +247,14 @@ class PageTitleBlock(RenderableBaseModel):
     title: str
     subtitle: str | None = None
     template_name: str = "form_manager/page_title.html"
+
+
+class PageSubtitleBlock(RenderableBaseModel):
+    """Represents a page subtitle that can be positioned anywhere in the page children."""
+
+    type: str = "page-subtitle"
+    subtitle: str
+    template_name: str = "form_manager/page_subtitle.html"
 
 
 class AlertBoxBlock(RenderableBaseModel):

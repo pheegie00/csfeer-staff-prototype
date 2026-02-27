@@ -13,6 +13,7 @@ from form_manager.schema.layout import (
     FieldBlock,
     FieldGroupBlock,
     PageBlock,
+    PageSubtitleBlock,
     PageTitleBlock,
     PermanentPageBlock,
     ReviewSubheadingBlock,
