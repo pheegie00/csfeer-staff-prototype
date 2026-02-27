@@ -47,8 +47,8 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
 
-    # Click Save & Continue
-    page.get_by_role("button", name="Save & Continue →").click()
+    # Click Next
+    page.get_by_role("button", name="Next →").click()
 
     # Wait for Step 2: Expenditure categories
     page.wait_for_selector('h4:has-text("Step 2 of 4 Expenditure categories")')
@@ -93,7 +93,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
 
     # Continue to expenditure amounts
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Verify we're on the expenditure amounts page
@@ -110,7 +110,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
 
     # Continue to administration costs
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     assert "Administration costs" in page.evaluate("() => document.body.innerText")
 
@@ -140,7 +140,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
 
     # Continue to Step 3: Expenditure details
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText")
     assert "3 of 4" in body_text
@@ -160,7 +160,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
 
     # Continue to housing services description
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText.toLowerCase()")
     assert "housing" in body_text

@@ -1,4 +1,8 @@
 {
+  "env": {
+    "MAX_THINKING_TOKENS": "32000",
+    "BEADS_NO_DAEMON": "1"
+  },
   "permissions": {
     "allow": [
       "Skill(beads_workflow)",
@@ -88,11 +92,16 @@
     ]
   },
   "enabledPlugins": {
-    "beads@beads-marketplace": true
+    "beads@beads-marketplace": true,
+    "jira-beads-sync@csfeer-claude-marketplace": true
   },
-  "autoCompact": false,
-  "env": {
-    "MAX_THINKING_TOKENS": "32000",
-    "BEADS_NO_DAEMON": "1"
-  }
+  "extraKnownMarketplaces": {
+    "csfeer-claude-marketplace": {
+      "source": {
+        "source": "directory",
+        "path": "./.claude-marketplace"
+      }
+    }
+  },
+  "autoCompact": false
 }
