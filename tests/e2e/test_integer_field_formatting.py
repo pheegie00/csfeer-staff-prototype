@@ -45,7 +45,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
     # Continue to Step 2: Expenditure categories
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
-    page.get_by_role("button", name="Save & Continue →").click()
+    page.get_by_role("button", name="Next →").click()
     page.wait_for_selector('h4:has-text("Step 2 of 5 Expenditure categories")')
 
     # Select at least one expenditure category to proceed
@@ -66,7 +66,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Fill expenditure amount to proceed
@@ -76,7 +76,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Select "No" for administration costs
@@ -101,7 +101,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Fill employment description
@@ -111,7 +111,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     body_text = page.evaluate("() => document.body.innerText")
@@ -173,7 +173,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Fill sex breakdown with large numbers
@@ -210,7 +210,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # ==========================================

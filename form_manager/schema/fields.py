@@ -71,7 +71,8 @@ class ACFFieldMixin:
             "FloatField": float,
             "JSONField": dict,
             "CurrencyField": float,
-            "CalculatedField": float,
+            "CalculatedDecimalField": float,
+            "CalculatedIntegerField": int,
             "CalculatedCurrencyField": float,
         }
 
@@ -169,15 +170,14 @@ class ACFCurrencyField(ACFFieldMixin, forms.DecimalField):
         return formats.number_format(sanitized, 2, True)
 
 
-class ACFCalculatedField(ACFFieldMixin, forms.DecimalField):
-    """A field whose value is calculated from other form fields."""
+class ACFCalculatedFieldMixin(ACFFieldMixin, forms.Field):
 
     fields: list[str]
 
     class ACFCalculatedBoundField(BoundField):
         """A BoundField for Calculated Fields."""
 
-        field: ACFCalculatedField  # type: ignore
+        field: ACFCalculatedFieldMixin  # type: ignore
         form: BaseFields  # type: ignore
 
         def get_calculated_value(self):
@@ -233,12 +233,23 @@ class ACFCalculatedField(ACFFieldMixin, forms.DecimalField):
             {
                 "class": "usa-input calculated-field",
                 "data-source-fields": ",".join(self.fields),
+                "type": "text",
             }
         )
         return attrs
 
 
-class ACFCalculatedCurrencyField(ACFCalculatedField, ACFCurrencyField):
+class ACFCalculatedIntegerField(ACFCalculatedFieldMixin, ACFIntegerField):
+    pass
+
+
+class ACFCalculatedDecimalField(ACFCalculatedFieldMixin, forms.DecimalField):
+    """A field whose value is calculated from other form fields."""
+
+    pass
+
+
+class ACFCalculatedCurrencyField(ACFCalculatedDecimalField, ACFCurrencyField):
     """A calculated currency field"""
 
     widget = CurrencyInput()
@@ -359,7 +370,8 @@ class ACFFieldsMeta(type):
                 "CurrencyField": ACFCurrencyField,
                 "TextareaField": ACFTextareaField,
                 "CalculatedCurrencyField": ACFCalculatedCurrencyField,
-                "CalculatedField": ACFCalculatedField,
+                "CalculatedIntegerField": ACFCalculatedIntegerField,
+                "CalculatedDecimalField": ACFCalculatedDecimalField,
                 "FieldFilterField": ACFFieldFilterField,
                 "YesNoDisplayField": ACFYesNoDisplayField,
             }

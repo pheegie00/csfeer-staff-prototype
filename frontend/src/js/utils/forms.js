@@ -27,6 +27,7 @@ export function updateCalculatedFields(e) {
     const formatOptions = isCurrency
       ? { style: "decimal", minimumFractionDigits: 2 }
       : { style: "decimal", minimumFractionDigits: 0, maximumFractionDigits: 0 };
-    field.value = Intl.NumberFormat("en-US", formatOptions).format(total);
+    const formattedValue = Intl.NumberFormat("en-US", formatOptions).format(total);
+    field.value = formattedValue;
   })
 }
