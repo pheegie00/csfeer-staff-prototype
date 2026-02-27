@@ -1,15 +1,9 @@
+{% if title %}
 <h1 class="font-heading-2xl semibold font-family-sans font-weight-semibold">{{ title }}</h1>
 
 {% if subtitle %}
 <p class="font-body-sm">{{ subtitle }}</p>
 {% endif %}
-
-{% if title == "Expenditure categories" and current_step_number == 1 and current_page_number == 0 %}
-<div class="margin-top-2 margin-bottom-2">
-    <c-alert type="info" heading="How to select expenditure categories">
-        When you select a category, related questions will appear in the following pages. </br >Be sure to save to ensure that all changes are preserved.
-    </c-alert>
-</div>
 {% endif %}
 
 <c-fieldset class="usa-fieldset usa-form usa-form--large">

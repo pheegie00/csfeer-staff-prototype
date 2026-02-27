@@ -8,6 +8,7 @@ from form_manager.constants import CSBGAnnualReportForms, FormFamilies
 from form_manager.models import FormDefinition
 from form_manager.schema.forms import ALL_FORM_SCHEMAS
 from form_manager.schema.forms.tribal_short_form import TribalShortForm, TribalShortFormFields
+from form_manager.schema.layout import AlertBoxBlock, PageTitleBlock
 
 
 def test_tribal_short_form_schema_structure():
@@ -24,8 +25,8 @@ def test_tribal_short_form_has_correct_fields():
     form = TribalShortFormFields()
     field_names = list(form.fields.keys())
 
-    # Should have basic + expenditure + descriptions + demographic (28 fields)
-    assert len(field_names) == 28
+    # Should have basic + expenditure + descriptions (26 fields)
+    assert len(field_names) == 26
 
     # Verify demographic fields are NOT present
     demographic_fields = [
@@ -76,8 +77,6 @@ def test_tribal_short_form_has_correct_fields():
         "health_services_description",
         "civic_services_description",
         "transportation_services_description",
-        "demographic_detail_total_people",
-        "demographic_detail_total_people_adult",
     ]
 
     for field in required_fields:
@@ -177,3 +176,38 @@ def test_tribal_short_form_calculated_fields():
         "other_expenditure",
     ]
     assert calc_field.fields == expected_fields
+
+
+def test_tribal_short_form_has_alert_and_title_blocks():
+    """Verify TribalShortForm expenditure categories page uses AlertBoxBlock and PageTitleBlock."""
+    schema = TribalShortForm.model_construct()
+
+    # Verify UI is defined
+    assert schema.ui is not None, "UI definition should not be None"
+    assert len(schema.ui) > 1, "Should have at least 2 steps"
+
+    # Get the expenditure categories step (second step, index 1)
+    expenditure_step = schema.ui[1]
+    assert expenditure_step.title == "Expenditure categories"
+    assert expenditure_step.children is not None, "Expenditure step should have children"
+
+    # Get the first page of the expenditure step
+    first_page = expenditure_step.children[0]
+    assert first_page.children is not None, "First page should have children"
+    assert len(first_page.children) > 0
+
+    # Verify AlertBoxBlock is present
+    alert_blocks = [child for child in first_page.children if isinstance(child, AlertBoxBlock)]
+    assert len(alert_blocks) == 1, "Expected exactly one AlertBoxBlock in expenditure categories page"
+
+    alert = alert_blocks[0]
+    assert alert.alert_type == "info"
+    assert alert.heading == "How to select expenditure categories"
+    assert "select a category" in alert.message.lower()
+
+    # Verify PageTitleBlock is present
+    title_blocks = [child for child in first_page.children if isinstance(child, PageTitleBlock)]
+    assert len(title_blocks) == 1, "Expected exactly one PageTitleBlock in expenditure categories page"
+
+    title = title_blocks[0]
+    assert title.title == "Expenditure categories"

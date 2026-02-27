@@ -9,9 +9,11 @@ from form_manager.constants import AllFormNames, CSBGAnnualReportForms, FormFami
 from form_manager.schema.fields import acf_fields
 from form_manager.schema.forms.base import BaseFields, BaseFormSchema, UIDefinition
 from form_manager.schema.layout import (
+    AlertBoxBlock,
     FieldBlock,
     FieldGroupBlock,
     PageBlock,
+    PageTitleBlock,
     PermanentPageBlock,
     ReviewSubheadingBlock,
     SectionBlock,
@@ -182,17 +184,6 @@ class TribalShortFormFields(BaseFields):
         default_if_excluded="N/A",
     )
 
-    # region Demographic Details
-    demographic_detail_total_people = acf_fields.CharField(
-        title="Total number of people",
-        required=True,
-    )
-    
-    demographic_detail_total_people_adult = acf_fields.CharField(
-        title="Total number of people",
-        required=True,
-    )
-
 
 class TribalShortForm(BaseFormSchema):
     family: FormFamilies = Field(FormFamilies.CSBG_ANNUAL_REPORT, frozen=True)
@@ -235,8 +226,15 @@ class TribalShortForm(BaseFormSchema):
                 title="Expenditure categories",
                 children=[
                     PermanentPageBlock(
-                        title="Expenditure categories",
-                        children=[FieldBlock(field_name="applicable_topics")],
+                        children=[
+                            AlertBoxBlock(
+                                alert_type="info",
+                                heading="How to select expenditure categories",
+                                message="When you select a category, related questions will appear in the following pages. Be sure to save to ensure that all changes are preserved.",
+                            ),
+                            PageTitleBlock(title="Expenditure categories"),
+                            FieldBlock(field_name="applicable_topics"),
+                        ],
                     ),
                     PermanentPageBlock(
                         title="Expenditure categories",
@@ -333,28 +331,6 @@ class TribalShortForm(BaseFormSchema):
                         ),
                         children=[FieldBlock(field_name="transportation_services_description")],
                     ),
-                ],
-            ),
-            StepBlock(
-                title="Demographic details",
-                children=[
-                    PermanentPageBlock(
-                        title="Let's collect demographic details",
-                        children=[
-                            SectionBlock(
-                                title="How many individuals did you serve in total?",
-                                children=[
-                                    FieldBlock(field_name="demographic_detail_total_people"),
-                                ],
-                            ),
-                            SectionBlock(
-                                title="How many individuals did you serve that are over 18?",
-                                children=[
-                                    FieldBlock(field_name="demographic_detail_total_people_adult"),
-                                ],
-                            ),
-                        ],
-                    )
                 ],
             ),
         ],

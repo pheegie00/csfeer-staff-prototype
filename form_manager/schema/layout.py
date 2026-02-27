@@ -95,7 +95,9 @@ class AbstractPageBlock(RenderableBaseModel, abc.ABC):
     type: Literal["page", "permanent-page"]
     title: str | None = None
     subtitle: str | None = None
-    children: list[Self | "FieldBlock" | "SectionBlock" | "FieldGroupBlock"] | None = None
+    children: list[
+        Self | "FieldBlock" | "SectionBlock" | "FieldGroupBlock" | "PageTitleBlock" | "AlertBoxBlock"
+    ] | None = None
     template_name: str = "form_manager/page.html"
 
 
@@ -230,3 +232,23 @@ class ReviewSubheadingBlock(RenderableBaseModel):
     title: str | None = None
     description: str | None = None
     template_name: str = "form_manager/review_subheading.html"
+
+
+class PageTitleBlock(RenderableBaseModel):
+    """Represents a page title that can be positioned anywhere in the page children."""
+
+    type: str = "page-title"
+    title: str
+    subtitle: str | None = None
+    template_name: str = "form_manager/page_title.html"
+
+
+class AlertBoxBlock(RenderableBaseModel):
+    """Represents an alert/notification box that can be positioned anywhere in the page."""
+
+    type: str = "alert"
+    alert_type: Literal["info", "warning", "error", "success"] = "info"
+    heading: str | None = None
+    message: str
+    slim: bool = False
+    template_name: str = "form_manager/alert.html"
