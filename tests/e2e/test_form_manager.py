@@ -48,7 +48,7 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
     page.get_by_label("Primary phone number *").fill("555-0000")
     page.get_by_label("Email address *").fill("test@example.org")
 
-    # Save & Continue
+    # Next
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     page.get_by_role("button", name="Next →").click()
@@ -76,7 +76,7 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
     # Verify field is empty
     assert tribe_name_field.input_value() == ""
 
-    # Save & Continue
+    # Next
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     page.get_by_role("button", name="Next →").click()

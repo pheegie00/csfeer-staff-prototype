@@ -47,7 +47,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
 
-    # Click Save & Continue
+    # Click Next
     page.get_by_role("button", name="Next →").click()
 
     # Wait for Step 2: Expenditure categories
