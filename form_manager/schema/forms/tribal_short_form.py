@@ -9,9 +9,12 @@ from form_manager.constants import AllFormNames, CSBGAnnualReportForms, FormFami
 from form_manager.schema.fields import acf_fields
 from form_manager.schema.forms.base import BaseFields, BaseFormSchema, UIDefinition
 from form_manager.schema.layout import (
+    AlertBoxBlock,
     FieldBlock,
     FieldGroupBlock,
     PageBlock,
+    PageSubtitleBlock,
+    PageTitleBlock,
     PermanentPageBlock,
     ReviewSubheadingBlock,
     SectionBlock,
@@ -224,8 +227,15 @@ class TribalShortForm(BaseFormSchema):
                 title="Expenditure categories",
                 children=[
                     PermanentPageBlock(
-                        title="Expenditure categories",
-                        children=[FieldBlock(field_name="applicable_topics")],
+                        children=[
+                            AlertBoxBlock(
+                                alert_type="info",
+                                heading="How to select expenditure categories",
+                                message="When you select a category, related questions will appear in the following pages. Be sure to save to ensure that all changes are preserved.",
+                            ),
+                            PageTitleBlock(title="Expenditure categories"),
+                            FieldBlock(field_name="applicable_topics"),
+                        ],
                     ),
                     PermanentPageBlock(
                         title="Expenditure categories",

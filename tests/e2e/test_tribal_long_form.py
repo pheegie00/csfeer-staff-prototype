@@ -289,7 +289,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
 
     # Continue to Step 5: Review and Submit
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Begin Final Review →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText")
     assert "5 of 5" in body_text
@@ -336,7 +336,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
 
     # Submit the form
     with page.expect_navigation(timeout=10000):
-        page.get_by_role("button", name="Submit Application").click()
+        page.get_by_role("button", name="Submit").click()
     page.wait_for_timeout(2000)
     body_text = page.evaluate("() => document.body.innerText")
 
