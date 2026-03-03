@@ -192,3 +192,110 @@ def test_review_back_button_accounts_for_excluded_fields(
         query={"step": 1, "page": 0},
     )
     assert prev_url == expected_url
+
+
+@pytest.mark.django_db
+def test_save_and_exit_redirects_to_form_list(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    """
+    Test that clicking 'Save & Exit' saves the form data and redirects to the form list.
+    """
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    # Post data with page-action=save-exit
+    response = authenticated_client.post(
+        url,
+        data={
+            "first_name": "John",
+            "last_name": "Doe",
+            "page-action": "save-exit",
+        },
+        query_params={
+            "step": 0,
+            "page": 0,
+        },
+    )
+
+    # Should redirect to form_list
+    assert response.status_code == 302
+    assert response.headers.get("Location") == reverse("form_list")
+
+    # Data should be saved
+    form_entry.refresh_from_db()
+    assert form_entry.data.get("first_name") == "John"
+    assert form_entry.data.get("last_name") == "Doe"
+
+
+@pytest.mark.django_db
+def test_next_button_stays_on_form_edit(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    """
+    Test that clicking 'Next' (without page-action=save-exit) saves the data
+    but stays on the form edit page.
+    """
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    # Post data without page-action=save-exit (simulating Next button)
+    response = authenticated_client.post(
+        url,
+        data={
+            "first_name": "Jane",
+            "last_name": "Smith",
+        },
+        query_params={
+            "step": 0,
+            "page": 0,
+        },
+    )
+
+    # Should return 200 (re-render the form edit page)
+    assert response.status_code == 200
+
+    # Data should be saved
+    form_entry.refresh_from_db()
+    assert form_entry.data.get("first_name") == "Jane"
+    assert form_entry.data.get("last_name") == "Smith"
+
+
+@pytest.mark.django_db
+def test_save_and_exit_button_not_shown_on_first_page(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    """
+    Test that the 'Save & Exit' button is not displayed on the first page (step=0, page=0).
+    """
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    # Request the first page explicitly
+    response = authenticated_client.get(url, {"step": 0, "page": 0})
+
+    assert response.status_code == 200
+
+    content = response.content.decode("utf-8")
+
+    # Verify the "Save & Exit" button is not in the response
+    assert "Save &amp; Exit" not in content
+    assert 'value="save-exit"' not in content
+
+
+@pytest.mark.django_db
+def test_save_and_exit_button_shown_on_second_page(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    """
+    Test that the 'Save & Exit' button is displayed when not on the first page.
+    """
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    # Request the second page (step 1, page 0)
+    response = authenticated_client.get(url, {"step": 1, "page": 0})
+
+    assert response.status_code == 200
+
+    content = response.content.decode("utf-8")
+
+    # Verify the "Save & Exit" button IS in the response
+    assert "Save &amp; Exit" in content or "Save & Exit" in content
+    assert 'value="save-exit"' in content
