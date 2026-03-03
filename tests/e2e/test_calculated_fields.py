@@ -1,7 +1,7 @@
 """
 End-to-end tests for calculated field functionality.
 
-Tests that calculated fields (CalculatedField and CalculatedCurrencyField)
+Tests that calculated fields (CalculatedDecimalField and CalculatedCurrencyField)
 automatically update when source field values change.
 """
 

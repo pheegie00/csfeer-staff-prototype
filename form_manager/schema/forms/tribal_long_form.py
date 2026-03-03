@@ -183,7 +183,7 @@ class TribalLongFormFields(BaseFields):
 
     male_individuals_served = acf_fields.IntegerField(title="Male")
     female_individuals_served = acf_fields.IntegerField(title="Female")
-    total_individuals_served_by_sex = acf_fields.CalculatedField(
+    total_individuals_served_by_sex = acf_fields.CalculatedIntegerField(
         title="Total",
         fields=["male_individuals_served", "female_individuals_served"],
         review_title="Total (auto-calculated)",
@@ -203,7 +203,7 @@ class TribalLongFormFields(BaseFields):
     )
     employment__retired = acf_fields.IntegerField(title="Retired")
     employment__unknown = acf_fields.IntegerField(title="Unknown or not reported")
-    employment__total = acf_fields.CalculatedField(
+    employment__total = acf_fields.CalculatedIntegerField(
         title="Total (auto-calculated)",
         fields=[
             "employment__full_time",
@@ -407,7 +407,9 @@ class TribalLongForm(BaseFormSchema):
                                     FieldGroupBlock(
                                         children=[
                                             ReviewSubheadingBlock(
-                                                title="Work status of adults served (age 18 and older)"
+                                                title=(
+                                                    "Work status of adults served (age 18 and older)"  # noqa: E501
+                                                )
                                             ),
                                             FieldBlock(field_name="employment__full_time"),
                                             FieldBlock(field_name="employment__part_time"),
