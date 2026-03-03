@@ -142,6 +142,13 @@ def form_edit(request, pk):
         form = django_form_class(request.POST)
 
         save_form_entry(django_form_class, entry, request)
+
+        # Check if user clicked "Save & Exit"
+        page_action = request.POST.get("page-action")
+        if page_action == "save-exit":
+            messages.success(request, "Draft saved successfully.")
+            return redirect("form_list")
+
         messages.success(request, "Draft saved.")
 
     # If user has visited the review page, create a bound form with validation
