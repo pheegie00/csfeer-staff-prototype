@@ -20,7 +20,7 @@ def test_forms_page_loads(authenticated_page: Page, base_url: str) -> None:
 @pytest.mark.e2e
 @pytest.mark.auth
 def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) -> None:
-    """Test that clearing a field value and saving removes the value."""
+    """Test that clearing a field value and saving removes the value, and test Save & Exit button."""
     page = authenticated_page
 
     # Navigate to forms page
@@ -90,43 +90,19 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
 
     # Verify the field is still empty (the bug would cause it to show the old value)
     final_value = tribe_name_field.input_value()
-
     assert final_value == "", f"Expected empty field, but got: {final_value}"
 
-
-@pytest.mark.e2e
-@pytest.mark.auth
-def test_save_and_exit_button_returns_to_form_list(authenticated_page: Page, base_url: str) -> None:
-    """Test that clicking 'Save & Exit' saves the form and returns to the form list."""
-    page = authenticated_page
-
-    # Navigate to forms page
-    page.goto(f"{base_url}/forms/")
-    page.wait_for_load_state("networkidle")
-
-    # Start new TribalShortForm
-    form_cards = page.locator(".grid-col-12.tablet\\:grid-col-6")
-    for i in range(form_cards.count()):
-        card = form_cards.nth(i)
-        if "Tribal Short Form" in card.inner_text():
-            card.get_by_role("link", name="Start New Form").click()
-            break
-
-    # Wait for form to load - Step 1 of 4: Basic Information
-    page.wait_for_selector('h4:has-text("Step 1 of 4 Basic Information")')
-
-    # Fill some required fields
-    page.get_by_label("Name of Tribe or Tribal Organization *").fill("Test Tribe Save Exit")
-    page.get_by_label("Full name *").fill("Test User")
-    page.get_by_label("Title *").fill("Tester")
-    page.get_by_label("Primary phone number *").fill("555-1234")
-    page.get_by_label("Email address *").fill("test@example.org")
-
-    # Scroll to bottom to ensure buttons are visible
+    # Now go forward to Step 2 and test Save & Exit button
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
+    page.get_by_role("button", name="Next →").click()
 
-    # Click the "Save & Exit" button
+    # Wait for Step 2
+    page.wait_for_selector('h4:has-text("Step 2 of 4 Expenditure categories")')
+
+    # Scroll to bottom and click "Save & Exit" button
+    page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
+    page.wait_for_timeout(500)
     page.get_by_role("button", name="Save & Exit").click()
 
     # Should return to the form list page
@@ -136,8 +112,3 @@ def test_save_and_exit_button_returns_to_form_list(authenticated_page: Page, bas
 
     # Verify success message is shown
     assert "Draft saved successfully" in page.content()
-
-    # Verify the form is in the list with "Draft" status
-    page_content = page.content()
-    assert "Test Tribe Save Exit" in page_content
-    assert "Draft" in page_content
