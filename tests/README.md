@@ -23,30 +23,30 @@ make start
 
 ## Running Tests
 
-### Run all e2e tests (headless):
+### Run all e2e tests in Docker (headless, recommended):
 ```bash
 make test-e2e
-# or
-uv run pytest tests/e2e/ -v -m e2e
+# Override test path:
+make test-e2e TEST=tests/e2e/test_auth_flow.py::test_user_can_login
 ```
 
-### Run tests in headed mode (see browser):
+### Run tests natively in headed mode (see browser):
 ```bash
-make test-e2e-headed
+make native-test-e2e-headed
 # or
 uv run pytest tests/e2e/ -v -m e2e --headed
 ```
 
-### Run tests in debug mode (slow motion):
+### Run tests natively in debug mode (slow motion):
 ```bash
-make test-e2e-debug
+make native-test-e2e-debug
 # or
 uv run pytest tests/e2e/ -v -m e2e --headed --slowmo 1000
 ```
 
 ### Run only authentication tests:
 ```bash
-make test-e2e-auth
+make native-test-e2e-auth
 # or
 uv run pytest tests/e2e/ -v -m "e2e and auth"
 ```

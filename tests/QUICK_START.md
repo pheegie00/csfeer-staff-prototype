@@ -5,7 +5,8 @@
 ```bash
 # 1. Install dependencies
 uv sync
-uv run playwright install chromium
+# Note: `uv run playwright install chromium` is only needed for native/headed runs.
+# Docker-based runs (make test-e2e) use the bundled Chromium in the e2e image.
 
 # 2. Start Docker services
 make start
@@ -20,19 +21,22 @@ cat /etc/hosts | grep csfeer
 ## Run Tests
 
 ```bash
-# Run all tests (headless)
+# Run all tests in Docker (headless) — recommended
 make test-e2e
 
-# Run with visible browser
-make test-e2e-headed
+# Run a specific test in Docker
+make test-e2e TEST=tests/e2e/test_auth_flow.py::test_user_can_login
 
-# Run with slow motion for debugging
-make test-e2e-debug
+# Run natively with visible browser
+make native-test-e2e-headed
 
-# Run specific test file
+# Run natively with slow motion for debugging
+make native-test-e2e-debug
+
+# Run specific test file natively
 uv run pytest tests/e2e/test_auth_flow.py -v
 
-# Run specific test
+# Run specific test natively
 uv run pytest tests/e2e/test_auth_flow.py::test_user_can_login -v
 ```
 

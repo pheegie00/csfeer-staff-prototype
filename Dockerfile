@@ -51,6 +51,15 @@ RUN uv run python manage.py collectstatic --noinput
 CMD ["uv", "run","python", "manage.py", "runserver", "0.0.0.0:8000"]
 
 
+# E2E test runner - extends dev with Playwright Chromium pre-installed
+FROM dev AS e2e-runner
+USER root
+RUN /app/.venv/bin/playwright install-deps chromium \
+    && apt-get autoremove -y && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
+USER appuser
+RUN /app/.venv/bin/playwright install chromium
+
 
 FROM build AS app-build
 
