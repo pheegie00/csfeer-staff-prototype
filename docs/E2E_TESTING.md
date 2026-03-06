@@ -11,13 +11,19 @@ This project uses [Playwright](https://playwright.dev/) for end-to-end testing. 
 ```bash
 # Install Python dependencies
 uv sync
+```
 
-# Install Playwright browsers
+For **native** (host-based) test runs, also install Playwright browsers:
+
+```bash
+# Install Playwright browsers (only needed for native/headed runs)
 uv run playwright install chromium
 
 # For macOS Sequoia users: Install WebKit for headed mode
 uv run playwright install webkit
 ```
+
+> **Docker-based runs** (`make test-e2e`) do not require a local Playwright installation — Chromium is bundled in the `e2e-runner` Docker image.
 
 ### 2. Start Services
 
@@ -35,20 +41,18 @@ uv run python manage.py runserver 0.0.0.0:8000
 ### 3. Run Tests
 
 ```bash
-# Run all e2e tests (headless)
+# Run all e2e tests in Docker (headless) — recommended
 make test-e2e
 
-# Run tests with visible browser
-make test-e2e-headed
+# Run a specific test file/test in Docker
+make test-e2e TEST=tests/e2e/test_auth_flow.py::test_user_can_login
 
-# Run tests with slow motion for debugging
-make test-e2e-debug
-
-# Run tests with WebKit (for macOS Sequoia)
-make test-e2e-webkit
-
-# Run only authentication tests
-make test-e2e-auth
+# Native (host) runs — requires local Playwright install (see step 1)
+make native-test-e2e                 # headless
+make native-test-e2e-headed          # with visible browser
+make native-test-e2e-debug           # slow motion for debugging
+make native-test-e2e-webkit          # WebKit (for macOS Sequoia)
+make native-test-e2e-auth            # authentication tests only
 ```
 
 ## Project Structure
@@ -160,10 +164,10 @@ Run tests in debug mode with headed browser and slow motion:
 
 ```bash
 # See what's happening
-make test-e2e-headed
+make native-test-e2e-headed
 
 # Even slower for debugging
-make test-e2e-debug
+make native-test-e2e-debug
 ```
 
 ### macOS Headed Mode (WebKit)
@@ -175,7 +179,7 @@ make test-e2e-debug
 uv run playwright install webkit
 
 # Quick way: Use Makefile target (runs all E2E tests)
-make test-e2e-webkit
+make native-test-e2e-webkit
 
 # Run single test with visible browser (1 second delays)
 uv run pytest tests/e2e/test_tribal_short_form.py::test_tribal_short_form_complete_workflow -v --headed --browser=webkit --slowmo=1000
@@ -200,8 +204,8 @@ Failed tests automatically capture:
 ### Environment Variables
 
 ```bash
-# Override base URL
-BASE_URL=http://localhost:8000 make test-e2e
+# Override base URL (native runs)
+BASE_URL=http://localhost:8000 make native-test-e2e
 
 # Run specific test
 uv run pytest tests/e2e/test_auth_flow.py::test_user_can_login -v
