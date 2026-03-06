@@ -146,7 +146,6 @@ def form_edit(request, pk):
         # Check if user clicked "Save & Exit"
         page_action = request.POST.get("page-action")
         if page_action == "save-exit":
-            messages.success(request, "Draft saved successfully.")
             return redirect("form_list")
 
         messages.success(request, "Draft saved.")
