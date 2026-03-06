@@ -209,7 +209,7 @@ LOGGING = {
         },
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": BASE_DIR / "logs" / "django.log",
+            "filename": "/var/log/django.log",
             "maxBytes": settings.logging_config.file_max_bytes,
             "backupCount": settings.logging_config.file_backup_count,
             "formatter": "verbose",
@@ -217,7 +217,7 @@ LOGGING = {
         },
         "error_file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": BASE_DIR / "logs" / "django_errors.log",
+            "filename": "/var/log/django_errors.log",
             "maxBytes": settings.logging_config.file_max_bytes,
             "backupCount": settings.logging_config.file_backup_count,
             "formatter": "verbose",
