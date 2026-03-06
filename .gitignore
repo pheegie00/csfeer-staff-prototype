@@ -237,3 +237,6 @@ playwright-report/
 # Dolt database files (added by bd init)
 .dolt/
 *.db
+
+.beads
+thoughts/
