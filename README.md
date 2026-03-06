@@ -260,7 +260,7 @@ brew install graphviz
 uv sync
 
 # Generate ERD diagrams
-make create-erds
+make native-create-erds
 ```
 
 Diagrams are saved to `docs/app/erds/` by default.
@@ -332,17 +332,17 @@ See [csfeer/templates/patterns/README.md](csfeer/templates/patterns/README.md) f
 See [docs/E2E_TESTING.md](docs/E2E_TESTING.md) for detailed testing documentation.
 
 ```bash
-# Run unit tests
+# Run unit tests (Docker)
 make test-unit
 
-# Run E2E tests (headless)
+# Run E2E tests in Docker (headless)
 make test-e2e
 
-# Run with visible browser
-make test-e2e-headed
+# Run E2E tests natively with visible browser
+make native-test-e2e-headed
 
-# Run with debugging
-make test-e2e-debug
+# Run E2E tests natively with debugging
+make native-test-e2e-debug
 ```
 
 ## Reference
@@ -358,13 +358,16 @@ make test-e2e-debug
 #### Database
 - `make reset-all` - Remove all volumes and restart fresh
 - `make reset-db` - Remove only the database volume
-- `make create-erds` - Generate entity relationship diagrams
+- `make native-create-erds` - Generate entity relationship diagrams
 
 #### Testing
-- `make test-e2e` - Run E2E tests (headless)
-- `make test-e2e-headed` - Run E2E tests with visible browser
-- `make test-e2e-debug` - Run E2E tests with slow motion debugging
-- `make test-e2e-auth` - Run only authentication E2E tests
+- `make test-unit` - Run unit tests in Docker
+- `make test-e2e` - Run E2E tests in Docker (headless); override path with `TEST=`
+- `make native-test-unit` - Run unit tests on host
+- `make native-test-e2e` - Run E2E tests on host (headless)
+- `make native-test-e2e-headed` - Run E2E tests on host with visible browser
+- `make native-test-e2e-debug` - Run E2E tests on host with slow motion debugging
+- `make native-test-e2e-auth` - Run only authentication E2E tests on host
 
 #### Other
 - `make oauth-setup` - Run OAuth setup script
