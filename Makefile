@@ -7,7 +7,7 @@
 
 UV   := $(shell which uv || echo $$HOME/.local/bin/uv)
 PATH := /opt/homebrew/bin:/usr/local/bin:$(PATH)
-TEST ?= tests/e2e/
+TEST ?=
 
 # ── Docker ────────────────────────────────────────────────────────────────────
 
@@ -36,8 +36,9 @@ reset-db:
 oauth-setup:
 	docker compose run --rm oauth-setup
 
+# Usage: make test-unit [TEST=tests/unit/form_manager/test_fields.py::test_name]
 test-unit:
-	docker compose run --rm app uv run pytest tests/unit -v
+	docker compose run --rm app uv run pytest $${TEST:-tests/unit} -v
 
 # Usage: make test-e2e [TEST=tests/e2e/test_form_manager.py::test_name]
 test-e2e:
@@ -45,7 +46,7 @@ test-e2e:
 	@docker compose up -d app
 	@echo "Waiting for app to be ready..."
 	@sleep 5
-	docker compose run --rm e2e uv run pytest $(TEST) -v -m e2e
+	docker compose run --rm e2e uv run pytest $${TEST:-tests/e2e/} -v -m e2e
 
 # ── Native (host) ─────────────────────────────────────────────────────────────
 
@@ -62,7 +63,7 @@ native-create-erds:
 	$(UV) run python manage.py generate_er_diagram
 
 native-test-unit:
-	$(UV) run pytest tests/unit -v
+	$(UV) run pytest $${TEST:-tests/unit} -v
 
 _start-services:
 	@echo "Starting services..."
@@ -72,17 +73,17 @@ _start-services:
 
 # Usage: make native-test-e2e [TEST=tests/e2e/test_form_manager.py::test_name]
 native-test-e2e: _start-services
-	$(UV) run pytest $(TEST) -v -m e2e
+	$(UV) run pytest $${TEST:-tests/e2e/} -v -m e2e
 
 native-test-e2e-headed: _start-services
-	$(UV) run pytest $(TEST) -v -m e2e --headed
+	$(UV) run pytest $${TEST:-tests/e2e/} -v -m e2e --headed
 
 native-test-e2e-debug: _start-services
-	$(UV) run pytest $(TEST) -v -m e2e --headed --slowmo 1000
+	$(UV) run pytest $${TEST:-tests/e2e/} -v -m e2e --headed --slowmo 1000
 
 # Use WebKit for macOS Sequoia compatibility
 native-test-e2e-webkit: _start-services
-	$(UV) run pytest $(TEST) -v -m e2e --headed --browser=webkit --slowmo 1000
+	$(UV) run pytest $${TEST:-tests/e2e/} -v -m e2e --headed --browser=webkit --slowmo 1000
 
 native-test-e2e-auth: _start-services
 	$(UV) run pytest tests/e2e/ -v -m "e2e and auth"
