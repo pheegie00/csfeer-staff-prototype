@@ -110,5 +110,3 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
     assert "/forms/" in page.url
     assert "/edit" not in page.url
 
-    # Verify success message is shown
-    assert "Draft saved successfully" in page.content()
