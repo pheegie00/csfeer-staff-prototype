@@ -8,6 +8,8 @@
 UV   := $(shell which uv || echo $$HOME/.local/bin/uv)
 PATH := /opt/homebrew/bin:/usr/local/bin:$(PATH)
 TEST ?=
+GITLAB_REPO := ~/projects/csfeer-gitlab
+VERSION := $(date +"%Y.%m.%d.%H.%M.%S")
 
 # ── Docker ────────────────────────────────────────────────────────────────────
 
@@ -113,3 +115,34 @@ install-beads:
 	mv /tmp/jira-beads-sync/jira-beads-sync ~/.local/bin/jira-beads-sync
 	rm -rf /tmp/jira-beads-sync
 	@echo "Beads and jira-beads-sync installed."
+
+sync-git:
+
+	# pull gitlab origin main:main
+	cd $(GITLAB_REPO) && git pull origin main
+
+	# delete all files except the git directory
+	cd $(GITLAB_REPO) && find -mindepth 1 -not -path './.git' -not -path './.git/*' -delete
+
+	# clone the source github repo into a tmp directory
+	git clone git@github.com:focusconsulting/csfeer.git /tmp/github
+
+	# copy everything into the gitlab repo except stuff we don't want
+	rsync -av \
+	--exclude='.github' \
+	--exclude='.beads' \
+	--exclude='.claude' \
+	--exclude='.claude-marketplace' \
+	--exclude='thoughts' \
+	--exclude='.vscode' \
+	--exclude='.git' \
+	/tmp/github/* $(GITLAB_REPO)
+
+	# add, commit, tag and push
+	-cd $(GITLAB_REPO) && git add . && \
+	  git commit -m "Bump version $${VERSION}" && \
+	  git tag -a "$${VERSION}" -m "version $${VERSION}" && \
+	  git push origin main --tags
+	
+	# remove the tmp github dir
+	rm -rf /tmp/github
