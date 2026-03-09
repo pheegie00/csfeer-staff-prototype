@@ -3,8 +3,17 @@ build:
     name: quay.io/buildah/stable:v1.29.0
  
   variables:
+    REGISTRY: $CI_REGISTRY
+    REGISTRY_USER: $CI_REGISTRY_USER
+    REGISTRY_PASSWORD: $CI_REGISTRY_PASSWORD
     DOCKERFILE_NAME: 'Dockerfile'
+    DOCKERBUILD_PATH: $CI_PROJECT_PATH
+    TAG: 'latest'
   stage: build
   script:
+    - echo "$REGISTRY_PASSWORD" | buildah login -u "$REGISTRY_USER" --password-stdin $REGISTRY
     - export STORAGE_DRIVER=vfs
-    - buildah build -t csfeer:$CI_COMMIT_SHORT_SHA .
+    - buildah build -t csfeer:$CI_COMMIT_SHORT_SHA -t csfeer:latest .
+    - export ECR_LOGIN=$(aws ecr get-login-password --region us-east-1)
+    - buildah build -t ${REGISTRY}/${DOCKERBUILD_PATH}:${TAG}
+    - buildah push ${REGISTRY}/${DOCKERBUILD_PATH}:${TAG}
