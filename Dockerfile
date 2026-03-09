@@ -36,15 +36,16 @@ COPY pyproject.toml uv.lock ./
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
 # For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
 RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
+
+# Create logs directory for Django logging
+RUN mkdir -p /var/log/app && chown appuser:appuser /var/log/app
+
 USER appuser
 
 # Install dependencies (cached if pyproject.toml/uv.lock unchanged)
 RUN uv sync --frozen --no-install-project --quiet
 
 COPY --chown=appuser:appuser . /app
-
-# Create logs directory for Django logging
-RUN mkdir -p /app/logs
 
 RUN uv run python manage.py collectstatic --noinput
 
@@ -74,7 +75,8 @@ ENV PATH="/app/.venv/bin:$PATH"
 COPY --chown=python:python . .
 COPY --chown=python:python --from=static /app/node_modules /app/node_modules
 COPY --chown=python:python --from=static /app/frontend/built /app/static
-RUN python manage.py collectstatic --noinput
+RUN mkdir -p /var/log/app && chown python:python /var/log/app
+RUN uv run python manage.py collectstatic --noinput
 
 # Prod
 FROM docker.io/library/python:3.12.13-slim-trixie AS app
@@ -100,7 +102,7 @@ COPY --chown=python:python ./csfeer .
 COPY --chown=python:python --from=app-build /app/.venv /app/.venv
 
 # Create logs directory for Django logging
-RUN mkdir -p /app/logs && chown python:python /app/logs
+RUN mkdir -p /var/log/app && chown python:python /var/log/app
 
 USER python
 
