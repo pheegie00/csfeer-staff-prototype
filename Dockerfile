@@ -111,7 +111,7 @@ ENV PATH="/app/.venv/bin:$PATH"
 CMD [ "gunicorn", "--bind", "0.0.0.0:8000", "csfeer.wsgi:application"  ]
 
 
-FROM docker.io/library/nginxinc/nginx-unprivileged:stable-alpine3.21-perl AS serve-static
+FROM docker.io/nginxinc/nginx-unprivileged:stable-alpine3.21-perl AS serve-static
 
 COPY --from=app-build /app/staticfiles /usr/share/nginx/html/static
 COPY nginx.conf /etc/nginx/conf.d/default.conf
