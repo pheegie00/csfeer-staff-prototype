@@ -3,7 +3,7 @@
     <c-label
         id="{{ field.id_for_label }}"
         label="{{ field.field.title }}"
-        required="{{ field.field.required }}"
+        required="{% if field.field.required %}True{% endif %}"
         error="{% if field.errors %}{{ field.errors.0 }}{% endif %}"
     />
     {% endif %}
