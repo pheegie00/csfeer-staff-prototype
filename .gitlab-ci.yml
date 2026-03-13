@@ -43,6 +43,7 @@ stages:
   - extract
   - security-test
   - build
+  - run-tests
   - content:dev
   - build
   - security-scan
@@ -100,6 +101,20 @@ Build image and push to registry:
     - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - buildah build -f $DOCKERFILE -t $FULL_IMAGE_NAME .
     - buildah push $FULL_IMAGE_NAME
+
+Run unit and end-to-end tests:
+  image: 
+    name: registry.management.acf.gov/ngsc-oci/security/cosign-vault:0.1.5
+  stage: build
+  needs: 
+    - Build image and push to registry
+  script:
+    - echo $VERSION
+    - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - buildah pull $FULL_IMAGE_NAME
+    - yum install gcc gcc-c++ kernel-devel -y
+    - chsh -s /bin/bash
+    - make test-unit
 
 container_scanning:
   stage: security-scan
