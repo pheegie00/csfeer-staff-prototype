@@ -29,16 +29,17 @@ class TribalShortFormFields(BaseFields):
     contact_title = acf_fields.CharField(title="Title")
     phone = acf_fields.CharField(
         title="Primary phone number",
-        widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
+        widget=forms.TelInput(attrs={"inputmode": "numeric", "oninput": "this.value = this.value.replace(/[^0-9\\-\\(\\)\\s\\+]/g, '')"}),  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
     )
     extension = acf_fields.CharField(
         title="Extension (Optional)",
-        widget=forms.NumberInput,
+        required=False,
     )
     email = acf_fields.CharField(title="Email address", widget=forms.EmailInput)
     fax = acf_fields.CharField(
         title="Fax number (Optional)",
-        widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
+        widget=forms.TelInput(attrs={"inputmode": "numeric", "oninput": "this.value = this.value.replace(/[^0-9\\-\\(\\)\\s\\+]/g, '')"}),  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
+        required=False,
     )
 
     # region Question Filters
@@ -147,42 +148,49 @@ class TribalShortFormFields(BaseFields):
         title="Description",
         review_title="Details about employment related services",
         default_if_excluded="N/A",
+        max_length=1000,
     )
 
     education_related_service_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about education related services",
         default_if_excluded="N/A",
+        max_length=1000,
     )
 
     income_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about income and asset services",
         default_if_excluded="N/A",
+        max_length=1000,
     )
 
     housing_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about housing services",
         default_if_excluded="N/A",
+        max_length=1000,
     )
 
     health_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about health services",
         default_if_excluded="N/A",
+        max_length=1000,
     )
 
     civic_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about civic services",
         default_if_excluded="N/A",
+        max_length=1000,
     )
 
     transportation_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about transportation services",
         default_if_excluded="N/A",
+        max_length=1000,
     )
 
 

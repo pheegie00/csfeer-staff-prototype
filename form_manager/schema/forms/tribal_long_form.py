@@ -31,13 +31,12 @@ class TribalLongFormFields(BaseFields):
     )
     extension = acf_fields.CharField(
         title="Extension (Optional)",
-        widget=forms.NumberInput,
         required=False,
     )
     email = acf_fields.CharField(title="Email address", widget=forms.EmailInput)
     fax = acf_fields.CharField(
         title="Fax number (Optional)",
-        widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
+        widget=forms.TelInput(attrs={"inputmode": "numeric", "oninput": "this.value = this.value.replace(/[^0-9\\-\\(\\)\\s\\+]/g, '')"}),  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
         required=False,
     )
 
