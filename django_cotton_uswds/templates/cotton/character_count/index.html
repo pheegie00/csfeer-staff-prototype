@@ -1,5 +1,5 @@
 {% load static %}
-<c-vars is_textarea="false" type="text" disabled="" class=""/>
+<c-vars is_textarea="false" type="text" disabled="" class="" maxlength="" id="" default_value=""/>
 <div class="usa-character-count {{ class|default:'' }}" data-maxlength="{{ maxlength }}">
   {% if is_textarea == "true" %}
   <textarea
