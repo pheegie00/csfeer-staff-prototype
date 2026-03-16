@@ -102,19 +102,40 @@ Build image and push to registry:
     - buildah build -f $DOCKERFILE -t $FULL_IMAGE_NAME .
     - buildah push $FULL_IMAGE_NAME
 
+# Run unit and end-to-end tests:
+#   image: docker:27
+#   services:
+#     - name: docker:27-dind
+#       alias: dockerdaemon
+#   stage: build
+#   variables:
+#     DOCKER_HOST: tcp://dockerdaemon:2375
+#     DOCKER_DRIVER: overlay2
+#     DOCKER_TLS_CERTDIR: "/certs"
+#   needs: 
+#     - Build image and push to registry
+#   before_script:
+#     echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+#   script: |
+#     echo $VERSION
+#     whoami
+#     docker pull $FULL_IMAGE_NAME
+#     echo "starting unit tests ..." 
+#     make test-unit
+
 Run unit and end-to-end tests:
-  image: 
-    name: debian:trixie
+  image: quay.io/podman/stable
   stage: build
   needs: 
     - Build image and push to registry
-  script:
-    - echo $VERSION
-    - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - buildah pull $FULL_IMAGE_NAME
-    - yum install gcc gcc-c++ kernel-devel -y
-    - chsh -s /bin/bash
-    - make test-unit
+  script: |
+    ln -s /usr/bin/podman /usr/bin/docker
+    docker pull postgres:16
+    echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    docker pull $FULL_IMAGE_NAME
+    echo "starting unit tests ..." 
+    yum install gcc gcc-c++ kernel-devel which docker-compose -y
+    make test-unit
 
 container_scanning:
   stage: security-scan
