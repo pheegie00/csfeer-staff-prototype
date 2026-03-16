@@ -1,9 +1,9 @@
-<c-textarea
-    name="{{ widget.name }}"
+<c-character_count
+    maxlength="{{ widget.attrs.maxlength }}"
     id="{{ widget.attrs.id }}"
-    readonly="{% if widget.attrs.readonly %}True{% endif %}"
+    is_textarea="true"
+    name="{{ widget.name }}"
+    default_value="{{ widget.value|default:'' }}"
     disabled="{% if widget.attrs.disabled %}True{% endif %}"
-    required="{% if widget.required %}True{% endif %}"
-    value="{{ widget.value|default:'' }}"
     :attrs="widget.attrs"
 />
