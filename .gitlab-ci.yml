@@ -104,7 +104,7 @@ Build image and push to registry:
 
 Run unit and end-to-end tests:
   image: 
-    name: registry.management.acf.gov/ngsc-oci/security/cosign-vault:0.1.5
+    name: debian:trixie
   stage: build
   needs: 
     - Build image and push to registry
