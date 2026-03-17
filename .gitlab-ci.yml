@@ -131,6 +131,7 @@ Run unit and end-to-end tests:
   script: |
     ln -s /usr/bin/podman /usr/bin/docker
     docker pull docker.io/postgres:16
+    docker pull quay.io/keycloak/keycloak:latest
     echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     docker pull $FULL_IMAGE_NAME
     echo "starting unit tests ..." 
