@@ -130,7 +130,7 @@ Run unit and end-to-end tests:
     - Build image and push to registry
   script: |
     ln -s /usr/bin/podman /usr/bin/docker
-    docker pull postgres:16
+    docker pull docker.io/postgres:16
     echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     docker pull $FULL_IMAGE_NAME
     echo "starting unit tests ..." 
