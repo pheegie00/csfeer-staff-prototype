@@ -129,14 +129,18 @@ Run unit and end-to-end tests:
   needs: 
     - Build image and push to registry
   script: |
+    printenv
     ln -s /usr/bin/podman /usr/bin/docker
     docker pull docker.io/postgres:16
     docker pull quay.io/keycloak/keycloak:latest
     echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     docker pull $FULL_IMAGE_NAME
-    echo "starting unit tests ..." 
-    yum install gcc gcc-c++ kernel-devel which docker-compose -y
-    make test-unit
+    yum install gcc gcc-c++ kernel-devel which podman-compose -y
+    echo "Starting tests ..."
+    echo "127.0.0.1 oauth.csfeer" >> /etc/hosts
+    echo "127.0.0.1 ui.csfeer" >> /etc/hosts
+    echo "127.0.0.1 db.csfeer" >> /etc/hosts
+    DOCKER_COMPOSE_FILE=devops/docker/docker-compose-ci.yml FULL_IMAGE_NAME=$FULL_IMAGE_NAME make test-unit
 
 container_scanning:
   stage: security-scan

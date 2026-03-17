@@ -7,6 +7,7 @@
 
 UV   := $(shell which uv || echo $$HOME/.local/bin/uv)
 PATH := /opt/homebrew/bin:/usr/local/bin:/usr/bin:$(PATH)
+DOCKER_COMPOSE_FILE ?=
 TEST ?=
 
 # ── Docker ────────────────────────────────────────────────────────────────────
@@ -38,7 +39,7 @@ oauth-setup:
 
 # Usage: make test-unit [TEST=tests/unit/form_manager/test_fields.py::test_name]
 test-unit:
-	docker compose run --rm app uv run pytest $${TEST:-tests/unit} -v
+	docker compose -f $${DOCKER_COMPOSE_FILE:-compose.yml} run --rm app uv run pytest $${TEST:-tests/unit} -v
 
 # Usage: make test-e2e [TEST=tests/e2e/test_form_manager.py::test_name]
 test-e2e:
