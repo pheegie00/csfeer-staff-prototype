@@ -6,7 +6,7 @@
         configure-beads install-beads
 
 UV   := $(shell which uv || echo $$HOME/.local/bin/uv)
-PATH := /opt/homebrew/bin:/usr/local/bin:$(PATH)
+PATH := /opt/homebrew/bin:/usr/local/bin:/usr/bin:$(PATH)
 TEST ?=
 
 # ── Docker ────────────────────────────────────────────────────────────────────
