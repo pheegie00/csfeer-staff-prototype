@@ -1,0 +1,31 @@
+services:
+  
+  mock-oauth:
+    extends:
+      file: ./docker-compose-base.yml
+      service: mock-oauth
+    hostname: oauth.csfeer
+  oauth-setup:
+    extends:
+      file: ./docker-compose-base.yml
+      service: oauth-setup
+  db:
+    extends:
+      file: ./docker-compose-base.yml
+      service: db
+    hostname: db.csfeer
+
+  app:
+    image: "${FULL_IMAGE_NAME}"
+    extends:
+      file: ./docker-compose-base.yml
+      service: app
+    hostname: ui.csfeer
+
+  e2e:
+    extends:
+      file: ./docker-compose-base.yml
+      service: e2e
+
+volumes:
+  pgdata:

@@ -13,7 +13,6 @@ services:
       KC_BOOTSTRAP_ADMIN_CLIENT_ID: csfeer-auth
       KC_BOOTSTRAP_ADMIN_CLIENT_SECRET: shhhhhhhh
     command: start-dev --import-realm
-    hostname: oauth.csfeer
     healthcheck:
       test: "/bin/true"
     volumes:
@@ -57,7 +56,6 @@ services:
       - "no-new-privileges:true"
     ports:
       - "5432:5432"
-    hostname: db.csfeer
     environment:
       POSTGRES_PASSWORD: secret123
       POSTGRES_USER: csfeer
@@ -89,7 +87,6 @@ services:
       OIDC_CONFIG__DOCUMENT_URL: http://oauth.csfeer:8081/realms/csfeer/.well-known/openid-configuration
       DJANGO_SETTINGS_MODULE: csfeer.settings
       DB_CONFIG__PGHOST: db
-    hostname: ui.csfeer
     post_start:
       - command: "uv run python manage.py migrate"
     security_opt:
