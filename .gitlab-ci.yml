@@ -111,7 +111,7 @@ Run unit and end-to-end tests:
   variables:
     DOCKER_HOST: tcp://dockerdaemon:2375
     DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_CERTDIR: ""
     CI_DEBUG_SERVICES: "true"
   needs: 
     - Build image and push to registry
