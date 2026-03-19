@@ -123,7 +123,7 @@ Run unit and end-to-end tests:
     whoami
     docker pull $FULL_IMAGE_NAME
     echo "starting unit tests ..." 
-    DOCKER_COMPOSE_FILE=devops/docker/docker-compose-ci.yml FULL_IMAGE_NAME=$FULL_IMAGE_NAME sudo make test-unit
+    DOCKER_COMPOSE_FILE=devops/docker/docker-compose-ci.yml FULL_IMAGE_NAME=$FULL_IMAGE_NAME  make test-unit
 
 # Run unit and end-to-end tests:
 #   image: quay.io/podman/stable
