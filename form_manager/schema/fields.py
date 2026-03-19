@@ -263,7 +263,7 @@ class ACFCalculatedCurrencyField(ACFCalculatedDecimalField, ACFCurrencyField):
 class ACFTextareaField(ACFFieldMixin, forms.CharField):
     """A text area field"""
 
-    widget = forms.Textarea(attrs={"rows": 10, "cols": 70, "maxlength": 1000})
+    widget = forms.Textarea(attrs={"rows": 10, "cols": 70})
 
 
 class ACFBoundFieldFilterField(BoundField):
