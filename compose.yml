@@ -2,25 +2,25 @@ services:
   
   mock-oauth:
     extends:
-      file: devops/docker/docker-compose-base.yml
+      file: devops/docker/docker-compose-local.yml
       service: mock-oauth
   oauth-setup:
     extends:
-      file: devops/docker/docker-compose-base.yml
+      file: devops/docker/docker-compose-local.yml
       service: oauth-setup
   db:
     extends:
-      file: devops/docker/docker-compose-base.yml
+      file: devops/docker/docker-compose-local.yml
       service: db
 
   app:
     extends:
-      file: devops/docker/docker-compose-base.yml
+      file: devops/docker/docker-compose-local.yml
       service: app
 
   e2e:
     extends:
-      file: devops/docker/docker-compose-base.yml
+      file: devops/docker/docker-compose-local.yml
       service: e2e
 
 volumes:

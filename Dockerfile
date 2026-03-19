@@ -85,6 +85,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Install only runtime dependencies (no build tools)
+RUN pip install 'uv==0.7.20'
 RUN apt-get update && apt-get upgrade --yes \
     && apt-get install --no-install-recommends --yes \
     libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf-xlib-2.0-0 \

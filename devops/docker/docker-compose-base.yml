@@ -2,6 +2,7 @@ services:
   
   mock-oauth:
     image: quay.io/keycloak/keycloak:latest
+    hostname: oauth.csfeer
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
@@ -16,7 +17,7 @@ services:
     healthcheck:
       test: "/bin/true"
     volumes:
-      - ./devops/mocks/keycloak:/opt/keycloak/data/import
+      - ../../devops/mocks/keycloak:/opt/keycloak/data/import
     depends_on:
       - db
     ports:
@@ -45,9 +46,9 @@ services:
       # CSV file is required; users will be seeded from this file.
       USERS_CSV: /opt/keycloak/users.csv
     volumes:
-      - ./devops/mocks/keycloak:/opt/keycloak/data/import
-      - ./devops/mocks/keycloak/users.csv:/opt/keycloak/users.csv:ro
-      - ./devops/mocks/keycloak/setup-keycloak.sh:/opt/keycloak/setup-keycloak.sh:ro
+      - ../../devops/mocks/keycloak:/opt/keycloak/data/import
+      - ../../devops/mocks/keycloak/users.csv:/opt/keycloak/users.csv:ro
+      - ../../devops/mocks/keycloak/setup-keycloak.sh:/opt/keycloak/setup-keycloak.sh:ro
   db:
     image: postgres:16
     healthcheck:
@@ -61,7 +62,7 @@ services:
       POSTGRES_USER: csfeer
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - "./devops/postgresql/initdb.d:/docker-entrypoint-initdb.d"
+      - ../../devops/postgresql/initdb.d:/docker-entrypoint-initdb.d
     cap_add:
       - DAC_OVERRIDE
       - FOWNER
@@ -76,17 +77,18 @@ services:
       default:
         aliases:
           - db.csfeer
+    hostname: db.csfeer
 
   app:
-    build:
-      target: dev
     environment:
+      BASE_URL: http://ui.csfeer:8000
       OIDC_CONFIG__CLIENT_SECRET: shhhhhhhh
       DB_CONFIG__SSL_MODE: disable
       OIDC_CONFIG__CLIENT_ID: csfeer-auth
       OIDC_CONFIG__DOCUMENT_URL: http://oauth.csfeer:8081/realms/csfeer/.well-known/openid-configuration
       DJANGO_SETTINGS_MODULE: csfeer.settings
       DB_CONFIG__PGHOST: db
+      ENVIRONMENT: docker
     post_start:
       - command: "uv run python manage.py migrate"
     security_opt:
@@ -95,26 +97,18 @@ services:
       - "8000:8000"
     healthcheck:
       test: "/bin/true"
-    volumes:
-      - ./csfeer/:/app/csfeer/
-      - ./form_manager/:/app/form_manager/
-      - ./django_cotton_uswds/:/app/django_cotton_uswds/
-      - ./frontend/built/:/app/csfeer/static/frontend/
-      - ./tests:/app/tests/
-      - ./logs/:/app/logs/
     depends_on:
       - db
       - mock-oauth
       - oauth-setup
     cap_drop:
       - all
+    hostname: ui.csfeer
 
   e2e:
-    build:
-      target: e2e-runner
     working_dir: /app
     volumes:
-      - ./tests:/app/tests/
+      - ../../tests:/app/tests/
     environment:
       BASE_URL: http://ui.csfeer:8000
       DJANGO_SETTINGS_MODULE: csfeer.settings

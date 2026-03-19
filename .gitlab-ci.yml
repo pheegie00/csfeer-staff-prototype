@@ -99,10 +99,23 @@ Build image and push to registry:
   script:
     - echo $VERSION
     - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - buildah build -f $DOCKERFILE -t $FULL_IMAGE_NAME .
+    - buildah build --target dev -f $DOCKERFILE -t $FULL_IMAGE_NAME .
     - buildah push $FULL_IMAGE_NAME
 
-Run unit and end-to-end tests:
+
+Build e2e image and push to registry:
+  image: 
+    name: registry.management.acf.gov/ngsc-oci/security/cosign-vault:0.1.5
+  stage: build
+  needs: 
+    - prepare
+  script:
+    - echo $VERSION
+    - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - buildah build --target e2e-runner -f $DOCKERFILE -t $FULL_IMAGE_NAME-e2e .
+    - buildah push $FULL_IMAGE_NAME-e2e
+
+Run unit tests:
   image: docker:28
   services:
     - name: docker:28-dind
@@ -122,27 +135,43 @@ Run unit and end-to-end tests:
     echo $VERSION
     whoami
     docker pull $FULL_IMAGE_NAME
-    echo "starting unit tests ..." 
-    DOCKER_COMPOSE_FILE=devops/docker/docker-compose-ci.yml FULL_IMAGE_NAME=$FULL_IMAGE_NAME  make test-unit
+    apk update && apk add --no-cache make python3 py3-pip curl
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    echo "starting unit tests ..."
+    APP_IMAGE_NAME=$FULL_IMAGE_NAME make test-unit-ci
 
-# Run unit and end-to-end tests:
-#   image: quay.io/podman/stable
-#   stage: build
-#   needs: 
-#     - Build image and push to registry
-#   script: |
-#     printenv
-#     ln -s /usr/bin/podman /usr/bin/docker
-#     docker pull docker.io/postgres:16
-#     docker pull quay.io/keycloak/keycloak:latest
-#     echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-#     docker pull $FULL_IMAGE_NAME
-#     yum install gcc gcc-c++ kernel-devel which podman-compose -y
-#     echo "Starting tests ..."
-#     echo "127.0.0.1 oauth.csfeer" >> /etc/hosts
-#     echo "127.0.0.1 ui.csfeer" >> /etc/hosts
-#     echo "127.0.0.1 db.csfeer" >> /etc/hosts
-#     DOCKER_COMPOSE_FILE=devops/docker/docker-compose-ci.yml FULL_IMAGE_NAME=$FULL_IMAGE_NAME make test-unit
+
+Run e2e tests:
+  image: docker:28
+  services:
+    - name: docker:28-dind
+      alias: docker
+      command: ["--tls=false"]
+  stage: build
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    CI_DEBUG_SERVICES: "true"
+  needs: 
+    - Build e2e image and push to registry
+    - Build image and push to registry
+  before_script:
+    echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  script: |
+    echo $VERSION
+    whoami
+    docker pull $FULL_IMAGE_NAME
+    docker pull $FULL_IMAGE_NAME-e2e
+    apk update && apk add --no-cache make python3 py3-pip curl
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    echo "starting unit tests ..."
+    echo "127.0.0.1   oauth.csfeer" >> /etc/hosts
+    echo "127.0.0.1   ui.csfeer" >> /etc/hosts
+    cat /etc/hosts
+    APP_IMAGE_NAME=$FULL_IMAGE_NAME-e2e make test-e2e-ci
+
+
 
 container_scanning:
   stage: security-scan

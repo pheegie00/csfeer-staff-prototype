@@ -8,6 +8,8 @@
 UV   := $(shell which uv || echo $$HOME/.local/bin/uv)
 PATH := /opt/homebrew/bin:/usr/local/bin:/usr/bin:$(PATH)
 DOCKER_COMPOSE_FILE ?=
+APP_IMAGE_NAME ?=
+E2E_IMAGE_NAME ?=
 TEST ?=
 
 # ── Docker ────────────────────────────────────────────────────────────────────
@@ -39,7 +41,10 @@ oauth-setup:
 
 # Usage: make test-unit [TEST=tests/unit/form_manager/test_fields.py::test_name]
 test-unit:
-	docker compose -f $${DOCKER_COMPOSE_FILE:-compose.yml} run --rm app uv run pytest $${TEST:-tests/unit} -v
+	docker compose run --rm app uv run pytest $${TEST:-tests/unit} -v
+
+test-unit-ci:
+	IMAGE_NAME=$${APP_IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml run --rm app uv run pytest $${TEST:-tests/unit} -v
 
 # Usage: make test-e2e [TEST=tests/e2e/test_form_manager.py::test_name]
 test-e2e:
@@ -48,6 +53,13 @@ test-e2e:
 	@echo "Waiting for app to be ready..."
 	@sleep 5
 	docker compose run --rm e2e uv run pytest $${TEST:-tests/e2e/} -v -m e2e
+
+test-e2e-ci:
+	@echo "Starting services..."
+	IMAGE_NAME=$${APP_IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml up -d app
+	@echo "Waiting for app to be ready..."
+	@sleep 5
+	IMAGE_NAME=$${APP_IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e
 
 # ── Native (host) ─────────────────────────────────────────────────────────────
 
