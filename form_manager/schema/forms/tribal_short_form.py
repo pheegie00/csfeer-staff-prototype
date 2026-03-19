@@ -148,49 +148,42 @@ class TribalShortFormFields(BaseFields):
         title="Description",
         review_title="Details about employment related services",
         default_if_excluded="N/A",
-        max_length=1000,
     )
 
     education_related_service_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about education related services",
         default_if_excluded="N/A",
-        max_length=1000,
     )
 
     income_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about income and asset services",
         default_if_excluded="N/A",
-        max_length=1000,
     )
 
     housing_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about housing services",
         default_if_excluded="N/A",
-        max_length=1000,
     )
 
     health_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about health services",
         default_if_excluded="N/A",
-        max_length=1000,
     )
 
     civic_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about civic services",
         default_if_excluded="N/A",
-        max_length=1000,
     )
 
     transportation_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about transportation services",
         default_if_excluded="N/A",
-        max_length=1000,
     )
 
 
