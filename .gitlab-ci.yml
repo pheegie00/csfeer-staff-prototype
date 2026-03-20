@@ -161,7 +161,6 @@ Run e2e tests:
   script: |
     echo $VERSION
     whoami
-    docker pull $FULL_IMAGE_NAME
     docker pull $FULL_IMAGE_NAME-e2e
     apk update && apk add --no-cache make python3 py3-pip curl
     curl -LsSf https://astral.sh/uv/install.sh | sh
