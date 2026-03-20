@@ -3,7 +3,6 @@
 from django import forms
 from pydantic import ConfigDict, Field
 from pydantic_extra_types.semantic_version import SemanticVersion
-from traitlets import default
 
 from form_manager.constants import AllFormNames, CSBGAnnualReportForms, FormFamilies
 from form_manager.schema.fields import acf_fields
@@ -13,7 +12,6 @@ from form_manager.schema.layout import (
     FieldBlock,
     FieldGroupBlock,
     PageBlock,
-    PageSubtitleBlock,
     PageTitleBlock,
     PermanentPageBlock,
     ReviewSubheadingBlock,
@@ -27,9 +25,9 @@ class TribalShortFormFields(BaseFields):
     org_name = acf_fields.CharField(title="Name of Tribe or Tribal Organization", max_length=100)
     contact_name = acf_fields.CharField(title="Full name")
     contact_title = acf_fields.CharField(title="Title")
-    phone = acf_fields.CharField(
+    hone = acf_fields.CharField(
         title="Primary phone number",
-        widget=forms.TelInput(attrs={"inputmode": "numeric", "oninput": "this.value = this.value.replace(/[^0-9\\-\\(\\)\\s\\+]/g, '')"}),  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
+        widget=forms.TextInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
     )
     extension = acf_fields.CharField(
         title="Extension (Optional)",
@@ -38,7 +36,7 @@ class TribalShortFormFields(BaseFields):
     email = acf_fields.CharField(title="Email address", widget=forms.EmailInput)
     fax = acf_fields.CharField(
         title="Fax number (Optional)",
-        widget=forms.TelInput(attrs={"inputmode": "numeric", "oninput": "this.value = this.value.replace(/[^0-9\\-\\(\\)\\s\\+]/g, '')"}),  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
+        widget=forms.TextInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
         required=False,
     )
 
