@@ -147,6 +147,36 @@ def test_integer_field_rejects_non_numeric_input():
     assert "count" in form.errors
 
 
+def test_textarea_field_with_max_length_renders_character_count_markup():
+    """Ensure textarea fields with max_length render the character count wrapper."""
+
+    class TestForm(BaseFields):
+        description = acf_fields.TextareaField(max_length=1000)
+
+    form = TestForm()
+    rendered = str(form["description"])
+
+    assert 'class="usa-character-count ' in rendered
+    assert 'data-maxlength="1000"' in rendered
+    assert 'class="usa-character-count__field usa-textarea"' in rendered
+    assert 'maxlength="1000"' in rendered
+    assert 'id="id_description-counter"' in rendered
+
+
+def test_textarea_field_without_max_length_renders_plain_textarea():
+    """Ensure textarea fields without max_length render the standard textarea markup."""
+
+    class TestForm(BaseFields):
+        description = acf_fields.TextareaField()
+
+    form = TestForm()
+    rendered = str(form["description"])
+
+    assert 'class="usa-textarea"' in rendered
+    assert "usa-character-count" not in rendered
+    assert 'maxlength="' not in rendered
+
+
 def test_field_filter_field_excludes_correct_fields(subtests):
     """Ensure the FieldFilterField works as expected."""
 
