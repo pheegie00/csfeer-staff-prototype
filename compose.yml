@@ -4,10 +4,6 @@ services:
     extends:
       file: devops/docker/docker-compose-local.yml
       service: mock-oauth
-  oauth-setup:
-    extends:
-      file: devops/docker/docker-compose-local.yml
-      service: oauth-setup
   db:
     extends:
       file: devops/docker/docker-compose-local.yml
