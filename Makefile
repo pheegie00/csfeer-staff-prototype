@@ -56,10 +56,10 @@ test-e2e:
 
 test-e2e-ci:
 	@echo "Starting services..."
-	IMAGE_NAME=$${APP_IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml up -d app
-	@echo "Waiting for app to be ready..."
-	@sleep 5
-	IMAGE_NAME=$${APP_IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e
+	IMAGE_NAME=$${APP_IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml up -d --remove-orphans
+	IMAGE_NAME=$${APP_IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e -s
+	@echo "Tearing down containers."
+	IMAGE_NAME=$${APP_IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml down
 
 # ── Native (host) ─────────────────────────────────────────────────────────────
 

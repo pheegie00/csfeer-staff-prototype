@@ -103,3 +103,5 @@ else
 fi
 
 echo "[keycloak-setup] Done."
+
+touch /opt/keycloak/setup-complete

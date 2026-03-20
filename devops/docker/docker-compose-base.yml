@@ -13,11 +13,16 @@ services:
       KC_HTTP_PORT: 8081
       KC_BOOTSTRAP_ADMIN_CLIENT_ID: csfeer-auth
       KC_BOOTSTRAP_ADMIN_CLIENT_SECRET: shhhhhhhh
+      USERS_CSV: /opt/keycloak/users.csv
     command: start-dev --import-realm
     healthcheck:
-      test: "/bin/true"
+      test: /bin/setup-complete
     volumes:
       - ../../devops/mocks/keycloak:/opt/keycloak/data/import
+      - ../../devops/mocks/keycloak/users.csv:/opt/keycloak/users.csv:ro
+      - ../../devops/mocks/keycloak/setup-keycloak.sh:/opt/keycloak/setup-keycloak.sh:ro
+    post_start:
+      - command: bash -c "sleep 10 && bash /opt/keycloak/setup-keycloak.sh"
     depends_on:
       - db
     ports:
@@ -30,25 +35,6 @@ services:
       default:
         aliases:
           - oauth.csfeer
-  oauth-setup:
-    image: quay.io/keycloak/keycloak:latest
-    entrypoint: []
-    command: bash -c "sleep 5 && bash /opt/keycloak/setup-keycloak.sh"
-    depends_on:
-      - mock-oauth
-    environment:
-      KC_URL: http://oauth.csfeer:8081
-      REALM: csfeer
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      OIDC_CLIENT_ID: csfeer-auth
-      OIDC_CLIENT_SECRET: shhhhhhhh
-      # CSV file is required; users will be seeded from this file.
-      USERS_CSV: /opt/keycloak/users.csv
-    volumes:
-      - ../../devops/mocks/keycloak:/opt/keycloak/data/import
-      - ../../devops/mocks/keycloak/users.csv:/opt/keycloak/users.csv:ro
-      - ../../devops/mocks/keycloak/setup-keycloak.sh:/opt/keycloak/setup-keycloak.sh:ro
   db:
     image: postgres:16
     healthcheck:
@@ -81,6 +67,7 @@ services:
 
   app:
     environment:
+      DJANGO_ALLOW_ASYNC_UNSAFE: true
       BASE_URL: http://ui.csfeer:8000
       OIDC_CONFIG__CLIENT_SECRET: shhhhhhhh
       DB_CONFIG__SSL_MODE: disable
@@ -100,7 +87,6 @@ services:
     depends_on:
       - db
       - mock-oauth
-      - oauth-setup
     cap_drop:
       - all
     hostname: ui.csfeer
@@ -110,6 +96,7 @@ services:
     volumes:
       - ../../tests:/app/tests/
     environment:
+      DJANGO_ALLOW_ASYNC_UNSAFE: true
       BASE_URL: http://ui.csfeer:8000
       DJANGO_SETTINGS_MODULE: csfeer.settings
       OIDC_CONFIG__CLIENT_SECRET: shhhhhhhh

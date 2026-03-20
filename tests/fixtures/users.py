@@ -19,16 +19,19 @@ TEST_USERS = {
     "demo": {
         "username": "demo",
         "password": "demo",
+        "email": "demo@example.com",
         "roles": ["csfeer_user"],
     },
     "demo-1": {
         "username": "demo-1",
         "password": "demo-1",
+        "email": "demo-1@example.com",
         "roles": ["csfeer_user"],
     },
     "demo-2": {
         "username": "demo-2",
         "password": "demo-2",
+        "email": "demo-2@example.com",
         "roles": ["csfeer_user"],
     },
 }
