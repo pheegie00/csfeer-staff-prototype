@@ -25,9 +25,9 @@ class TribalShortFormFields(BaseFields):
     org_name = acf_fields.CharField(title="Name of Tribe or Tribal Organization", max_length=100)
     contact_name = acf_fields.CharField(title="Full name")
     contact_title = acf_fields.CharField(title="Title")
-    hone = acf_fields.CharField(
+    phone = acf_fields.CharField(
         title="Primary phone number",
-        widget=forms.TextInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
+        widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
     )
     extension = acf_fields.CharField(
         title="Extension (Optional)",
@@ -36,7 +36,7 @@ class TribalShortFormFields(BaseFields):
     email = acf_fields.CharField(title="Email address", widget=forms.EmailInput)
     fax = acf_fields.CharField(
         title="Fax number (Optional)",
-        widget=forms.TextInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
+        widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
         required=False,
     )
 
