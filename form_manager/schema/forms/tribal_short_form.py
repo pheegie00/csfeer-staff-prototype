@@ -3,7 +3,6 @@
 from django import forms
 from pydantic import ConfigDict, Field
 from pydantic_extra_types.semantic_version import SemanticVersion
-from traitlets import default
 
 from form_manager.constants import AllFormNames, CSBGAnnualReportForms, FormFamilies
 from form_manager.schema.fields import acf_fields
@@ -13,7 +12,6 @@ from form_manager.schema.layout import (
     FieldBlock,
     FieldGroupBlock,
     PageBlock,
-    PageSubtitleBlock,
     PageTitleBlock,
     PermanentPageBlock,
     ReviewSubheadingBlock,
@@ -33,12 +31,13 @@ class TribalShortFormFields(BaseFields):
     )
     extension = acf_fields.CharField(
         title="Extension (Optional)",
-        widget=forms.NumberInput,
+        required=False,
     )
     email = acf_fields.CharField(title="Email address", widget=forms.EmailInput)
     fax = acf_fields.CharField(
         title="Fax number (Optional)",
         widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
+        required=False,
     )
 
     # region Question Filters

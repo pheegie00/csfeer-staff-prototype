@@ -31,7 +31,6 @@ class TribalLongFormFields(BaseFields):
     )
     extension = acf_fields.CharField(
         title="Extension (Optional)",
-        widget=forms.NumberInput,
         required=False,
     )
     email = acf_fields.CharField(title="Email address", widget=forms.EmailInput)
