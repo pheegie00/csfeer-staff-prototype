@@ -59,7 +59,7 @@ test-e2e-ci:
 	IMAGE_NAME=$${APP_IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml up -d --remove-orphans || true
 	docker logs docker-mock-oauth-1
 	@echo "Running tests ..."
-	IMAGE_NAME=$${APP_IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e || true
+	IMAGE_NAME=$${APP_IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e
 	@echo "Tearing down containers."
 	IMAGE_NAME=$${APP_IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml down
 
