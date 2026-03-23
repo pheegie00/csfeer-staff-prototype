@@ -61,6 +61,10 @@ def test_calculated_currency_field_auto_updates(authenticated_page: Page, base_u
             card.get_by_text("Start New Form").click()
             break
 
+    import ipdb
+
+    ipdb.set_trace()
+
     # Wait for form to load - Step 1 of 4: Basic Information
     page.wait_for_selector('h4:has-text("Step 1 of 4 Basic Information")')
 

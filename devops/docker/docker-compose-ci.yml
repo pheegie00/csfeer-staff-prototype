@@ -26,9 +26,13 @@ services:
       - ../../frontend/built/:/app/csfeer/static/frontend/
       - ../../tests:/app/tests/
     post_start:
-      - command: "uv run python manage.py seed_e2e_users"
-      - command: "uv run python manage.py seed_demo_org --all"
-      - command: "uv run python manage.py load_initial_forms"
+      - command: >
+          uv run python manage.py seed_e2e_users && \
+          uv run python manage.py seed_demo_org --all && \
+          uv run python manage.py load_initial_forms && \
+          touch /bin/container-initialized
+    healthcheck:
+      test: "/bin/container-initialized"
   e2e:
     image: "${IMAGE_NAME}"
     extends:
