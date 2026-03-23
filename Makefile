@@ -53,7 +53,7 @@ test-e2e:
 
 test-e2e-ci:
 	@echo "Starting services..."
-	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml up -d --remove-orphans || true
+	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml up -d --remove-orphans
 	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run manage.py migrate
 	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run manage.py seed_demo_org --all
 	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run manage.py load_initial_forms
