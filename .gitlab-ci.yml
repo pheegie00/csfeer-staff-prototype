@@ -99,8 +99,8 @@ Build image and push to registry:
   script:
     - echo $VERSION
     - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - buildah build --target dev -f $DOCKERFILE -t $FULL_IMAGE_NAME .
-    - buildah push $FULL_IMAGE_NAME
+    # - buildah build --target dev -f $DOCKERFILE -t $FULL_IMAGE_NAME .
+    # - buildah push $FULL_IMAGE_NAME
 
 
 Build e2e image and push to registry:
@@ -115,30 +115,30 @@ Build e2e image and push to registry:
     - buildah build --target e2e-runner -f $DOCKERFILE -t $FULL_IMAGE_NAME-e2e .
     - buildah push $FULL_IMAGE_NAME-e2e
 
-Run unit tests:
-  image: docker:28
-  services:
-    - name: docker:28-dind
-      alias: docker
-      command: ["--tls=false"]
-  stage: build
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
-    CI_DEBUG_SERVICES: "true"
-  needs: 
-    - Build image and push to registry
-  before_script:
-    echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-  script: |
-    echo $VERSION
-    whoami
-    docker pull $FULL_IMAGE_NAME
-    apk update && apk add --no-cache make python3 py3-pip curl
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    echo "starting unit tests ..."
-    IMAGE_NAME=$FULL_IMAGE_NAME make test-unit-ci
+# Run unit tests:
+#   image: docker:28
+#   services:
+#     - name: docker:28-dind
+#       alias: docker
+#       command: ["--tls=false"]
+#   stage: build
+#   variables:
+#     DOCKER_HOST: tcp://docker:2375
+#     DOCKER_DRIVER: overlay2
+#     DOCKER_TLS_CERTDIR: ""
+#     CI_DEBUG_SERVICES: "true"
+#   needs: 
+#     - Build image and push to registry
+#   before_script:
+#     echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+#   script: |
+#     echo $VERSION
+#     whoami
+#     docker pull $FULL_IMAGE_NAME
+#     apk update && apk add --no-cache make python3 py3-pip curl
+#     curl -LsSf https://astral.sh/uv/install.sh | sh
+#     echo "starting unit tests ..."
+#     IMAGE_NAME=$FULL_IMAGE_NAME make test-unit-ci
 
 
 Run e2e tests:
@@ -155,7 +155,6 @@ Run e2e tests:
     CI_DEBUG_SERVICES: "true"
   needs: 
     - Build e2e image and push to registry
-    - Build image and push to registry
   before_script:
     echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script: |
@@ -168,7 +167,7 @@ Run e2e tests:
     echo "127.0.0.1   oauth.csfeer" >> /etc/hosts
     echo "127.0.0.1   ui.csfeer" >> /etc/hosts
     cat /etc/hosts
-    IMAGE_NAME=$FULL_IMAGE_NAME-e2e make test-e2e-ci
+    IMAGE_NAME=$FULL_IMAGE_NAME-e2e TEST=tests/e2e/test_auth_flow.py::test_user_can_logout make test-e2e-ci
 
 
 

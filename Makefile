@@ -60,6 +60,7 @@ test-e2e-ci:
 	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run manage.py migrate
 	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run manage.py seed_demo_org --all
 	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run manage.py load_initial_forms
+	curl -I http://ui.csfeer:8000/static/frontend/styles.css
 	@echo "Running tests ..."
 	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e -s
 	@echo "Tearing down containers."

@@ -46,7 +46,7 @@ COPY --chown=appuser:appuser . /app
 
 # Create logs directory for Django logging
 RUN mkdir -p /app/logs && chown appuser:appuser /app/logs
-
+COPY --chown=appuser:appuser --from=static /app/frontend/built /app/static
 RUN uv run python manage.py collectstatic --noinput
 
 CMD ["uv", "run","python", "manage.py", "runserver", "0.0.0.0:8000"]

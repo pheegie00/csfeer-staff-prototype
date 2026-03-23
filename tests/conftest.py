@@ -98,6 +98,8 @@ def page(context: BrowserContext, base_url: str) -> Generator[Page, None, None]:
     page.set_default_timeout(int(os.environ.get("PLAYWRIGHT_TIMEOUT", 30000)))  # 30 seconds
     page.set_default_navigation_timeout(int(os.environ.get("PLAYWRIGHT_NAVIGATION_TIMEOUT", 30000)))
 
+    page.on("console", lambda msg: print(f"console: {msg.text}"))
+
     yield page
 
     page.close()
