@@ -59,17 +59,8 @@ class LoginPage(BasePage):
     def logout(self) -> None:
         """Perform logout."""
         # Click the user menu button to expand submenu
-        self.page.wait_for_timeout(5000)
         user_menu_button = self.page.locator(self.USER_MENU_SELECTOR)
         user_menu_button.click()
-
-        
-
-        is_uswds_ready = self.page.evaluate("window.uswdsPresent")
-
-        print("uswds ready", is_uswds_ready)
-
-        assert is_uswds_ready
 
         # Wait for Sign Out link to become visible
         logout_link = self.page.get_by_role("link", name="Sign Out")
