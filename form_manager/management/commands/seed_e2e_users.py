@@ -10,6 +10,7 @@ from tests.fixtures.users import TEST_USERS
 
 
 class Command(BaseCommand):
+    """Django management command to seed test users for end-to-end testing."""
 
     def handle(self, *args, **options):
 
