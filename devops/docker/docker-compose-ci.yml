@@ -13,6 +13,7 @@ services:
     environment:
       DB_CONFIG__pgdatabase: csfeer_e2e_test
       DB_CONFIG__test_pgdatabase: csfeer_e2e_test
+      APP_CONFIG__allowed_hosts: "['*']"
       PLAYWRIGHT_TIMEOUT: 60000
       PLAYWRIGHT_NAVIGATION_TIMEOUT: 60000
     image: "${IMAGE_NAME}"
@@ -25,14 +26,7 @@ services:
       - ../../django_cotton_uswds/:/app/django_cotton_uswds/
       - ../../frontend/built/:/app/csfeer/static/frontend/
       - ../../tests:/app/tests/
-    post_start:
-      - command: >
-          uv run python manage.py seed_e2e_users && \
-          uv run python manage.py seed_demo_org --all && \
-          uv run python manage.py load_initial_forms && \
-          touch /bin/container-initialized
-    healthcheck:
-      test: "/bin/container-initialized"
+  
   e2e:
     image: "${IMAGE_NAME}"
     extends:

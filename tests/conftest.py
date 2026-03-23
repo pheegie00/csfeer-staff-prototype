@@ -95,8 +95,8 @@ def page(context: BrowserContext, base_url: str) -> Generator[Page, None, None]:
     Sets up the page with default timeout and base URL.
     """
     page = context.new_page()
-    page.set_default_timeout(30000)  # 30 seconds
-    page.set_default_navigation_timeout(30000)
+    page.set_default_timeout(int(os.environ.get("PLAYWRIGHT_TIMEOUT", 30000)))  # 30 seconds
+    page.set_default_navigation_timeout(int(os.environ.get("PLAYWRIGHT_NAVIGATION_TIMEOUT", 30000)))
 
     yield page
 
