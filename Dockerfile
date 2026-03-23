@@ -9,7 +9,7 @@ ARG PIP_INDEX_URL
 RUN pip install 'uv==0.7.20'
 RUN apt-get update && apt-get upgrade --yes \
     && apt-get install --no-install-recommends --yes \
-    postgresql libpq-dev gnupg build-essential \
+    postgresql libpq-dev gnupg build-essential curl \
     libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf-xlib-2.0-0 \
     && apt-get autoremove -y && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
@@ -46,7 +46,7 @@ COPY --chown=appuser:appuser . /app
 
 # Create logs directory for Django logging
 RUN mkdir -p /app/logs && chown appuser:appuser /app/logs
-COPY --chown=appuser:appuser --from=static /app/frontend/built /app/static
+COPY --chown=appuser:appuser --from=static /app/frontend/built/* /app/csfeer/static/frontend/
 RUN uv run python manage.py collectstatic --noinput
 
 CMD ["uv", "run","python", "manage.py", "runserver", "0.0.0.0:8000"]

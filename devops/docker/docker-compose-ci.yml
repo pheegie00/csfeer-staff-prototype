@@ -21,12 +21,7 @@ services:
       file: ./docker-compose-base.yml
       service: app
     volumes:
-      - ../../tests:/app/tests/
-      # - ../../csfeer/:/app/csfeer/
-      # - ../../form_manager/:/app/form_manager/
-      # - ../../django_cotton_uswds/:/app/django_cotton_uswds/
-      # - ../../frontend/built/:/app/csfeer/static/frontend/
-      
+      - ../../tests:/app/tests/     
   
   e2e:
     image: "${IMAGE_NAME}"
