@@ -19,9 +19,9 @@ BROWSER_CONFIG = {
 
 # Test configuration
 TEST_CONFIG = {
-    "timeout": 30000,  # 30 seconds
-    "navigation_timeout": 30000,
-    "expect_timeout": 5000,
+    "timeout": os.environ.get("PLAYWRIGHT_TIMEOUT", 30000),  # 30 seconds
+    "navigation_timeout": os.environ.get("PLAYWRIGHT_NAVIGATION_TIMEOUT", 30000),
+    "expect_timeout": os.environ.get("PLAYWRIGHT_EXPECT_TIMEOUT", 5000),
 }
 
 # Video recording

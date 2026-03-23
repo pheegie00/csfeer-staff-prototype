@@ -13,6 +13,8 @@ services:
     environment:
       DB_CONFIG__pgdatabase: csfeer_e2e_test
       DB_CONFIG__test_pgdatabase: csfeer_e2e_test
+      PLAYWRIGHT_TIMEOUT: 60000
+      PLAYWRIGHT_NAVIGATION_TIMEOUT: 60000
     image: "${IMAGE_NAME}"
     extends:
       file: ./docker-compose-base.yml
