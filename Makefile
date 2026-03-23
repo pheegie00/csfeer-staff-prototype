@@ -7,9 +7,6 @@
 
 UV   := $(shell which uv || echo $$HOME/.local/bin/uv)
 PATH := /opt/homebrew/bin:/usr/local/bin:/usr/bin:$(PATH)
-DOCKER_COMPOSE_FILE ?=
-APP_IMAGE_NAME ?=
-E2E_IMAGE_NAME ?=
 TEST ?=
 
 # ── Docker ────────────────────────────────────────────────────────────────────
