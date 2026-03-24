@@ -22,7 +22,7 @@ services:
       - ../../devops/mocks/keycloak/users.csv:/opt/keycloak/users.csv:ro
       - ../../devops/mocks/keycloak/setup-keycloak.sh:/opt/keycloak/setup-keycloak.sh:ro
     post_start:
-      - command: bash -c "sleep 30 && bash /opt/keycloak/setup-keycloak.sh"
+      - command: bash -c "bash /opt/keycloak/setup-keycloak.sh"
     depends_on:
       - db
     ports:

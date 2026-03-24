@@ -14,8 +14,16 @@ USERS_CSV=${USERS_CSV:-}
 OIDC_CLIENT_ID=${OIDC_CLIENT_ID:-csfeer-auth}
 OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET:-shhhhhhhh}
 
+SETUP_COMPLETE_FILE_PATH="/opt/keycloak/setup-complete"
+
 echo "[keycloak-setup] Waiting for Keycloak at ${KC_URL}..."
-sleep 5
+sleep 10
+
+if [ -f "$SETUP_COMPLETE_FILE_PATH" ]; then
+    echo "Setup previously completed, so skipping..."
+    exit 0
+fi
+
 
 echo "[keycloak-setup] Authenticating admin user..."
 /opt/keycloak/bin/kcadm.sh config credentials \
@@ -104,4 +112,4 @@ fi
 
 echo "[keycloak-setup] Done."
 
-touch /opt/keycloak/setup-complete
+touch $SETUP_COMPLETE_FILE_PATH
