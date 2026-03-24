@@ -69,7 +69,7 @@ def form_review(request, pk):
             kwargs={"pk": entry.pk},
             query={
                 "step": len(ui_components) - 1,
-                "page": len(ui_components[-1].children) - 1,
+                "page": len(ui_components[-1].children or []) - 1,
             },
         ),
         "is_valid": is_valid,

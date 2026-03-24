@@ -160,7 +160,7 @@ def get_fields_to_save(form, request):
 
         # If widget found data (even empty string), include this field
         # value_from_datadict returns None if field not in POST
-        if isinstance(field, (ACFYesNoDisplayField)):
+        if isinstance(field, ACFYesNoDisplayField):
             if value and any(value):
                 fields_to_save.append(field_name)
 

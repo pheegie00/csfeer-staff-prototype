@@ -1,7 +1,6 @@
 """Layout schema definitions for CSFEER forms."""
 
 import abc
-import contextlib
 import logging
 from typing import Any, ClassVar, Literal, Self, cast
 
@@ -95,15 +94,18 @@ class AbstractPageBlock(RenderableBaseModel, abc.ABC):
     type: Literal["page", "permanent-page"]
     title: str | None = None
     subtitle: str | None = None
-    children: list[
-        Self
-        | "FieldBlock"
-        | "SectionBlock"
-        | "FieldGroupBlock"
-        | "PageTitleBlock"
-        | "PageSubtitleBlock"
-        | "AlertBoxBlock"
-    ] | None = None
+    children: (
+        list[
+            Self
+            | "FieldBlock"
+            | "SectionBlock"
+            | "FieldGroupBlock"
+            | "PageTitleBlock"
+            | "PageSubtitleBlock"
+            | "AlertBoxBlock"
+        ]
+        | None
+    ) = None
     template_name: str = "form_manager/page.html"
 
 

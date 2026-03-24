@@ -234,6 +234,9 @@ playwright-report/
 /playwright/.cache/
 /playwright/.auth/
 
+# thoughts
+/thoughts/*
+!/thoughts/shared/
 # Dolt database files (added by bd init)
 .dolt/
 *.db

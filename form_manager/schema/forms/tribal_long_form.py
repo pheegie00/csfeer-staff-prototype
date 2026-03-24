@@ -282,7 +282,11 @@ class TribalLongForm(BaseFormSchema):
                             AlertBoxBlock(
                                 alert_type="info",
                                 heading="How to select expenditure categories",
-                                message="When you select a category, related questions will appear in the following pages. Be sure to save to ensure that all changes are preserved.",
+                                message=(
+                                    "When you select a category, related questions will appear in "
+                                    "following pages. Be sure to save to ensure that all changes "
+                                    "are preserved."
+                                ),
                             ),
                             PageTitleBlock(title="Expenditure categories"),
                             FieldBlock(field_name="applicable_topics"),

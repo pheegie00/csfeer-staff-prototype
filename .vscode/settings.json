@@ -57,6 +57,9 @@
   ],
   "claudeCode.environmentVariables": [
   ],
+  "[markdown]": {
+    "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+  },
   "djangoCotton.templatePaths": [
     "templates/cotton",
     "django_cotton_uswds/templates/cotton"
