@@ -17,7 +17,7 @@ OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET:-shhhhhhhh}
 SETUP_COMPLETE_FILE_PATH="/opt/keycloak/setup-complete"
 
 echo "[keycloak-setup] Waiting for Keycloak at ${KC_URL}..."
-sleep 10
+sleep 20
 
 if [ -f "$SETUP_COMPLETE_FILE_PATH" ]; then
     echo "Setup previously completed, so skipping..."
