@@ -35,9 +35,6 @@ reset-all:
 reset-db:
 	- docker volume rm csfeer_pgdata
 
-oauth-setup:
-	docker compose run --rm oauth-setup
-
 # Usage: make test-unit [TEST=tests/unit/form_manager/test_fields.py::test_name]
 test-unit:
 	docker compose run --rm app uv run pytest $${TEST:-tests/unit} -v
