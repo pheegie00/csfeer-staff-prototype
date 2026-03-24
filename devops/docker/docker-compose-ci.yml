@@ -4,6 +4,8 @@ services:
     extends:
       file: ./docker-compose-base.yml
       service: mock-oauth
+    environment:
+      SETUP_DELAY: 20
   db:
     extends:
       file: ./docker-compose-base.yml

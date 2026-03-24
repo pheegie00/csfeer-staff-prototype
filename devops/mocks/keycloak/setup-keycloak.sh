@@ -7,6 +7,7 @@ REALM=${REALM:-csfeer}
 KC_BOOT_USER=${KEYCLOAK_ADMIN:-admin}
 KC_BOOT_PASS=${KEYCLOAK_ADMIN_PASSWORD:-admin}
 USERS_CSV=${USERS_CSV:-}
+SETUP_DELAY=${SETUP_DELAY:-10} # seconds to wait for Keycloak to be ready before running setup
 
 # CSV-only user seeding; no env-based fallback
 
@@ -17,7 +18,7 @@ OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET:-shhhhhhhh}
 SETUP_COMPLETE_FILE_PATH="/opt/keycloak/setup-complete"
 
 echo "[keycloak-setup] Waiting for Keycloak at ${KC_URL}..."
-sleep 20
+sleep $SETUP_DELAY
 
 if [ -f "$SETUP_COMPLETE_FILE_PATH" ]; then
     echo "Setup previously completed, so skipping..."
