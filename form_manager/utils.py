@@ -14,8 +14,7 @@ from form_manager.models import (
 )
 from form_manager.schema import forms as form_schemas
 from form_manager.schema.fields import (
-    ACFCalculatedCurrencyField,
-    ACFCalculatedField,
+    ACFCalculatedFieldMixin,
     ACFYesNoDisplayField,
 )
 
@@ -148,7 +147,7 @@ def get_fields_to_save(form, request):
 
     for field_name, field in form.fields.items():
         # Skip calculated fields (disabled, auto-generated)
-        if isinstance(field, ACFCalculatedField | ACFCalculatedCurrencyField):
+        if isinstance(field, ACFCalculatedFieldMixin):
             continue
 
         # Use Django's widget API to check if field has data in POST

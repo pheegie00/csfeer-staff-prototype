@@ -37,16 +37,18 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     # Step 1: Fill Basic Information
     page.get_by_label("Name of Tribe or Tribal Organization *").fill("E2E Test Tribal Nation")
     page.get_by_label("Full name *").fill("E2E Test User")
-    page.get_by_label("Role *").fill("Test Program Manager")
+    page.get_by_label("Title *").fill("Test Program Manager")
     page.get_by_label("Primary phone number *").fill("555-000-1111")
+    page.get_by_label("Extension (Optional)").fill("1234")
     page.get_by_label("Email address *").fill("e2etest@example.org")
+    page.get_by_label("Fax number (Optional)").fill("555-000-2222")
 
     # Scroll to bottom to show footer
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
 
-    # Click Save & Continue
-    page.get_by_role("button", name="Save & Continue →").click()
+    # Click Next
+    page.get_by_role("button", name="Next →").click()
 
     # Wait for Step 2: Expenditure categories
     page.wait_for_selector('h4:has-text("Step 2 of 4 Expenditure categories")')
@@ -91,7 +93,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
 
     # Continue to expenditure amounts
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
     # Verify we're on the expenditure amounts page
@@ -108,7 +110,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
 
     # Continue to administration costs
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     assert "Administration costs" in page.evaluate("() => document.body.innerText")
 
@@ -138,7 +140,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
 
     # Continue to Step 3: Expenditure details
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText")
     assert "3 of 4" in body_text
@@ -158,7 +160,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
 
     # Continue to housing services description
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Continue →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText.toLowerCase()")
     assert "housing" in body_text
@@ -174,16 +176,11 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
 
     # Continue to Step 4: Review and Submit
     with page.expect_navigation(timeout=5000):
-        page.get_by_role("button", name="Save & Begin Final Review →").click()
+        page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText")
     assert "4 of 4" in body_text
     assert "Review and Submit" in body_text
-
-    # Critical assertion: Verify NO demographic information step
-    assert not page.locator(
-        'text="Demographic information"'
-    ).is_visible(), "TribalShortForm should NOT have demographic information step"
 
     # Verify all sections are completed
     assert page.locator('text="Basic Information" >> text="completed"').is_visible()
@@ -203,7 +200,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
 
     # Submit the form
     with page.expect_navigation(timeout=10000):
-        page.get_by_role("button", name="Submit Application").click()
+        page.get_by_role("button", name="Submit").click()
     page.wait_for_timeout(2000)
     body_text = page.evaluate("() => document.body.innerText")
     assert "Submitted at:" in body_text

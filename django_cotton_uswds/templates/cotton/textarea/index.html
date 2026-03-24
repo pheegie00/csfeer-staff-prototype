@@ -11,13 +11,30 @@
     label_classes=""
     rows=""
     value=""
+    maxlength=""
 />
 
-<textarea
-  class="usa-textarea{{ input_classes }}{% if error %} usa-input--error{% endif %}{% if success %} usa-input--success{% endif %}"
-  {{ attrs }}
-  {% if disabled %}disabled{% endif %}
-  {% if readonly %}readonly{% endif %}
-  {% if required %}required{% endif %}
-  {% if error %}aria-describedby="{{ id }}-error-message{% if hint %} {{ id }}-hint{% endif %}{% if aria_describedby %} {{ aria_describedby }}{% endif %}"{% elif hint or aria_describedby %}aria-describedby="{% if hint %}{{ id }}-hint{% endif %}{% if aria_describedby %} {{ aria_describedby }}{% endif %}"{% endif %} {% if rows %}rows="{{ rows }}"{% endif %}
->{{ value }}</textarea>
+{% if maxlength %}
+  <div class="usa-character-count {{ class|default:'' }}" data-maxlength="{{ maxlength }}">
+    <textarea
+      class="usa-character-count__field usa-textarea{{ input_classes }}{% if error %} usa-input--error{% endif %}{% if success %} usa-input--success{% endif %}"
+      {{ attrs }}
+      maxlength="{{ maxlength }}"
+      {% if disabled %}disabled{% endif %}
+      {% if readonly %}readonly{% endif %}
+      {% if required %}required{% endif %}
+      {% if error %}aria-describedby="{{ id }}-error-message{% if hint %} {{ id }}-hint{% endif %}{% if aria_describedby %} {{ aria_describedby }}{% endif %}"{% elif hint or aria_describedby %}aria-describedby="{% if hint %}{{ id }}-hint{% endif %}{% if aria_describedby %} {{ aria_describedby }}{% endif %}"{% endif %} {% if rows %}rows="{{ rows }}"{% endif %}
+    >{{ value }}</textarea>
+    <span class="usa-sr-only" id="{{ id }}-info">You can enter up to {{ maxlength }} characters</span>
+    <span id="{{ id }}-counter" class="usa-hint usa-character-count__message" aria-live="polite">{{ maxlength }} characters allowed</span>
+  </div>
+{% else %}
+  <textarea
+    class="usa-textarea{{ input_classes }}{% if error %} usa-input--error{% endif %}{% if success %} usa-input--success{% endif %}"
+    {{ attrs }}
+    {% if disabled %}disabled{% endif %}
+    {% if readonly %}readonly{% endif %}
+    {% if required %}required{% endif %}
+    {% if error %}aria-describedby="{{ id }}-error-message{% if hint %} {{ id }}-hint{% endif %}{% if aria_describedby %} {{ aria_describedby }}{% endif %}"{% elif hint or aria_describedby %}aria-describedby="{% if hint %}{{ id }}-hint{% endif %}{% if aria_describedby %} {{ aria_describedby }}{% endif %}"{% endif %} {% if rows %}rows="{{ rows }}"{% endif %}
+  >{{ value }}</textarea>
+{% endif %}

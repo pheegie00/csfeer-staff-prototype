@@ -227,9 +227,6 @@ playwright-report/
 
 .beads/beads.db
 .beads/beads.db-*
-.beads/jsonl2jira.py
-.beads/jira2jsonl.py
-.beads/SETUP.md
 
 # Playwright
 /playwright-report/
@@ -240,3 +237,9 @@ playwright-report/
 # thoughts
 /thoughts/*
 !/thoughts/shared/
+# Dolt database files (added by bd init)
+.dolt/
+*.db
+
+.beads
+thoughts/

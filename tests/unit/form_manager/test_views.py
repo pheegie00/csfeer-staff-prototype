@@ -50,7 +50,7 @@ def test_can_render_and_edit_form(django_db_setup, form_entry: "FormEntry", auth
 def test_can_correctly_filter_fields(
     django_db_setup, form_entry: "FormEntry", authenticated_client
 ):
-    """Ensure the load_initial_forms command loads successfully."""
+    """Ensure the load_initial_forms command loads successfully and test Next button behavior."""
 
     url = reverse("form_edit", args=[form_entry.pk])
 
@@ -60,7 +60,7 @@ def test_can_correctly_filter_fields(
     # It should be a 200 response
     assert response.status_code == 200
 
-    # Now post some data for the first page
+    # Now post some data for the first page (without page-action=save-exit, simulating Next button)
     response = authenticated_client.post(
         url,
         data={
@@ -73,7 +73,7 @@ def test_can_correctly_filter_fields(
         },
     )
 
-    # It should be a 200 response
+    # It should be a 200 response (stays on form edit page, not redirected)
     assert response.status_code == 200
 
     # The data should have been saved
@@ -109,7 +109,7 @@ def test_back_button_not_shown_on_first_page(
     django_db_setup, form_entry: "FormEntry", authenticated_client
 ):
     """
-    Test that the back button is not displayed on the first page (step=0, page=0).
+    Test that the back button and Save & Exit button are not displayed on the first page (step=0, page=0).
     This regression test ensures that current_step_number and current_page_number
     are correctly passed to the page template context.
     """
@@ -125,6 +125,10 @@ def test_back_button_not_shown_on_first_page(
     # Verify the back button link is not in the response
     assert "← Back" not in content
 
+    # Verify the "Save & Exit" button is not in the response
+    assert "Save &amp; Exit" not in content
+    assert 'value="save-exit"' not in content
+
     # Verify that current_step_number and current_page_number are in the context
     assert response.context["current_step_number"] == 0
     assert response.context["current_page_number"] == 0
@@ -135,8 +139,8 @@ def test_back_button_shown_on_second_page(
     django_db_setup, form_entry: "FormEntry", authenticated_client
 ):
     """
-    Test that the back button is displayed when not on the first page.
-    This verifies the back button appears for step > 0 or page > 0.
+    Test that the back button and Save & Exit button are displayed when not on the first page.
+    This verifies both buttons appear for step > 0 or page > 0.
     """
     url = reverse("form_edit", args=[form_entry.pk])
 
@@ -149,6 +153,10 @@ def test_back_button_shown_on_second_page(
 
     # Verify the back button link IS in the response
     assert "← Back" in content
+
+    # Verify the "Save & Exit" button IS in the response
+    assert "Save &amp; Exit" in content or "Save & Exit" in content
+    assert 'value="save-exit"' in content
 
     # Verify that current_step_number and current_page_number are in the context
     assert response.context["current_step_number"] == 1
@@ -192,3 +200,36 @@ def test_review_back_button_accounts_for_excluded_fields(
         query={"step": 1, "page": 0},
     )
     assert prev_url == expected_url
+
+
+@pytest.mark.django_db
+def test_save_and_exit_redirects_to_form_list(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    """
+    Test that clicking 'Save & Exit' saves the form data and redirects to the form list.
+    """
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    # Post data with page-action=save-exit
+    response = authenticated_client.post(
+        url,
+        data={
+            "first_name": "John",
+            "last_name": "Doe",
+            "page-action": "save-exit",
+        },
+        query_params={
+            "step": 0,
+            "page": 0,
+        },
+    )
+
+    # Should redirect to form_list
+    assert response.status_code == 302
+    assert response.headers.get("Location") == reverse("form_list")
+
+    # Data should be saved
+    form_entry.refresh_from_db()
+    assert form_entry.data.get("first_name") == "John"
+    assert form_entry.data.get("last_name") == "Doe"

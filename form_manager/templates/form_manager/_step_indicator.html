@@ -6,24 +6,24 @@
 >
   {% for step in steps %}
       {% if forloop.counter0 < current_step_number %}
-        <c-step-indicator.step-item 
-            segment_state="complete" 
-            name="{{ step.title }}" 
+        <c-step-indicator.step-item
+            segment_state="complete"
+            name="{{ step.title }}"
         />
       {% elif forloop.counter0 == current_step_number %}
-        <c-step-indicator.step-item 
-            segment_state="current" 
-            name="{{ step.title }}" 
+        <c-step-indicator.step-item
+            segment_state="current"
+            name="{{ step.title }}"
         />
       {% else %}
-        <c-step-indicator.step-item 
-            segment_state="incomplete" 
-            name="{{ step.title }}" 
+        <c-step-indicator.step-item
+            segment_state="incomplete"
+            name="{{ step.title }}"
         />
       {% endif %}
   {% endfor %}
-  <c-step-indicator.step-item 
-    segment_state="{% if current_step_number >= steps|length %}current{% else %}incomplete{% endif %}" 
-    name="Review and Submit" 
+  <c-step-indicator.step-item
+    segment_state="{% if current_step_number >= steps|length %}current{% else %}incomplete{% endif %}"
+    name="Review and Submit"
   />
 </c-step-indicator>

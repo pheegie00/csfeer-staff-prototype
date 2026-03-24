@@ -1,7 +1,9 @@
+{% if title %}
 <h1 class="font-heading-2xl semibold font-family-sans font-weight-semibold">{{ title }}</h1>
 
 {% if subtitle %}
 <p class="font-body-sm">{{ subtitle }}</p>
+{% endif %}
 {% endif %}
 
 <c-fieldset class="usa-fieldset usa-form usa-form--large">
@@ -18,12 +20,24 @@
         ← Back
         </a>
         {% endif %}
-        
-        <c-button 
-            text="{% if is_last_page %}Save & Begin Final Review →{% else %}Save & Continue →{% endif %}"
-            variant="base"
-            state="active"
-            type="submit"
-        />
+
+        <div class="margin-left-auto display-flex flex-gap-1">
+            {% if current_step_number != 0 or current_page_number != 0 %}
+            <c-button
+                text="Save & Exit"
+                variant="outline"
+                state="active"
+                type="submit"
+                name="page-action"
+                value="save-exit"
+            />
+            {% endif %}
+            <c-button
+                text="Next →"
+                variant="base"
+                state="active"
+                type="submit"
+            />
+        </div>
     </div>
 </div>

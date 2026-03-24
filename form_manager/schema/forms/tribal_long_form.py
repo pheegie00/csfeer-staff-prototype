@@ -8,9 +8,11 @@ from form_manager.constants import AllFormNames, CSBGAnnualReportForms, FormFami
 from form_manager.schema.fields import acf_fields
 from form_manager.schema.forms.base import BaseFields, BaseFormSchema, UIDefinition
 from form_manager.schema.layout import (
+    AlertBoxBlock,
     FieldBlock,
     FieldGroupBlock,
     PageBlock,
+    PageTitleBlock,
     PermanentPageBlock,
     ReviewSubheadingBlock,
     SectionBlock,
@@ -27,7 +29,16 @@ class TribalLongFormFields(BaseFields):
         title="Primary phone number",
         widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
     )
+    extension = acf_fields.CharField(
+        title="Extension (Optional)",
+        required=False,
+    )
     email = acf_fields.CharField(title="Email address", widget=forms.EmailInput)
+    fax = acf_fields.CharField(
+        title="Fax number (Optional)",
+        widget=forms.TelInput,  # type: ignore for some reason the typechecker thinks TelInput doesn't exist
+        required=False,
+    )
 
     # region Question Filters
 
@@ -132,42 +143,49 @@ class TribalLongFormFields(BaseFields):
     employment_related_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about employment related services",
+        max_length=1000,
         default_if_excluded="N/A",
     )
 
     education_related_service_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about education related services",
+        max_length=1000,
         default_if_excluded="N/A",
     )
 
     income_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about income and asset services",
+        max_length=1000,
         default_if_excluded="N/A",
     )
 
     housing_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about housing services",
+        max_length=1000,
         default_if_excluded="N/A",
     )
 
     health_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about health services",
+        max_length=1000,
         default_if_excluded="N/A",
     )
 
     civic_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about civic services",
+        max_length=1000,
         default_if_excluded="N/A",
     )
 
     transportation_services_description = acf_fields.TextareaField(
         title="Description",
         review_title="Details about transportation services",
+        max_length=1000,
         default_if_excluded="N/A",
     )
 
@@ -183,7 +201,7 @@ class TribalLongFormFields(BaseFields):
 
     male_individuals_served = acf_fields.IntegerField(title="Male")
     female_individuals_served = acf_fields.IntegerField(title="Female")
-    total_individuals_served_by_sex = acf_fields.CalculatedField(
+    total_individuals_served_by_sex = acf_fields.CalculatedIntegerField(
         title="Total",
         fields=["male_individuals_served", "female_individuals_served"],
         review_title="Total (auto-calculated)",
@@ -203,7 +221,7 @@ class TribalLongFormFields(BaseFields):
     )
     employment__retired = acf_fields.IntegerField(title="Retired")
     employment__unknown = acf_fields.IntegerField(title="Unknown or not reported")
-    employment__total = acf_fields.CalculatedField(
+    employment__total = acf_fields.CalculatedIntegerField(
         title="Total (auto-calculated)",
         fields=[
             "employment__full_time",
@@ -247,7 +265,9 @@ class TribalLongForm(BaseFormSchema):
                                     FieldBlock(field_name="contact_name"),
                                     FieldBlock(field_name="contact_title"),
                                     FieldBlock(field_name="phone"),
+                                    FieldBlock(field_name="extension"),
                                     FieldBlock(field_name="email"),
+                                    FieldBlock(field_name="fax"),
                                 ],
                             ),
                         ],
@@ -258,8 +278,19 @@ class TribalLongForm(BaseFormSchema):
                 title="Expenditure categories",
                 children=[
                     PermanentPageBlock(
-                        title="Expenditure categories",
-                        children=[FieldBlock(field_name="applicable_topics")],
+                        children=[
+                            AlertBoxBlock(
+                                alert_type="info",
+                                heading="How to select expenditure categories",
+                                message=(
+                                    "When you select a category, related questions will appear in "
+                                    "following pages. Be sure to save to ensure that all changes "
+                                    "are preserved."
+                                ),
+                            ),
+                            PageTitleBlock(title="Expenditure categories"),
+                            FieldBlock(field_name="applicable_topics"),
+                        ],
                     ),
                     PermanentPageBlock(
                         title="Expenditure categories",
@@ -407,8 +438,9 @@ class TribalLongForm(BaseFormSchema):
                                     FieldGroupBlock(
                                         children=[
                                             ReviewSubheadingBlock(
-                                                title="Work status of adults served "
-                                                "(age 18 and older)"
+                                                title=(
+                                                    "Work status of adults served (age 18 and older)"  # noqa: E501
+                                                )
                                             ),
                                             FieldBlock(field_name="employment__full_time"),
                                             FieldBlock(field_name="employment__part_time"),
