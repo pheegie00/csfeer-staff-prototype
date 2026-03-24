@@ -7,6 +7,8 @@
 
 UV   := $(shell which uv || echo $$HOME/.local/bin/uv)
 PATH := /opt/homebrew/bin:/usr/local/bin:/usr/bin:$(PATH)
+IMAGE_NAME ?=
+CI_COMPOSE = IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml
 TEST ?=
 
 # ── Docker ────────────────────────────────────────────────────────────────────
@@ -41,7 +43,7 @@ test-unit:
 	docker compose run --rm app uv run pytest $${TEST:-tests/unit} -v
 
 test-unit-ci:
-	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml run --rm app uv run pytest $${TEST:-tests/unit} -v
+	$(CI_COMPOSE) run --rm app uv run pytest $${TEST:-tests/unit} -v
 
 # Usage: make test-e2e [TEST=tests/e2e/test_form_manager.py::test_name]
 test-e2e:
@@ -53,14 +55,15 @@ test-e2e:
 
 test-e2e-ci:
 	@echo "Starting services..."
-	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml up -d --remove-orphans
-	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run manage.py migrate
-	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run manage.py seed_demo_org --all
-	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run manage.py load_initial_forms
+	$(CI_COMPOSE) up -d --remove-orphans
+	@echo "Loading seed data..."
+	$(CI_COMPOSE) exec app uv run manage.py migrate
+	$(CI_COMPOSE) exec app uv run manage.py seed_demo_org --all
+	$(CI_COMPOSE) exec app uv run manage.py load_initial_forms
 	@echo "Running tests ..."
-	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e -s
+	$(CI_COMPOSE) exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e -s
 	@echo "Tearing down containers."
-	IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml down
+	$(CI_COMPOSE) down
 
 # ── Native (host) ─────────────────────────────────────────────────────────────
 
