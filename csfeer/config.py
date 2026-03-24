@@ -14,6 +14,7 @@ class OIDCConfig(BaseModel):
 class DBConfig(BaseModel):
     use_iam_auth: bool = False
     pgdatabase: str = "csfeer"
+    test_pgdatabase: str = "test_csfeer"
     pguser: str = "csfeer"
     pgpassword: str = "secret123"
     pgport: str = "5432"

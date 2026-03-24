@@ -131,6 +131,7 @@ DATABASES = {
         "PASSWORD": settings.db_config.pgpassword,
         "HOST": settings.db_config.pghost,
         "PORT": settings.db_config.pgport,
+        "TEST": {"NAME": settings.db_config.test_pgdatabase},
     }
 }
 

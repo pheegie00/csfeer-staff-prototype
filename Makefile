@@ -1,12 +1,13 @@
-.PHONY: build start start-local stop restart reset-all reset-db oauth-setup \
-        test-unit test-e2e \
+.PHONY: build start start-local stop restart reset-all reset-db \
+        test-unit test-unit-ci test-e2e test-e2e-ci \
         native-migrate native-load-form native-nuke-forms native-create-erds \
         native-test-unit native-test-e2e native-test-e2e-headed native-test-e2e-debug \
-        native-test-e2e-webkit native-test-e2e-auth \
-        configure-beads install-beads
+        native-test-e2e-webkit native-test-e2e-auth
 
 UV   := $(shell which uv || echo $$HOME/.local/bin/uv)
-PATH := /opt/homebrew/bin:/usr/local/bin:$(PATH)
+PATH := /opt/homebrew/bin:/usr/local/bin:/usr/bin:$(PATH)
+IMAGE_NAME ?=
+CI_COMPOSE = IMAGE_NAME=$${IMAGE_NAME} docker compose -f devops/docker/docker-compose-ci.yml
 TEST ?=
 
 # ── Docker ────────────────────────────────────────────────────────────────────
@@ -33,12 +34,12 @@ reset-all:
 reset-db:
 	- docker volume rm csfeer_pgdata
 
-oauth-setup:
-	docker compose run --rm oauth-setup
-
 # Usage: make test-unit [TEST=tests/unit/form_manager/test_fields.py::test_name]
 test-unit:
 	docker compose run --rm app uv run pytest $${TEST:-tests/unit} -v
+
+test-unit-ci:
+	$(CI_COMPOSE) run --rm app uv run pytest $${TEST:-tests/unit} -v
 
 # Usage: make test-e2e [TEST=tests/e2e/test_form_manager.py::test_name]
 test-e2e:
@@ -47,6 +48,18 @@ test-e2e:
 	@echo "Waiting for app to be ready..."
 	@sleep 5
 	docker compose run --rm e2e uv run pytest $${TEST:-tests/e2e/} -v -m e2e
+
+test-e2e-ci:
+	@echo "Starting services..."
+	$(CI_COMPOSE) up -d --remove-orphans
+	@echo "Loading seed data..."
+	$(CI_COMPOSE) exec app uv run manage.py migrate
+	$(CI_COMPOSE) exec app uv run manage.py seed_demo_org --all
+	$(CI_COMPOSE) exec app uv run manage.py load_initial_forms
+	@echo "Running tests ..."
+	$(CI_COMPOSE) exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e -s
+	@echo "Tearing down containers."
+	$(CI_COMPOSE) down
 
 # ── Native (host) ─────────────────────────────────────────────────────────────
 
@@ -87,29 +100,3 @@ native-test-e2e-webkit: _start-services
 
 native-test-e2e-auth: _start-services
 	$(UV) run pytest tests/e2e/ -v -m "e2e and auth"
-
-# ── Tooling ───────────────────────────────────────────────────────────────────
-
-configure-beads:
-	@bd init --prefix bd --server-port 3307 --force
-	@bd config set jira.url "https://jira.acf.gov"
-	@bd config set jira.project "FE"
-	@bd config set allowed_prefixes "FE"
-	@bd config set jira.status_map.review "Review"
-	@bd config set jira.status_map.testing "Testing"
-	@bd config set jira.api_version 2
-	@echo "Beads configured. Set your Jira token with:"
-	@echo "  bd config set jira.api_token \"<your token>\""
-	@jira-beads-sync configure
-
-install-beads:
-	rm -rf /tmp/beads /tmp/jira-beads-sync
-	git clone git@github.com:ryanbagwell/beads.git --branch feat/change-jira-status /tmp/beads
-	cd /tmp/beads && go build -o bd ./cmd/bd
-	mv /tmp/beads/bd ~/.local/bin/bd
-	rm -rf /tmp/beads
-	git clone --depth 1 --revision 08a02a7bce125a0545ced2f45f594ac8a4b53b71 git@github.com:ryanbagwell/jira-beads-sync.git /tmp/jira-beads-sync
-	cd /tmp/jira-beads-sync && go build -o jira-beads-sync ./cmd/jira-beads-sync
-	mv /tmp/jira-beads-sync/jira-beads-sync ~/.local/bin/jira-beads-sync
-	rm -rf /tmp/jira-beads-sync
-	@echo "Beads and jira-beads-sync installed."

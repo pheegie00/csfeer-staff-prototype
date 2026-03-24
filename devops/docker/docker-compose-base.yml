@@ -1,0 +1,114 @@
+services:
+  
+  mock-oauth:
+    image: quay.io/keycloak/keycloak:latest
+    hostname: oauth.csfeer
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/csfeerauth
+      KC_DB_USERNAME: csfeer
+      KC_DB_PASSWORD: secret123
+      KC_HTTP_PORT: 8081
+      KC_BOOTSTRAP_ADMIN_CLIENT_ID: csfeer-auth
+      KC_BOOTSTRAP_ADMIN_CLIENT_SECRET: shhhhhhhh
+      USERS_CSV: /opt/keycloak/users.csv
+    command: start-dev --import-realm
+    healthcheck:
+      test: /bin/setup-complete
+    volumes:
+      - ../../devops/mocks/keycloak:/opt/keycloak/data/import
+      - ../../devops/mocks/keycloak/users.csv:/opt/keycloak/users.csv:ro
+      - ../../devops/mocks/keycloak/setup-keycloak.sh:/opt/keycloak/setup-keycloak.sh:ro
+    post_start:
+      - command: bash -c "bash /opt/keycloak/setup-keycloak.sh"
+    depends_on:
+      - db
+    ports:
+      - "127.0.0.1:8081:8081"
+    cap_drop:
+      - all
+    security_opt:
+      - "no-new-privileges:true"
+    networks:
+      default:
+        aliases:
+          - oauth.csfeer
+  db:
+    image: postgres:16
+    healthcheck:
+      test: "/bin/true"
+    security_opt:
+      - "no-new-privileges:true"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: secret123
+      POSTGRES_USER: csfeer
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../../devops/postgresql/initdb.d:/docker-entrypoint-initdb.d
+    cap_add:
+      - DAC_OVERRIDE
+      - FOWNER
+      - SYS_CHROOT
+      - SETGID
+      - SETFCAP
+      - SETPCAP
+      - SETUID
+    cap_drop:
+      - all
+    networks:
+      default:
+        aliases:
+          - db.csfeer
+    hostname: db.csfeer
+
+  app:
+    environment:
+      DJANGO_ALLOW_ASYNC_UNSAFE: true
+      BASE_URL: http://ui.csfeer:8000
+      OIDC_CONFIG__CLIENT_SECRET: shhhhhhhh
+      DB_CONFIG__SSL_MODE: disable
+      OIDC_CONFIG__CLIENT_ID: csfeer-auth
+      OIDC_CONFIG__DOCUMENT_URL: http://oauth.csfeer:8081/realms/csfeer/.well-known/openid-configuration
+      DJANGO_SETTINGS_MODULE: csfeer.settings
+      DB_CONFIG__PGHOST: db
+      ENVIRONMENT: docker
+    post_start:
+      - command: "uv run python manage.py migrate"
+    security_opt:
+      - "no-new-privileges:true"
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: "/bin/true"
+    depends_on:
+      - db
+      - mock-oauth
+    cap_drop:
+      - all
+    hostname: ui.csfeer
+
+  e2e:
+    working_dir: /app
+    volumes:
+      - ../../tests:/app/tests/
+    environment:
+      DJANGO_ALLOW_ASYNC_UNSAFE: true
+      BASE_URL: http://ui.csfeer:8000
+      DJANGO_SETTINGS_MODULE: csfeer.settings
+      OIDC_CONFIG__CLIENT_SECRET: shhhhhhhh
+      DB_CONFIG__SSL_MODE: disable
+      OIDC_CONFIG__CLIENT_ID: csfeer-auth
+      OIDC_CONFIG__DOCUMENT_URL: http://oauth.csfeer:8081/realms/csfeer/.well-known/openid-configuration
+      DB_CONFIG__PGHOST: db
+      ENVIRONMENT: docker
+    depends_on:
+      - app
+    profiles:
+      - e2e
+
+volumes:
+  pgdata:

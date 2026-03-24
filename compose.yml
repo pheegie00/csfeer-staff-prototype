@@ -1,136 +1,23 @@
 services:
   
   mock-oauth:
-    image: quay.io/keycloak/keycloak:latest
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://db:5432/csfeerauth
-      KC_DB_USERNAME: csfeer
-      KC_DB_PASSWORD: secret123
-      KC_HTTP_PORT: 8081
-      KC_BOOTSTRAP_ADMIN_CLIENT_ID: csfeer-auth
-      KC_BOOTSTRAP_ADMIN_CLIENT_SECRET: shhhhhhhh
-    command: start-dev --import-realm
-    hostname: oauth.csfeer
-    healthcheck:
-      test: "/bin/true"
-    volumes:
-      - ./devops/mocks/keycloak:/opt/keycloak/data/import
-    depends_on:
-      - db
-    ports:
-      - "127.0.0.1:8081:8081"
-    cap_drop:
-      - all
-    security_opt:
-      - "no-new-privileges:true"
-    networks:
-      default:
-        aliases:
-          - oauth.csfeer
-  oauth-setup:
-    image: quay.io/keycloak/keycloak:latest
-    entrypoint: []
-    command: bash -c "sleep 5 && bash /opt/keycloak/setup-keycloak.sh"
-    depends_on:
-      - mock-oauth
-    environment:
-      KC_URL: http://oauth.csfeer:8081
-      REALM: csfeer
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      OIDC_CLIENT_ID: csfeer-auth
-      OIDC_CLIENT_SECRET: shhhhhhhh
-      # CSV file is required; users will be seeded from this file.
-      USERS_CSV: /opt/keycloak/users.csv
-    volumes:
-      - ./devops/mocks/keycloak:/opt/keycloak/data/import
-      - ./devops/mocks/keycloak/users.csv:/opt/keycloak/users.csv:ro
-      - ./devops/mocks/keycloak/setup-keycloak.sh:/opt/keycloak/setup-keycloak.sh:ro
+    extends:
+      file: devops/docker/docker-compose-local.yml
+      service: mock-oauth
   db:
-    image: postgres:16
-    healthcheck:
-      test: "/bin/true"
-    security_opt:
-      - "no-new-privileges:true"
-    ports:
-      - "5432:5432"
-    hostname: db.csfeer
-    environment:
-      POSTGRES_PASSWORD: secret123
-      POSTGRES_USER: csfeer
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      - "./devops/postgresql/initdb.d:/docker-entrypoint-initdb.d"
-    cap_add:
-      - DAC_OVERRIDE
-      - FOWNER
-      - SYS_CHROOT
-      - SETGID
-      - SETFCAP
-      - SETPCAP
-      - SETUID
-    cap_drop:
-      - all
-    networks:
-      default:
-        aliases:
-          - db.csfeer
+    extends:
+      file: devops/docker/docker-compose-local.yml
+      service: db
 
   app:
-    build:
-      target: dev
-    environment:
-      OIDC_CONFIG__CLIENT_SECRET: shhhhhhhh
-      DB_CONFIG__SSL_MODE: disable
-      OIDC_CONFIG__CLIENT_ID: csfeer-auth
-      OIDC_CONFIG__DOCUMENT_URL: http://oauth.csfeer:8081/realms/csfeer/.well-known/openid-configuration
-      DJANGO_SETTINGS_MODULE: csfeer.settings
-      DB_CONFIG__PGHOST: db
-    hostname: ui.csfeer
-    post_start:
-      - command: "uv run python manage.py migrate"
-    security_opt:
-      - "no-new-privileges:true"
-    ports:
-      - "8000:8000"
-    healthcheck:
-      test: "/bin/true"
-    volumes:
-      - ./csfeer/:/app/csfeer/
-      - ./form_manager/:/app/form_manager/
-      - ./django_cotton_uswds/:/app/django_cotton_uswds/
-      - ./frontend/built/:/app/csfeer/static/frontend/
-      - ./tests:/app/tests/
-      - ./logs/:/app/logs/
-    depends_on:
-      - db
-      - mock-oauth
-      - oauth-setup
-    cap_drop:
-      - all
+    extends:
+      file: devops/docker/docker-compose-local.yml
+      service: app
 
   e2e:
-    build:
-      target: e2e-runner
-    working_dir: /app
-    volumes:
-      - ./tests:/app/tests/
-    environment:
-      BASE_URL: http://ui.csfeer:8000
-      DJANGO_SETTINGS_MODULE: csfeer.settings
-      OIDC_CONFIG__CLIENT_SECRET: shhhhhhhh
-      DB_CONFIG__SSL_MODE: disable
-      OIDC_CONFIG__CLIENT_ID: csfeer-auth
-      OIDC_CONFIG__DOCUMENT_URL: http://oauth.csfeer:8081/realms/csfeer/.well-known/openid-configuration
-      DB_CONFIG__PGHOST: db
-      ENVIRONMENT: docker
-    depends_on:
-      - app
-    profiles:
-      - e2e
+    extends:
+      file: devops/docker/docker-compose-local.yml
+      service: e2e
 
 volumes:
   pgdata:

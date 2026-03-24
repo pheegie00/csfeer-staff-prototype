@@ -1,0 +1,37 @@
+services:
+  
+  mock-oauth:
+    extends:
+      file: ./docker-compose-base.yml
+      service: mock-oauth
+  db:
+    extends:
+      file: ./docker-compose-base.yml
+      service: db
+
+
+  app:
+    build:
+      target: dev
+      context: ../..
+    extends:
+      file: ./docker-compose-base.yml
+      service: app
+    volumes:
+      - ../../csfeer/:/app/csfeer/
+      - ../../form_manager/:/app/form_manager/
+      - ../../django_cotton_uswds/:/app/django_cotton_uswds/
+      - ../../frontend/built/:/app/csfeer/static/frontend/
+      - ../../tests:/app/tests/
+      - ../../logs/:/app/logs/
+
+  e2e:
+    build:
+      context: ../..
+      target: e2e-runner
+    extends:
+      file: ./docker-compose-base.yml
+      service: e2e
+
+volumes:
+  pgdata:
