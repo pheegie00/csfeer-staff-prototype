@@ -1,9 +1,8 @@
-.PHONY: build start start-local stop restart reset-all reset-db oauth-setup \
-        test-unit test-e2e \
+.PHONY: build start start-local stop restart reset-all reset-db \
+        test-unit test-unit-ci test-e2e test-e2e-ci \
         native-migrate native-load-form native-nuke-forms native-create-erds \
         native-test-unit native-test-e2e native-test-e2e-headed native-test-e2e-debug \
-        native-test-e2e-webkit native-test-e2e-auth \
-        configure-beads install-beads
+        native-test-e2e-webkit native-test-e2e-auth
 
 UV   := $(shell which uv || echo $$HOME/.local/bin/uv)
 PATH := /opt/homebrew/bin:/usr/local/bin:/usr/bin:$(PATH)
