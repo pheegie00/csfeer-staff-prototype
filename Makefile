@@ -101,29 +101,3 @@ native-test-e2e-webkit: _start-services
 
 native-test-e2e-auth: _start-services
 	$(UV) run pytest tests/e2e/ -v -m "e2e and auth"
-
-# ── Tooling ───────────────────────────────────────────────────────────────────
-
-configure-beads:
-	@bd init --prefix bd --server-port 3307 --force
-	@bd config set jira.url "https://jira.acf.gov"
-	@bd config set jira.project "FE"
-	@bd config set allowed_prefixes "FE"
-	@bd config set jira.status_map.review "Review"
-	@bd config set jira.status_map.testing "Testing"
-	@bd config set jira.api_version 2
-	@echo "Beads configured. Set your Jira token with:"
-	@echo "  bd config set jira.api_token \"<your token>\""
-	@jira-beads-sync configure
-
-install-beads:
-	rm -rf /tmp/beads /tmp/jira-beads-sync
-	git clone git@github.com:ryanbagwell/beads.git --branch feat/change-jira-status /tmp/beads
-	cd /tmp/beads && go build -o bd ./cmd/bd
-	mv /tmp/beads/bd ~/.local/bin/bd
-	rm -rf /tmp/beads
-	git clone --depth 1 --revision 08a02a7bce125a0545ced2f45f594ac8a4b53b71 git@github.com:ryanbagwell/jira-beads-sync.git /tmp/jira-beads-sync
-	cd /tmp/jira-beads-sync && go build -o jira-beads-sync ./cmd/jira-beads-sync
-	mv /tmp/jira-beads-sync/jira-beads-sync ~/.local/bin/jira-beads-sync
-	rm -rf /tmp/jira-beads-sync
-	@echo "Beads and jira-beads-sync installed."
