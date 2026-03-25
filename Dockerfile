@@ -72,7 +72,7 @@ EXPOSE 8000
 
 WORKDIR /app
 
-COPY --chown=python:python --from=static /app/frontend/built /app/staticfiles/frontend
+COPY --chown=python:python --from=static /app/frontend/built /app/csfeer/static/frontend
 
 USER root
 
@@ -89,7 +89,7 @@ CMD ["uv", "run", "python", "manage.py", "runserver", "0.0.0.0:8000", "--nostati
 ##### Production build
 FROM build-base AS prod
 
-COPY --chown=python:python --from=static /app/frontend/built /app/staticfiles/frontend
+COPY --chown=python:python --from=static /app/frontend/built /app/csfeer/static/frontend
 
 CMD [ "gunicorn", "--user", "python", "--bind", "0.0.0.0:8000", "csfeer.wsgi:application"]
 
