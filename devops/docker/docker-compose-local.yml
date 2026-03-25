@@ -33,7 +33,7 @@ services:
       service: app
     build:
       context: ../..
-      target: app-prod
+      target: prod
 
   e2e:
     build:
