@@ -25,6 +25,16 @@ services:
       - ../../tests:/app/tests/
       - ../../logs/:/app/logs/
 
+  app-prod:
+    environment:
+      APP_CONFIG__debug: "False"
+    extends:
+      file: ./docker-compose-base.yml
+      service: app
+    build:
+      context: ../..
+      target: app-prod
+
   e2e:
     build:
       context: ../..
