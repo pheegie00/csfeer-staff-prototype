@@ -21,27 +21,9 @@ services:
       - ../../csfeer/:/app/csfeer/
       - ../../form_manager/:/app/form_manager/
       - ../../django_cotton_uswds/:/app/django_cotton_uswds/
-      - ../../frontend/built/:/app/csfeer/static/frontend/
+      - ../../frontend/built/:/app/staticfiles/frontend/
       - ../../tests:/app/tests/
       - ../../logs/:/app/logs/
-
-  app-prod:
-    environment:
-      APP_CONFIG__debug: "False"
-    extends:
-      file: ./docker-compose-base.yml
-      service: app
-    build:
-      context: ../..
-      target: prod
-
-  e2e:
-    build:
-      context: ../..
-      target: e2e-runner
-    extends:
-      file: ./docker-compose-base.yml
-      service: e2e
 
 volumes:
   pgdata:

@@ -9,6 +9,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
+ENV UVLOOP_DISABLE=1
+
 # Install os dependencies
 RUN pip install 'uv==0.7.20'
 RUN apt-get update && apt-get upgrade --yes \
@@ -44,8 +46,15 @@ RUN mkdir -p /app/logs && chown python:python /app/logs
 # Set the user to python
 USER python
 
+# Install python dependencies
+RUN uv sync --frozen --no-install-project
+
+# Add the virtual environment executables to the PATH
+ENV PATH="/app/.venv/bin:$PATH"
+
 # Collect staticfiles
 RUN uv run manage.py collectstatic --noinput
+
 
 ##### Staticfiles build
 FROM docker.io/library/node:18.20-slim AS static
@@ -65,26 +74,30 @@ WORKDIR /app
 
 COPY --chown=python:python --from=static /app/frontend/built /app/staticfiles/frontend
 
-CMD ["uv", "run","python", "manage.py", "runserver", "0.0.0.0:8000"]
-
-
-##### E2E test runner build
-FROM dev AS e2e-runner
 USER root
-RUN /app/.venv/bin/playwright install-deps chromium \
+
+RUN playwright install-deps chromium \
     && apt-get autoremove -y && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
-USER appuser
-RUN /app/.venv/bin/playwright install chromium
 
+USER python
+
+RUN playwright install chromium
+
+CMD ["uv", "run", "python", "manage.py", "runserver", "0.0.0.0:8000", "--nostatic"]
 
 ##### Production build
 FROM build-base AS prod
 
-ENV UVLOOP_DISABLE=1
-ENV PATH="/app/.venv/bin:$PATH"
-RUN uv sync --frozen --no-install-project
-
 COPY --chown=python:python --from=static /app/frontend/built /app/staticfiles/frontend
 
 CMD [ "gunicorn", "--user", "python", "--bind", "0.0.0.0:8000", "csfeer.wsgi:application"]
+
+##### Production e2e test runner
+FROM prod AS prod-e2e
+USER root
+RUN /app/.venv/bin/playwright install-deps chromium \
+    && apt-get autoremove -y && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
+USER python
+RUN /app/.venv/bin/playwright install chromium

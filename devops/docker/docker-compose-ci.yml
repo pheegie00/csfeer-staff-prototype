@@ -23,13 +23,7 @@ services:
       file: ./docker-compose-base.yml
       service: app
     volumes:
-      - ../../tests:/app/tests/     
-  
-  e2e:
-    image: "${IMAGE_NAME}"
-    extends:
-      file: ./docker-compose-base.yml
-      service: e2e
+      - ../../tests:/app/tests/
 
 volumes:
   pgdata:

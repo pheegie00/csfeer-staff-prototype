@@ -14,15 +14,5 @@ services:
       file: devops/docker/docker-compose-local.yml
       service: app
 
-  app-prod:
-    extends:
-      file: devops/docker/docker-compose-local.yml
-      service: app-prod
-
-  e2e:
-    extends:
-      file: devops/docker/docker-compose-local.yml
-      service: e2e
-
 volumes:
   pgdata:
