@@ -237,6 +237,11 @@ LOGGING = {
             "level": "DEBUG" if DEBUG and settings.is_local else "INFO",
             "propagate": False,
         },
+        "django.security.DisallowedHost": {
+            "level": "ERROR",
+            "handlers": ["null"],
+            "propagate": False,
+        },
     },
 }
 
