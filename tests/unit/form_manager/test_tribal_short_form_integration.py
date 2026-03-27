@@ -82,6 +82,32 @@ def test_tribal_short_form_renders(
 
 
 @pytest.mark.django_db
+def test_tribal_short_form_edit_page_uses_left_rail_navigation(
+    django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
+):
+    """Tribal Short Form edit pages show a left rail instead of the step indicator."""
+    url = reverse("form_edit", args=[tribal_short_form_entry.pk])
+
+    response = authenticated_client.get(url, query_params={"step": 0, "page": 0})
+
+    assert response.status_code == 200
+
+    content = response.content.decode("utf-8")
+
+    assert 'aria-label="Form sections"' in content
+    assert "usa-sidenav" in content
+    assert "usa-step-indicator" not in content
+
+    for nav_title in [
+        "Basic Information",
+        "Expenditure categories",
+        "Expenditure details",
+        "Review and Submit",
+    ]:
+        assert nav_title in content
+
+
+@pytest.mark.django_db
 def test_tribal_short_form_basic_info_page(
     django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
 ):
@@ -159,8 +185,6 @@ def test_tribal_short_form_no_demographic_fields(
     django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
 ):
     """Verify that demographic fields are not present in any step"""
-    url = reverse("form_edit", args=[tribal_short_form_entry.pk])
-
     # Check that demographic fields are not in the form fields
     from form_manager.schema.forms.tribal_short_form import TribalShortFormFields
 

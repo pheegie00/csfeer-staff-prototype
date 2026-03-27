@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import pytest
 from django.urls import reverse
 
-from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
+from form_manager.models import FormDefinition, FormEntry
 
 if TYPE_CHECKING:
     from django.test.client import Client
@@ -44,6 +44,24 @@ def test_can_render_and_edit_form(django_db_setup, form_entry: "FormEntry", auth
     response = authenticated_client.get(url)
 
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_non_tribal_forms_keep_step_indicator_layout(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    """Non-short-form edit pages should keep the existing step indicator."""
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    response = authenticated_client.get(url, {"step": 0, "page": 0})
+
+    assert response.status_code == 200
+
+    content = response.content.decode("utf-8")
+
+    assert "usa-step-indicator" in content
+    assert 'aria-label="Form sections"' not in content
+    assert "usa-sidenav" not in content
 
 
 @pytest.mark.django_db
@@ -109,9 +127,10 @@ def test_back_button_not_shown_on_first_page(
     django_db_setup, form_entry: "FormEntry", authenticated_client
 ):
     """
-    Test that the back button and Save & Exit button are not displayed on the first page (step=0, page=0).
-    This regression test ensures that current_step_number and current_page_number
-    are correctly passed to the page template context.
+    Test that the back button and Save & Exit button are not displayed
+    on the first page (step=0, page=0). This regression test ensures
+    that current_step_number and current_page_number are correctly
+    passed to the page template context.
     """
     url = reverse("form_edit", args=[form_entry.pk])
 

@@ -6,6 +6,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from form_manager.constants import CSBGAnnualReportForms
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.schema.layout import FieldBlock, PageBlock, StepBlock
@@ -208,6 +209,9 @@ def form_edit(request, pk):
     context = {
         "steps": ui_components,
         "entry": entry,
+        "use_short_form_sidenav": (
+            entry.form_definition.name == CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT
+        ),
         "current_step_number": current_step_number,
         "current_page_number": current_page_number,
         "current_step": ui_components[current_step_number],

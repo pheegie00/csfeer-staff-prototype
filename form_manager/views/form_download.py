@@ -3,7 +3,6 @@ from typing import cast
 from django.contrib import messages
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from weasyprint import HTML
 
 from form_manager.models import FormEntry
 from form_manager.views.base import BaseSingleFormView, FormPermissionMixin
@@ -19,6 +18,8 @@ class FormDownloadPDFView(BaseSingleFormView, FormPermissionMixin):
         return True
 
     def get(self, request, *args, **kwargs):
+        from weasyprint import HTML
+
         self.object = cast(FormEntry, self.get_object())
 
         # Build the form with current data
