@@ -8,6 +8,7 @@ This module contains:
    user roles, groups, and organization membership based on OIDC claims.
 """
 
+import logging
 from typing import cast
 
 from django.contrib.auth import get_user_model
@@ -17,6 +18,8 @@ from oauth2_authcodeflow.conf import settings
 
 from form_manager.models import OrganizationProfile, UserOrganizationMembership
 from users.models import UserProfile
+
+logger = logging.getLogger(__name__)
 
 
 class EmailOIDCAuthenticationBackend(AuthenticationBackend):
@@ -47,6 +50,9 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
         # Get email from claims
         email_claim = settings.OIDC_OP_EXPECTED_EMAIL_CLAIM
         email = claims.get(email_claim)
+
+        logger.debug(claims)
+        logger.debug(email)
 
         if not email:
             # Try to get email using the configured function if available
