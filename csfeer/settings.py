@@ -237,9 +237,8 @@ LOGGING = {
             "level": "DEBUG" if DEBUG and settings.is_local else "INFO",
             "propagate": False,
         },
-        "django.core.exceptions.DisallowedHost": {
-            "level": "ERROR",
-            "handlers": ["file"],
+        "django.security.DisallowedHost": {
+            "handlers": ["null"],
             "propagate": False,
         },
     },
