@@ -30,6 +30,10 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
     email address provided in the OIDC claims, rather than the 'sub' or 'username' claim.
     """
 
+    def validate_claims(self, claims: dict) -> None:
+        logger.debug(claims)
+        return super().validate_claims(claims)
+
     def get_or_create_user(self, request, id_claims, access_token) -> AbstractUser:
         """
         Retrieve or create a user based on the email claim in the ID token.
