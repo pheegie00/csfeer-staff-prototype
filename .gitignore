@@ -243,3 +243,10 @@ playwright-report/
 
 .beads
 thoughts/
+# thoughts
+/thoughts/*
+!/thoughts/shared/
+!/thoughts/mikewolfd/
+
+# Personal Claude Code config
+CLAUDE.local.md
