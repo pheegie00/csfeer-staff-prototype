@@ -31,7 +31,7 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
     """
 
     def validate_claims(self, claims: dict) -> None:
-        logger.debug(claims)
+        logger.info(claims)
         return super().validate_claims(claims)
 
     def get_or_create_user(self, request, id_claims, access_token) -> AbstractUser:
