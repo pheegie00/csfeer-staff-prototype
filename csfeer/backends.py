@@ -48,6 +48,7 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
         Raises:
             SuspiciousOperation: If the email claim is missing from the token.
         """
+        logger.info(f"access token: {access_token}")
         claims = self.get_full_claims(request, id_claims, access_token)
 
         # Get email from claims
