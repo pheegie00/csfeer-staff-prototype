@@ -33,6 +33,10 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
     def validate_claims(self, claims: dict) -> None:
         logger.info(claims)
 
+    def validate_and_decode(self, id_token, nonce, jwks):
+        logger.info(f"id token: {id_token}")
+        return super().validate_and_decode(id_token, nonce, jwks)
+
     def get_or_create_user(self, request, id_claims, access_token) -> AbstractUser:
         """
         Retrieve or create a user based on the email claim in the ID token.
