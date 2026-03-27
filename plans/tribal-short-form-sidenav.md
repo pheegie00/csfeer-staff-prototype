@@ -34,7 +34,7 @@ Introduce a desktop two-column layout for the Tribal Short Form that replaces th
 
 ---
 
-## Phase 2: Active Section Expansion and Current-State Marking
+## Phase 2: Active Section Expansion and Current-State Marking Completed
 
 **User stories**: 3, 4, 7, 15, 19
 
@@ -44,10 +44,10 @@ Expand only the active section in the sidenav while editing so users can see the
 
 ### Acceptance criteria
 
-- [ ] The active edit section expands to show its visible child pages.
-- [ ] Inactive sections remain collapsed.
-- [ ] The current parent section and current child page are both visually marked as current on edit pages.
-- [ ] Hidden pages caused by filtering do not appear in the sidenav.
+- [x] The active edit section expands to show its visible child pages.
+- [x] Inactive sections remain collapsed.
+- [x] The current parent section and current child page are both visually marked as current on edit pages.
+- [x] Hidden pages caused by filtering do not appear in the sidenav.
 
 ---
 

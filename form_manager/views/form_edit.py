@@ -1,4 +1,5 @@
 import logging
+from typing import TypedDict
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -9,10 +10,23 @@ from django.urls import reverse
 from form_manager.constants import CSBGAnnualReportForms
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
-from form_manager.schema.layout import FieldBlock, PageBlock, StepBlock
+from form_manager.schema.layout import (
+    AbstractPageBlock,
+    FieldBlock,
+    PageBlock,
+    PageTitleBlock,
+    StepBlock,
+)
 from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
 
 logger = logging.getLogger(__name__)
+
+
+class ShortFormSidenavItem(TypedDict):
+    title: str | None
+    href: str
+    is_current: bool
+    children: list["ShortFormSidenavItem"]
 
 
 def get_step_page(components, step: int, page: int) -> PageBlock:
@@ -93,6 +107,66 @@ def remove_nodes_with_excluded_fields(
         return component
 
     return [remove_excluded_nodes(comp) for comp in components]
+
+
+def get_short_form_page_title(page: AbstractPageBlock) -> str:
+    if page.title:
+        return page.title
+
+    for child in page.children or []:
+        if isinstance(child, PageTitleBlock) and child.title:
+            return child.title
+
+    return "Untitled page"
+
+
+def get_short_form_step_pages(step: StepBlock) -> list[AbstractPageBlock]:
+    return [child for child in step.children or [] if isinstance(child, AbstractPageBlock)]
+
+
+def build_short_form_sidenav_children(
+    step: StepBlock, current_page_number: int, current_path: str
+) -> list[ShortFormSidenavItem]:
+    return [
+        {
+            "title": get_short_form_page_title(page),
+            "href": current_path,
+            "is_current": page_index == current_page_number,
+            "children": [],
+        }
+        for page_index, page in enumerate(get_short_form_step_pages(step))
+    ]
+
+
+def build_short_form_sidenav_items(
+    steps: list[StepBlock], current_step_number: int, current_page_number: int, current_path: str
+) -> list[ShortFormSidenavItem]:
+    sidenav_items: list[ShortFormSidenavItem] = []
+
+    for step_index, step in enumerate(steps):
+        sidenav_items.append(
+            {
+                "title": step.title,
+                "href": current_path,
+                "is_current": step_index == current_step_number,
+                "children": (
+                    build_short_form_sidenav_children(step, current_page_number, current_path)
+                    if step_index == current_step_number
+                    else []
+                ),
+            }
+        )
+
+    sidenav_items.append(
+        {
+            "title": "Review and Submit",
+            "href": current_path,
+            "is_current": False,
+            "children": [],
+        }
+    )
+
+    return sidenav_items
 
 
 @login_required
@@ -211,6 +285,12 @@ def form_edit(request, pk):
         "entry": entry,
         "use_short_form_sidenav": (
             entry.form_definition.name == CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT
+        ),
+        "short_form_sidenav_items": build_short_form_sidenav_items(
+            ui_components,
+            current_step_number,
+            current_page_number,
+            request.get_full_path(),
         ),
         "current_step_number": current_step_number,
         "current_page_number": current_page_number,

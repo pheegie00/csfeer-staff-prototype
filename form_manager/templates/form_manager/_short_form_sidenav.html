@@ -1,6 +1,25 @@
 <c-side_nav aria_label="Form sections">
-  {% for step in steps %}
-    <c-side_nav.item text="{{ step.title }}" href="{{ request.get_full_path }}" />
+  {% for item in short_form_sidenav_items %}
+    {% if item.children %}
+      <c-side_nav.item
+        text="{{ item.title }}"
+        href="{{ item.href }}"
+        is_current="{% if item.is_current %}true{% endif %}"
+      >
+        {% for child in item.children %}
+          <c-side_nav.item
+            text="{{ child.title }}"
+            href="{{ child.href }}"
+            is_current="{% if child.is_current %}true{% endif %}"
+          />
+        {% endfor %}
+      </c-side_nav.item>
+    {% else %}
+      <c-side_nav.item
+        text="{{ item.title }}"
+        href="{{ item.href }}"
+        is_current="{% if item.is_current %}true{% endif %}"
+      />
+    {% endif %}
   {% endfor %}
-  <c-side_nav.item text="Review and Submit" href="{{ request.get_full_path }}" />
 </c-side_nav>

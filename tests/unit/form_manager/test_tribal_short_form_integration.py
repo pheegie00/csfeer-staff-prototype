@@ -1,5 +1,6 @@
 """Integration tests for TribalShortForm"""
 
+import re
 from typing import TYPE_CHECKING
 
 import pytest
@@ -11,6 +12,12 @@ from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
 
 if TYPE_CHECKING:
     from django.test.client import Client
+
+
+def get_sidenav_markup(content: str) -> str:
+    match = re.search(r'(<nav aria-label="Form sections">.*?</nav>)', content, re.DOTALL)
+    assert match is not None
+    return match.group(1)
 
 
 @pytest.fixture
@@ -105,6 +112,33 @@ def test_tribal_short_form_edit_page_uses_left_rail_navigation(
         "Review and Submit",
     ]:
         assert nav_title in content
+
+
+@pytest.mark.django_db
+def test_tribal_short_form_sidenav_expands_only_current_section_and_marks_current_page(
+    django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
+):
+    tribal_short_form_entry.data = {
+        "applicable_topics": [
+            "employment_expenditure,employment_related_services_description",
+            "housing_expenditure,housing_services_description",
+        ]
+    }
+    tribal_short_form_entry.save(update_fields=["data"])
+
+    url = reverse("form_edit", args=[tribal_short_form_entry.pk])
+
+    response = authenticated_client.get(url, query_params={"step": 2, "page": 1})
+
+    assert response.status_code == 200
+
+    sidenav = get_sidenav_markup(response.content.decode("utf-8"))
+
+    assert sidenav.count("usa-sidenav__sublist") == 1
+    assert sidenav.count('class="usa-current"') == 2
+    assert "Details on employment services" in sidenav
+    assert "Details on housing services" in sidenav
+    assert "Details on health services" not in sidenav
 
 
 @pytest.mark.django_db
