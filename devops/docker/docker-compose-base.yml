@@ -65,25 +65,6 @@ services:
           - db.csfeer
     hostname: db.csfeer
 
-  storage:
-    image: rustfs/rustfs:latest-glibc
-    ports:
-      - 9000:9000
-      - 9001:9001
-      - 7001:7001
-    volumes:
-      - storage:/data
-      - ../../devops/mocks/rustfs/create-buckets.sh:/create-buckets.sh:ro
-    hostname: storage.csfeer
-    environment:
-      RUSTFS_ACCESS_KEY: keykeykey
-      RUSTFS_SECRET_KEY: secretsecretsecret
-      RUSTFS_CONSOLE_ENABLE: true
-      RUSTFS_SERVER_DOMAINS: "storage.csfeer"
-      BUCKET_TO_CREATE: core-local
-    post_start:
-      - command: sh /create-buckets.sh
-  
   app:
     environment:
       DJANGO_ALLOW_ASYNC_UNSAFE: true
@@ -132,4 +113,3 @@ services:
 
 volumes:
   pgdata:
-  storage:

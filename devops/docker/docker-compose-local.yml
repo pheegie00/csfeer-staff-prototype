@@ -9,10 +9,6 @@ services:
       file: ./docker-compose-base.yml
       service: db
 
-  storage:
-    extends:
-      file: ./docker-compose-base.yml
-      service: storage
 
   app:
     build:
@@ -39,5 +35,3 @@ services:
 
 volumes:
   pgdata:
-  storage:
-
