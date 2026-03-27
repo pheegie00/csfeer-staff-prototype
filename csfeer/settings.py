@@ -148,6 +148,7 @@ OIDC_RP_CLIENT_ID = settings.oidc_config.client_id
 OIDC_RP_CLIENT_SECRET = settings.oidc_config.client_secret
 OIDC_RP_FORCE_SECRET_WITH_PKCE = settings.oidc_config.force_secret_with_pkce
 OIDC_RP_SCOPES = settings.oidc_config.scopes
+OIDC_RP_USE_PKCE = settings.oidc_config.use_pkce
 OIDC_MIDDLEWARE_NO_AUTH_URL_PATTERNS = settings.oidc_config.no_auth_urls
 OIDC_EXTEND_USER = (
     "csfeer.backends.extend_user_with_roles"  # Custom function to extend user with roles

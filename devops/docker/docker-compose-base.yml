@@ -89,6 +89,7 @@ services:
       DJANGO_ALLOW_ASYNC_UNSAFE: true
       BASE_URL: http://ui.csfeer:8000
       OIDC_CONFIG__CLIENT_SECRET: shhhhhhhh
+      OIDC_CONFIG__USE_PKCE: False
       DB_CONFIG__SSL_MODE: disable
       OIDC_CONFIG__CLIENT_ID: csfeer-auth
       OIDC_CONFIG__DOCUMENT_URL: http://oauth.csfeer:8081/realms/csfeer/.well-known/openid-configuration

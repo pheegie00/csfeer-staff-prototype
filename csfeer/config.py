@@ -9,6 +9,7 @@ class OIDCConfig(BaseModel):
     document_url: str = "http://oauth.csfeer:8081/realms/csfeer/.well-known/openid-configuration"
     scopes: list[str] = ["openid", "email", "profile", "roles", "offline_access"]
     no_auth_urls: list[str] = ["api/", "logged-out"]
+    use_pkce: bool = True
 
 
 class DBConfig(BaseModel):
