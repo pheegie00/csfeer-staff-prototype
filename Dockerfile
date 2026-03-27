@@ -52,9 +52,6 @@ RUN uv sync --frozen --no-install-project
 # Add the virtual environment executables to the PATH
 ENV PATH="/app/.venv/bin:$PATH"
 
-# Collect staticfiles
-RUN uv run manage.py collectstatic --noinput
-
 
 ##### Staticfiles build
 FROM docker.io/library/node:18.20-slim AS static
@@ -73,6 +70,7 @@ EXPOSE 8000
 WORKDIR /app
 
 COPY --chown=python:python --from=static /app/frontend/built /app/csfeer/static/frontend
+RUN uv run manage.py collectstatic --noinput
 
 USER root
 
@@ -90,6 +88,7 @@ CMD ["uv", "run", "python", "manage.py", "runserver", "0.0.0.0:8000", "--nostati
 FROM build-base AS prod
 
 COPY --chown=python:python --from=static /app/frontend/built /app/csfeer/static/frontend
+RUN uv run manage.py collectstatic --noinput
 
 CMD [ "gunicorn", "--user", "python", "--bind", "0.0.0.0:8000", "csfeer.wsgi:application"]
 
