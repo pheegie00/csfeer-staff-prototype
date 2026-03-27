@@ -4,6 +4,12 @@ services:
     extends:
       file: devops/docker/docker-compose-local.yml
       service: mock-oauth
+  
+  storage:
+    extends:
+      file: devops/docker/docker-compose-local.yml
+      service: storage
+  
   db:
     extends:
       file: devops/docker/docker-compose-local.yml
@@ -21,3 +27,4 @@ services:
 
 volumes:
   pgdata:
+  storage:
