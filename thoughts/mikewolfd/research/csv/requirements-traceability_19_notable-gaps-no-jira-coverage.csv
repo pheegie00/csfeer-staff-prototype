@@ -1,0 +1,10 @@
+ID,Requirement,Severity,Area
+FE-21,Warning-tier validation,Medium,Validation
+FE-47,Concurrent edit handling,Low,Form Engine
+DA-03,CSV export,Blocking,MVP Acceptance (AC-03)
+WF-04,Unsubmit capability,High,Workflow
+WF-05,Revision submission,High,Workflow
+WF-06,Submit action (validation broken),Blocking,Workflow
+PM-02,Self-service user management,High,Permissions
+PR-02,Scalability / load testing,High,Performance
+PR-11,200 concurrent users,High,Performance

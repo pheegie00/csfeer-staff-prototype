@@ -1,0 +1,7 @@
+ID,Requirement,Status,Jira,Evidence
+PM-01,"Flexible permissions: read, write, export",✅,"bd-6, bd-477",Org-level admin/editor/viewer with permission checks
+PM-02,Self-service user management,❌,"bd-108, bd-475",users/views.py is empty; Django admin only
+PM-03,Hierarchical administration (sub/state/fed),❌,—,Single flat OrganizationProfile; no hierarchy
+PM-04,Minimum permission levels per tier,⚠️,—,Org-level exists; no federal-tier or cross-org permissions
+PM-05,Varying permission levels,⚠️,—,View/edit/submit mapped to viewer/editor/admin; no export-specific perms
+PM-08,Authorization and access control,⚠️,bd-6,Org-scoped authz works; out of MVP scope per MATRIX but partially done

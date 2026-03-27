@@ -1,0 +1,9 @@
+ID,Requirement,Priority,Source,Notes
+PR-02,"Scalable to 1,100 grant recipients + sub-recipients + 75 federal staff",M,[S29] Objective,
+PR-04,Real-time system resource utilization monitoring,M,"[S29] Task Area 2 — ""Use data to drive decisions""",
+PR-05,"Real-time performance monitoring: response time, latency, throughput, error rates",M,[S29] Task Area 2,
+PR-06,"Median, 95th percentile, and 98th percentile performance measurement",M,[S29] Task Area 2,
+PR-07,Track concurrent users in real-time,M,[S29] Task Area 2,
+PR-08,Monitor user behaviors in aggregate,S,[S29] Task Area 2,
+PR-09,Multivariate/A/B testing support in production,C,"[S29] Task Area 2 — ""as needed""",
+PR-10,24/7 operational availability,M,"[S29] Task Area 3 L349 — ""operational 7 days per week, 24 hours per day""",

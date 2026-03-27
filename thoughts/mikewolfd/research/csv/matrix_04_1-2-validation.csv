@@ -1,0 +1,7 @@
+ID,Requirement,Priority,Source,Conflict
+FE-20,Flexible validation rules engine for calculations or comparisons to prior form submissions,M,[S29] §2.0 Validation L133,
+FE-21,Hard errors (blocking) and warning/notification validations,M,[S29] §2.0 Validation L134,
+FE-22,"Field-level, field-group-level, and form-level validation",M,[S29] §2.0 Validation L135,
+FE-23,Automated data validation using business logic during form completion,M,[S29] Top Problems to Solve,
+FE-24,"Automated comparison to integration data (e.g., UEI mismatches via SAM.gov)",?,[S29] Top Problems to Solve; [S37],Same list as FE-23; no basis in [S29] to differentiate priority; [S37] specifies SAM.gov as external registry
+FE-25,CONFLICT — Validation timing: During data entry vs. review-page-only,M,"[S29] §2.0 Validation — ""while a grant-recipient fills out a form""",Resolution needed. [S29] implies inline feedback during entry. Implementation spec [S21] proposes review-page-only validation with partial saves of invalid data.

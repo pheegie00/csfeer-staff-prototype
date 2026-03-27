@@ -1,0 +1,8 @@
+Capability,Approver,Contributor,Viewer,OCS Staff,Admin
+Edit form sections,Yes,Yes,No,No,No
+Submit / attest,Yes,No,No,No,No
+View form data,Yes,Yes,Yes,Yes (read-only),Yes
+Export PDF/CSV,Yes,Yes,Yes,Yes,Yes
+Portfolio dashboard,No,No,No,Yes,Yes
+Manage users/roles,No,No,No,No,Yes
+View audit logs,No,No,No,Limited,Yes

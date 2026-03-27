@@ -1,0 +1,3 @@
+Gap,Requirements,Severity,Jira,Notes
+No automated a11y testing,"AD-01, SC-03",High,"bd-471 (epic), bd-103",100% 508 compliance is a success criterion; no axe-core or equivalent in CI
+No low-bandwidth support,AD-09,High,bd-459,Full page POST on every navigation; no offline resilience

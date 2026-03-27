@@ -1,0 +1,4 @@
+Gap,Requirements,Severity,Jira,Notes
+Okta/Login.gov not yet wired,"AS-01, AS-03",Blocked on ACF environment access,"bd-111 (epic), bd-13, bd-24",NGSC transition in progress; Okta/Login.gov integration follows environment access
+ATO documentation incomplete,"AS-14, AS-15",Blocking (for pilot),"bd-438 (epic), bd-188, bd-469, bd-472","Target May 29, 2026; multiple artifacts in progress"
+Claim structure uncertainty,AS-07,Medium,bd-477,Will Okta tokens emit roles in realm_access.roles (Keycloak convention) or a different claim path? Backend may need updating once Okta token structure is known

@@ -1,0 +1,4 @@
+ID,Requirement,Status,Jira,Evidence
+FE-40,Low-code/no-code form builder,🔮,—,Post-year-1 per MATRIX
+FE-41,Sandbox/testing space for form builder,🔮,—,Post-year-1
+FE-42,Faster form design iteration,⚠️,—,load_initial_forms + dump_schema commands; still requires developer involvement

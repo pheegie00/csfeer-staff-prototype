@@ -1,0 +1,8 @@
+ID,Criterion,Status,Jira,Evidence
+SC-01,20+ tribal orgs submit via CORE,❌,—,Pre-pilot
+SC-02,≥80% report easier than PDFs,❌,"bd-48, bd-92, bd-104, bd-105",Usability research planned; no survey mechanism built
+SC-03,100% Section 508 compliance,⚠️,bd-471 (epic),USWDS accessible; no automated verification
+SC-04,Zero OCIO security findings,⚠️,"bd-438 (epic), bd-ha7h, bd-hze3, bd-octr",Security scans run; ATO in progress
+SC-05,Architecture docs complete for Phase II,❌,—,Not started
+SC-06,Platform supports simple and complex forms,⚠️,"bd-59 (epic), bd-60 (epic)",Two tribal forms demonstrate spectrum
+SC-07,First measurable baseline for Tribal reporting,❌,—,Requires day-one telemetry (DL-15)

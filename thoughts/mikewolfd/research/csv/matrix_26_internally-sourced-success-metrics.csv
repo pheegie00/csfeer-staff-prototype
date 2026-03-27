@@ -1,0 +1,15 @@
+ID,Metric,Target,Source,Notes
+SC-08,Pilot orgs with successful submission,100%,[S36],
+SC-09,Submissions passing validation without OCS help,≥90%,[S35]; [S36],Absorbs PR-18
+SC-10,Errors resolved without OCS intervention,≥85%,[S36],
+SC-11,Reduction in OCS follow-up emails,≥30%,[S36],
+SC-12,Autosave success rate,≥98%,[S36],
+SC-13,Data loss,0%,[S36],
+SC-14,User satisfaction,≥4/5,[S36],"Relevant to C-9 — different metric than SC-02's ""≥80% easier than PDFs"""
+SC-15,Help desk tickets per org,≤1,[S36],
+SC-16,Submission time reduction,12-20 days → 3-7 days,[S36],"Aspirational: <1 hour; 1,800 hrs/yr current tribal burden"
+SC-17,Component reuse across forms,≥70%,[S36],Architecture metric
+SC-18,New form onboarding time,≤6 weeks,[S36],Phase II readiness metric
+SC-19,OCS review time reduction,≥25% (long-term ≥50%),[S36],
+SC-20,API uptime,≥99.9%,[S36],Stricter than system uptime (PR-03: 99.5%)
+SC-21,Form completion time reduction vs legacy PDF,≥25%,[S39],Different framing than SC-16 (days-based)

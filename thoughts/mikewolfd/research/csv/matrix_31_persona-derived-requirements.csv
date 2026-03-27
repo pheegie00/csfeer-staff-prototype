@@ -1,0 +1,19 @@
+ID,Item,Source,Notes
+UP-01,"Three grantee role tiers: Approver (edit + submit/attest), Contributor (edit only), Viewer (read-only + PDF export)",[S32],More specific than PM-01–PM-05; Viewer role not in prior context
+UP-02,SF-424M cross-referencing: in-context guidance linking CSFEER fields to their SF-424M/OLDC counterparts,[S32],Recurring tribal pain point; data consistency across systems
+UP-03,"Transmittal letter/attestation: distinct artifact requiring signatures, upload tracking, and status visibility",[S32],Not just a form field; separate workflow artifact
+UP-04,Portfolio dashboard: grantee-level status view (Not Started / In Progress / Submitted / Needs Correction) per form per grantee,[S32],OCS staff manage 15-25 grantees; current OLDC has no portfolio view
+UP-05,Batch review & structured export: CSV/Excel for cross-grantee comparison and outlier identification,[S32],Extends DA-03; federal staff compare submissions in batches
+UP-06,"Visual diff: per-field ""what changed from last year"" indicators",[S32],Extends FE-32; contributors want change indicators on fields
+UP-07,"Simplified summary view for leadership (funding amount, major goals, key outcomes)",[S32],Separate from full dense form; used for council/leadership briefings
+UP-08,"Unified admin console: search by org/person/email/UEI, few-click role changes, audit logging",[S32],"Extends PM-02; current process spans OLDC admin, email, spreadsheets"
+UP-09,"Peak load resilience around reporting deadlines (Tribal Plan dues, March 31 Annual Report)",[S32],"Extends PR-10; system stability during these windows is ""non-negotiable"""
+UP-10,Feature flags / runtime configuration for policy or OMB form changes without full redeploys,[S32],Operational resilience; avoids redeploy for policy changes
+UP-11,Degraded network test environments for reproducing real-world low-connectivity issues,[S32],Testing infrastructure; hard to reproduce issues otherwise
+UP-12,4-tier support model: in-app help → help desk (email/phone) → tech escalation → on-site,[S35]; [S32],"""In-app help"" tier is closest to system feature; connects to AD-13"
+[WS-12],"Form inventory visibility (what exists, who uses it, submission counts)",Derived: FI-01–FI-06 + FE-42,Stretch
+[WS-13],"PRA tracking per form (Melanie ~half, Monique ~half)","Derived: [S03], [S05], [S13] PRA notes",Operational dependency; stretch
+[WS-16],Congressional reporting tools (Melanie's workflow),"Derived: DA-09 + [S01], [S03], [S29] — exports → PM website → Congress",Post-MVP
+[WS-17],CQI workflow integration (Kayla's sprints),"Derived: WF-17 + [S03], [S05] — CQI consumes collaboration visibility",Post-MVP
+[WS-19],Staff support console with scoped read-only access,Derived: UP-12 + UP-04,Post-MVP
+[WS-20],"Trackable support interactions (category, resolution, time)",Derived: SC-15 (≤1 ticket/org) implies tracking,Post-MVP

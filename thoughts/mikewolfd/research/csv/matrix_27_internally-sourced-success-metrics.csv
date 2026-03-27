@@ -1,0 +1,5 @@
+Category,Key Metrics
+User interaction,"Sessions per submission, autosave success ≥98% (SC-12)"
+Submission quality,"Validation passes without help ≥90% (SC-09), errors self-resolved ≥85% (SC-10)"
+Performance,"Load/save ≤3s on 4G (PR-01), p95/p98 latency (PR-06), ≥200 concurrent users (PR-11)"
+Operational,"Tickets <60/mo (PR-19), OCS review time ≥25% reduction (SC-19)"

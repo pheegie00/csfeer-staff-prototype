@@ -1,0 +1,7 @@
+ID,Form Name,Phase,Users,Source
+FI-01,CSBG Tribal Plan and Application,Phase I,~66,[S29] Phase I; [S13]
+FI-02,CSBG Tribal Annual Report,Phase I,~30 (up to 66),[S29] Phase I; [S13],"[S29] uses ""CSBG Tribal Annual Report (OMB Approved Form)""; ""(Long Form)"" is informal shorthand. Tribal reports have 3 modules (not 4): M1=Tribal Admin, M2=Tribal Expenditures, M3=Individual/Family."
+FI-03,CSBG Tribal Annual Report [Short Form],Phase I,~30 (up to 66),[S29] Phase I; [S13] — $50k funding threshold determines which form,[S29] uses bracket notation [Short Form]
+FI-04,CSBG Eligible Entity List,Phase II,—,[S29] Phase II — OMB Approved Doc (not Form)
+FI-05,CSBG State and Territory Plan,Phase II,53+,[S29] Phase II
+FI-06,CSBG Annual Report 3.0 (Modules 1-4),Phase II,53+,"[S29] Phase II; [S15] — Modules: M1=State Administration, M2=Agency Expenditures/Capacity/Resources, M3=Community Level, M4=Individual and Family Level",M3 and M4 were previously swapped; corrected per [S15] (IM #152). M1 completed by state lead agencies; M2-M4 by eligible entities.

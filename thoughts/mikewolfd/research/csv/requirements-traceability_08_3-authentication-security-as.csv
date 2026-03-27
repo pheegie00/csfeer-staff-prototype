@@ -1,0 +1,11 @@
+ID,Requirement,Status,Jira,Evidence
+AS-01,Authentication with Login.gov,❌,"bd-111 (epic), bd-13, bd-24, bd-35",OIDC configured for Keycloak only; Login.gov deferred per AS-18
+AS-03,Gov users via login.acf.gov (Okta),❌,"bd-111 (epic), bd-474, bd-476",No Okta configuration; Keycloak dev mock only
+AS-05,Auth Code Flow with PKCE + client secret,✅,"bd-35, bd-46, bd-56",django-oauth2-authcodeflow handles PKCE; server-side tokens
+AS-06,Keycloak for local dev,✅,bd-473,"Docker Compose with realm csfeer, CSV user seeding"
+AS-07,Role-to-group mapping from JWT claims,✅,bd-477,extend_user_with_roles maps realm_access.roles to Django groups
+AS-08,Role mappings (admin/staff/superuser),✅,bd-477,csfeer_admin → staff+superuser; wildcard creates groups
+AS-10,Auto-provision user + org on first login,✅,bd-476,"EmailOIDCAuthenticationBackend creates user, profile, org, membership"
+AS-11,Group memberships re-synced every login,✅,bd-477,user.groups.clear() runs every login; groups rebuilt from token
+AS-14,ATO within 18 months,⚠️,"bd-438 (epic), bd-188, bd-469, bd-472",Security patterns in code; ATO docs in progress
+AS-18,MVP basic sessions (Login.gov deferred),✅,bd-473,Current state: Django sessions via Keycloak OIDC

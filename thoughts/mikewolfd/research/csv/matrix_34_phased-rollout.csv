@@ -1,0 +1,5 @@
+ID,Phase,Scope,Source,Notes
+PH-01,Phase I (MVP),"CSBG Tribal forms (~66 orgs, 3 forms)",[S33]; [S29],Current scope
+PH-02,Phase II,States/territories opt in; legacy OLDC runs in parallel,[S33],"Dual-track operation required — some users on CORE, some on legacy"
+PH-03,Phase III,Full migration of all users; legacy system sunset,[S33],Requires data migration and feature parity with PDF workflows
+PH-04,Long-term vision,"25,000+ recipients, 100+ forms across all ACF program offices",[S33],CSBG is first program; multi-program platform

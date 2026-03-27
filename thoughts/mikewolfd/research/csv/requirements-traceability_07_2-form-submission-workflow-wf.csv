@@ -1,0 +1,14 @@
+ID,Requirement,Status,Jira,Evidence
+WF-01,Auto-create forms with pre-populated data,❌,—,form_start creates blank entries on user click; no schedule-driven creation
+WF-02,Show trends over time using previous year data,❌,—,No year-over-year comparison
+WF-04,Recipients can unsubmit forms,❌,bd-10 (epic),"""amended"" status exists but no view transitions from submitted back to draft"
+WF-05,Recipients can submit revisions,❌,—,No amend/revise view
+WF-06,Submit a form (distinct action),🐛,—,form_finalize exists but validation commented out — always succeeds
+WF-09,Multi-step federal review and approval,🔮,—,Out of MVP scope
+WF-11,Save progress and return later,✅,"bd-37, bd-54",Forms save on page navigation POST; draft status preserved
+WF-12,Previously submitted data available,⚠️,—,Own entry loads on return; no cross-submission pre-population
+WF-13,Real-time alerts and notifications,🔮,—,Out of MVP scope
+WF-14,Deadline-aware notifications,🔮,—,No notification infrastructure
+WF-15,Multi-user form collaboration and routing,🔮,—,Out of MVP scope
+WF-17,Tracking and collaboration visibility,❌,—,No cross-role visibility
+WF-18,March 31 statutory submission deadline,❌,—,No deadline enforcement in application

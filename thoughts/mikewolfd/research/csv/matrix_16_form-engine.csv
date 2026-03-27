@@ -1,0 +1,16 @@
+ID,Decision,Source,Notes
+FE-08,Interview-style page-by-page data entry flow via POST,[S21],Implements FE-01 through FE-07
+FE-09,JSON field storage for form entry data in FormEntry model,[S21],
+FE-10,"Python/Pydantic schemas as single source of truth for UI structure, validation rules, and UX definition",[S21],"Schema has 3 parts: metadata, Django Form class, UX definition"
+FE-11,FormDefinition records contain schema class name linking to Python schema,[S21],
+FE-33,Form status lifecycle: draft → submitted → amended → archived,[S21],"""amended"" = revision after submission; ""archived"" = available but hidden from user view"
+FE-35,Detailed field-level change logging via FormAuditDetail model,[S21],Extends FE-34 (audit trail requirement)
+FE-36,Short form variant derived from long form base with simplified field set,[S31],Clarifies FI-02/FI-03 relationship; UI must differentiate variants
+FE-37,Cross-form pre-population: Tribal Plan pre-populates from Tribal AR data,[S31],Extends FE-03; requires shared field identifiers across form schemas
+FE-38,Periodic auto-save every 30-60 seconds with success/failure messaging,[S31],Implements WF-11; implies debounced persistence and conflict handling
+FE-39,"PDF generation uses review page data, not raw form data",[S31],Clarifies DA-08; review page aggregation is a dependency for PDF export
+FE-43,Screener flow: routing UI after login that determines which form a user fills out,[S36],Form-selection component; not in prior context
+FE-44,Client-side caching via IndexedDB/localStorage for connection resilience; sync on reconnect,[S36],Prescribed browser storage APIs; requires service worker or connection-monitoring layer
+FE-45,"Three connection state indicators: ""Saved"", ""Connection lost — work stored locally"", ""Reconnected — sync successful""",[S36],Implements AD-09/PR-14 low-connectivity UX
+FE-46,UEI (Unique Entity Identifier) as cross-form pre-population key,[S36],Extends FE-03/FE-37; Authorized Official inputs UEI-keyed data
+FE-47,Concurrent edit conflict handling for periodic auto-save (extends FE-38),"[S21] — ""Simultaneous multi-user editing"" listed as known concern",

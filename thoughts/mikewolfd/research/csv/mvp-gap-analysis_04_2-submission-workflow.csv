@@ -1,0 +1,8 @@
+Gap,Requirements,Severity,Jira,Notes
+No unsubmit capability,WF-04,High,bd-10 (epic),"""amended"" status exists in model but no view transitions back to draft"
+No revision submission,WF-05,High,—,No amend/revise workflow; no ticket
+No auto-creation from schedules,WF-01,Medium,—,Users manually start forms; no reporting-schedule-driven creation
+No year-over-year trends,WF-02,Medium,—,No previous-year data comparison
+No cross-submission pre-population,WF-12,Medium,—,Own entry loads; no prior submission data
+No deadline awareness,WF-18,Low,—,March 31 statutory deadline not enforced
+No tracking visibility,WF-17,Low,—,No cross-role status visibility

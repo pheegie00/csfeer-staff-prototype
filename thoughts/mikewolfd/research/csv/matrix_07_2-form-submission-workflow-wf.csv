@@ -1,0 +1,14 @@
+ID,Requirement,Priority,Source,Conflict
+WF-01,Auto-create and initialize forms for recipients with pre-populated data based on reporting schedules,M,[S29] §2.0 Workflow L120,
+WF-02,Show trends over time using previous year data,M,[S29] §2.0 Workflow L120,
+WF-04,"Recipients can ""unsubmit"" forms",M,[S29] §2.0 Workflow L122,
+WF-05,Recipients can submit revisions to submitted forms,M,[S29] §2.0 Workflow L122; [S24] Req #8,Absorbs WF-08
+WF-09,"Customizable multi-step, multi-person federal review and approval",M,[S29] §2.0 Workflow L123,Out of MVP scope per [S21]
+WF-10,Visual/no-code workflow builder for review processes,C,"[S29] §2.0 Workflow L123 — ""ideally managed through a visual/no-code workflow builder""","Post-MVP; ""ideally"" = aspirational, not a Should"
+WF-11,Save progress and return later to make revisions,M,[S29] §2.0 User Experience L172; [S29] Task Area 2,Absorbs AD-07; [S21] confirms partial saves with invalid data allowed
+WF-12,Previously submitted data available in forms to limit repeat data requests,M,[S29] §2.0 User Experience,
+WF-13,Customizable real-time alerts and notifications linked to workflow events,M,[S29] §2.0 Workflow L124,Out of MVP scope per [S21]
+WF-14,Deadline-aware notifications,M,"[S29] §2.0 Collaboration & Workflow Mgmt L124 — ""deadlines and notifications""; [S29] §2.0 Workflow — ""form past due"" in notification examples",
+WF-15,"Workflow for multiple users entering data into one form, routing, updating/returning for re-submission",M,[S29] §2.0 Workflow L121; §2.0 Collaboration,Absorbs WF-03; Out of MVP scope per [S21]
+WF-17,"Tracking and collaboration visibility on forms between program staff, lead agencies, and sub-recipients across submission, review, and revision lifecycle",M,[S29] Top Problems to Solve,"CQI (Continuous Quality Improvement) sprints are a specific collaboration workflow consuming this visibility ([S03], [S05])"
+WF-18,March 31 statutory submission deadline for CSBG Annual Reports per CSBG Act §678(b),M,"[S15] — ""ensures grant recipient compliance as outlined in Section 678(b) of the CSBG Act""",Recurring annual deadline; system should enforce/notify per WF-14

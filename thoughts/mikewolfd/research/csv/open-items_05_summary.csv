@@ -1,0 +1,6 @@
+Category,Total,Open,Resolved/Deferred
+Conflicts (C-xx),13,6 blocking + 3 non-blocking,4 effectively resolved
+Risks (R-xx),16,16 (7 unscored),0
+Decisions (D-xx),8,8,0
+Questions (Q-xx),12,12,0
+Total,49,45,4

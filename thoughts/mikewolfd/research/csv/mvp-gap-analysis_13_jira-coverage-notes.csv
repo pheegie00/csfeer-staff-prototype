@@ -1,0 +1,4 @@
+Gap,Jira,Issue,Why gap persists
+Auto-save (FE-38),"bd-37, bd-54",Both closed,Covered save-on-navigate only; periodic 30-60s auto-save never built
+API hardening (DA-01),bd-31,Closed,"Covered initial scaffolding; pagination, rate limiting, PII scoping not addressed"
+File attachments (FE-06),bd-399,Closed,USWDS component built; no storage backend wired

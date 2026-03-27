@@ -1,0 +1,7 @@
+ID,Requirement,Status,Jira,Evidence
+AD-01,Section 508 WCAG AA compliance,⚠️,"bd-471 (epic), bd-103, bd-461",USWDS components accessible; no automated a11y testing
+AD-02,USWDS as design system,✅,bd-1 (epic),django-cotton-uswds with 93 components; USWDS 3.13+
+AD-05,Clear progress in multi-step process,✅,"bd-85, bd-450",USWDS step indicator shows complete/current/incomplete
+AD-06,"Plain, familiar language",⚠️,—,Present in templates; no systematic enforcement
+AD-09,Low-bandwidth/rural support,❌,bd-459,"No offline capability, no auto-save, no client caching"
+AD-13,In-context field guidance,⚠️,—,ACFFieldMixin adds description; no companion doc integration

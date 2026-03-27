@@ -1,0 +1,8 @@
+ID,Requirement,Status,Jira,Evidence
+FE-01,Manual data entry: open fields,✅,"bd-427 (epic), bd-18, bd-210, bd-233",ACFFieldsMeta generates all standard Django field types with ACF prefix
+FE-02,Auto-calculated fields,✅,"bd-55, bd-89",CalculatedCurrency/Integer/DecimalField; server-side sum + client-side updateCalculatedFields()
+FE-03,Pre-population: cross-form data linking,❌,—,form_start creates blank entries; no cross-form population mechanism
+FE-04,Conditional fields and branching,✅,"bd-86, bd-114",ACFFieldFilterField drives fields_to_exclude; remove_nodes_with_excluded_fields() prunes layout tree
+FE-05,One-to-many response types,❌,—,"No FormSet, repeatable group, or dynamic field mechanism"
+FE-06,File attachment fields,⚠️,bd-399,"ACFFileField exists; USWDS file_input available; not used in any deployed form, no storage backend"
+FE-12,Reduce variability from custom plans,⚠️,bd-332,Standardized schemas enforce structure for tribal forms; state/territory forms not yet built

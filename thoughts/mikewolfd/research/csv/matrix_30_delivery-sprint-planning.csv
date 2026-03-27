@@ -1,0 +1,15 @@
+ID,Item,Target,Source,Notes
+DL-01,Landing page deployed,2026-03-01,[S31],
+DL-02,Tribal Annual Report (long form) complete,2026-03-15,[S31],
+DL-03,Tribal Plan and Application complete,2026-03-31,[S31],
+DL-04,ATO documentation package submitted,2026-03-31,[S31],
+DL-05,Build sequence: rendering → saving → review page → auto-save → PDF export,—,[S31],Critical path for March 15 — no flexibility in sequence; each step depends on the previous
+DL-06,"192 story points across 6 epics for Q1 (~11-12 weeks, ~4.75 FTE)",Q1 2026,[S31],Aggressive velocity; no benchmarks stated
+DL-07,Shutdown-safe sequencing: ACF-independent work prioritized first,—,[S31],Government shutdown risk mitigation
+DL-09,API data export endpoints designated as stretch goal,—,[S31],May be deprioritized if forms slip; relevant to C-4
+DL-10,Rural connection performance optimization as acceptance criterion for data persistence,—,[S31],Connects to AD-09
+DL-11,Soft launch to 10-12 tribal orgs with white-glove support,Month 9,[S35],Weekly check-ins tapering to bi-weekly; connects to C-2 (pilot size)
+DL-12,Wave-based full rollout of remaining orgs,Month 12,[S35],After ATO authorization
+DL-13,"Stage Gates: Discovery (M2), MVP (M8), Pilot (M9), Continuous Dev (M15)",Various,[S35],Go/No-Go decision points
+DL-14,"ATO timeline: Planning (M1-2), Implementation (M3-8), Assessment (M9-12), Authorization (M12-13); weekly sprint stories",M1-13,[S31]; [S35],ATO certification is #1 risk (p×i = 0.45)
+DL-15,"90-day post-launch baseline telemetry: user interaction, submission quality, performance, operational metrics",Post-launch,[S36],Requires day-one instrumentation; not post-MVP

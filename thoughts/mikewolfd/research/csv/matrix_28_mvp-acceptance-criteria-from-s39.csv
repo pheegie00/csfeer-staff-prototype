@@ -1,0 +1,5 @@
+ID,Criterion,Source,Notes
+AC-01,All three tribal forms available digitally with validation + save/submit,[S39],
+AC-02,Login.gov working for all pilot users,[S39],Note: contradicts AS-18 (Login.gov deferred per [S31]); may reflect earlier planning
+AC-03,CSV + PDF export functional,[S39],
+AC-04,At least 10 tribal orgs successfully submit during pilot,[S39],Lower bar than SC-01 (20+ per [S24]); connects to C-2 (pilot size)

@@ -1,0 +1,6 @@
+#,Gap,Severity,Action Needed
+4,Validation commented out in finalize,Blocking,Needs ticket
+5,PII in INFO logs,Critical,Needs ticket
+7,CSV export,Blocking,Needs ticket — MVP acceptance criterion
+16,Load testing,High,Needs ticket
+20,Year-over-year comparison,Medium,Needs ticket (if MVP)

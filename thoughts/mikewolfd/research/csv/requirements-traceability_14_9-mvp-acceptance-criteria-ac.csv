@@ -1,0 +1,5 @@
+ID,Criterion,Status,Jira,Evidence
+AC-01,All three tribal forms with validation + save/submit,⚠️,"bd-59 (epic), bd-60 (epic), bd-61 (epic)",Long + Short Form built; Tribal Plan not yet; validation commented out
+AC-02,Login.gov working for all pilot users,❌,bd-111 (epic),Keycloak only; Login.gov deferred (contradicts this criterion)
+AC-03,CSV + PDF export functional,⚠️,"bd-36, bd-49",PDF works (synchronous); no CSV export
+AC-04,At least 10 tribal orgs submit during pilot,❌,—,Pre-pilot; no production deployment

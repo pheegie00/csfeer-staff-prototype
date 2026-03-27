@@ -1,0 +1,10 @@
+ID,Requirement,Status,Jira,Evidence
+DA-01,Read API for forms/submissions/bulk data,⚠️,bd-31,"7 read-only GET endpoints via Django Ninja; no pagination, no rate limiting"
+DA-02,Write API for pre-populated data import,❌,—,API is read-only; no POST/PUT/PATCH
+DA-03,"Data exports via API, CSV, and human-readable",⚠️,—,API returns JSON; PDF exists; no CSV export
+DA-04,Export individual submissions as PDFs,🐛,"bd-36, bd-49",WeasyPrint works; synchronous in request cycle — blocking/DOS risk
+DA-05,Public-access links to submission portions,❌,—,No public/shareable link mechanism
+DA-06,Comprehensive API documentation,✅,bd-31,Django Ninja auto-generates OpenAPI at /api/v1/docs
+DA-07,Real-time data access without perf degradation,❌,—,"No read replica, caching, or query optimization"
+DA-14,"Staff export, review, and correct data errors",❌,—,Django admin only
+DA-15,Conditional-logic-aware PDF export,❌,—,PDF renders all sections regardless of conditional logic

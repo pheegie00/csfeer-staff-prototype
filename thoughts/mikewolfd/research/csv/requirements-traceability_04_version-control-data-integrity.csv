@@ -1,0 +1,4 @@
+ID,Requirement,Status,Jira,Evidence
+FE-30,Multiple simultaneous form versions,✅,bd-222,"SemVerField on FormDefinition, version_number on FormEntry + unique_together constraints + is_active flag"
+FE-31,Robust version history for federal staff,✅,—,Two-tier audit: FormAuditTrail + FormAuditDetail; FormSnapshotView reconstructs state
+FE-32,Historical comparison for recipients,⚠️,—,FormSnapshotView shows past state; no side-by-side diff view

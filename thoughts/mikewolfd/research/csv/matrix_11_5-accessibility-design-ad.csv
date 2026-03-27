@@ -1,0 +1,8 @@
+ID,Requirement,Priority,Source,Notes
+AD-01,Section 508 WCAG AA-compliant front end,M,[S29] §2.0 Accessibility & Design L162,
+AD-02,USWDS (United States Web Design System) as design system,M,"[S29] §2.0 Accessibility & Design L162 — ""ideally using"" USWDS","[S29] uses ""ideally"" for USWDS specifically; 508 AA is the hard requirement"
+AD-05,Clear information about user's location in multi-step process,M,"[S29] Task Area 2 — ""Give users clear information about where they are""",
+AD-06,"Plain, familiar language throughout the service",M,[S29] Task Area 2,
+AD-08,Consistent visual identity with agency branding,S,[S29] Task Area 2,
+AD-09,Low-bandwidth/rural environment support,?,[S06] — Alaska named explicitly,"Priority was M per [S24]; needs re-evaluation with allowed sources only. Note: [S06] also documents zero-connectivity on-site assessment scenarios (ANA), which exceeds ""low-bandwidth"" — gap between AD-09 and full offline capability"
+AD-13,In-context field guidance and companion document integration (extends UP-02),?,"[S06] — ""Form itself does not include the substantial context that comes with very lengthy instruction and guide documents""; [S32]","Broader than SF-424M cross-ref (UP-02): field-level help, section instructions, 62–150 page companion docs"

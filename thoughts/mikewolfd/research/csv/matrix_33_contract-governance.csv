@@ -1,0 +1,13 @@
+ID,Item,Source,Notes
+CG-01,"Contract: 24-month (12+12); Core: PM, Tech Lead, Product Manager, UX Lead, 2 Sr Full-Stack Devs (6 FTE); Surge: +2 Devs, +0.5 Security, +0.25 A11y (M4-9, M13-15)",[S33]; [S35],"Relevant to C-8; [S33] says ~4.75 FTE, [S35] details 6 FTE + surge"
+CG-02,Key personnel: Product Manager requires government approval for replacement,[S33],
+CG-03,Bi-weekly release cadence,[S33],Aligns with agile methodology
+CG-04,Governance: Project Intake Form within 5 days of award; CFT meetings; Stage Gate Reviews,[S33],ACF OCIO governance framework
+CG-05,"Reporting: bi-weekly dashboard, monthly CSR, semi-annual Mid-Year Performance Summary",[S33],
+CG-06,"Transition plan: 4 weeks per [S33], 90 days per [S35] — see C-12",[S33]; [S35],Conflict: 4 weeks (2 sprints) vs 90 days (doc audit → training → parallel ops)
+CG-07,Incident response: comply with ACF IRT policy; report all suspected/confirmed incidents,[S33],
+CG-09,Tribal Advisory Group: 6-8 geographically diverse representatives (formed M1-6); 8-10 site visits during discovery,[S35],
+CG-11,Repo and all infrastructure assets transfer to HHS/ACF post-development,[S35],
+CG-12,"Open-source contributions planned: USWDS Crispy Forms for Django, USWDS Cotton component framework",[S35],Aspirational; Crispy Forms not observed in codebase
+CG-13,"All IP (research, designs, code, documentation) is property of ACF",[S37],From PWS
+CG-14,Requirements are non-exhaustive and mutable; agile discovery drives changes; Government is Product Owner,[S37],From PWS

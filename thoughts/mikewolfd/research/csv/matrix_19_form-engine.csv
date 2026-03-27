@@ -1,0 +1,6 @@
+ID,Requirement,Priority,Source,Notes
+FE-07,Support both simple and complex forms (complexity spectrum),M,[S24] Obj 2,
+FE-34,Audit trail for all form actions by user,M,[S24] Req #19; [S21] — FormAuditTrail model,
+[WS-01],Data sensitivity classification per field,?,Derived: AS-20 (CUI) + PM-01 (access controls) imply per-field tiers,Stretch
+[WS-02],"PRA metadata per form (OMB number, expiration, burden)",?,"Derived: FI-01–FI-06 + [S03], [S05], [S13] PRA notes",Operational dependency; stretch
+[WS-03],Schema-driven definitions decoupled from hardcoded UI,?,Derived: FE-10 + FE-42 + FE-40,Direction for post-MVP form builder

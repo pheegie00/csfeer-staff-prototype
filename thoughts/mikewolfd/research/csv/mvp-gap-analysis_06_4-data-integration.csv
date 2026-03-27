@@ -1,0 +1,7 @@
+Gap,Requirements,Severity,Jira,Notes
+No CSV export,"DA-03, AC-03",Blocking,—,Explicitly in MVP acceptance criteria; no ticket
+Synchronous PDF generation,DA-04,High,bd-49,bd-36 closed (POC); bd-49 in_progress
+No conditional-logic-aware PDF,DA-15,Medium,—,Prints everything including non-applicable sections
+API has no pagination,DA-01,Medium,—,⚠️ bd-31 closed but only covered scaffolding; pagination/rate-limiting never built
+PII exposure via API,DA-01,High,—,"Full form data JSON, audit old/new values, org contact details exposed; no ticket"
+PII logged at INFO level,—,Critical,—,form_manager/utils.py:193+ logs form data; no ticket

@@ -1,0 +1,14 @@
+ID,Requirement,Priority,Source,Conflict
+DA-01,"Flexible read API for forms, submissions, and bulk data extraction",M,[S29] §2.0 Integration L148,Out of MVP scope per [S21]
+DA-02,Write API to import pre-populated data,M,[S29] §2.0 Integration L149,Out of MVP scope per [S21]
+DA-03,"Data exports via API, CSV, and human-readable formats",M,[S29] §2.0 Integration L150,
+DA-04,Export individual form submissions as PDFs,M,[S29] §2.0 Integration L151,
+DA-05,Generate public-access links to specific portions of a submission,?,[S29] §2.0 Integration L152,No [S29] language differentiates priority from adjacent items; was S without basis
+DA-06,"Comprehensive, easy-to-understand API documentation",M,[S29] §2.0 Integration L153,
+DA-07,Real-time data access that doesn't hinder application performance,M,[S29] Top Problems to Solve,
+DA-09,Data exports feed Performance Management website (Monique Alcantara is COR),?,[S05]; [S03],"Downstream consumer not in [S29]; congressional reporting is primary downstream workflow — Melanie manages all congressional reporting ([S03]); data flows: exports → PM website → Congress ([S01], [S29])"
+DA-10,OLDC DataConnect or Excel exports as data migration source,?,"[S13] — ""Ideal: OLDC DataConnect from GS; Alternative: Excel exports""",
+DA-12,Existing XML/XSD validation artifacts from SmartForms available as reference,?,[S13],"""Migration input"" was an inference; source only lists the artifact attachment"
+DA-13,"FY24 raw data exports exist (State Plan, Modules 1/2/4) for schema reference",?,[S14] — RVW/RPT prefix naming convention,
+DA-14,"Enable program staff to easily export, review, and correct data errors (missing data, data conflicts, new elements)",M,[S29] Top Problems to Solve,
+DA-15,Conditional-logic-aware PDF/print export: omit non-applicable sections from output,?,"[S03] — ""business logic built in, but when they print it, it shows everything (even questions that weren't applicable) - hard to read""",

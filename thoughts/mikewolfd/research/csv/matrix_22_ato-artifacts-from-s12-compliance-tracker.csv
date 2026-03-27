@@ -1,0 +1,10 @@
+ID,Artifact,Status (as of Feb 2026),Owner,Source
+AS-A1,ACF System Registration Form,COMPLETED (2026-01-27),Diana Rosner (CTR),[S12]
+AS-A2,Privacy Impact Assessment Form,UNDER REVIEW (2026-02-09),Ablavi Zolome (CTR),[S12]
+AS-A3,System-Categorization,UNDER REVIEW (2026-02-20),Oyindasola Akisanmi (CTR),[S12]
+AS-A5,Business Impact Analysis (BIA),Unknown (blank in tracker),—,[S12]
+AS-A6,Incident Response Plan (IRP),Unknown (blank in tracker),—,[S12]
+AS-A7,Contingency Plan,Unknown (blank in tracker),—,[S12]
+AS-A8,Configuration Management Plan,Unknown (blank in tracker),—,[S12]
+AS-A9,E-Authentication Agreement,Unknown (blank in tracker),—,[S12]
+AS-A10,Selected Controls Rev5-Low_System,Unknown (blank in tracker),—,[S12]

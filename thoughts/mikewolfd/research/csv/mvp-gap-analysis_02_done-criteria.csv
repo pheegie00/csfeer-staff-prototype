@@ -1,0 +1,12 @@
+ID,Criterion,Status,Gap
+AC-01,All three tribal forms with validation + save/submit,⚠️,Tribal Plan not built; validation commented out in form_finalize.py:48
+AC-02,Login.gov working for pilot users,❌,Deferred per AS-18; conflicts with this criterion (see C-13 in MATRIX)
+AC-03,CSV + PDF export functional,⚠️,PDF works (synchronous/blocking); no CSV export
+AC-04,≥10 tribal orgs successfully submit during pilot,❌,Pre-pilot; no production deployment
+SC-01,20+ tribal orgs submit via CORE without reverting to PDFs,❌,Conflicts with AC-04 (10) and DL-11 (10-12) on pilot size
+SC-02,≥80% of users report easier than PDFs,❌,No survey mechanism
+SC-03,100% Section 508 compliance,⚠️,USWDS components accessible; no automated a11y testing
+SC-04,Zero OCIO security findings,⚠️,Strong security patterns; ATO docs in progress
+SC-05,Architecture docs complete for Phase II,❌,Not started
+SC-06,Platform supports both simple and complex forms,⚠️,Two tribal forms demonstrate complexity spectrum
+SC-07,First measurable baseline for Tribal reporting,❌,Requires day-one telemetry (DL-15)

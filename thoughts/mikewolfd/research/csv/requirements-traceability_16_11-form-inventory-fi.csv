@@ -1,0 +1,4 @@
+ID,Form Name,Status,Jira,Notes
+FI-01,CSBG Tribal Plan and Application,❌,"bd-61 (epic), bd-65, bd-66, bd-68, bd-69, bd-70, bd-230",Design done; schema not yet built. Target Mar 31.
+FI-02,CSBG Tribal Annual Report (Long Form),✅,"bd-59 (epic), bd-16, bd-39, bd-47, bd-63, bd-104",Schema exists and functional
+FI-03,CSBG Tribal Annual Report [Short Form],✅,bd-60 (epic),Schema exists and functional

@@ -1,0 +1,7 @@
+Issue,Severity,Jira
+"Prod Docker image likely missing app code — only copies ./csfeer, not core/, users/, form_manager/",Critical,bd-460 (epic)
+Helm values/schema mismatch — templates reference different paths than values define,Critical,bd-460 (epic)
+Ingress health check hits / which redirects to OIDC login (not 200),High,—
+"Logging writes to /app/logs/*.log but K8s root filesystem is read-only, no writable volume mounted",High,—
+SECRET_KEY env var name mismatch between Helm and Pydantic settings,High,—
+CI/CD triggers commented out — no automated quality gates on PRs,High,bd-460 (epic)

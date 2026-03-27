@@ -1,0 +1,7 @@
+ID,Requirement,Status,Jira,Evidence
+FE-20,Flexible validation rules engine,✅,"bd-114, bd-240, bd-458",Pydantic+Django form validation with custom field validators and fields_to_exclude logic
+FE-21,Hard errors and warning validations,⚠️,—,Hard errors via Django form validation; no warning/notification tier
+FE-22,"Field, field-group, and form-level validation",⚠️,—,Field-level and form-level exist; no explicit field-group validation
+FE-23,Automated validation during form completion,🐛,"bd-114, bd-458",Validation logic exists but commented out in form_finalize.py:48 — forms submit even if invalid
+FE-24,Automated comparison to integration data (SAM.gov),❌,—,"No SAM.gov API, UEI field, or external data validation"
+FE-25,Validation timing (during entry vs. review page),⚠️,"bd-114, bd-240",Validates per-page on POST; review page shows errors via session flag; not inline during typing

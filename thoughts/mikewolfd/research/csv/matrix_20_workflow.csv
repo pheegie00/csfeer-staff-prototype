@@ -1,0 +1,7 @@
+ID,Requirement,Priority,Source,Notes
+WF-06,Submit a form (distinct action),M,[S24] Req #5,
+WF-07,Submit a report (distinct from form?),?,[S24] Req #7,May be duplicate of WF-06; early conceptual distinction
+WF-16,Four-stage deliverable approval: draft → gov't comments → final → GTM/COR acceptance,?,[S16]; [S17],"Misplaced — contract deliverable workflow, not form submission; belongs in § 12 governance"
+[WS-07],"Conditional routing based on submission attributes (e.g., budget threshold triggers CFO step)",?,Derived: [S37] open question,Post-MVP; depends on WF-09
+[WS-08],Parallel approval branches with join logic,?,Derived: [S37] open question,Post-MVP; depends on WF-09
+[WS-09],Delegation and escalation rules for review workflows,?,Derived: [S37] open question,Post-MVP; depends on WF-09

@@ -1,0 +1,8 @@
+ID,Criterion,Source,Conflict
+SC-01,20+ Tribal grant recipients submit via CORE without reverting to PDFs,[S24] Obj 1 KR; [S21] Goal 1,Conflicts with other sources suggesting 10-12 pilot cohort
+SC-02,≥80% of users report digital experience is easier than PDFs,[S24] Obj 3 KR; [S21] Goal 3 (item 3.i),
+SC-03,100% Section 508 compliance,[S24] Obj 3 KR; [S39],VPAT verification required per AD-11; also AC criterion
+SC-04,Zero ACF OCIO security or compliance findings,[S24] Obj 3 KR,
+SC-05,Architecture documentation complete for Phase II,[S24] Obj 2 KR,
+SC-06,Platform supports both simple and complex forms,[S24] Obj 2,
+SC-07,Establish first measurable baseline for Tribal reporting performance,"[S24] — ""CORE provides the first measurable baseline""",

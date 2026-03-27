@@ -1,0 +1,2 @@
+ID,Decision,Source,Notes
+DA-08,PDF generation via WeasyPrint (HTML/CSS to PDF),[S18],"Implements DA-04; conflicts with any ""headless Chrome"" references"

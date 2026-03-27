@@ -1,0 +1,13 @@
+ID,Question,Context,Traces to
+Q-01,What are the specific validation rules for each of the 3 Tribal forms?,"Rules live in the forms themselves / SmartForms XSD, not in Confluence docs",FE-20
+Q-02,How do Tribal recipients currently collaborate on form preparation?,Affects multi-user workflow design,WF-15
+Q-03,What analytics/reporting format does Congress require?,Melanie Durley is SME; requirements undocumented,DA-03
+Q-04,How should biannual vs annual Plan Application submissions be handled?,Affects form scheduling logic,WF-01
+Q-05,What are the specific UEI/SAM.gov integration points for automated mismatch detection?,,FE-24
+Q-06,Field-level mapping between OLDC columns and CSFEER schema fields,FY24 export conventions documented; field-level mapping unknown,"R-04, R-14"
+Q-07,Form definition versioning vs submission snapshot history — what exactly is required?,,"FE-30, FE-31"
+Q-08,"PIA classification: ""electronic information collection"" vs ""application""?",Rubric needed from privacy team (Tobi/Oyindasola),R-09
+Q-09,SORN timeline and scope,Confirmed required but no timeline documented; full PII inventory needed beyond email,R-09
+Q-10,Notification SLA/deadline enforcement and escalation rules — what are the business rules?,,"C-6, WF-14, WF-18"
+Q-11,"CSV export format and scope — what columns, what granularity, who consumes it?",MVP acceptance criterion (AC-03) with no specification,DA-03
+Q-12,How does tribal council sign-off/attestation work digitally?,"No attestation model, signature capture, or transmittal letter workflow","R-12, UP-03"

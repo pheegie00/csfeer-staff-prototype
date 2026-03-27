@@ -1,0 +1,5 @@
+Gap,Requirements,Severity,Jira,Notes
+No telemetry/instrumentation,"PR-04, PR-05, DL-15",High,bd-2 (epic),Day-one instrumentation required for 90-day baseline; nothing exists
+No load testing,"PR-02, PR-11",High,—,No evidence system handles 200 concurrent users; no ticket
+No test coverage reporting,PR-15,Medium,"bd-481, bd-9",>80% target; tool installed but not configured
+Gunicorn not tuned,PR-11,Medium,—,Default worker config; no explicit worker/thread/timeout settings

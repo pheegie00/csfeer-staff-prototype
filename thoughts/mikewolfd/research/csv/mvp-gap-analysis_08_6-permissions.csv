@@ -1,0 +1,3 @@
+Gap,Requirements,Severity,Jira,Notes
+No self-service user management,PM-02,High,"bd-108, bd-475",No user management UI; Django admin only
+No organizational hierarchy,PM-03,Medium,—,Flat org model; no sub-recipient/state/federal tiers

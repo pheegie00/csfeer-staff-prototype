@@ -1,0 +1,9 @@
+ID,Requirement,Priority,Source,Conflict
+PM-01,"Flexible permissions: read, write, and export controls",M,[S29] §2.0 Permissions L177,
+PM-02,Self-service user management: recipients manage their own users and permissions,M,[S29] §2.0 Permissions L178,
+PM-03,"Hierarchical administration: sub-recipient, state, and federal levels",M,[S29] §2.0 Permissions L178,
+PM-04,"Minimum permission levels: read-only, write-only, approve at each level",M,[S29] §2.0 Permissions L179,
+PM-05,"Varying permission levels: view-only, view+edit, view+submit",M,"[S29] Objective — ""varying permission levels""",
+PM-06,"75 federal staff with review, route, approve, analyze, compare, export capabilities",M,[S29] Objective — scale assumption,
+PM-07,Roles and permissions managed through Okta groups syncing with application,?,[S10],Implementation approach
+PM-08,Authorization and access control,M,[S29] §2.0 Permissions,Out of MVP scope per [S21] — CONFLICT

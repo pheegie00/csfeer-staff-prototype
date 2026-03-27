@@ -1,0 +1,6 @@
+ID,Requirement,Priority,Source,Notes
+AD-04,Optimized for tablets and laptops,M,[S24] NFR6,
+AD-10,Prototype designs may vary from implementation based on USWDS component feasibility,?,[S20],Implementation variance caveat
+AD-11,Accessibility Conformance Report (ACR) via VPAT required for any commercial ICT,M,[S33],Gov't reserves right to independently test; remediation at contractor expense
+AD-12,WCAG 2.0 AA is contractual obligation; building to WCAG 2.1/2.2 AA is advisable,?,[S33],2.0 is outdated; 2.1/2.2 is current standard
+[WS-11],"Offline-first field administration (ANA, CB on-site assessment)",?,"Derived: AD-09 + FE-44 + [S06] — ""ANA — offline/in-person administration needed""",Post-MVP; exceeds low-bandwidth (AD-09) into full offline

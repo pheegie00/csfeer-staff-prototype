@@ -1,0 +1,10 @@
+ID,Decision,Status,Jira,Evidence
+IT-01,"Python 3.12, Django 6.0+",✅,bd-460 (epic),uv.lock resolves Django 6.0; Python 3.12 target
+IT-02,PostgreSQL (Aurora RDS),✅,—,Terraform defines Aurora PostgreSQL 16.6 with IAM auth
+IT-03,AWS ECS (not Kubernetes),✅,—,"Superseded — moved to EKS/Kubernetes. Helm charts, ArgoCD, EKS Terraform all present"
+IT-04,Alpine.js 3.15+,✅,—,Alpine.js + mask plugin in webpack bundle
+IT-05,USWDS 3.13+,✅,bd-1 (epic),django-cotton-uswds with 93 components
+IT-06,Django Ninja for REST APIs,✅,bd-31,7 endpoints at /api/v1/
+IT-07,WeasyPrint for PDF generation,✅,"bd-36, bd-49",Synchronous in FormDownloadPDFView
+IT-08,Django Cotton for template components,✅,bd-57,django_cotton_uswds app with pattern library
+IT-09,Keycloak for local dev auth,✅,bd-473,"Docker Compose with realm csfeer, CSV user seeding"

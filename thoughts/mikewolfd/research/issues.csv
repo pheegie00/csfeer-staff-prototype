@@ -1,0 +1,1197 @@
+id,title,status,priority,issue_type,created_by,created_at,updated_at,closed_at,close_reason,deleted_at,deleted_by,delete_reason,original_type,description
+bd-1,USWDS Component Library Implementation,in_progress,3,epic,,2025-11-04T20:55:52Z,2025-12-16T17:56:01Z,,,,,,,"*Discovery Need:* N
+{*}Problem Statement:{*} We need all 50+ USWDS components implemented as reusable building blocks so that when designs are ready, implementation is trivial and consistent.
+
+*Decision Framework:*
+ * Use existing USWDS documentation as the source of truth
+ * Each component must be fully accessible and Section 508 compliant
+ * Components should be framework-agnostic but initially implemented in React/Django
+ * Prioritize most commonly used form components first
+
+*Definition of Done + Success Criteria:*
+ * All ~50 USWDS components implemented and documented
+ * Each component has proper TypeScript definitions
+ * Component library is packaged for easy import/reuse
+ * Storybook or similar documentation site shows all components
+ * Components pass accessibility testing
+ * *Success:* Design-to-implementation time reduced to <2 days per screen
+
+Open Question: Do we need 50 discrete tasks for this to track progress?"
+bd-2,Performance Monitoring and Analytics Setup,open,3,epic,,2025-11-04T21:00:06Z,2025-11-04T21:00:06Z,,,,,,,"*Discovery Need:* Y (need to define key performance indicators)
+ *Problem Statement:* How might we monitor system performance and user behavior to ensure the platform meets performance requirements and user needs?
+
+*Decision Framework:*
+ * Implement privacy-compliant analytics
+ * Focus on user experience metrics (Core Web Vitals)
+ * Plan for government oversight and reporting requirements
+ * Consider real user monitoring vs. synthetic testing
+
+*Definition of Done + Success Criteria:*
+ * Performance monitoring dashboard
+ * User analytics (privacy-compliant)
+ * Error tracking and alerting system
+ * Performance budgets and alerts
+ * *Success:* Can identify and resolve performance issues before they impact users"
+bd-3,Implement Page Object Model for Authentication,open,3,feature,,2025-11-07T17:18:05Z,2025-11-07T17:22:15Z,,,,,,,"As a developer, I need reusable page objects for authentication flows to ensure consistent and maintainable E2E tests.
+
+Acceptance Criteria:
+- LoginPage class implemented with all authentication methods
+- BasePage class for common page functionality
+- Proper waiting strategies for OAuth redirects
+- Error handling for login failures
+- Logout functionality with proper cleanup
+
+Technical Details:
+- LoginPage methods: navigate_to_login(), login(), logout(), expect_logged_in()
+- OAuth URL handling: configurable for different environments
+- Element selectors: robust CSS selectors for Keycloak forms
+- Error assertions: invalid credentials, network failures
+- Session management: proper cleanup between tests
+
+Files:
+- tests/pages/base_page.py (base page object class)
+- tests/pages/login_page.py (authentication page object)
+- tests/pages/__init__.py (page object exports)"
+bd-4,Create Test User Fixtures and Authentication Helpers,open,3,feature,,2025-11-07T17:18:29Z,2025-11-07T17:22:08Z,,,,,,,"As a developer, I need test user fixtures that mirror the Keycloak user setup for consistent E2E testing across different user roles.
+
+Acceptance Criteria:
+- Test user fixtures matching Keycloak seeded users
+- Pytest fixtures for admin_page and demo_page
+- Helper functions for dynamic user login
+- User credential management with role information
+- Proper test cleanup and session management
+
+Technical Details:
+- Test users: admin, demo, demo-1, demo-2 (matching users.csv)
+- Roles mapping: csfeer_admin, csfeer_user
+- Fixture scope: function-level with proper cleanup
+- Login helper: login_as() function for dynamic user switching
+- Session handling: automatic logout after test completion
+
+Files:
+- tests/fixtures/users.py (user fixtures and helpers)
+- tests/conftest.py (authenticated_page fixture)"
+bd-5,Implement Authentication Flow E2E Tests,open,3,feature,,2025-11-07T17:18:51Z,2025-11-07T17:22:02Z,,,,,,,"As a QA engineer, I need comprehensive E2E tests for the complete authentication flow including login, logout, and error scenarios.
+
+Acceptance Criteria:
+- Successful login test with valid credentials
+- Logout functionality test
+- Invalid credentials error handling test
+- Protected page redirect test (unauthenticated access)
+- Session persistence across page navigation
+
+Technical Details:
+- Test scenarios: happy path, error cases, edge cases
+- User roles tested: demo user (regular user)
+- Assertions: UI state changes, URL redirects, error messages
+- OAuth flow: complete redirect cycle testing
+- Session validation: user menu visibility, logout availability
+
+Files:
+- tests/e2e/test_auth_flow.py (authentication flow tests)"
+bd-6,Implement User Role and Permissions E2E Tests,open,3,feature,,2025-11-07T17:19:14Z,2025-11-07T17:21:54Z,,,,,,,"As a QA engineer, I need E2E tests that verify user role-based access control and permissions work correctly in the UI.
+
+Acceptance Criteria:
+- Admin user login and session verification
+- Regular user login and session verification
+- Admin-only page access control (when implemented)
+- Role-based navigation differences
+- Multi-user login/logout cycle testing
+- User switching functionality
+
+Technical Details:
+- Test users: admin (csfeer_admin + csfeer_user), demo (csfeer_user only)
+- Access control: admin pages, user-specific features
+- UI verification: user menu, navigation options, page content
+- Session isolation: separate browser contexts for different users
+- Role assertions: group membership reflected in UI
+
+Files:
+- tests/e2e/test_user_roles.py (user role and permission tests)"
+bd-7,Implement Form Manager E2E Tests,open,3,feature,,2025-11-07T17:19:37Z,2025-11-07T17:21:47Z,,,,,,,"As a QA engineer, I need E2E tests for the form manager functionality including form listing, viewing, submission, and validation.
+
+Acceptance Criteria:
+- Forms page loads successfully for authenticated users
+- Form details view functionality (when forms exist)
+- Form submission with valid data (when implemented)
+- Form validation error handling (when implemented)
+- Form CRUD operations testing (when fully implemented)
+
+Technical Details:
+- Page navigation: /forms/ route testing
+- Form interaction: clicking, filling, submitting
+- Validation: required fields, data types, error messages
+- Success feedback: submission confirmation
+- Error handling: network failures, validation failures
+
+Files:
+- tests/pages/form_manager_page.py (form manager page object)
+- tests/e2e/test_form_manager.py (form manager functionality tests)"
+bd-8, Implement Navigation and Page Access E2E Tests,open,3,feature,,2025-11-07T17:19:57Z,2025-11-07T17:19:57Z,,,,,,,"As a QA engineer, I need E2E tests for general navigation, page loading, and authenticated user experience.
+
+Acceptance Criteria:
+- Home page loads correctly for authenticated users
+- Navigation links are present and functional
+- User navigation menu displays correctly
+- Authenticated vs unauthenticated navigation differences
+- 404 error handling for authenticated users (when implemented)
+
+Technical Details:
+- Page loading: home page, forms page, other main pages
+- Navigation elements: user menu, logout link, main navigation
+- Authentication state: visual indicators of login status
+- URL routing: proper redirects and page loading
+- Error pages: 404, 403, 500 error handling
+
+Files:
+- tests/e2e/test_navigation.py (navigation and page access tests)"
+bd-9,Implement E2E Test CI/CD Integration,open,3,feature,,2025-11-07T17:20:16Z,2025-11-07T17:20:16Z,,,,,,,"As a DevOps engineer, I need E2E tests integrated into the CI/CD pipeline for automated testing on every deployment.
+
+Acceptance Criteria:
+- GitHub Actions workflow for E2E test execution
+- Docker Compose integration for test environment
+- Test results reporting and artifact collection
+- Parallel test execution for faster feedback
+- Failure notifications and debugging support
+
+Technical Details:
+- CI platform: GitHub Actions
+- Test environment: Docker Compose with Keycloak + Django
+- Browser: headless Chromium
+- Artifacts: videos, traces, screenshots on failure
+- Test selection: marker-based test filtering (@pytest.mark.e2e)
+
+Files:
+- .github/workflows/e2e-tests.yml (CI/CD workflow)
+- docker-compose.test.yml (test environment configuration)
+- Makefile (test execution commands)"
+bd-10,Adjudication,open,3,epic,,2025-11-10T16:10:37Z,2025-11-10T16:10:37Z,,,,,,,Adjudication
+bd-11,Reviewing existing research ,closed,3,feature,,2025-11-10T18:40:48Z,2025-12-04T19:39:36Z,2025-11-18T21:24:51Z,,,,,,"h2. Description
+We start with reviewing existing research to gain context and ground ourselves with what's known as far as the forms goes, the current workflow around them. 
+
+h3. Reference
+* ACF website and [OCS CSBG Process Map|https://app.mural.co/t/hhsacf3483/m/hhsacf3483/1732215319839/2d606cb8d70c5e3d639f8cc31a92e91279d0b115]
+"
+bd-12,Service Blueprint Scaffold,closed,3,feature,,2025-11-10T18:42:06Z,2025-12-04T19:47:20Z,2025-11-18T21:26:53Z,,,,,,"h2. Description
+
+Create a scaffold/framework of a service blueprint. Include known steps/process. 
+h3. Resource
+* [OCS CSBG Process Map|https://app.mural.co/t/hhsacf3483/m/hhsacf3483/1732215319839/2d606cb8d70c5e3d639f8cc31a92e91279d0b115]
+
+h3. Open questions
+ * Are there any existing diagrams to learn from?
+
+h2. Deliverable
+
+* [[Figjam] ACF Service Blueprint Scaffold|https://www.figma.com/board/zoPjGarJQBVwlMaIgISvq0/ACF-Exploration?node-id=178-2]"
+bd-13,Configure Login.gov OAuth 2.0 Client Registration,open,2,feature,,2025-11-04T21:11:52Z,2025-11-12T14:52:36Z,,,,,,,"* {*}Story{*}: As a system administrator, I need to register our application with Login.gov so that we can receive OAuth client credentials and configure the integration.
+ * {*}Acceptance Criteria{*}:
+ ** Register application in Login.gov sandbox environment
+ ** Obtain client ID and client secret
+ ** Configure redirect URIs for both development and production
+ ** Document client configuration settings
+ * {*}Dependencies{*}: Login.gov account access"
+bd-14,ACF Ecosystem Overview,closed,3,feature,,2025-11-10T18:42:29Z,2025-12-04T19:46:37Z,2025-11-10T23:08:53Z,,,,,,"h2. Description
+
+Before we launch into this work, we want to understand the broader ecosystem in which this project sits and identify leadership across relevant offices and teams. 
+
+This will also serve the team with orienting us on different offices and program they are responsible for, as well as familiarize ourselves on program goals and objectives. 
+
+*Note:* Completed part of the work in Sprint 1 and part of it prior to officially starting sprints. 
+
+h3. Resource
+* ACF website
+
+h3. Open questions
+* Does this accurately reflect the current state of programs and offices within ACF?
+
+h2. Deliverable
+ * [[Figjam] ACF Org Chart |https://www.figma.com/board/zoPjGarJQBVwlMaIgISvq0/ACF-Exploration?node-id=168-1369&t=i33L5ZuF009nL8AB-4]
+ * [[Figjam] OCS Programs|https://www.figma.com/board/zoPjGarJQBVwlMaIgISvq0/ACF-Exploration?node-id=170-347&t=i33L5ZuF009nL8AB-4]"
+bd-15,User Research,open,3,epic,,2025-11-10T18:43:25Z,2026-01-28T18:08:05Z,,,,,,,This is a design epic
+bd-16,User flow diagram for Tribal AR,closed,3,feature,,2025-11-14T18:27:48Z,2026-01-12T17:12:32Z,2025-12-03T15:09:27Z,,,,,,"h2. Description
+
+Review the Tribal Annual Report 3.0 and map it out on a flow diagram capturing questions asked, decision points, any branching logic. 
+
+This will help the team with understanding the end-to-end flow before designs begin, help the team align on scope and sequence of the form. 
+
+h3. Scope
+
+This work is centered around the Tribal Annual Report 3.0 that's OMB approved and have been worked on my the program staff team specifically for the forms engine.
+
+h3. Resource
+* [Tribal Annual Report 3.0 pdf |https://acf.gov/sites/default/files/documents/ocs/FY24-CSBG-Tribal-Annual-Report-Fillable-PDF-Tool_2.pdf] 
+
+h2. Deliverable
+* [Figma link|https://www.figma.com/board/zoPjGarJQBVwlMaIgISvq0/ACF-Exploration?node-id=309-1975]"
+bd-17,Add unit tests for new form schema manager,open,3,feature,,2025-11-17T16:23:58Z,2025-11-18T15:20:29Z,,,,,,,"Test the following:
+ * dump_schema command
+ * load_initial_forms command"
+bd-18,Render example form with new form schema management,closed,3,feature,,2025-11-17T16:25:13Z,2025-11-21T16:28:45Z,2025-11-21T16:28:45Z,,,,,,"With the new form schema management, we need to write an engine that renders the form into a django template."
+bd-19,Setting Up Component Library ,closed,3,feature,,2025-11-17T19:21:52Z,2025-12-04T18:40:54Z,2025-12-04T18:40:54Z,,,,,,Setting Up Component Library using Django Pattern Library
+bd-20,Set up Figma Design system using USDWS 3.0,closed,3,feature,,2025-11-17T19:28:17Z,2025-12-04T19:45:48Z,2025-12-03T15:09:35Z,,,,,,"h2. Description
+
+Set up Figma with USWDS design library, the design system for the federal government. 
+
+h3. Resource 
+* https://designsystem.digital.gov/
+
+h2. Deliverable
+* [Figma library|https://www.figma.com/design/mEm3CXNbZpBLfI3WKcAPIf/USWDS-Design-Kit-Beta--Community-?m=auto&t=sn8GGamZ6hxNI1ox-6]"
+bd-21,Strawman of Personas,closed,3,feature,,2025-11-18T15:20:18Z,2025-11-18T15:22:18Z,2025-11-18T15:22:18Z,,,,,,Strawman of Personas
+bd-22,Version 2.0 of Product Spec,closed,3,feature,,2025-11-18T15:21:58Z,2025-12-16T17:53:30Z,2025-11-18T15:22:23Z,,,,,,Version 2.0 of Product Spec
+bd-23,Review existing research,closed,3,feature,,2025-11-18T21:46:04Z,2025-12-04T19:41:07Z,2025-12-02T18:14:50Z,,,,,,"h2. Description
+
+We start with reviewing existing research to gain context and ground ourselves with what's known as far as the forms goes, the current workflow around them.
+h3. Confluence Resource
+ * [CSBG Reporting Process|https://confluence.acf.gov/spaces/OXT/pages/100016507/CSBG+Reporting+Process]
+ * [Annual Report|https://confluence.acf.gov/spaces/OXT/pages/83305893/CSBG+Annual+Report]
+ * [CSBG Research Intro|https://app.mural.co/t/hhsacf3483/m/hhsacf3483/1758569293327/6d9fb5daf522f90532e227fd2b23d56c00a3ab15]"
+bd-24,Implement OAuth 2.0 Authorization Code Flow,open,3,feature,,2025-11-04T21:13:00Z,2025-11-04T21:16:33Z,,,,,,,"* {*}Story{*}: As a user, I need to be redirected to Login.gov for authentication so that I can securely access ACF services.
+ * {*}Acceptance Criteria{*}:
+ ** Implement authorization request with proper parameters (client_id, redirect_uri, scope, state)
+ ** Handle Login.gov callback with authorization code
+ ** Exchange authorization code for access token
+ ** Validate state parameter to prevent CSRF attacks
+ ** Support PKCE (Proof Key for Code Exchange) if required"
+bd-25,Refresh kick off deck slides,closed,3,feature,,2025-11-19T16:24:56Z,2025-12-09T18:53:25Z,2025-12-09T18:53:25Z,,,,,,Refresh kick off deck slides
+bd-26,Create jira dashboard,closed,3,feature,,2025-11-19T16:25:57Z,2025-11-19T16:35:28Z,2025-11-19T16:35:28Z,,,,,,Create jira dashboard
+bd-27,Create quarterly plan,closed,3,feature,,2025-11-19T16:26:14Z,2026-01-26T18:05:29Z,2026-01-14T18:01:06Z,,,,,,"Create jira plan to replace manual roadmap
+
+ 
+
+https://docs.google.com/document/d/1NvasVSui7PR9YZIqNTca4Ph6xMkby9_hZngFUfBvymo/edit?usp=sharing"
+bd-28,Delivery Operations,open,3,epic,,2025-11-19T16:27:40Z,2026-01-12T19:24:13Z,,,,,,,Delivery Operations
+bd-29,Textarea,closed,3,feature,,2025-11-19T17:23:34Z,2025-12-01T18:20:49Z,2025-12-01T18:20:49Z,,,,,,Textarea
+bd-30,Monthly Report,closed,3,feature,,2025-11-19T18:03:58Z,2026-01-26T18:08:52Z,2026-01-20T18:46:33Z,,,,,,Monthly Report
+bd-31,Setup API Scaffolding,closed,3,feature,,2025-11-24T23:59:08Z,2025-12-02T21:35:56Z,2025-12-02T21:35:56Z,,,,,,"Create a foundational REST API architecture for the form manager application that provides read-only access to form definitions, entries, audit trails, and organization data.
+
+h2. Technical Approach
+- Use Django Ninja framework for modern, type-safe API development
+ - Implement session-based authentication (OAuth2/OIDC integration)
+ - Organize endpoints under `/api/v1/forms/` namespace
+ - Follow RESTful conventions and OpenAPI standards
+ - Auto-generate interactive documentation via Swagger UI
+
+h2. Authentication & Authorization
+- Django session authentication integrated (requires web login)
+- All endpoints require authentication
+- Permission checks use existing `user_can_view()` utilities
+- Organization-based data isolation enforced
+- Proper 401/403 error responses
+
+h2. Documentation
+- Interactive Swagger UI accessible at `/api/v1/docs`
+- OpenAPI schema available at `/api/v1/openapi.json`
+- API README in `form_manager/api/README.md` with:
+  - Authentication instructions (session cookie extraction)
+  - Quick start examples (JavaScript, Python, cURL)
+  - Token authentication implementation guide (future enhancement)"
+bd-32,Create currency component,closed,3,feature,,2025-12-01T14:56:24Z,2025-12-02T21:39:45Z,2025-12-01T15:42:10Z,,,,,,Create a standalone currency component that uses the input prefix component.
+bd-33,Stand up a unit test framework,open,0,feature,,2025-12-01T15:08:14Z,2025-12-01T15:08:15Z,,,,,,,"We have E2E tests set up, but not unit tests. We need to add them."
+bd-34,Use currency component in form rendering,closed,1,feature,,2025-12-01T15:37:20Z,2025-12-02T21:40:05Z,2025-12-02T18:36:40Z,,,,,,The title says it all
+bd-35,Implement OpenID Connect Identity Verification,closed,3,feature,,2025-11-04T21:13:34Z,2025-11-17T18:26:58Z,2025-11-17T18:26:58Z,,,,,,"* {*}Story{*}: As the system, I need to verify user identity through OpenID Connect so that I can establish authenticated user sessions.
+ * {*}Acceptance Criteria{*}:
+ ** Request OpenID Connect scope during authorization
+ ** Retrieve and validate ID token from Login.gov
+ ** Verify JWT signature using Login.gov's public keys
+ ** Extract user attributes (sub, email, verified_at)
+ ** Validate token expiration and issuer"
+bd-36,POC pdf download,closed,3,feature,,2025-12-02T21:45:34Z,2025-12-11T18:35:39Z,2025-12-11T18:35:39Z,,,,,,"Implement PDF export functionality for form entries 
+
+ "
+bd-37,Improve form saving,closed,1,feature,,2025-12-03T16:11:01Z,2025-12-03T16:27:42Z,2025-12-03T16:27:42Z,,,,,,* Figure out the calculated field issue
+bd-38,Setup unit tests,closed,0,feature,,2025-12-04T16:48:21Z,2025-12-09T18:36:10Z,2025-12-09T18:36:10Z,,,,,,use pytest
+bd-39,Initial design for Tribal AR,closed,3,feature,,2025-12-04T18:45:23Z,2026-01-12T17:13:41Z,2025-12-16T22:02:32Z,,,,,,"h2. Description
+Design the digital experience for Tribal Annual Report, enabling users for the first time to easily enter information on how funds received were used. 
+
+h3. Scope
+* V1 work includes creating a digital experience of filling out the form in its entirety. 
+* Does not include login, or post-submission workflows. 
+* Assumes that the user is filling out the report for the first time, and there isn't existing data on them that we can reuse on the form. 
+
+h3. Resource
+* [Tribal Annual Report 3.0 pdf |https://acf.gov/sites/default/files/documents/ocs/FY24-CSBG-Tribal-Annual-Report-Fillable-PDF-Tool_2.pdf] 
+
+h2. Deliverable
+* [V1 Figma Designs|https://www.figma.com/design/wFHt90xC26RDWyIwNPtlua/Tribal-Forms?node-id=37-1969]"
+bd-40,System Intake Form,closed,1,feature,,2025-12-08T16:39:42Z,2025-12-11T18:36:03Z,2025-12-11T18:36:03Z,,,,,,https://app.smartsheetgov.com/b/form/e96258798e064e48a4014bc10e41b1ac
+bd-41,SPIKE: Parse fillable fields from PDF,closed,3,feature,,2025-12-09T19:01:51Z,2025-12-09T19:03:10Z,2025-12-09T19:03:10Z,,,,,,"Example code to grab all the form fields in a PDF and parse them into dicts:
+
+
+
+
+ 
+
+```
+import pdfplumber
+from pdfplumber.utils.pdfinternals import resolve_and_decode
+
+pdf = pdfplumber.open(""/Users/ryanbagwell/Downloads/FY24-CSBG-Tribal-Annual-Report-Short-Form-Fillable-PDF-Tool_2.pdf"")
+
+fields = pdf.doc.catalog[""AcroForm""].resolve().get(""Fields"")
+
+
+def get_field_flags(flags: int | None):
+
+positions= {
+""read_only"": 0,
+""required"": 1,
+""no_export"": 2,
+""multiline"": 13,
+""password"": 14,
+""file_select"": 15,
+""multiselect"": 22,
+}
+
+ifnotflags:
+return \{k: Falsefork, _inpositions.items()}
+ 
+bits=list((flags).to_bytes(32))
+
+return \{k: bits[v] ==1fork, vinpositions.items()}
+
+
+for field in fields:
+
+data=field.resolve()
+
+parsed= {
+""type"": resolve_and_decode(data.get(""FT"")),
+""label"": resolve_and_decode(data.get(""TU"") ordata.get(""T"")),
+""name"": resolve_and_decode(data.get(""TM"")),
+""default_value"": resolve_and_decode(data.get(""DV"")),
+""choices"": resolve_and_decode(data.get(""Op"")),
+}
+
+field_flags=resolve_and_decode(data.get(""Ff""))
+
+parsed.update(get_field_flags(resolve_and_decode(data.get(""Ff""))))
+
+print(parsed)
+
+```
+
+ 
+
+ "
+bd-42,Investigate replacing form field schema with django forms,closed,0,feature,,2025-12-10T16:20:47Z,2025-12-17T18:38:51Z,2025-12-17T18:38:51Z,,,,,,The name says it all
+bd-43,Clearance Tshering,closed,3,feature,,2025-12-11T18:43:16Z,2025-12-15T19:05:40Z,2025-12-15T19:03:38Z,,,,,,Clearance Tshering
+bd-44,Ryan Clearance,closed,3,feature,,2025-12-11T18:44:20Z,2025-12-17T18:29:41Z,2025-12-17T18:29:41Z,,,,,,ryan's clearance
+bd-45,Design,open,3,epic,,2025-12-16T17:38:21Z,2026-01-26T18:51:59Z,,,,,,,"Design the user experience and interface for forms engine and it will house work related to creating wireframes, user flows, screens/pages and related artifacts. Work incorporates user research findings and follows USWDS guidance, and prepares designs for implementation. "
+bd-46,Implement Secure Session Management,open,3,feature,,2025-11-04T21:14:04Z,2025-11-04T21:16:57Z,,,,,,,"* {*}Story{*}: As a user, I need my authenticated session to be secure and properly managed so that my access is protected throughout my interaction with the system.
+ * {*}Acceptance Criteria{*}:
+ ** Create secure session upon successful authentication
+ ** Store minimal user data in session (user ID, authentication timestamp)
+ ** Implement session timeout (per ACF security requirements)
+ ** Secure session cookies with HttpOnly, Secure, and SameSite flags
+ ** Generate unique session IDs with proper entropy"
+bd-47,Iterate on designs for Tribal AR,closed,3,feature,,2025-12-16T17:46:27Z,2026-01-14T19:19:19Z,2026-01-14T18:59:49Z,,,,,,"h2. Description
+Iterate on the V1 designs for the Tribal Annual Report.
+
+Some key updates to the designs include:
+* Adding an intro page to introduce the form
+* Mapping interaction of the edit flow
+* Adding a don't leave page modal before saving
+
+Note
+* Was on half capacity during Sprint 4 and Sprint 5 due to holidays and end of year PTO
+
+h3. Resource
+* [Tribal Annual Report 3.0 pdf |https://acf.gov/sites/default/files/documents/ocs/FY24-CSBG-Tribal-Annual-Report-Fillable-PDF-Tool_2.pdf] 
+
+h3. Feedback
+* Met with Kayla on 12/17 to get feedback on V1 designs
+* Met with Melanie, Liane, Kayla, Amanda, Mark with leads to share V1 designs and collect feedback
+
+h2. Deliverable
+V1 Figma Designs (link to be added closer to the end of the sprint)"
+bd-48,Draft Research Plan (Usability Test Plan) ,closed,3,feature,,2025-12-16T17:52:47Z,2026-01-26T18:09:02Z,2026-01-21T18:34:28Z,,,,,,"h2. Description 
+Create a research plan to support user feedback sessions for the CSBG Tribal Annual Report. The plan will outline how sessions will be run and how feedback will be used to inform design updates.
+
+This plan takes into account both the forms that we plan on testing and thereby considers two phases 
+
+h2. Tasks
+* Drafted Plan 01/21
+* Reviewed plan with OCS + Digital Services Team (Melanie, Liane, Amanda, Lena, Kayla) on 01/21
+* OCS + Digital Services Team will leave comments + feedback via Confluence (focus around timeline and roles) by 01/26
+
+h2. Deliverable
+* [Research plan draft|https://docs.google.com/document/d/1l4ZwPA2aaoH1G-L3xkOxsx8TSFr7sSvI5Neufqp9Jwc/edit?tab=t.0#heading=h.afmfkcdogmeb]
+* [Confluence version|https://confluence.acf.gov/spaces/OXT/pages/168833918/Research+Plan]"
+bd-49,PDF Implementation,in_progress,3,feature,,2025-12-16T19:42:03Z,2026-01-13T18:36:40Z,,,,,,,placeholder
+bd-50,Data Schema ,closed,3,feature,,2025-12-16T19:43:13Z,2026-01-26T18:05:38Z,2026-01-08T21:17:00Z,,,,,,Data Schem
+bd-51,Prototype rendering of new design,closed,3,feature,,2025-12-17T21:17:18Z,2026-01-26T18:05:49Z,2026-01-08T20:11:07Z,,,,,,See what it will take
+bd-52,Clearance Logan,closed,3,feature,,2025-12-22T18:40:47Z,2026-01-26T18:06:03Z,2026-01-07T18:40:08Z,,,,,,Clearance 
+bd-53,Clearance Ryan Cont'd,closed,3,feature,,2026-01-07T18:41:11Z,2026-01-26T18:06:13Z,2026-01-07T18:41:29Z,,,,,,SF-85 form additional work
+bd-54,Save draft form data when advancing to next step,closed,3,feature,,2026-01-08T20:13:30Z,2026-01-26T18:09:13Z,2026-01-21T18:23:51Z,,,,,,"The data should be saved. At the moment, it isn't being saved.
+
+This is how we were previously saving the draft form data:
+
+https://github.com/focusconsulting/csfeer/blob/784a7db9ba7194b240528530ebc63738f6b48247/form_manager/views/__init__.py#L60-L74"
+bd-55,Fix CalculatedField and CalculatedField,closed,3,feature,,2026-01-08T20:15:32Z,2026-01-26T18:06:24Z,2026-01-13T18:22:40Z,,,,,,"The field should:
+ # be read only and appear greyed out like in the design
+ # it should actually display the total from all the fields
+ # it should also have some javascript that dynamically sums the fields when changed by the user."
+bd-56,Implement Session Refresh and Token Management,open,3,feature,,2025-11-04T21:14:33Z,2025-11-04T21:14:33Z,,,,,,,"* {*}Story{*}: As a user, I need my session to be automatically refreshed when possible so that I don't lose my work due to token expiration.
+ * {*}Acceptance Criteria{*}:
+ ** Implement refresh token flow if supported by Login.gov
+ ** Handle access token expiration gracefully
+ ** Refresh tokens before expiration when possible
+ ** Clear sessions when refresh fails
+ ** Log token refresh activities for audit"
+bd-57,Move component library into the django_cotton_uswds app,open,3,feature,,2026-01-08T20:17:11Z,2026-01-08T20:17:11Z,,,,,,,The component library should live there because all of the components are in the django_cotton_uswds app
+bd-58,Clearance Tshering Cont'd,closed,3,feature,,2026-01-12T15:49:48Z,2026-01-26T18:09:23Z,2026-01-15T16:26:27Z,,,,,,"PIV card pickup will be in Philly, flying down for the appointment on the 29th of January
+* Will get photo taken
+* Will receive PIV card
+
+*Tasks*
+[X] Book Ticket
+[X] Book Hotel
+[X] Book Transport"
+bd-59,CSBG Annual Report,open,3,epic,,2026-01-12T16:13:01Z,2026-02-02T18:23:31Z,,,,,,,CSBG Annual Report
+bd-60,CSBG Annual Report - Short Form,open,3,epic,,2026-01-12T16:13:20Z,2026-01-12T16:13:20Z,,,,,,,CSBG Annual Report - Short Form
+bd-61,CSBG Plan and Application,open,3,epic,,2026-01-12T16:13:42Z,2026-01-12T16:13:42Z,,,,,,,CSBG Plan and Application
+bd-63,Content updates for Tribal AR,open,3,feature,,2026-01-12T16:52:21Z,2026-01-26T18:25:55Z,,,,,,,Content Updates to V1 Designs
+bd-64,Visual design updates for Forms platform,open,3,feature,,2026-01-12T16:54:22Z,2026-01-26T20:26:59Z,,,,,,,Visual design
+bd-65,Initial design for Tribal Plan and Application,open,3,feature,,2026-01-12T16:57:19Z,2026-01-26T18:25:55Z,,,,,,,Design of Tribal Plan and Application I
+bd-66,Iterate on designs for Tribal Plan and Application,open,3,feature,,2026-01-12T16:57:41Z,2026-01-26T18:25:55Z,,,,,,,Design of Tribal Plan and Application II
+bd-67,Implement Secure Logout,open,3,feature,,2025-11-04T21:15:00Z,2025-11-04T21:15:00Z,,,,,,,"* As a user, I need to be able to securely log out so that my session is completely terminated.
+ * {*}Acceptance Criteria{*}:
+ ** Clear all session data on logout
+ ** Revoke tokens with Login.gov if supported
+ ** Redirect to Login.gov logout endpoint
+ ** Clear authentication cookies
+ ** Provide logout confirmation"
+bd-68,Iterate on designs for Tribal Plan and Application ,open,3,feature,,2026-01-12T17:00:02Z,2026-01-26T18:25:55Z,,,,,,,Iterate on designs for Tribal Plan and Application 
+bd-69,Content updates for Tribal Plan and Application,open,3,feature,,2026-01-12T17:05:09Z,2026-01-26T18:25:56Z,,,,,,,Content updates to Tribal Plan and Application
+bd-70,Prep work for Tribal Plan and Application,in_progress,3,feature,,2026-01-12T17:15:20Z,2026-01-28T18:11:19Z,,,,,,,"Description
+Reviewing the tribal and plan application, starting to think about how to group the form and lay out the questions"
+bd-71,Onboarding support to Service Designer,closed,3,feature,,2026-01-12T17:25:43Z,2026-01-28T18:10:51Z,2026-01-28T17:01:44Z,,,,,,"h2. Description
+This sprint, supporting new designer onboard
+
+h3. Tasks
+[X] Meet with designer 
+[X] Provide resources to gain context into the work
+[X] Provide access to Focus tools (Figma, Google drive, etc)
+[X] Support with onboarding to ACF tools (Confluence, Jira) 
+"
+bd-72,Design a landing page for all forms,open,3,feature,,2026-01-12T17:57:01Z,2026-01-26T18:25:56Z,,,,,,,Landing page
+bd-73,Build Quarterly Roadmap,closed,3,feature,,2026-01-12T17:57:15Z,2026-01-28T15:18:00Z,2026-01-28T13:50:46Z,,,,,,Quarterly Roadmap
+bd-74,Clearance for Mo,in_progress,3,feature,,2026-01-12T17:57:49Z,2026-01-28T13:51:20Z,,,,,,,Clearance for Mo
+bd-76,Design an entry flow into forms,closed,3,feature,,2026-01-12T19:14:33Z,2026-02-05T11:35:59.825311-05:00,2026-01-20T18:00:33Z,,,,,,Design an entry flow into forms
+bd-77,Review Page Rendering,closed,3,feature,,2025-11-04T21:15:28Z,2026-01-26T18:09:40Z,2026-01-20T18:00:33Z,,,,,,placeholder
+bd-78,Demo ,open,3,task,,2026-01-12T19:22:18Z,2026-01-28T13:51:20Z,,,,,,,Schedule demo
+bd-79,Backlog Review,closed,3,task,,2026-01-12T19:23:23Z,2026-01-28T13:51:00Z,2026-01-28T13:51:00Z,,,,,,Backlog Review
+bd-81,Create multi select filter component,closed,3,feature,,2026-01-13T18:37:16Z,2026-01-13T19:23:51Z,2026-01-13T19:23:51Z,,,,,,See the attached picture
+bd-82,Add step counter to the form steps,open,3,feature,,2026-01-16T19:12:25Z,2026-01-16T19:12:26Z,,,,,,,See the attached screenshot
+bd-83,Add edit links to review page,closed,3,feature,,2026-01-20T18:01:33Z,2026-01-26T18:09:49Z,2026-01-21T18:33:38Z,,,,,,Add them!
+bd-84,Iterate on how to handle subsections on forms,closed,3,feature,,2026-01-21T17:40:09Z,2026-01-26T18:25:56Z,2026-01-21T18:33:38Z,,,,,,"Iterate on how to handle subsections on forms
+
+Work on this as part of Tribal Plan and Application Form, or after that is complete"
+bd-85,Implement Step Counter UI and Template Refactoring for Form Pages,closed,3,feature,,2026-01-21T18:23:20Z,2026-02-02T18:33:54Z,2026-02-02T18:33:54Z,,,,,,Implemented USWDS-compliant step indicator with counter format and refactored form templates to eliminate code duplication and improve maintainability.
+bd-86,Implement checkbox filtering,closed,3,feature,,2026-01-21T18:34:41Z,2026-01-27T18:00:18Z,2026-01-27T18:00:18Z,,,,,,"Component exists, but needs to be implemented."
+bd-88,Clearance Simone,open,3,feature,,2025-11-04T21:15:59Z,2026-01-26T17:37:09Z,,,,,,,"h2. Description
+This step captures clearance steps that Simone engaged in
+
+h2. Deliverables
+[Research Plan_Usability testing|https://docs.google.com/spreadsheets/d/1aJhBBMbQf-MhwCFgN2RR61clDVgun-qhRczxBAJ_xUw/edit?gid=2039924183#gid=2039924183]"
+bd-89,Fix calculated field,closed,3,feature,,2026-01-21T19:28:39Z,2026-01-26T18:09:59Z,2026-01-23T14:50:26Z,,,,,,"The initial value should always be freshly calculated instead of being populated from the db value.
+
+This is to handle the case where a user goes back and checks/unchecks the filterable checkbox."
+bd-90,Fix the admin costs question,closed,3,feature,,2026-01-21T19:36:26Z,2026-02-02T20:08:27Z,2026-02-02T20:08:27Z,,,,,,It should be more like the design
+bd-92,Create email templates and a schedule for usability testing,closed,3,feature,,2026-01-23T15:12:53Z,2026-01-28T14:52:54Z,2026-01-28T14:49:16Z,,,,,,"h2. Description 
+Create email templates and a schedule for usability testing
+
+h2. Tasks
+[X] Create email templates
+[X] Create a schedule for potential testing sessions
+[X] Meet with ACF on 01/26/26
+[X] Send follow-up email to initiate contact with Lux Consulting + Monique on 01/27/26
+[X] Send follow-up email to initiate testing with Program Operations Staff: Jane, Issac, and Roneika Carr on 01/27/26
+
+h2. References (Optional)
+
+h2. Deliverables
+[Research plan_Usability Testing|https://docs.google.com/document/d/1l4ZwPA2aaoH1G-L3xkOxsx8TSFr7sSvI5Neufqp9Jwc/edit?tab=t.31kdim8nkbq7#heading=h.7oachd2yik1v]"
+bd-94,Security Assessment Report (SAR),open,3,task,,2026-01-26T17:29:42Z,2026-01-26T18:00:57Z,,,,,,,"Security Assessment Report (SAR)
+
+Document results of security control assessment identifying findings and risk levels per NIST SP 800-53A.
+
+All controls have documented results; Findings described with evidence; Risk ratings assigned (High/Moderate/Low); Overall system risk documented; SAR reviewed with ISSO"
+bd-96,POA&M (Plan of Action & Milestones),open,3,task,,2026-01-26T17:30:16Z,2026-01-26T18:02:05Z,,,,,,,"Track security findings and remediation per HHS standards. High-risk within 30 days, medium within 60 days per PWS.
+
+All SAR findings entered; Remediation actions defined; Milestones and dates established; Responsible parties assigned; Format follows HHS standards"
+bd-98,Contingency Plan + Test Report,open,3,task,,2026-01-26T17:30:49Z,2026-01-26T17:58:50Z,,,,,,,"Execute and document contingency plan test per NIST SP 800-34 to validate recovery procedures work as documented.
+
+Test executed (tabletop or functional); Results documented including failures; Lessons learned captured; Action items identified; Contingency Plan updated based on findings"
+bd-99,E-Authentication Questionnaire,open,3,feature,,2025-11-04T21:16:33Z,2026-01-26T17:53:55Z,,,,,,,"Complete E-Authentication Threshold Analysis per OMB 04-04 and NIST SP 800-63 to determine assurance levels for CSFEER authentication.
+
+E-Auth Threshold Analysis completed; IAL and AAL determined and documented; Login.gov integration aligns with assurance levels; Documentation approved by ACF ISSO"
+bd-100,FIPS-199 Categorization,open,3,task,,2026-01-26T17:32:35Z,2026-01-26T17:52:36Z,,,,,,,"It's the official categorization of your system's security impact level. You assess three dimensions:
+||Dimension||Question||CSFEER Likely Rating||
+|*Confidentiality*|What's the impact if data is disclosed to unauthorized people?|Moderate (PII of tribal recipients)|
+|*Integrity*|What's the impact if data is modified or destroyed?|Moderate (reporting data accuracy matters)|
+|*Availability*|What's the impact if the system goes down?|Low (not life-safety critical)|
+
+Why it matters: The categorization determines which NIST 800-53 security controls you have to implement. A ""Moderate"" system has ~325 controls vs. ~125 for ""Low"" - significantly more documentation and security work.
+
+This is typically one of the first ATO artifacts completed because everything else flows from it.
+
+Confidentiality/Integrity/Availability impact levels assessed and justified; Overall system categorization documented (expected: Moderate); Categorization approved by ACF ISSO; Form submitted using NIST template
+
+ "
+bd-101,Configuration Management Plan,open,3,task,,2026-01-26T17:32:56Z,2026-01-26T17:55:56Z,,,,,,,"Document configuration management procedures for CSFEER per NIST SP 800-128 and ACF policies.
+
+Configuration items identified; Baseline documented; Change control process defined; CM tools documented (GitHub, Terraform); Plan approved by ACF ISSO"
+bd-102,Vulnerability Scans,open,3,task,,2026-01-26T17:33:15Z,2026-01-28T15:17:17Z,,,,,,,"Conduct and document vulnerability scans for CSFEER infrastructure and application per NIST SP 800-137 continuous monitoring requirements.
+
+Infrastructure and web app scans completed; Tools are SCAP-compliant; Critical/High findings remediated or in POA&M; Ongoing scan schedule established (monthly minimum)"
+bd-103,Design QA for all forms,open,3,feature,,2026-01-26T18:21:16Z,2026-01-28T15:17:17Z,,,,,,,"Final design review across all three forms to ensure consistency and completeness.
+
+Consistent patterns across all forms; USWDS compliance verified; Design handoff documentation complete; All forms ready for development"
+bd-104,User research for Tribal AR,open,3,feature,,2026-01-26T18:22:43Z,2026-01-26T18:51:37Z,,,,,,,"Conduct user research with tribal recipients to understand needs and pain points for Annual Report long form.
+
+Research plan defined; Min 6 tribal users interviewed; Findings documented and shared with team; Pain points prioritized"
+bd-105,User research for Tribal Plan and Application,open,3,feature,,2026-01-26T18:23:15Z,2026-01-28T15:17:18Z,,,,,,,"Conduct user research with tribal recipients for Plan & Application form.
+
+Research plan defined; Min 3 tribal users interviewed; Findings documented; Recommendations for design"
+bd-106,Build upon the Service Blueprint,open,3,feature,,2026-01-26T19:36:44Z,2026-01-28T17:27:36Z,,,,,,,"Build upon Service Blueprint capturing current state
+"
+bd-108,Define primary user groups and roles,open,3,feature,,2026-01-26T19:49:27Z,2026-01-26T20:46:45Z,,,,,,,"* Define roles: Tribal Administrator, Authorized Tribal Official, CSBG Program Point of Contact, other roles
+* What is CSBGs understanding of these roles when we ask them on the forms
+* Who does CSBG usually communicate with? What role?"
+bd-110,CSEER Technical Follow-up: AWS Environments and NGSC Access,open,3,epic,,2025-11-04T20:56:31Z,2026-01-27T18:13:27Z,,,,,,,"[Details on Project here|https://confluence.acf.gov/x/mi8QCg] (Confluence Link)
+
+ 
+
+Align Database and NGSC engineering teams on the technical architecture for the CSFEER Form Based Data Collection – New System (NGSC) and surface near-term technical decisions and dependencies.
+
+ ** 
+
+*Agenda:*
+ * Overview of Forms Engine architecture and current MVP implementation
+ * Data model, data ownership, and storage considerations. Data flows, integrations, and system touchpoints (Forms Engine, NGSC, downstream systems)
+ * Integration patterns with NGSC and downstream systems (APIs, exports, system boundaries)
+ * Open technical questions, risks, and required decisions
+
+ ** 
+
+*Outcome:*
+Clear alignment on technical approach, integration strategy, and actions required to advance the system."
+bd-111,Login.gov Integration Setup,open,3,epic,,2025-11-04T21:16:57Z,2026-02-04T16:56:00.494364-05:00,,,,,,,"*Discovery Need:* N
+
+
+
+*Problem Statement:* Users need to authenticate through Login.gov before accessing any ACF services, requiring a secure and compliant integration.
+
+*Decision Framework:*
+ * Must follow Login.gov's official integration guidelines
+ * Use OAuth 2.0/OpenID Connect standards
+ * Implement proper session management and security headers
+ * Plan for both development and production environments
+
+*Definition of Done + Success Criteria:*
+ * Login.gov OAuth integration fully functional
+ * Secure session management implemented
+ * Proper error handling for authentication failures
+ * Integration tested in development environment
+ * Documentation for deployment to production
+ * *Success:* Users can successfully authenticate and land on protected pages"
+bd-112, intake questions from the SCA team,in_progress,3,feature,,2026-01-27T18:18:13Z,2026-02-03T18:22:38Z,,,,,,,"h3. Oyindasola- 
+
+I have reached out to the SCA team to inform them of the work we are doing to prepare for CSFEER’s ATO. Please see below the intake questions from the SCA team.
+
+ 
+ * What type of system: cloud/ on prem
+ * Which environment is the application NGSC or external to ACF
+ * What is the categorization of the system
+ * Does the application store, process and transmit PII information?
+ * Is the system in Development or Production
+ * When is ATO expected to be granted
+ "
+bd-114,Conditional validation for required fields,closed,3,feature,,2026-01-27T18:38:15Z,2026-01-29T21:29:21Z,2026-01-29T21:29:21Z,,,,,,"Required fields need a value. However, fields marked as required in the form object are sometimes not required, such as in the case of a field that the user has marked as excluded. We need to deal with this somehow.
+
+AC:
+ # Add a new `value_if_excluded` parameter to the `ACFField` object that will be used to populate a field's value if it has been excluded by the user.
+
+
+ # We might have to create a new base boundfield class to handle this value.
+
+ 
+
+ 
+
+ "
+bd-120,Configure Development Environment Integration,open,3,feature,,2026-01-28T15:17:21Z,2026-01-28T15:17:21Z,,,,,,,"* As a developer, I need Login.gov integration working in development so that I can test authentication features.
+ * {*}Acceptance Criteria{*}:
+ ** Configure Login.gov sandbox environment
+ ** Set up development environment variables
+ ** Create test user accounts in Login.gov sandbox
+ ** Implement environment-specific configuration
+ ** Document development setup process"
+bd-122,Conduct Security Penetration Testing,open,3,feature,,2025-11-04T21:17:20Z,2026-02-05T11:35:59.261275-05:00,,,,,,,"* As a security officer, I need security testing performed so that we can identify and fix vulnerabilities before production.
+ * {*}Acceptance Criteria{*}:
+ ** Conduct authentication flow security testing
+ ** Test for common OAuth vulnerabilities
+ ** Verify session security implementation
+ ** Test error handling security
+ ** Document findings and remediation
+ ** Obtain security sign-off for production"
+bd-133,Button,closed,3,feature,,2025-11-04T21:17:51Z,2026-02-05T11:35:59.339565-05:00,2025-12-03T15:25:41Z,,,,,,A button draws attention to important actions with a large selectable surface.
+bd-144,Footer,closed,3,feature,,2025-11-04T21:18:21Z,2026-01-26T18:07:26Z,2026-01-21T18:33:01Z,,,,,,A footer serves site visitors who arrive at the bottom of a page without finding what they want.
+bd-155,Link,closed,3,feature,,2025-11-04T21:18:48Z,2026-02-05T11:35:59.422698-05:00,2025-12-04T18:39:25Z,,,,,,"A link connects users to a different page or further information.
+
+https://designsystem.digital.gov/components/link/"
+bd-166,Select,closed,3,feature,,2025-11-04T21:19:08Z,2026-02-05T11:35:59.502713-05:00,2025-11-25T18:40:52Z,,,,,,A select component allows users to choose one option from a temporary modal menu.
+bd-177,Typography,open,3,feature,,2025-11-04T21:19:33Z,2026-02-05T11:35:59.584728-05:00,,,,,,,"Government websites need clear and consistent headings, highly legible body paragraphs, clear labels, and easy-to-use input fields. Our default typefaces are designed for legibility and can adapt to a variety of visual tones."
+bd-188,Prepare ATO Package,open,3,feature,,2025-11-04T21:20:16Z,2026-02-05T11:35:59.663013-05:00,,,,,,,"Compile a complete ATO package including SSP, SAR, PIA, Contingency Plan, POA&M, and all supporting documentation for submission to the Authorizing Official.
+
+ 
+
+*Acceptance Criteria:*
+ * All ATO artifacts compiled and reviewed
+ * Package formatted according to ACF requirements
+ * Executive summary prepared
+ * Ready for submission to AO"
+bd-199,Create Authentication Integration Tests,open,3,feature,,2025-11-04T21:30:11Z,2026-02-05T11:35:59.741442-05:00,,,,,,,"As a developer, I need comprehensive tests for the OIDC authentication integration.
+
+Acceptance Criteria:
+- Unit tests for auth.py role extension
+- Integration tests for OIDC login flow
+- E2E tests for user authentication and role assignment
+- Test coverage for different user roles
+- Mock OIDC provider for testing
+
+Technical Details:
+- Test role extension with various JWT claims
+- Test user creation and group assignment
+- Test middleware behavior with authenticated/unauthenticated requests
+- Test logout and session management
+
+Files to Create:
+- tests/test_auth.py
+- tests/test_oidc_integration.py"
+bd-210,Design Core JSON Schema Structure,closed,3,feature,,2025-11-04T21:31:01Z,2025-11-17T16:22:59Z,2025-11-17T16:22:59Z,,,,,,"* As a developer, I need a flexible JSON schema foundation so that I can define government forms without code changes.
+ * {*}Acceptance Criteria{*}:
+ ** Create base JSON schema for form definitions
+ ** Support form metadata (title, description, version, OMB number)
+ ** Define schema for form sections/pages structure
+ ** Include field definition schema with types and properties
+ ** Support nested and conditional field structures
+ ** Enable form-level configuration options
+ ** Validate schema using JSON Schema Draft 7 or later"
+bd-221,Landing Page with Basic Routing,open,3,epic,,2025-11-04T20:56:56Z,2025-11-04T20:56:56Z,,,,,,,"*Discovery Need:* N
+{*}Problem Statement:{*} After login, users need a clear entry point that routes them to appropriate services based on their intent (apply vs. report).
+
+*Decision Framework:*
+ * Start with minimal viable design (can be white background initially)
+ * Use USWDS components for consistency
+ * Implement client-side routing for future expansion
+ * Design for mobile-first responsive layout
+
+*Definition of Done + Success Criteria:*
+ * Functional landing page with basic navigation
+ * Responsive design using USWDS
+ * Routing structure in place for future screens
+ * Page loads in <2 seconds
+ * Accessible navigation (screen reader tested)
+ * *Success:* Users can clearly identify next steps after login"
+bd-222,Implement Form Versioning Schema,closed,3,feature,,2025-11-04T21:31:23Z,2025-11-25T21:37:32Z,2025-11-25T21:37:32Z,,,,,,"* As a form administrator, I need form versioning capabilities so that I can update forms while maintaining backward compatibility with existing submissions.
+ * How we add a new form? Do we treat like a brand new form?
+ * {*}Acceptance Criteria{*}:
+ ** Design version control schema for forms
+ ** Support semantic versioning (major.minor.patch)
+ ** Enable form migration scripts in schema
+ ** Track version history and change logs
+ ** Support multiple active versions simultaneously
+ ** Handle deprecation and sunset policies in schema"
+bd-229,Build out Service Blueprint: OLDC,in_progress,3,feature,,2026-01-28T17:20:11Z,2026-01-29T22:53:20Z,,,,,,,"h2. Description
+
+Build out Service Blueprint: OLDC
+h2. Task
+
+[X]Review OLDC demo video
+
+[ ]Synthesize notes, identify pain points, opportunities, areas for more learning
+
+[ ] Optional: Sync with Amanda to learn more
+h2. References
+ * [GrantSolutions|https://www.grantsolutions.gov/]
+ * [ACF site|https://acf.gov/grants/manage-grant/systems]
+ * [ACF Action Transmittal|https://acf.gov/ocs/policy-guidance/acf-ocs-csbg-25-05-tribal-plan-application-fy26]
+
+h2. Deliverables
+ * Service Blueprint Map"
+bd-230,Review Section 7 of Plan and Application,in_progress,3,feature,,2026-01-28T17:23:53Z,2026-02-02T21:20:58Z,,,,,,,"Description
+
+Review Section 7 of Plan and Application
+
+References
+
+[Tribal Plan and Application|https://acf.gov/sites/default/files/documents/ocs/CSBG-Tribal-Plan-Application-1.0_2.pdf] 
+
+ 
+
+ "
+bd-231,Reviewing existing research,open,3,feature,,2026-01-28T18:08:05Z,2026-01-28T18:08:05Z,,,,,,,"h2. Description
+This work captures looking at existing research and artifacts and making some connections to build our understanding of the current state.
+
+h2. Deliverables
+[Optionally: add any resources we discovered that was instructive]"
+bd-232,Fix the yesno display field on the review page,closed,3,feature,,2026-01-28T22:05:37Z,2026-02-03T18:22:05Z,2026-02-03T18:22:05Z,,,,,,The value currently looks like this:
+bd-233,Implement Basic Field Types Schema,open,3,feature,,2025-11-04T21:31:50Z,2025-11-04T21:31:51Z,,,,,,,"* As a form builder, I need support for standard field types so that I can create common government form elements.
+ * {*}Acceptance Criteria{*}:
+ ** Text fields (single-line, multi-line, rich text)
+ ** Number fields (integer, decimal, currency)
+ ** Date and time fields (date, datetime, time)
+ ** Selection fields (dropdown, radio, checkbox, multi-select)
+ ** Boolean fields (yes/no, true/false)
+ ** Email and URL fields with validation
+ ** Phone number fields with formatting"
+bd-234,Move calculated field js somewhere else.,open,3,feature,,2026-01-29T21:30:01Z,2026-01-29T21:30:01Z,,,,,,,The name says it all.
+bd-235,[Design Update] Add Save & Exit button to form footer,open,3,feature,,2026-02-02T18:01:43Z,2026-02-02T18:56:17Z,,,,,,,"h2. Background/Context
+
+During client feedback, it was noted that users may not be able to complete the form in one sitting and need a clear way to exit without losing progress.
+h2. Updates to make
+ * Add a *Save & Exit* button to the form footer which allows users to exit the form and resume later
+
+h2. Design Reference
+ * [Figma link (Prototype version 1.3) |https://www.figma.com/proto/wFHt90xC26RDWyIwNPtlua/Tribal-Forms?page-id=1380%3A12305&node-id=1380-12685&viewport=1592%2C2523%2C0.14&t=cdiKgYwFCrrUWVYA-9&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=1380%3A12685&show-proto-sidebar=1]"
+bd-236,[Design Update] Apply button display rules across the form,open,3,feature,,2026-02-02T18:23:31Z,2026-02-02T18:59:26Z,,,,,,,"h2. Background/Context
+
+Currently, navigation buttons are rendered uniformly across steps, which results in actions appearing in contexts where they are not applicable (e.g. showing a Back button on the first step)
+h2. Accompanying content update
+ * Update primary button label to *Next*
+
+h2. Button-display updates
+ * First page of the form renders *Next* _only_
+ * Intermediate pages render {*}Back{*}, {*}Save & Exit{*}, and *Next*
+ * Review page (final one before submission) renders *Back* and *Submit Application*
+
+h2. Design Reference
+ * [Figma link (Prototype version 1.3) |https://www.figma.com/proto/wFHt90xC26RDWyIwNPtlua/Tribal-Forms?page-id=1380%3A12305&node-id=1380-12685&viewport=1592%2C2523%2C0.14&t=cdiKgYwFCrrUWVYA-9&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=1380%3A12685&show-proto-sidebar=1]"
+bd-237,Fix number formatting on the review page,in_progress,3,feature,,2026-02-02T20:09:31Z,2026-02-04T19:44:42Z,,,,,,,Currency field values should be correctly formatted.
+bd-238,BUG: Back button shouldn't be present on the first interview page,closed,3,feature,,2026-02-03T18:22:57Z,2026-02-03T21:02:46Z,2026-02-03T21:02:46Z,,,,,,Fix it please.
+bd-239,Create infra architecture diagram,in_progress,3,feature,,2026-02-03T18:29:06Z,2026-02-03T18:30:27Z,,,,,,,"Produce a shareable infra architecture diagram that clearly shows:
+ * *GitLab CI* with separate *App* (Build & Push → ECR → Deploy job) and *Infra* (Terraform plan/apply → TF State S3) pipelines.
+ * *Deploy job* behavior (registers task def with immutable image digest repo@sha256 → updates ECS Fargate).
+ * *Terraform state* (S3 bucket, versioning) and a brief note on where {{Terraform apply}} runs.
+ * *nginx sidecar* note (static files baked into image + nginx proxy → gunicorn).
+ * Exported deliverables suitable for external review by the Gov infra team (PNG/PDF), plus Mermaid source."
+bd-240,Initialize error states after review page is visited,in_progress,3,feature,,2026-02-03T21:15:38Z,2026-02-04T20:42:45Z,,,,,,,We somehow want to initiate error states on the actual form fields after the review page is visited.
+bd-244,Accordian,closed,3,feature,,2025-11-05T15:32:54Z,2025-11-14T16:59:20Z,2025-11-14T16:59:20Z,,,,,,An accordion is a list of headers that hide or reveal additional content when selected.
+bd-255,Alert,closed,3,feature,,2025-11-05T15:33:16Z,2026-02-04T19:53:32Z,2025-12-02T15:21:49Z,,,,,,An alert keeps users informed of important and sometimes time-sensitive changes.
+bd-266,Banner,closed,3,feature,,2025-11-05T15:33:38Z,2025-11-18T21:54:52Z,2025-11-18T21:54:52Z,,,,,,Banners identify official websites of government organizations in the United States. They also help visitors understand whether a website is official and secure.
+bd-277,Breadcrumb,closed,3,feature,,2025-11-05T15:33:53Z,2025-12-05T17:44:22Z,2025-12-05T17:44:22Z,,,,,,Breadcrumbs provide secondary navigation to help users understand where they are in a website.
+bd-288,Button Group,closed,3,feature,,2025-11-05T15:34:15Z,2025-12-03T15:25:38Z,2025-12-03T15:25:38Z,,,,,," 
+A button group collects similar or related actions."
+bd-310,Card,closed,3,feature,,2025-11-05T15:34:42Z,2025-12-17T18:38:56Z,2025-12-17T18:38:42Z,,,,,,"Cards contain content and actions about a single subject.
+
+https://designsystem.digital.gov/components/card/"
+bd-321,Character count,closed,3,feature,,2025-11-05T15:34:59Z,2025-12-17T19:45:32Z,2025-12-17T19:45:32Z,,,,,,"Character count helps users know how much text they can enter when there is a limit on the number of characters.
+
+https://designsystem.digital.gov/components/character-count/"
+bd-332,User Intent Screener Flow,open,3,epic,,2025-11-04T20:57:23Z,2025-11-04T20:57:23Z,,,,,,,"*Discovery Need:* Y (need to define specific screening questions)
+{*}Problem Statement:{*} How might we efficiently determine whether a user wants to apply for grants, report on existing grants, or access other services?
+
+*Decision Framework:*
+ * Start with basic binary choices (Apply/Report)
+ * Design for expansion to additional service types
+ * Consider user mental models and plain language
+ * Plan for conditional logic based on responses
+
+*Definition of Done + Success Criteria:*
+ * Multi-step screener with clear question flow
+ * Conditional routing based on user responses
+ * Progress indicators for multi-step process
+ * Form state management and validation
+ * *Success:* 95% of users can complete screener without confusion"
+bd-333,Checkbox,closed,3,feature,,2025-11-05T15:35:15Z,2026-02-04T19:53:35Z,2025-12-04T18:38:58Z,,,,,,"Checkboxes allow users to select one or more options from a list.
+
+https://designsystem.digital.gov/components/checkbox/"
+bd-344,Collection,closed,3,feature,,2025-11-05T15:35:39Z,2026-02-02T16:17:19Z,2026-02-02T16:17:19Z,,,,,,A collection displays a compact list of multiple related items like articles or events. The list links each item to its original source.
+bd-355,Combo box,closed,3,feature,,2025-11-05T15:35:51Z,2026-02-04T20:23:06Z,2025-12-15T16:34:58Z,,,,,,"A combo box helps users select an item from a large list of options.
+
+https://designsystem.digital.gov/components/combo-box/"
+bd-366,Data visualizations,open,3,feature,,2025-11-05T15:36:03Z,2026-02-04T19:53:35Z,,,,,,,Data visualizations help communicate patterns and relationships in a data set.
+bd-377,Date picker,closed,3,feature,,2025-11-05T15:36:20Z,2026-01-26T18:04:13Z,2026-01-05T15:42:10Z,,,,,,A date picker helps users select a single date.
+bd-388,Date range picker,closed,3,feature,,2025-11-05T15:36:27Z,2026-02-04T20:23:07Z,2026-01-21T18:32:59Z,,,,,,A date range picker helps users select a range between two dates.
+bd-399,File input,closed,3,feature,,2025-11-05T15:36:39Z,2025-12-03T15:25:35Z,2025-12-03T15:25:35Z,,,,,,File input allows users to attach one or multiple files.
+bd-421,USWDS form component,closed,3,feature,,2025-11-05T15:37:01Z,2026-01-26T18:04:27Z,2026-01-12T17:24:53Z,,,,,,"A form allows users to enter information into a page.
+
+https://designsystem.digital.gov/components/form/"
+bd-425,Resolve comment on Privacy Impact Assessment (PIA),open,3,feature,,2026-02-04T20:35:09Z,2026-02-04T20:35:09Z,,,,,,,Related: FE-82
+bd-426,Header,closed,3,feature,,2025-11-05T15:37:20Z,2026-02-04T20:23:08Z,2026-01-20T18:43:14Z,,,,,,"A header helps users identify where they are and provides a quick, organized way to reach the main sections of a website."
+bd-427,Form Schema and Data Model,in_progress,3,epic,,2025-11-04T20:58:10Z,2025-12-16T19:52:11Z,,,,,,,"*Discovery Need:* Y (need requirements for multi-page forms, calculations, etc.)
+{*}Problem Statement:{*} How might we create a flexible data schema that supports complex government forms with multiple pages, conditional fields, and data validation?
+
+*Decision Framework:*
+ * Research existing government form standards (NIEM, etc.)
+ * Plan for form versioning and migration
+ * Consider accessibility requirements for form interactions
+ * Design for integration with existing ACF systems
+
+*Definition of Done + Success Criteria:*
+ * Flexible JSON schema for form definitions
+ * Support for multi-page forms with progress saving
+ * Field validation and error handling
+ * Documentation for schema extension
+ * *Success:* New forms can be added without code changes"
+bd-428,Icon list,in_progress,3,feature,,2025-11-05T15:37:33Z,2026-02-04T20:50:23Z,,,,,,,An icon list reinforces the meaning and visibility of individual list items with a leading icon.
+bd-429,Icon,closed,3,feature,,2025-11-05T15:37:46Z,2026-02-04T19:53:37Z,2025-12-08T15:36:18Z,,,,,,"Icons help communicate meaning, actions, status, or feedback.
+
+https://designsystem.digital.gov/components/icon/"
+bd-430,Identifier,closed,3,feature,,2025-11-05T15:38:06Z,2026-02-04T20:23:09Z,2026-01-23T15:26:35Z,,,,,,The identifier communicates a site’s parent agency and displays agency links required by federal laws and policies.
+bd-431,In-page navigation,closed,3,feature,,2025-11-05T15:38:14Z,2026-02-04T15:37:24Z,2026-02-04T15:37:24Z,,,,,,The in-page navigation allows navigation to specific sections on a lengthy content page
+bd-432,Input mask,closed,3,feature,,2025-11-05T15:38:26Z,2026-02-04T19:53:38Z,2025-12-01T18:20:56Z,,,,,,"An input mask is a string expression that constrains input to support valid input values.
+
+https://designsystem.digital.gov/components/input-mask/"
+bd-433,Input prefix/suffix,closed,3,feature,,2025-11-05T15:38:40Z,2025-12-02T18:46:33Z,2025-12-01T18:20:54Z,,,,,,"Use input prefixes and suffixes to show symbols or abbreviations that help users enter the right type of information in a form’s text input.
+
+https://designsystem.digital.gov/components/input-prefix-suffix/"
+bd-434,Language selector,open,3,feature,,2025-11-05T15:39:01Z,2026-01-26T14:01:56Z,,,,,,,"The consistent placement, interface, and behavior of the language selection component allows users to easily find and access content in the language the user is most comfortable in."
+bd-436,List,closed,3,feature,,2025-11-05T15:39:25Z,2026-01-26T18:04:37Z,2026-01-12T15:57:39Z,,,,,,A list organizes information into discrete sequential sections.
+bd-437,Memorable date,closed,3,feature,,2025-11-05T15:39:39Z,2026-01-26T18:07:56Z,2026-01-22T17:10:49Z,,,,,,A select for month followed by two text fields is the easiest way for users to enter most dates.
+bd-438,Security Documentation and Implementation,open,3,epic,,2025-11-04T20:58:27Z,2026-02-04T20:35:09Z,,,,,,,"*Discovery Need:* Y (need to understand ACF-specific security requirements)
+{*}Problem Statement:{*} How might we implement comprehensive security controls that meet federal ATO requirements while maintaining usability?
+
+*Decision Framework:*
+ * Follow NIST security frameworks and ACF guidelines
+ * Implement security by design, not as add-on
+ * Plan for continuous monitoring and vulnerability management
+ * Document all security decisions and trade-offs
+
+*Definition of Done + Success Criteria:*
+ * System Security Plan (SSP) drafted
+ * Security controls implemented and documented
+ * Vulnerability scanning integrated into CI/CD
+ * Security testing procedures established
+ * *Success:* Pass initial security review with minimal findings"
+bd-439,Modal,closed,3,feature,,2025-11-05T15:39:50Z,2026-01-26T18:04:51Z,2026-01-12T15:57:41Z,,,,,,A modal disables page content and focuses the user’s attention on a single task or message.
+bd-440,Pagination,open,3,feature,,2025-11-05T15:40:02Z,2026-02-04T17:01:33.729022-05:00,,,,,,,Pagination is navigation for paginated content
+bd-441,Process list,closed,3,feature,,2025-11-05T15:40:19Z,2026-01-26T18:08:03Z,2026-01-22T17:10:50Z,,,,,,A process list displays the steps or stages of important instructions or processes.
+bd-442,Prose,closed,3,feature,,2025-11-05T15:40:27Z,2026-02-04T20:23:12Z,2026-01-27T16:56:54Z,,,,,,Format a block of running text.
+bd-443,Radio buttons,closed,3,feature,,2025-11-05T15:40:40Z,2025-12-02T18:45:53Z,2025-12-02T15:31:36Z,,,,,,Radio buttons allow users to select exactly one choice from a group.
+bd-444,Range slider,open,3,feature,,2025-11-05T15:40:53Z,2026-01-26T14:01:57Z,,,,,,,A range slider allows users to choose an approximate number from a range.
+bd-445,Search,closed,3,feature,,2025-11-05T15:41:03Z,2026-01-26T18:05:05Z,2026-01-12T15:57:38Z,,,,,,Search allows users to search for specific content if they know what search terms to use or can’t find desired content in the main navigation
+bd-447,Side navigation,closed,3,feature,,2025-11-05T15:41:29Z,2026-02-04T15:37:23Z,2026-02-04T15:37:23Z,,,,,,"Hierarchical, vertical navigation to place at the side of a page."
+bd-448,Site alert,closed,3,feature,,2025-11-05T15:41:43Z,2026-01-26T18:08:14Z,2026-01-23T15:26:34Z,,,,,,A site alert communicates urgent sitewide information.
+bd-449,Technical Proof of Concept Refinement,open,3,epic,,2025-11-04T20:58:51Z,2025-11-06T17:09:42Z,,,,,,,"*Discovery Need:* N
+ *Problem Statement:* Mo has created a technical POC that needs to be refined into a production-ready foundation that the whole team can build upon.
+
+*Decision Framework:*
+ * Extract reusable patterns and components
+ * Ensure code quality and documentation standards
+ * Plan for team collaboration and code reviews
+ * Align with overall technical architecture
+
+*Definition of Done + Success Criteria:*
+ * POC code refactored into modular components
+ * Comprehensive code documentation
+ * Team can extend and modify without Mo's direct involvement
+ * Code review process established
+ * *Success:* Any team member can contribute to the codebase confidently"
+bd-450,Step indicator,closed,3,feature,,2025-11-05T15:41:57Z,2026-02-04T19:53:42Z,2026-01-05T15:42:18Z,,,,,,A step indicator updates users on their progress through a multi-step process.
+bd-451,Summary box,closed,3,feature,,2025-11-05T15:42:10Z,2026-01-26T18:08:23Z,2026-01-20T20:17:21Z,,,,,,A summary box highlights key information from a longer page or displays next steps.
+bd-452,Table,closed,3,feature,,2025-11-05T15:42:22Z,2026-01-26T21:42:52Z,2026-01-26T21:42:52Z,,,,,,A table shows information in columns and rows.
+bd-453,Tag,open,3,feature,,2025-11-05T15:42:35Z,2026-01-26T14:01:57Z,,,,,,,A tag draws attention to new or categorized content elements.
+bd-454,Text input,closed,3,feature,,2025-11-05T15:42:49Z,2025-12-01T18:20:51Z,2025-12-01T18:20:51Z,,,,,,"A text input allows users to enter any combination of letters, numbers, or symbols. Text input boxes can span single or multiple lines.
+
+https://designsystem.digital.gov/components/text-input/"
+bd-455,Time picker,open,3,feature,,2025-11-05T15:43:01Z,2026-01-26T14:01:57Z,,,,,,,A time picker helps users select a specific time.
+bd-456,Tooltip,closed,3,feature,,2025-11-05T15:43:16Z,2026-01-26T18:08:36Z,2026-01-26T14:52:24Z,,,,,,"A tooltip is a short descriptive message that appears when a user hovers or focuses on an element.
+
+https://designsystem.digital.gov/components/tooltip/"
+bd-458,Validation,open,3,feature,,2025-11-05T15:43:56Z,2026-01-26T19:12:14Z,,,,,,,"Stating validation requirements up front, with live feedback, means users won’t be left guessing."
+bd-459,Technical Spike: Offline Capabilities,open,3,feature,,2025-11-06T17:09:42Z,2026-02-04T20:23:16Z,,,,,,,Technical Spike: Offline Capabilities
+bd-460,Development Environment and CI/CD Setup,open,3,epic,,2025-11-04T20:59:16Z,2026-02-03T18:29:06Z,,,,,,,"*Discovery Need:* N
+ *Problem Statement:* Team needs standardized development environments and automated deployment pipelines for consistent and secure development practices.
+
+*Decision Framework:*
+ * Use containerization for environment consistency
+ * Implement automated testing at multiple levels
+ * Plan for government deployment requirements
+ * Include security scanning in pipeline
+
+*Definition of Done + Success Criteria:*
+ * Dockerized development environment
+ * Automated testing pipeline (unit, integration, e2e)
+ * Code quality gates and security scanning
+ * Documentation for local setup and deployment
+ * *Success:* New developers can be productive within 1 day"
+bd-461,Keyboard Navigation,open,3,feature,,2025-11-06T17:10:47Z,2025-11-06T17:10:47Z,,,,,,,keyboard navigation
+bd-462,Submit System Registration,closed,1,feature,,2025-11-06T21:44:43Z,2026-01-28T17:42:36Z,2026-01-27T16:08:52Z,,,,,,"Submit the completed System Registration form to the ACF Assessment & Authorization team for review and UUID assignment. This establishes the official system record in ACF's EA repository.
+
+ 
+
+*Acceptance Criteria:*
+ * System Registration form submitted to the ACF Assessment & Authorization team
+ * UUID assigned and confirmed
+ * EA record created and accessible"
+bd-463,Submit Privacy Impact Assessment (PIA) for Review,closed,1,feature,,2025-11-06T21:49:13Z,2026-01-26T17:54:41Z,2026-01-21T18:23:42Z,,,,,,"Submit the completed PIA to the ACF Privacy Office ([OCIO.Privacy@acf.hhs.gov|vscode-file://vscode-app/Applications/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/code/electron-browser/workbench/workbench.html]) for review and approval. Coordinate with the privacy team to address any findings and obtain SOP sign-off.
+
+*Acceptance Criteria:*
+ * PIA submitted to ACF Privacy Office
+ * Privacy review completed with any required changes
+ * SOP sign-off obtained
+ * PIA approved for system use"
+bd-464,Develop System Security Plan (SSP),open,3,feature,,2025-11-06T21:50:01Z,2026-01-28T15:17:37Z,,,,,,,"Create a comprehensive System Security Plan documenting all security controls, policies, and procedures for CSFEER. Include system description, security requirements, control implementations, and risk assessment methodology. Align with NIST SP 800-53 controls.
+
+*Acceptance Criteria:*
+ * SSP document completed following NIST SP 800-18 guidelines
+ * All security controls documented (administrative, technical, physical)
+ * Risk assessment methodology included
+ * ACF ISSO review and approval obtained"
+bd-465, Implement FISMA Security Controls,open,3,feature,,2025-11-06T21:50:46Z,2025-11-06T21:50:46Z,,,,,,,"Implement all required FISMA security controls in the CSFEER system architecture. This includes encryption, access controls, audit logging, and other technical controls identified in the SSP.
+
+*Acceptance Criteria:*
+ * All NIST SP 800-53 controls implemented in code/infrastructure
+ * Encryption at rest and in transit (AES-256, TLS 1.3)
+ * Role-based access control (RBAC) implemented
+ * Comprehensive audit logging enabled
+ * Security testing passed"
+bd-466,Conduct Security Assessment and Testing,open,3,feature,,2025-11-06T21:51:24Z,2026-02-04T20:02:22Z,,,,,,,"Perform a comprehensive security assessment, including vulnerability scanning, penetration testing, and control validation. Document findings and develop a remediation plan.
+
+*Acceptance Criteria:*
+ * Automated security scanning completed (SAST, DAST, SCA)
+ * Penetration testing completed by an accredited tester
+ * All security controls tested and validated
+ * Security Assessment Report (SAR) completed
+ * POA&M developed for any findings"
+bd-467,Develop Contingency Plan,open,3,feature,,2025-11-06T21:52:23Z,2025-11-06T21:52:23Z,,,,,,,"Create system contingency plan including backup procedures, disaster recovery, and business continuity measures. Align with NIST SP 800-34 guidelines.
+
+*Acceptance Criteria:*
+ * Contingency Plan document completed
+ * Backup and recovery procedures documented
+ * Business continuity measures defined
+ * Plan tested and validated
+ * ACF approval obtained"
+bd-469,Submit ATO Package for Review,open,3,feature,,2025-11-06T21:53:38Z,2025-11-06T21:53:38Z,,,,,,,"Submit a complete ATO package to the ACF Authorizing Official for review and approval. Schedule a briefing and address any questions or concerns.
+
+*Acceptance Criteria:*
+ * ATO package submitted to Authorizing Official
+ * Briefing scheduled and completed
+ * Initial feedback addressed
+ * ATO decision received"
+bd-470,Address ATO Findings and POA&M,open,3,feature,,2025-11-06T21:54:04Z,2025-11-06T21:54:04Z,,,,,,,"Address any findings from the ATO review by implementing required remediation actions. Update POA&M with completion dates and evidence of fixes.
+
+*Acceptance Criteria:*
+ * All ATO findings documented and prioritized
+ * Remediation plan developed with timelines
+ * POA&M updated with completion evidence
+ * Re-assessment completed if required"
+bd-471,Accessibility Implementation and Testing,open,3,epic,,2025-11-04T20:59:42Z,2025-11-07T17:20:16Z,,,,,,,"*Discovery Need:* N
+ *Problem Statement:* All interfaces must meet Section 508 compliance requirements and provide excellent experiences for users with disabilities.
+
+*Decision Framework:*
+ * Follow WCAG 2.1 AA standards as minimum
+ * Implement automated accessibility testing
+ * Plan for manual testing with assistive technologies
+ * Create accessibility documentation and guidelines
+
+*Definition of Done + Success Criteria:*
+ * Automated accessibility testing in CI pipeline
+ * Manual testing procedures with screen readers
+ * Accessibility documentation for future development
+ * All components pass WAVE and axe testing
+ * *Success:* 100% compliance with Section 508 requirements"
+bd-472,Obtain Final ATO Approval,open,3,feature,,2025-11-06T21:55:21Z,2026-02-04T20:23:19Z,,,,,,,"Obtain final ATO approval from the Authorizing Official and update system registration with the ATO date. Ensure all documentation is archived appropriately.
+
+*Acceptance Criteria:*
+ * ATO approval received from Authorizing Official
+ * System registration updated with ATO date
+ * All ATO artifacts archived in the ACF repository
+ * System authorized for production deployment"
+bd-473,Set up Keycloak Docker Service with PostgreSQL Backend,closed,3,feature,,2025-11-06T22:02:13Z,2025-11-10T16:22:16Z,2025-11-10T16:22:16Z,,,,,,"As a developer, I need a local Keycloak instance running in Docker with PostgreSQL backend to support OIDC authentication during development.
+
+*Acceptance Criteria:*
+- Keycloak service configured in docker-compose.yml
+- PostgreSQL database configured for Keycloak data persistence  
+- Keycloak admin user created with proper credentials
+- Service accessible on localhost:8081
+- Health checks implemented for service readiness
+
+*Technical Details:*
+- Image: quay.io/keycloak/keycloak:latest
+- Database: PostgreSQL 16 with dedicated schema
+- Admin credentials: admin/admin
+- Ports: 127.0.0.1:8081:8081 (restricted to localhost)
+- Volume mounts for realm configuration import
+- Security hardening with no-new-privileges and capability drops
+
+ "
+bd-474,Configure Keycloak Realm and Client Settings,open,3,feature,,2025-11-06T22:02:48Z,2026-02-04T19:53:47Z,,,,,,,"As a developer, I need a properly configured Keycloak realm with client settings for OIDC integration.
+
+*Acceptance Criteria:*
+- CSFEER realm created with appropriate settings
+- OIDC client ""csfeer-auth"" configured with correct settings
+- Client secret properly set
+- Appropriate scopes configured (openid, email, profile, roles, offline_access)
+- Token lifespan settings configured (5min access, 30min session)
+- SSL requirements set to ""external""
+
+*Technical Details:*
+- Realm: csfeer
+- Client ID: csfeer-auth  
+- Client Type: confidential
+- Grant Types: authorization_code, refresh_token
+- Redirect URIs: configured for local development
+- Token settings: 300s access, 1800s session idle, 36000s max lifespan
+
+ "
+bd-475,Implement Keycloak User Seeding and Role Management,open,3,feature,,2025-11-06T22:04:01Z,2026-02-04T19:53:48Z,,,,,,,"As a developer, I need test users seeded in Keycloak with appropriate roles for development and testing.
+
+*Acceptance Criteria:*
+- CSV-based user seeding implemented
+- Users created with proper credentials and roles
+- Role-based access control configured
+- Admin user with csfeer_admin role
+- Demo users with csfeer_user role
+- Automated setup script for user provisioning
+
+*Technical Details:*
+- Users: admin, demo, demo-1, demo-2
+- Roles: csfeer_admin, csfeer_user, superuser
+- Password policy: username=password for dev environment
+- Email verification: disabled for development
+- Setup script: bash-based automation using kcadm.sh
+
+ "
+bd-476,Implement Django OIDC Authentication Backend,open,3,feature,,2025-11-06T22:04:26Z,2026-02-04T19:53:48Z,,,,,,,"As a developer, I need Django configured to use OIDC authentication with Keycloak as the identity provider.
+
+Acceptance Criteria:
+- oauth2_authcodeflow package integrated
+- OIDC authentication backend configured
+- Proper middleware stack implemented (LoginRequiredMiddleware, token refresh)
+- Configuration loaded from environment/Pydantic settings
+- PKCE enabled for enhanced security
+
+Technical Details:
+- Package: oauth2_authcodeflow
+- Backend: oauth2_authcodeflow.auth.AuthenticationBackend
+- Middleware: LoginRequiredMiddleware, RefreshAccessTokenMiddleware, RefreshSessionMiddleware
+- Configuration: Pydantic-based settings with environment overrides
+- PKCE: Force secret with PKCE enabled
+
+ "
+bd-477,Implement User Role Extension and Group Mapping,open,3,feature,,2025-11-06T22:04:59Z,2025-11-06T22:04:59Z,,,,,,,"As a developer, I need user roles from Keycloak JWT tokens mapped to Django groups and permissions.
+
+Acceptance Criteria:
+- OIDC extend_user function implemented
+- Keycloak realm_access.roles extracted from JWT
+- Django groups created dynamically based on roles
+- Staff/superuser status set based on specific roles
+- Existing group memberships cleared on login
+
+Technical Details:
+- Extend function: csfeer.auth.extend_user_with_roles
+- Role mapping: realm_access.roles claim
+- Staff roles: csfeer_admin, csfeer_staff  
+- Superuser roles: superuser, csfeer_admin
+- Group creation: automatic on first login
+
+Files:
+- csfeer/auth.py (role extension logic)
+- csfeer/settings.py (OIDC_EXTEND_USER configuration)"
+bd-478,Configure Authentication URLs and Middleware Exclusions,open,3,feature,,2025-11-06T22:05:23Z,2026-02-04T19:53:49Z,,,,,,,"As a developer, I need proper URL routing for OIDC authentication flows and middleware exclusions.
+
+Acceptance Criteria:
+- OIDC URLs included in main URLconf
+- Public endpoints excluded from authentication requirements
+- API endpoints accessible without authentication
+- Logout handling configured
+
+Technical Details:
+- OIDC URLs: /oidc/* routed to oauth2_authcodeflow.urls
+- Excluded patterns: api/, logged-out
+- Middleware exclusions: OIDC_MIDDLEWARE_NO_AUTH_URL_PATTERNS
+
+Files:
+- csfeer/urls.py (OIDC URL inclusion)
+- csfeer/config.py (no_auth_urls configuration)"
+bd-480,Implement Authentication UI Components,open,3,feature,,2025-11-06T22:06:32Z,2025-11-06T22:06:32Z,,,,,,,"As a user, I need visible login/logout UI elements in the application.
+
+Acceptance Criteria:
+- Login/logout buttons in application header
+- User information display when authenticated
+- Proper redirect handling for login/logout flows
+- Responsive design following USWDS guidelines
+
+Technical Details:
+- Header component with authentication state
+- Login/logout link handling
+- User role display (optional)
+- Integration with django_cotton_uswds components
+
+Files:
+- csfeer/templates/cotton/header.html
+- django_cotton_uswds/templates/cotton/ (authentication components)"
+bd-481,Set up Playwright E2E Testing Framework,open,3,feature,,2025-11-07T17:17:30Z,2026-02-04T20:23:21Z,,,,,,,"As a developer, I need a robust E2E testing framework using Playwright to test the application's user-facing functionality.
+
+Acceptance Criteria:
+ * Playwright installed and configured for the project ✅
+ * Test directory structure established (tests/e2e/, tests/pages/, tests/fixtures/)
+ * Browser configuration for headless testing with proper viewport
+ * Video recording and tracing enabled for test debugging
+ * Test markers configured (@pytest.mark.e2e, @pytest.mark.auth)
+ * CI/CD integration ready for automated test execution
+
+Technical Details:
+ - Playwright version: latest compatible with project
+ - Browser: Chromium (headless mode)
+ - Viewport: 1920x1080 for consistent testing
+ - Video recording: enabled with configurable directory
+ - Tracing: screenshots, snapshots, and sources enabled
+ - Test timeouts: 30s navigation, 5s expectations
+
+Files:
+ - pyproject.toml (playwright dependency)
+ - tests/conftest.py (pytest configuration and fixtures)
+ - playwright.config.py (playwright-specific settings)
+ - tests/e2e/_{_}init{_}_.py (test package initialization)"
+bd-0fea,Clean up skipped e2e tests - remove stale placeholders,closed,2,task,Mohammad Taleb,2026-02-09T15:42:59.098465-05:00,2026-02-09T15:54:09.451072-05:00,2026-02-09T15:54:09.451072-05:00,Closed,,,,,"Review and clean up 6 skipped e2e tests. Delete 3 stale placeholder tests in test_form_manager.py (test_view_form_details, test_submit_form, test_form_validation) that are already covered by tribal form and error state tests. Keep test_404_page skip (valid). Rewrite or delete 2 admin role tests in test_user_roles.py whose skip reasons are outdated."
+bd-dagp,Add bandit and pip-audit to pre-commit hooks and CI,tombstone,3,task,Mohammad Taleb,2026-02-20T16:56:44.385487-05:00,2026-02-20T16:59:47.81715-05:00,,,2026-02-20T16:59:47.81715-05:00,daemon,delete,task,"Add ongoing security scanning to the development workflow:
+
+1. Add `bandit` as a pre-commit hook in `.pre-commit-config.yaml`
+2. Add `pip-audit` to the CI workflow in `.github/workflows/pre-commit.yml`
+
+This ensures security issues are caught automatically on every commit and PR."
+bd-euy1,Remove redundant timestamp field from FormAuditTrail and FormAuditDetail,closed,3,task,Mohammad Taleb,2026-02-05T11:30:57.586354-05:00,2026-02-05T11:35:59.909009-05:00,2026-02-05T11:32:57.745038-05:00,Closed,,,,,"FormAuditTrail and FormAuditDetail both inherit from BaseModel which provides created_at (auto_now_add=True), but they also define their own timestamp field with the same auto_now_add=True behavior. This is redundant.
+
+**Files affected:**
+- form_manager/models/__init__.py (lines 99 and 114)
+
+**Changes needed:**
+1. Remove the timestamp field from FormAuditTrail (line 99)
+2. Remove the timestamp field from FormAuditDetail (line 114)
+3. Update any code that references .timestamp to use .created_at instead
+4. Create and run a migration to remove the timestamp columns
+5. Update any tests that reference the timestamp field"
+bd-ha7h,Run bandit SAST scan on codebase and fix findings,open,2,task,Mohammad Taleb,2026-02-20T16:56:42.289109-05:00,2026-02-20T17:01:14.08323-05:00,,,,,,,"Run `uvx bandit -r form_manager/ csfeer/ core/ -ll` to perform static application security testing. Triage and fix any code-level security issues (SQL injection, hardcoded passwords, insecure deserialization, etc.).
+
+This complements the Django deploy security checks (FE-526) by covering application code vulnerabilities.
+
+## Acceptance Criteria
+- Run bandit scan and triage all findings
+- Fix or document any code-level security issues
+- Add bandit as a pre-commit hook in .pre-commit-config.yaml"
+bd-hze3,Run pip-audit dependency vulnerability scan and fix findings,open,2,task,Mohammad Taleb,2026-02-20T16:56:40.399388-05:00,2026-02-20T17:01:14.158639-05:00,,,,,,,"Run `uvx pip-audit` to scan project dependencies against known vulnerability databases (PyPI/OSV). Triage and fix any findings.
+
+This complements the Django deploy security checks (FE-526) by covering third-party dependency vulnerabilities.
+
+## Acceptance Criteria
+- Run pip-audit and triage all findings
+- Fix or document any vulnerable dependencies
+- Add pip-audit to CI workflow in .github/workflows/pre-commit.yml"
+bd-octr,Fix Django deploy security warnings from manage.py check --deploy,open,2,task,Mohammad Taleb,2026-02-20T16:52:34.615555-05:00,2026-02-20T16:54:53.089003-05:00,,,,,,,"Running `manage.py check --deploy` identified 7 security warnings that should be addressed before production deployment:
+
+1. **W004** - SECURE_HSTS_SECONDS not set (HTTP Strict Transport Security)
+2. **W008** - SECURE_SSL_REDIRECT not set to True
+3. **W009** - SECRET_KEY is insecure (django-insecure- prefix or too short)
+4. **W012** - SESSION_COOKIE_SECURE not set to True
+5. **W016** - CSRF_COOKIE_SECURE not set to True
+6. **W018** - DEBUG is set to True in deployment
+7. **W019** - X_FRAME_OPTIONS not set to DENY
+
+Most of these should be configured via environment variables so local dev can keep DEBUG=True while production enforces secure settings."

@@ -1,0 +1,6 @@
+ID,Requirement,Priority,Source,Conflict
+AS-01,Authentication with Login.gov,M,[S29] §2.0 Security L142,
+AS-03,"Government users authenticate via login.acf.gov (Okta), NOT Login.gov directly",M,[S10],Nuance missing from [S29]; gov vs non-gov distinction
+AS-04,Non-government users have separate authentication path (TBD),?,[S10],Risk documented — could delay development or require rework
+AS-14,ATO within 18 months,M,[S29] §2.0 Security L143,
+AS-16,SORN (Systems of Records Notice) required,M,[S29] §2.0 Security L144,

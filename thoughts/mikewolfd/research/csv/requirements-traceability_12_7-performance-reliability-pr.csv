@@ -1,0 +1,9 @@
+ID,Requirement,Status,Jira,Evidence
+PR-02,"Scalable to 1,100 recipients + 75 staff",❌,—,"No load testing, no pagination, sync PDF blocks workers"
+PR-04,Real-time resource utilization monitoring,❌,"bd-2 (epic), bd-102, bd-122",No APM or metrics collection
+PR-05,"Performance monitoring (response time, latency)",❌,bd-2 (epic),File-based Django logging only
+PR-10,24/7 operational availability,⚠️,—,HPA configured (min 2 / max 10) but miswired; no health check endpoint
+PR-11,≥200 concurrent users,❌,—,No load testing; default gunicorn config
+PR-13,Modern browser support,✅,—,Standard Django + Alpine.js + USWDS
+PR-14,Reliable despite poor connectivity,❌,bd-459,"No auto-save, no client caching, no offline resilience"
+PR-15,Test coverage >80%,❌,"bd-481, bd-9, bd-33, bd-38, bd-0fea",~51 unit + ~21 E2E tests; no coverage reporting; zero API tests

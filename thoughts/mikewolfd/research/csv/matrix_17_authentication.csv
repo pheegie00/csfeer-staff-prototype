@@ -1,0 +1,10 @@
+ID,Decision,Source,Notes
+AS-05,Authorization Code Flow with PKCE + client secret; all token handling server-side (browser receives only Django session cookie),[S27],Implements AS-01/AS-02 auth requirements
+AS-06,Keycloak (oauth.csfeer:8081) for local development mock,[S27],"Realm: csfeer, client: csfeer-auth"
+AS-07,Role-to-group mapping from JWT realm_access.roles claims,[S27],"Critical open question — will Okta/Login.gov token emit roles in realm_access.roles structure (Keycloak convention), or will backend need updating for different claim structure?"
+AS-08,Role mappings: csfeer_admin → staff+superuser; csfeer_staff → staff; superuser → superuser; any other role → Django group created/assigned by name,[S27],Fourth mapping carries security implications — unexpected roles auto-create groups
+AS-09,"Token lifetimes: access 5min, session idle 30min, session max 10hr",[S27],Keycloak dev config values — production Okta settings not yet confirmed
+AS-10,"Auto-provision user (by email claim), OrganizationProfile, and UserOrganizationMembership (role: admin) on first login; store sub claim in UserProfile.oidc_user_id",[S27],
+AS-11,Group memberships cleared and re-synced from token on every login,[S27],
+AS-12,RP-initiated logout with Okta session termination,[S27],
+AS-18,MVP uses basic session management without Login.gov; Login.gov integration deferred,[S31],Story 1.3; clarifies AS-01 is not in MVP scope

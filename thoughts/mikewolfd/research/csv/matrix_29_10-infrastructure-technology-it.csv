@@ -1,0 +1,21 @@
+ID,Decision,Source,Notes
+IT-01,"Python 3.12, Django 6.0+","[S18]; [S07] — ""Tech stack approved""",
+IT-02,PostgreSQL (NGSC AWS),"[S18]; [S09] — ""proceeding with ECS and Postgres""",
+IT-03,AWS ECS (not Kubernetes),[S09] — resolves PMP vs Helm chart discrepancy,
+IT-04,Alpine.js 3.15+ for frontend reactivity,[S18],
+IT-05,USWDS 3.13+ for UI components,[S18],
+IT-06,Django Ninja 1.4+ for REST APIs,[S18],[S35] PMP says DRF — outdated; Django Ninja is actual framework
+IT-07,WeasyPrint 62.3+ for PDF generation,[S18],
+IT-08,Django Cotton 2.1+ for reusable template components,[S18],
+IT-09,Keycloak for local dev auth mock,"[S27] — realm: csfeer, client: csfeer-auth; [S38]",[S38] notes Keycloak is being replaced (low impact); may affect mock-oauth setup
+IT-10,NGSC AWS as production environment,[S07]; [S09]; [S38],"ATO strategy: inherit existing NGSC controls (confirmed at IPT kickoff); environments: Dev/Test, Stage, Prod (lower + upper)"
+IT-11,"GitLab repository (~Feb 18, 2026) with GitHub mirroring",[S10],"Date inferred from ""next Wednesday"" relative to Feb 10 meeting"
+IT-12,"Jira for sprint tracking (project key ""FE"", RapidView 404)",[S16]; [S17],
+IT-13,Confluence for documentation,[S25],
+IT-14,"Figma for design/prototyping — two boards: ""ACF-Exploration"" (strategy/service blueprint) and ""Tribal-Forms"" (clickable prototypes V1, V1.3)",[S20]; [S19],
+IT-15,Mural for process maps and research workshops,[S22]; [S03],
+IT-16,"Open-source codebase preferred, using standard sustainable open-source libraries",S,"[S29] §2.0 Open Source & Scalability — ""preferred""",Entire [S29] subsection had no MATRIX entries
+IT-17,Affordable scaling of user licenses (if applicable),?,"[S29] §2.0 Open Source & Scalability — ""if applicable""",
+IT-18,PIV cards + GFE required for NGSC access; Zscaler for network access management,M,[S38],Operationally significant for CI/CD pipeline design
+IT-19,Parallel development: Focus builds in own environment while NGSC provisioning proceeds,—,[S38],Timeline risk mitigation
+IT-20,ServiceNow ticket process for Okta/Login.gov user provisioning,—,[S38],Operational integration path

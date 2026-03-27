@@ -1,0 +1,9 @@
+ID,Decision,Context,Traces to,Owner
+D-01,Validation timing,"Inline during entry vs. review-page-only? PWS says ""during entry""; tech spec says review-page. Determines entire form UX.","C-1, FE-25",Product
+D-02,Pilot size,10 (AC-04) vs. 10-12 (DL-11) vs. 20+ (SC-01)? Affects support staffing and success criteria.,C-2,Product
+D-03,FISMA baseline,"Low (AS-A10/S12) vs. Moderate (S24/PR-12)? Affects ATO scope, control implementation, and timeline.",C-3,Security/Product
+D-04,Okta token claim mapping,Will Okta emit roles in realm_access.roles (Keycloak convention) or different claim path? Backend role sync depends on this. Testable once NGSC access granted.,"C-13, AS-07",Tech
+D-05,Async infrastructure,"Celery+Redis? Django-Q? Task queue choice affects PDF generation, email, notifications. No async capability exists today.",Arch review,Tech
+D-06,Multi-tenancy isolation model,"Tenant, permission, data partitioning, or hybrid? Constrains all foundation-layer deliverables. Not yet designed.",VALUE_STREAM_ANALYSIS.md,Tech/Arch
+D-07,Federal review workflow design,Six sub-questions (all post-MVP but design affects data model now): Sequential vs. parallel steps? Conditional routing? Unanimous vs. any-one-approves? Who configures? Delegation rules? Reviewer permission tiers?,"C-7, WF-09, MATRIX.md [WS-07/08/09]",Product
+D-08,Login.gov in MVP?,AC-02 says yes; AS-18 says deferred. Blocked on ACF NGSC environment access. Not a code problem — OIDC plumbing is built.,"C-13, R-08",Product/ACF

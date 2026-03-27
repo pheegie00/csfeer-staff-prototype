@@ -1,0 +1,8 @@
+ID,Requirement,Priority,Source,Notes
+FE-01,Manual data entry: open fields for user-entered values,M,[S29] §2.0 Form Field Types L129,
+FE-02,Auto-calculated fields using formulas based on other inputs,M,[S29] §2.0 Form Field Types L130,
+FE-03,Pre-population: data that connects forms from pre-award to post-award,M,[S29] §2.0 Form Field Types L131,
+FE-04,Conditional fields and branching questions,M,[S29] §2.0 Form Field Types L137,
+FE-05,One-to-many response types (multiple responses per question),M,[S29] §2.0 Form Field Types L138,
+FE-06,File attachment fields stored with submission,M,[S29] §2.0 Form Field Types L136,
+FE-12,Reduce compatibility issues and variability from custom State/Tribal plans and third-party-enabled State annual reports,M,[S29] Top Problems to Solve,

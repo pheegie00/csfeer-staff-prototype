@@ -1,0 +1,11 @@
+ID,Requirement,Priority,Source,Notes
+AS-02,OIDC via Okta (acf.okta.com) as identity broker,M,[S27],
+AS-13,"Client secret must be stored in secrets manager (e.g., AWS Secrets Manager); rotation schedule TBD",M,[S27],"Storage is M (""must never be hardcoded""); rotation schedule is S"
+AS-15,"ATO target date: May 29, 2026",M,[S12],Specific milestone from compliance tracker
+AS-17,PIA (Privacy Impact Assessment) required,M,"[S12] — status ""UNDER REVIEW"" as of 2026-02-09",[S29] §2.0 Security does NOT mention PIA; sourced from ATO process only
+AS-19,Zero Trust strategy required per EO 14028,M,[S33],Contractor must provide ZT strategy
+AS-20,CUI handling per NIST standards for Controlled Unclassified Information,M,[S33],
+AS-21,AI policy: federal data cannot train commercial AI models without approval,M,[S33],Must comply with US law + ACF policy
+AS-22,"Personnel security: background investigations, NDAs, annual security/privacy/records training",M,[S33],
+AS-23,High-risk Public Trust clearance required for contractor staff,M,[S34],PWS page 40/67; affects onboarding timelines for new team members
+AS-24,"Incident response SLAs: Critical <1hr, High <4hrs, Medium <24hrs, Low <72hrs",M,[S35],

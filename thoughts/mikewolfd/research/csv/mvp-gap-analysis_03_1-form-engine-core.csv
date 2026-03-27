@@ -1,0 +1,9 @@
+Gap,Requirements,Severity,Jira,Notes
+Tribal Plan form not built,FI-01,Blocking,"bd-61 (epic), bd-65, bd-70",Third of three MVP forms; target Mar 31
+Validation commented out in finalize,"FE-23, WF-06",Blocking,—,form_finalize.py:48 — forms submit even when invalid; no ticket
+No warning-tier validation,FE-21,Medium,—,All validation is blocking or nothing; PWS requires advisory warnings
+No field-group validation,FE-22,Low,—,Field-level and form-level exist; group-level gap
+No auto-save,FE-38,High,bd-235,"⚠️ bd-37, bd-54 closed but only covered save-on-navigate, not periodic auto-save"
+No connection resilience,"FE-44, FE-45",High,bd-459,"No IndexedDB/localStorage, no connection state indicators; tribal users in rural/low-bandwidth areas"
+No screener/routing flow,FE-43,Medium,bd-332 (epic),Users see flat list of forms; no eligibility-based routing
+No concurrent edit handling,FE-47,Low,—,Boolean lock only; no optimistic locking; no ticket

@@ -1,0 +1,9 @@
+ID,Requirement,Status,Jira,Evidence
+UP-01,Three grantee role tiers (Approver/Contributor/Viewer),⚠️,"bd-15, bd-21, bd-108",Admin/editor/viewer exist; naming differs from persona spec
+UP-02,SF-424M cross-referencing guidance,❌,—,No SF-424M references in schemas
+UP-03,Transmittal letter/attestation artifact,❌,—,No attestation model or signature capture
+UP-04,Portfolio dashboard for OCS staff,❌,"bd-72, bd-221 (epic)",No cross-org view; staff see same interface as grantees
+UP-05,Batch review & structured export,❌,—,No bulk operations or cross-grantee comparison
+UP-06,"Visual diff (""what changed from last year"")",❌,—,Audit captures within-submission changes; no year-over-year
+UP-07,Simplified summary view for leadership,❌,—,No summary/dashboard view
+UP-08,Unified admin console,❌,—,Django admin only

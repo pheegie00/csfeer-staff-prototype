@@ -1,0 +1,15 @@
+ID,Decision,Status,Jira,Evidence
+FE-08,Interview-style page-by-page POST flow,✅,"bd-54, bd-85",form_edit.py step/page navigation with ?step=N&page=N query params
+FE-09,JSON field storage for form data,✅,bd-427 (epic),FormEntry.data = JSONField()
+FE-10,Pydantic schemas as single source of truth,✅,bd-427 (epic),"form_manager/schema/ defines UI structure, Django form classes, and validation"
+FE-11,FormDefinition links to Python schema class,✅,bd-427 (epic),schema_class string field dynamically imported
+FE-33,Status lifecycle: draft → submitted → amended → archived,⚠️,—,"Model statuses exist; no view transitions to ""amended"""
+FE-34,Audit trail for all form actions,✅,—,FormAuditTrail + FormAuditDetail with field-level diffs and state reconstruction
+FE-36,Short form variant derived from long form,✅,bd-60 (epic),TribalShortFormFields and TribalLongFormFields are separate schemas
+FE-37,Cross-form pre-population (Plan ← AR),❌,—,No implementation; see FE-03
+FE-38,Periodic auto-save every 30-60s,❌,"bd-37, bd-54, bd-235",Save only on explicit form POST; no JS timers or debounce
+FE-43,Screener flow / form routing after login,❌,bd-332 (epic),form_list shows all definitions as flat cards; no eligibility routing
+FE-44,Client-side caching (IndexedDB/localStorage),❌,bd-459,"No browser storage APIs, no service worker"
+FE-45,Connection state indicators,❌,bd-459,"No ""Saved""/""Connection lost""/""Reconnected"" UI"
+FE-46,UEI as cross-form pre-population key,❌,—,No UEI field on OrganizationProfile
+FE-47,Concurrent edit conflict handling,❌,—,Boolean is_locked only; no optimistic locking

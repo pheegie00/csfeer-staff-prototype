@@ -1,0 +1,17 @@
+ID,Risk,Prob,Impact,Mitigation,Source
+R-01,Government shutdown,Med,Med,Delivery plan for shutdown scenarios; non-blocking work sequenced first; ATO prep runs in parallel,[S16]
+R-02,Tribal consultation,Low,High,"Ongoing consultation, opt-in approach, transparent communication, respect for sovereignty",[S16]
+R-03,Login.gov complexity,Low,Med,Early technical spikes; close coordination with ACF; staged integration and testing,[S16]
+R-04,Data migration challenges,Med,Med,Limit MVP pre-population to high-confidence data only; document expansion path for Phase II,[S16]
+R-05,User adoption,Med,High,"Tribal-informed design, usability testing, training, phased onboarding, help desk support",[S16]
+R-06,ATO/Security reviews,Low,High,Parallel ATO workstream; weekly syncs; early control implementation; #1 risk per [S35] (p×i = 0.45),[S17]; [S35]
+R-07,Dependency on external reviews,Med,Med,Questions staged early; assumptions documented; flexible sequencing,[S17]
+R-08,Non-gov user auth path uncertainty,?,?,TBD — could delay development or require rework. Relates to C-13 and D-04.,[S10]
+R-09,PIA classification guidance delay,?,?,Could block system deployment and ATO approval. See Q-08.,[S10]
+R-10,Competing GrantSolutions implementation ($1.2M–$1.71M),?,?,Relationship to CSFEER unclear — competitive? fallback? abandoned? See C-11.,[S13]
+R-11,"State resistance to platform adoption (e.g., NJ ""empower"")",?,?,OCS can issue DCLs (Dear Colleague Letters),[S02]
+R-12,Attestation/signature workflow unclear,?,?,How does tribal council sign-off work digitally? See Q-12 (new).,[S36]
+R-13,Policy interpretations may alter form logic mid-development,?,Med,OMB form definitions and OCS validation rules are dependencies,[S36]
+R-14,OLDC user data isolation,Med,Med,CSFEER creating users independently from OLDC; requires API integration to import existing users; Thomas Oldfield (ACF Tech) is data liaison,[S38]
+R-15,Deployment artifacts broken,High,High,Prod Docker image likely missing app code; Helm chart mismatches; health check fails. New — from architectural review.,Arch review
+R-16,PII exposure (API + logs),High,High,API returns full form data JSON with PII; INFO-level logging dumps form data. New — from architectural review.,Arch review

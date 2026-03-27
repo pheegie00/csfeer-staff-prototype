@@ -1,0 +1,13 @@
+ID,Requirement,Priority,Source,Notes
+PR-01,Form load/save ≤ 3 seconds on typical 4G connection,M,[S24] NFR1,
+PR-03,≥ 99.5% uptime excluding scheduled maintenance,M,[S24] NFR3,
+PR-11,≥ 200 concurrent users,M,[S24] NFR2,
+PR-12,"FISMA Moderate, FedRAMP hosting, FIPS 140-2 encryption",M,[S24] NFR4,Relevant to conflict C-3: [S24] explicitly says Moderate
+PR-13,"Modern browser support: Chrome, Firefox, Edge, Safari",M,[S24] NFR5,
+PR-14,Operate reliably despite poor connectivity (auto-save + local caching),M,[S24] Req #13,Connects to AD-09 low-bandwidth constraint
+PR-15,Test coverage: >80%,M,[S35],
+PR-16,3G network testing required in addition to 4G,M,[S35],Extends PR-01
+PR-17,Form completion time target: <25 minutes,S,[S35],UX performance metric
+PR-19,Support volume: <60 tickets/month,S,[S35],
+PR-20,Processing cost: <$50/form,S,[S35],
+PR-21,75% tribal digital adoption within Year 1,S,[S35],Also appears as success metric

@@ -1,0 +1,14 @@
+Category,Total,✅,⚠️,🐛,❌,🔮,Has Jira,No Jira
+Form Engine (FE),28,11,6,1,10,0,20,8
+Workflow (WF),13,1,1,1,6,4,2,11
+Auth & Security (AS),10,7,1,0,2,0,10,0
+Integration & Data (DA),9,1,2,1,5,0,3,6
+Accessibility (AD),6,2,3,0,1,0,4,2
+Permissions (PM),6,1,3,0,2,0,4,2
+Performance (PR),8,1,1,0,6,0,4,4
+User Personas (UP),8,0,1,0,7,0,3,5
+MVP Acceptance (AC),4,0,2,0,2,0,3,1
+Infrastructure (IT),9,8,0,0,1,0,6,3
+Form Inventory (FI),3,2,0,0,1,0,3,0
+Success Criteria (SC),7,0,2,0,5,0,4,3
+Totals,111,34,22,3,48,4,66,45
