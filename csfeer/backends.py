@@ -32,7 +32,6 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
 
     def validate_claims(self, claims: dict) -> None:
         logger.info(claims)
-        return super().validate_claims(claims)
 
     def get_or_create_user(self, request, id_claims, access_token) -> AbstractUser:
         """
@@ -55,8 +54,8 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
         email_claim = settings.OIDC_OP_EXPECTED_EMAIL_CLAIM
         email = claims.get(email_claim)
 
-        logger.debug(claims)
-        logger.debug(email)
+        logger.info(claims)
+        logger.info(email)
 
         if not email:
             # Try to get email using the configured function if available
