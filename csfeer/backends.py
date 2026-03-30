@@ -31,11 +31,11 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
     """
 
     def validate_claims(self, claims: dict) -> None:
-        logger.info(claims)
+        pass
 
-    def validate_and_decode(self, id_token, nonce, jwks):
+    def validate_and_decode_id_token(self, id_token, nonce, jwks):
         logger.info(f"id token: {id_token}")
-        return super().validate_and_decode(id_token, nonce, jwks)
+        return super().validate_and_decode_id_token(id_token, nonce, jwks)
 
     def get_or_create_user(self, request, id_claims, access_token) -> AbstractUser:
         """
@@ -53,14 +53,16 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
             SuspiciousOperation: If the email claim is missing from the token.
         """
         logger.info(f"access token: {access_token}")
+        logger.info(f"id_claims: {id_claims}")
         claims = self.get_full_claims(request, id_claims, access_token)
+
+        logger.info(f"combined claims: {claims}")
 
         # Get email from claims
         email_claim = settings.OIDC_OP_EXPECTED_EMAIL_CLAIM
         email = claims.get(email_claim)
 
-        logger.info(claims)
-        logger.info(email)
+        logger.info(f"email from from field: {email}")
 
         if not email:
             # Try to get email using the configured function if available
@@ -69,11 +71,9 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
             elif settings.OIDC_EMAIL_CLAIM:
                 email = claims.get(settings.OIDC_EMAIL_CLAIM)
 
+            logger.info(f"email from callable: {email}")
+
         if not email:
-            # If we still don't have an email, we can't create/get a user
-            # This might raise an error or return None depending on desired behavior
-            # For now, let's raise an exception or let the parent handle it (which would fail
-            # on username). But since we are overriding, we must handle it.
             from django.core.exceptions import SuspiciousOperation
 
             raise SuspiciousOperation("Email claim not found in OIDC token")
