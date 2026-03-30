@@ -3,10 +3,15 @@
     href=""
     is_current=""
     extra_classes=""
+    submit_form_id=""
 />
 
 <li class="usa-sidenav__item {{ extra_classes }}">
-    <a href="{{ href }}"{% if is_current %} class="usa-current"{% endif %}>{{ text }}</a>
+    <a
+        href="{{ href }}"
+        {% if is_current %}class="usa-current"{% endif %}
+        {% if submit_form_id %}data-save-draft-form="{{ submit_form_id }}"{% endif %}
+    >{{ text }}</a>
     {% if slot %}
     <ul class="usa-sidenav__sublist">
         {{ slot }}

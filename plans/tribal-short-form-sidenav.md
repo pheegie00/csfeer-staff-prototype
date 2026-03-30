@@ -51,7 +51,7 @@ Expand only the active section in the sidenav while editing so users can see the
 
 ---
 
-## Phase 3: Clickable Sidenav Navigation With Draft Save
+## Phase 3: Clickable Sidenav Navigation With Draft Save Completed
 
 **User stories**: 5, 6, 9, 12, 13, 14, 20, 21
 
@@ -61,10 +61,10 @@ Make the sidenav interactive on edit pages so top-level section clicks route to 
 
 ### Acceptance criteria
 
-- [ ] Clicking a top-level section on an edit page saves current draft data and moves to the first visible page in that section.
-- [ ] Clicking a child page on an edit page saves current draft data and moves to that visible page.
-- [ ] Clicking `Review and Submit` from an edit page saves current draft data and routes to review even if required fields are incomplete.
-- [ ] Posted values persist across sidenav navigation in the same way they do for the current draft-save flow.
+- [x] Clicking a top-level section on an edit page saves current draft data and moves to the first visible page in that section.
+- [x] Clicking a child page on an edit page saves current draft data and moves to that visible page.
+- [x] Clicking `Review and Submit` from an edit page saves current draft data and routes to review even if required fields are incomplete.
+- [x] Posted values persist across sidenav navigation in the same way they do for the current draft-save flow.
 
 ---
 

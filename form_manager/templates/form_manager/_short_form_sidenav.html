@@ -5,12 +5,14 @@
         text="{{ item.title }}"
         href="{{ item.href }}"
         is_current="{% if item.is_current %}true{% endif %}"
+        submit_form_id="csf-form"
       >
         {% for child in item.children %}
           <c-side_nav.item
             text="{{ child.title }}"
             href="{{ child.href }}"
             is_current="{% if child.is_current %}true{% endif %}"
+            submit_form_id="csf-form"
           />
         {% endfor %}
       </c-side_nav.item>
@@ -19,6 +21,7 @@
         text="{{ item.title }}"
         href="{{ item.href }}"
         is_current="{% if item.is_current %}true{% endif %}"
+        submit_form_id="csf-form"
       />
     {% endif %}
   {% endfor %}

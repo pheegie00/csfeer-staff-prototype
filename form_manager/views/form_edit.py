@@ -124,13 +124,17 @@ def get_short_form_step_pages(step: StepBlock) -> list[AbstractPageBlock]:
     return [child for child in step.children or [] if isinstance(child, AbstractPageBlock)]
 
 
+def get_short_form_edit_url(entry: FormEntry, step_number: int, page_number: int) -> str:
+    return reverse("form_edit", kwargs={"pk": entry.pk}) + f"?step={step_number}&page={page_number}"
+
+
 def build_short_form_sidenav_children(
-    step: StepBlock, current_page_number: int, current_path: str
+    entry: FormEntry, step: StepBlock, step_number: int, current_page_number: int
 ) -> list[ShortFormSidenavItem]:
     return [
         {
             "title": get_short_form_page_title(page),
-            "href": current_path,
+            "href": get_short_form_edit_url(entry, step_number, page_index),
             "is_current": page_index == current_page_number,
             "children": [],
         }
@@ -139,7 +143,10 @@ def build_short_form_sidenav_children(
 
 
 def build_short_form_sidenav_items(
-    steps: list[StepBlock], current_step_number: int, current_page_number: int, current_path: str
+    entry: FormEntry,
+    steps: list[StepBlock],
+    current_step_number: int,
+    current_page_number: int,
 ) -> list[ShortFormSidenavItem]:
     sidenav_items: list[ShortFormSidenavItem] = []
 
@@ -147,10 +154,10 @@ def build_short_form_sidenav_items(
         sidenav_items.append(
             {
                 "title": step.title,
-                "href": current_path,
+                "href": get_short_form_edit_url(entry, step_index, 0),
                 "is_current": step_index == current_step_number,
                 "children": (
-                    build_short_form_sidenav_children(step, current_page_number, current_path)
+                    build_short_form_sidenav_children(entry, step, step_index, current_page_number)
                     if step_index == current_step_number
                     else []
                 ),
@@ -160,7 +167,7 @@ def build_short_form_sidenav_items(
     sidenav_items.append(
         {
             "title": "Review and Submit",
-            "href": current_path,
+            "href": reverse("form_review", kwargs={"pk": entry.pk}),
             "is_current": False,
             "children": [],
         }
@@ -198,7 +205,7 @@ def form_edit(request, pk):
     # The django form is expected to be available on schema.form_fields
     django_form_class = schema_cls.get_form_fields_class()
 
-    ui_components = schema.ui
+    ui_components = [step.model_copy(deep=True) for step in schema.ui]
 
     def has_permission():
 
@@ -287,10 +294,10 @@ def form_edit(request, pk):
             entry.form_definition.name == CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT
         ),
         "short_form_sidenav_items": build_short_form_sidenav_items(
+            entry,
             ui_components,
             current_step_number,
             current_page_number,
-            request.get_full_path(),
         ),
         "current_step_number": current_step_number,
         "current_page_number": current_page_number,

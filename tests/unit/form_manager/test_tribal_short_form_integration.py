@@ -1,5 +1,6 @@
 """Integration tests for TribalShortForm"""
 
+from html import unescape
 import re
 from typing import TYPE_CHECKING
 
@@ -16,6 +17,20 @@ if TYPE_CHECKING:
 
 def get_sidenav_markup(content: str) -> str:
     match = re.search(r'(<nav aria-label="Form sections">.*?</nav>)', content, re.DOTALL)
+    assert match is not None
+    return match.group(1)
+
+
+def get_sidenav_href(content: str, title: str) -> str:
+    link_markup = get_sidenav_link_markup(content, title)
+    match = re.search(r'href="([^"]+)"', link_markup)
+    assert match is not None
+    return unescape(match.group(1))
+
+
+def get_sidenav_link_markup(content: str, title: str) -> str:
+    sidenav = get_sidenav_markup(content)
+    match = re.search(rf"(<a\b[^>]*>\s*{re.escape(title)}\s*</a>)", sidenav)
     assert match is not None
     return match.group(1)
 
@@ -139,6 +154,124 @@ def test_tribal_short_form_sidenav_expands_only_current_section_and_marks_curren
     assert "Details on employment services" in sidenav
     assert "Details on housing services" in sidenav
     assert "Details on health services" not in sidenav
+
+
+@pytest.mark.django_db
+def test_tribal_short_form_top_level_sidenav_navigation_saves_draft_and_opens_first_page(
+    django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
+):
+    edit_url = reverse("form_edit", args=[tribal_short_form_entry.pk])
+    response = authenticated_client.get(edit_url, query_params={"step": 0, "page": 0})
+
+    assert response.status_code == 200
+
+    target_href = get_sidenav_href(response.content.decode("utf-8"), "Expenditure categories")
+
+    response = authenticated_client.post(
+        target_href,
+        data={
+            "org_name": "Example Tribal Nation",
+            "contact_name": "Casey Example",
+            "contact_title": "Program Director",
+            "phone": "5551234567",
+            "email": "casey@example.com",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.context["current_step_number"] == 1
+    assert response.context["current_page_number"] == 0
+    assert "applicable_topics" in response.content.decode("utf-8")
+
+    tribal_short_form_entry.refresh_from_db()
+    assert tribal_short_form_entry.data["org_name"] == "Example Tribal Nation"
+    assert tribal_short_form_entry.data["contact_name"] == "Casey Example"
+
+
+@pytest.mark.django_db
+def test_tribal_short_form_child_sidenav_navigation_saves_draft_and_opens_selected_page(
+    django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
+):
+    tribal_short_form_entry.data = {
+        "applicable_topics": [
+            "employment_expenditure,employment_related_services_description",
+            "housing_expenditure,housing_services_description",
+        ]
+    }
+    tribal_short_form_entry.save(update_fields=["data"])
+
+    edit_url = reverse("form_edit", args=[tribal_short_form_entry.pk])
+    response = authenticated_client.get(edit_url, query_params={"step": 2, "page": 1})
+
+    assert response.status_code == 200
+
+    target_href = get_sidenav_href(
+        response.content.decode("utf-8"), "Details on employment services"
+    )
+
+    response = authenticated_client.post(
+        target_href,
+        data={
+            "housing_services_description": "Housing support details saved from the current page.",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.context["current_step_number"] == 2
+    assert response.context["current_page_number"] == 0
+    assert "employment_related_services_description" in response.content.decode("utf-8")
+
+    tribal_short_form_entry.refresh_from_db()
+    assert (
+        tribal_short_form_entry.data["housing_services_description"]
+        == "Housing support details saved from the current page."
+    )
+
+
+@pytest.mark.django_db
+def test_tribal_short_form_review_sidenav_navigation_saves_draft_and_opens_review(
+    django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
+):
+    edit_url = reverse("form_edit", args=[tribal_short_form_entry.pk])
+    response = authenticated_client.get(edit_url, query_params={"step": 0, "page": 0})
+
+    assert response.status_code == 200
+
+    target_href = get_sidenav_href(response.content.decode("utf-8"), "Review and Submit")
+
+    response = authenticated_client.post(
+        target_href,
+        data={
+            "org_name": "Draft org value",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.request["PATH_INFO"] == reverse(
+        "form_review", args=[tribal_short_form_entry.pk]
+    )
+    assert "Review and Submit" in response.content.decode("utf-8")
+
+    tribal_short_form_entry.refresh_from_db()
+    assert tribal_short_form_entry.data["org_name"] == "Draft org value"
+
+
+@pytest.mark.django_db
+def test_tribal_short_form_edit_sidenav_links_submit_the_current_form(
+    django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
+):
+    edit_url = reverse("form_edit", args=[tribal_short_form_entry.pk])
+    response = authenticated_client.get(edit_url, query_params={"step": 0, "page": 0})
+
+    assert response.status_code == 200
+
+    section_link = get_sidenav_link_markup(
+        response.content.decode("utf-8"), "Expenditure categories"
+    )
+    review_link = get_sidenav_link_markup(response.content.decode("utf-8"), "Review and Submit")
+
+    assert 'data-save-draft-form="csf-form"' in section_link
+    assert 'data-save-draft-form="csf-form"' in review_link
 
 
 @pytest.mark.django_db
