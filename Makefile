@@ -47,7 +47,7 @@ test-e2e:
 	@docker compose up -d app
 	@echo "Waiting for app to be ready..."
 	@sleep 5
-	docker compose run --rm e2e uv run pytest $${TEST:-tests/e2e/} -v -m e2e
+	docker compose exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e
 
 test-e2e-ci:
 	@echo "Starting services..."
