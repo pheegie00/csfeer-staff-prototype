@@ -1,7 +1,7 @@
 """Integration tests for TribalShortForm"""
 
-from html import unescape
 import re
+from html import unescape
 from typing import TYPE_CHECKING
 
 import pytest
@@ -226,6 +226,47 @@ def test_tribal_short_form_child_sidenav_navigation_saves_draft_and_opens_select
         tribal_short_form_entry.data["housing_services_description"]
         == "Housing support details saved from the current page."
     )
+
+
+@pytest.mark.django_db
+def test_tribal_short_form_child_sidenav_navigation_falls_back_when_filter_change_hides_target_page(
+    django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
+):
+    tribal_short_form_entry.data = {
+        "applicable_topics": [
+            "employment_expenditure,employment_related_services_description",
+            "housing_expenditure,housing_services_description",
+        ]
+    }
+    tribal_short_form_entry.save(update_fields=["data"])
+
+    edit_url = reverse("form_edit", args=[tribal_short_form_entry.pk])
+    response = authenticated_client.get(edit_url, query_params={"step": 2, "page": 1})
+
+    assert response.status_code == 200
+
+    target_href = get_sidenav_href(response.content.decode("utf-8"), "Details on housing services")
+
+    response = authenticated_client.post(
+        target_href,
+        data={
+            "applicable_topics": [
+                "employment_expenditure,employment_related_services_description",
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.context["current_step_number"] == 2
+    assert response.context["current_page_number"] == 0
+    content = response.content.decode("utf-8")
+    assert "employment_related_services_description" in content
+    assert "housing_services_description" not in content
+
+    tribal_short_form_entry.refresh_from_db()
+    assert tribal_short_form_entry.data["applicable_topics"] == [
+        "employment_expenditure,employment_related_services_description",
+    ]
 
 
 @pytest.mark.django_db

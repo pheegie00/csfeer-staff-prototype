@@ -85,7 +85,7 @@ Render the same left-rail navigation on the review page so the overall navigatio
 
 ---
 
-## Phase 5: Filter-Change Fallback Resolution
+## Phase 5: Filter-Change Fallback Resolution Completed
 
 **User stories**: 15, 16, 20, 22
 
@@ -95,7 +95,7 @@ Add centralized destination resolution that recomputes visible pages after save 
 
 ### Acceptance criteria
 
-- [ ] Visible destinations are recomputed after sidenav-triggered saves using the same filtering logic as the rest of the form flow.
-- [ ] If a requested child page disappears after save, the user is redirected to a viable fallback instead of an invalid destination.
-- [ ] If a selected section still has visible pages, fallback routing lands on that section's first visible page.
-- [ ] Destination resolution behavior is covered by focused tests for missing-target recovery and filtered visibility changes.
+- [x] Visible destinations are recomputed after sidenav-triggered saves using the same filtering logic as the rest of the form flow.
+- [x] If a requested child page disappears after save, the user is redirected to a viable fallback instead of an invalid destination.
+- [x] If a selected section still has visible pages, fallback routing lands on that section's first visible page.
+- [x] Destination resolution behavior is covered by focused tests for missing-target recovery and filtered visibility changes.

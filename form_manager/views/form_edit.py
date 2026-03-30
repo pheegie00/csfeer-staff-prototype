@@ -1,5 +1,4 @@
 import logging
-from typing import TypedDict
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -10,23 +9,15 @@ from django.urls import reverse
 from form_manager.constants import CSBGAnnualReportForms
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
-from form_manager.schema.layout import (
-    AbstractPageBlock,
-    FieldBlock,
-    PageBlock,
-    PageTitleBlock,
-    StepBlock,
-)
+from form_manager.schema.layout import PageBlock
 from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
+from form_manager.views.short_form_navigation import (
+    build_short_form_sidenav_items,
+    remove_nodes_with_excluded_fields,
+    resolve_short_form_edit_destination,
+)
 
 logger = logging.getLogger(__name__)
-
-
-class ShortFormSidenavItem(TypedDict):
-    title: str | None
-    href: str
-    is_current: bool
-    children: list["ShortFormSidenavItem"]
 
 
 def get_step_page(components, step: int, page: int) -> PageBlock:
@@ -76,108 +67,6 @@ def get_previous_step_and_page(
     return current_step, current_page - 1
 
 
-def remove_nodes_with_excluded_fields(
-    components: list[StepBlock], fields_to_exclude: list[str]
-) -> list[StepBlock]:
-    """This function takes a list of UI components (steps), removes any descendant FieldBlock
-    components whose names are listed in `fields_to_exclude`, and removes any PageBlock nodes that
-    lack descendant FieldBlock nodes."""
-
-    def remove_excluded_nodes(component):
-
-        children_to_keep = []
-
-        for child in component.children:
-
-            if isinstance(child, FieldBlock) and child.field_name in fields_to_exclude:
-                logger.info("Removing field %s", child.field_name)
-                continue
-
-            if hasattr(child, "children") and child.children:
-                child = remove_excluded_nodes(child)
-
-            if isinstance(child, PageBlock) and not child.has_field_blocks(child):
-                # If the page has no remaining FieldBlock children, skip it
-                logger.info("Removing empty page %s", child.title)
-                continue
-
-            children_to_keep.append(child)
-
-        component.children = children_to_keep
-        return component
-
-    return [remove_excluded_nodes(comp) for comp in components]
-
-
-def get_short_form_page_title(page: AbstractPageBlock) -> str:
-    if page.title:
-        return page.title
-
-    for child in page.children or []:
-        if isinstance(child, PageTitleBlock) and child.title:
-            return child.title
-
-    return "Untitled page"
-
-
-def get_short_form_step_pages(step: StepBlock) -> list[AbstractPageBlock]:
-    return [child for child in step.children or [] if isinstance(child, AbstractPageBlock)]
-
-
-def get_short_form_edit_url(entry: FormEntry, step_number: int, page_number: int) -> str:
-    return reverse("form_edit", kwargs={"pk": entry.pk}) + f"?step={step_number}&page={page_number}"
-
-
-def build_short_form_sidenav_children(
-    entry: FormEntry, step: StepBlock, step_number: int, current_page_number: int
-) -> list[ShortFormSidenavItem]:
-    return [
-        {
-            "title": get_short_form_page_title(page),
-            "href": get_short_form_edit_url(entry, step_number, page_index),
-            "is_current": page_index == current_page_number,
-            "children": [],
-        }
-        for page_index, page in enumerate(get_short_form_step_pages(step))
-    ]
-
-
-def build_short_form_sidenav_items(
-    entry: FormEntry,
-    steps: list[StepBlock],
-    current_step_number: int,
-    current_page_number: int,
-    *,
-    is_review_page: bool = False,
-) -> list[ShortFormSidenavItem]:
-    sidenav_items: list[ShortFormSidenavItem] = []
-
-    for step_index, step in enumerate(steps):
-        sidenav_items.append(
-            {
-                "title": step.title,
-                "href": get_short_form_edit_url(entry, step_index, 0),
-                "is_current": not is_review_page and step_index == current_step_number,
-                "children": (
-                    build_short_form_sidenav_children(entry, step, step_index, current_page_number)
-                    if not is_review_page and step_index == current_step_number
-                    else []
-                ),
-            }
-        )
-
-    sidenav_items.append(
-        {
-            "title": "Review and Submit",
-            "href": reverse("form_review", kwargs={"pk": entry.pk}),
-            "is_current": is_review_page,
-            "children": [],
-        }
-    )
-
-    return sidenav_items
-
-
 @login_required
 def form_edit(request, pk):
     """
@@ -208,6 +97,9 @@ def form_edit(request, pk):
     django_form_class = schema_cls.get_form_fields_class()
 
     ui_components = [step.model_copy(deep=True) for step in schema.ui]
+    use_short_form_sidenav = (
+        entry.form_definition.name == CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT
+    )
 
     def has_permission():
 
@@ -245,6 +137,11 @@ def form_edit(request, pk):
     if form.fields_to_exclude:
         logger.info("Excluding the following fields: %s", form.fields_to_exclude)
         ui_components = remove_nodes_with_excluded_fields(ui_components, form.fields_to_exclude)
+
+    if use_short_form_sidenav:
+        current_step_number, current_page_number = resolve_short_form_edit_destination(
+            ui_components, current_step_number, current_page_number
+        )
 
     next_step_number, next_page_number = get_next_step_and_page(
         ui_components, current_step_number, current_page_number
@@ -292,9 +189,7 @@ def form_edit(request, pk):
     context = {
         "steps": ui_components,
         "entry": entry,
-        "use_short_form_sidenav": (
-            entry.form_definition.name == CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT
-        ),
+        "use_short_form_sidenav": use_short_form_sidenav,
         "short_form_sidenav_items": build_short_form_sidenav_items(
             entry,
             ui_components,

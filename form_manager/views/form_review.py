@@ -10,7 +10,7 @@ from form_manager.constants import CSBGAnnualReportForms
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.utils import save_form_entry
-from form_manager.views.form_edit import (
+from form_manager.views.short_form_navigation import (
     build_short_form_sidenav_items,
     remove_nodes_with_excluded_fields,
 )
