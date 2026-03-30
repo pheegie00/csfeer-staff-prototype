@@ -92,24 +92,5 @@ services:
       - all
     hostname: ui.csfeer
 
-  e2e:
-    working_dir: /app
-    volumes:
-      - ../../tests:/app/tests/
-    environment:
-      DJANGO_ALLOW_ASYNC_UNSAFE: true
-      BASE_URL: http://ui.csfeer:8000
-      DJANGO_SETTINGS_MODULE: csfeer.settings
-      OIDC_CONFIG__CLIENT_SECRET: shhhhhhhh
-      DB_CONFIG__SSL_MODE: disable
-      OIDC_CONFIG__CLIENT_ID: csfeer-auth
-      OIDC_CONFIG__DOCUMENT_URL: http://oauth.csfeer:8081/realms/csfeer/.well-known/openid-configuration
-      DB_CONFIG__PGHOST: db
-      ENVIRONMENT: docker
-    depends_on:
-      - app
-    profiles:
-      - e2e
-
 volumes:
   pgdata:
