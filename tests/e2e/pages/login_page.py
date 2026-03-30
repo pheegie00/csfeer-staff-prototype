@@ -22,7 +22,7 @@ class LoginPage(BasePage):
     def navigate_to_login(self) -> None:
         """Navigate to login page via the login link."""
         self.navigate("/")
-        login_link = self.page.get_by_role("link", name="Login")
+        login_link = self.page.get_by_role("link", name="Sign In")
         if login_link.is_visible():
             login_link.click()
             self.wait_for_oauth_page()
@@ -40,6 +40,8 @@ class LoginPage(BasePage):
             password: Password
             expect_success: Whether to expect successful login (default True)
         """
+        self.navigate_to_login()
+
         # Fill username - use input field directly
         username_field = self.page.locator("input#username")
         username_field.fill(username)
