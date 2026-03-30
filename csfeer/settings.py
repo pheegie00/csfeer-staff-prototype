@@ -155,18 +155,6 @@ OIDC_EXTEND_USER = (
     "csfeer.backends.extend_user_with_roles"  # Custom function to extend user with roles
 )
 
-
-def get_oidc_email(claims: dict):
-
-    if "email" in claims:
-        return claims.get("email")
-
-    if "sub" in claims:
-        return claims.get("sub")
-
-    return None
-
-
 PATTERN_LIBRARY = {
     "SECTIONS": (
         ("Components", ["patterns/components"]),

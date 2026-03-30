@@ -49,13 +49,16 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
         email = claims.get(email_claim)
 
         if not email:
-            # Try to get email using the configured function if available
             if callable(settings.OIDC_EMAIL_CLAIM):
                 email = settings.OIDC_EMAIL_CLAIM(claims)
             elif settings.OIDC_EMAIL_CLAIM:
                 email = claims.get(settings.OIDC_EMAIL_CLAIM)
 
         if not email:
+            # If we still don't have an email, we can't create/get a user
+            # This might raise an error or return None depending on desired behavior
+            # For now, let's raise an exception or let the parent handle it (which would fail
+            # on username). But since we are overriding, we must handle it.
             from django.core.exceptions import SuspiciousOperation
 
             raise SuspiciousOperation("Email claim not found in OIDC token")
