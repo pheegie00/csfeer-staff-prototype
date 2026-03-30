@@ -8,7 +8,6 @@ This module contains:
    user roles, groups, and organization membership based on OIDC claims.
 """
 
-import logging
 from typing import cast
 
 from django.contrib.auth import get_user_model
@@ -19,8 +18,6 @@ from oauth2_authcodeflow.conf import settings
 from form_manager.models import OrganizationProfile, UserOrganizationMembership
 from users.models import UserProfile
 
-logger = logging.getLogger(__name__)
-
 
 class EmailOIDCAuthenticationBackend(AuthenticationBackend):
     """
@@ -29,13 +26,6 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
     This backend overrides the default behavior to look up or create users based on their
     email address provided in the OIDC claims, rather than the 'sub' or 'username' claim.
     """
-
-    def validate_claims(self, claims: dict) -> None:
-        pass
-
-    def validate_and_decode_id_token(self, id_token, nonce, jwks):
-        logger.info(f"id token: {id_token}")
-        return super().validate_and_decode_id_token(id_token, nonce, jwks)
 
     def get_or_create_user(self, request, id_claims, access_token) -> AbstractUser:
         """
@@ -52,17 +42,11 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
         Raises:
             SuspiciousOperation: If the email claim is missing from the token.
         """
-        logger.info(f"access token: {access_token}")
-        logger.info(f"id_claims: {id_claims}")
         claims = self.get_full_claims(request, id_claims, access_token)
-
-        logger.info(f"combined claims: {claims}")
 
         # Get email from claims
         email_claim = settings.OIDC_OP_EXPECTED_EMAIL_CLAIM
         email = claims.get(email_claim)
-
-        logger.info(f"email from from field: {email}")
 
         if not email:
             # Try to get email using the configured function if available
@@ -70,8 +54,6 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
                 email = settings.OIDC_EMAIL_CLAIM(claims)
             elif settings.OIDC_EMAIL_CLAIM:
                 email = claims.get(settings.OIDC_EMAIL_CLAIM)
-
-            logger.info(f"email from callable: {email}")
 
         if not email:
             from django.core.exceptions import SuspiciousOperation
