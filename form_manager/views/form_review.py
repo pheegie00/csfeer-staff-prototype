@@ -6,10 +6,14 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
+from form_manager.constants import CSBGAnnualReportForms
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.utils import save_form_entry
-from form_manager.views.form_edit import remove_nodes_with_excluded_fields
+from form_manager.views.form_edit import (
+    build_short_form_sidenav_items,
+    remove_nodes_with_excluded_fields,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +67,18 @@ def form_review(request, pk):
     context = {
         "form": form,
         "entry": entry,
-        "steps": schema.ui,
+        "steps": ui_components,
+        "use_short_form_sidenav": (
+            entry.form_definition.name == CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT
+        ),
+        "short_form_sidenav_items": build_short_form_sidenav_items(
+            entry,
+            ui_components,
+            0,
+            0,
+            is_review_page=True,
+        ),
+        "short_form_sidenav_submit_form_id": "",
         "prev_url": reverse(
             "form_edit",
             kwargs={"pk": entry.pk},
@@ -75,7 +90,7 @@ def form_review(request, pk):
         "is_valid": is_valid,
     }
 
-    for component in schema.ui:
+    for component in ui_components:
         component.set_extra_context(form=form)
 
     return render(request, "form_manager/review_and_submit.html", context)

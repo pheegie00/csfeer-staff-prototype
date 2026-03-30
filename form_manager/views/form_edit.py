@@ -147,6 +147,8 @@ def build_short_form_sidenav_items(
     steps: list[StepBlock],
     current_step_number: int,
     current_page_number: int,
+    *,
+    is_review_page: bool = False,
 ) -> list[ShortFormSidenavItem]:
     sidenav_items: list[ShortFormSidenavItem] = []
 
@@ -155,10 +157,10 @@ def build_short_form_sidenav_items(
             {
                 "title": step.title,
                 "href": get_short_form_edit_url(entry, step_index, 0),
-                "is_current": step_index == current_step_number,
+                "is_current": not is_review_page and step_index == current_step_number,
                 "children": (
                     build_short_form_sidenav_children(entry, step, step_index, current_page_number)
-                    if step_index == current_step_number
+                    if not is_review_page and step_index == current_step_number
                     else []
                 ),
             }
@@ -168,7 +170,7 @@ def build_short_form_sidenav_items(
         {
             "title": "Review and Submit",
             "href": reverse("form_review", kwargs={"pk": entry.pk}),
-            "is_current": False,
+            "is_current": is_review_page,
             "children": [],
         }
     )
@@ -299,6 +301,7 @@ def form_edit(request, pk):
             current_step_number,
             current_page_number,
         ),
+        "short_form_sidenav_submit_form_id": "csf-form",
         "current_step_number": current_step_number,
         "current_page_number": current_page_number,
         "current_step": ui_components[current_step_number],

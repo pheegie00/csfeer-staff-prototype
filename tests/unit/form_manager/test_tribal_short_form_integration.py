@@ -257,6 +257,38 @@ def test_tribal_short_form_review_sidenav_navigation_saves_draft_and_opens_revie
 
 
 @pytest.mark.django_db
+def test_tribal_short_form_review_page_uses_left_rail_navigation_and_keeps_edit_links(
+    django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
+):
+    review_url = reverse("form_review", args=[tribal_short_form_entry.pk])
+
+    response = authenticated_client.get(review_url)
+
+    assert response.status_code == 200
+
+    content = response.content.decode("utf-8")
+    sidenav = get_sidenav_markup(content)
+
+    assert "usa-sidenav" in sidenav
+    assert "usa-step-indicator" not in content
+    assert sidenav.count('class="usa-current"') == 1
+    review_link = get_sidenav_link_markup(content, "Review and Submit")
+    assert 'class="usa-current"' in review_link
+    assert 'data-save-draft-form="csf-form"' not in review_link
+    assert "usa-sidenav__sublist" not in sidenav
+
+    first_section_edit_url = (
+        reverse("form_edit", args=[tribal_short_form_entry.pk]) + "?step=0&page=0"
+    )
+    assert f'href="{first_section_edit_url}"' in content
+
+    edit_response = authenticated_client.get(first_section_edit_url)
+    assert edit_response.status_code == 200
+    assert edit_response.context["current_step_number"] == 0
+    assert edit_response.context["current_page_number"] == 0
+
+
+@pytest.mark.django_db
 def test_tribal_short_form_edit_sidenav_links_submit_the_current_form(
     django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
 ):

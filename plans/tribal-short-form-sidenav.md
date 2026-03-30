@@ -68,7 +68,7 @@ Make the sidenav interactive on edit pages so top-level section clicks route to 
 
 ---
 
-## Phase 4: Review-Page Sidenav Parity
+## Phase 4: Review-Page Sidenav Parity Completed
 
 **User stories**: 10, 11, 17
 
@@ -78,10 +78,10 @@ Render the same left-rail navigation on the review page so the overall navigatio
 
 ### Acceptance criteria
 
-- [ ] The review page renders the same left-rail navigation container used on short-form edit pages.
-- [ ] `Review and Submit` is the highlighted current item on review.
-- [ ] Other sections are collapsed on review.
-- [ ] Existing inline `Edit section` links remain available and functional.
+- [x] The review page renders the same left-rail navigation container used on short-form edit pages.
+- [x] `Review and Submit` is the highlighted current item on review.
+- [x] Other sections are collapsed on review.
+- [x] Existing inline `Edit section` links remain available and functional.
 
 ---
 

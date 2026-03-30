@@ -3,11 +3,18 @@
 {% block content %}
 {% load form_manager_tags %}
 <div class="grid-container">
-  <div class="grid-row">
-    <div class="grid-col-12">
-      {% include "form_manager/_form_header.html" %}
+  {% include "form_manager/_form_header.html" %}
 
+  <div class="grid-row grid-gap-4">
+    {% if use_short_form_sidenav %}
+    <div class="display-none desktop:display-block desktop:grid-col-3 desktop:margin-top-6">
+      {% include "form_manager/_short_form_sidenav.html" %}
+    </div>
+    <div class="grid-col-12 desktop:grid-col-9">
+    {% else %}
+    <div class="grid-col-12">
       {% include "form_manager/_step_indicator.html" with current_step_number=steps|length current_step_title="Review and Submit" %}
+    {% endif %}
 
       <h1 class="font-heading-2xl semibold font-family-sans font-weight-semibold">Review and Submit</h1>
 
