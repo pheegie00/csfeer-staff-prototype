@@ -16,8 +16,6 @@ Including another URLconf
 """
 
 from django.apps import apps
-from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import TemplateView
@@ -26,6 +24,9 @@ from form_manager.api import api as form_api
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="index.html"), name="index"),
+    path(
+        "login-error/", TemplateView.as_view(template_name="login_error.html"), name="login_error"
+    ),
     path("admin/", admin.site.urls),
     path("oidc/", include("oauth2_authcodeflow.urls")),
     path("forms/", include("form_manager.urls")),
@@ -36,5 +37,3 @@ if apps.is_installed("pattern_library"):
     urlpatterns += [
         path("pattern-library/", include("pattern_library.urls")),
     ]
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -17,7 +17,6 @@
       </div>
       <div class="grid-col-auto">
         <div class="display-flex flex-align-center gap-2">
-          <a href="/forms/" class="usa-link text-white font-sans-sm margin-right-3">Forms</a>
           {% if user.is_authenticated %}
           <nav aria-label="User navigation" class="usa-nav user-nav">
             <ul class="usa-nav__primary usa-accordion">
@@ -33,7 +32,15 @@
                 <ul id="agent-nav-section" class="usa-nav__submenu" hidden>
                   <li class="usa-nav__submenu-item">
                     <a
-                      href="/oidc/logout?next=http://ui.csfeer:8000/&fail=http://ui.csfeer:8000/logged-out"
+                      href="/forms/"
+                      class="usa-nav__link"
+                    >
+                      <span>Forms</span>
+                    </a>
+                  </li>
+                  <li class="usa-nav__submenu-item">
+                    <a
+                      href="/oidc/logout?next=/&fail=/login-error/"
                       class="usa-nav__link"
                     >
                       <span>Sign Out</span>
@@ -42,6 +49,10 @@
                 </ul>
               </li>
             </ul>
+          </nav>
+          {% else %}
+          <nav>
+            <a class="usa-link usa-link--alt" href="{% url 'oidc_authentication' %}?next=/forms/&fail=/login-error/">Sign In</a>
           </nav>
           {% endif %}
         </div>

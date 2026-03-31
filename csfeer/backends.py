@@ -49,7 +49,6 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
         email = claims.get(email_claim)
 
         if not email:
-            # Try to get email using the configured function if available
             if callable(settings.OIDC_EMAIL_CLAIM):
                 email = settings.OIDC_EMAIL_CLAIM(claims)
             elif settings.OIDC_EMAIL_CLAIM:

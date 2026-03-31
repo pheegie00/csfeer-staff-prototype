@@ -29,14 +29,6 @@ services:
       - ../../tests:/app/tests/
       - ../../logs/:/app/logs/
 
-  e2e:
-    build:
-      context: ../..
-      target: e2e-runner
-    extends:
-      file: ./docker-compose-base.yml
-      service: e2e
-
 volumes:
   pgdata:
   storage:
