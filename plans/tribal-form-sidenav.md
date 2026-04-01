@@ -52,11 +52,11 @@ existing schema definitions without renaming or numbering changes.
 
 ### Acceptance criteria
 
-- [ ] Tribal Short Form edit pages render the left-rail navigation using the generic `form_sidenav` implementation names.
-- [ ] Tribal Long Form edit pages render the same left-rail navigation container and no longer show the horizontal step indicator.
-- [ ] The left rail lists the existing top-level section titles and `Review and Submit` for both tribal forms.
-- [ ] Non-tribal forms continue to use the current step-indicator layout unchanged.
-- [ ] The plan does not introduce title renames, numbering, or duplicate-label workarounds in this phase.
+- [x] Tribal Short Form edit pages render the left-rail navigation using the generic `form_sidenav` implementation names.
+- [x] Tribal Long Form edit pages render the same left-rail navigation container and no longer show the horizontal step indicator.
+- [x] The left rail lists the existing top-level section titles and `Review and Submit` for both tribal forms.
+- [x] Non-tribal forms continue to use the current step-indicator layout unchanged.
+- [x] The plan does not introduce title renames, numbering, or duplicate-label workarounds in this phase.
 
 ---
 
