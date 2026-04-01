@@ -135,21 +135,32 @@ def resolve_form_edit_destination(
 ) -> tuple[int, int]:
     """Return a visible edit destination after filtering changes the page set."""
 
-    if 0 <= requested_step_number < len(steps):
-        requested_step_pages = get_step_pages(steps[requested_step_number])
-        if 0 <= requested_page_number < len(requested_step_pages):
-            return requested_step_number, requested_page_number
-        if requested_step_pages:
-            logger.info(
-                "Form sidenav destination %s/%s no longer exists; "
-                "falling back to first page in step.",
-                requested_step_number,
-                requested_page_number,
-            )
-            return requested_step_number, 0
+    if not steps:
+        raise ValueError("No visible form sidenav edit destination is available.")
 
-    fallback_step_numbers = list(range(requested_step_number - 1, -1, -1))
-    fallback_step_numbers.extend(range(requested_step_number + 1, len(steps)))
+    resolved_step_number = min(max(requested_step_number, 0), len(steps) - 1)
+
+    if resolved_step_number != requested_step_number:
+        logger.info(
+            "Form sidenav destination step %s is out of range; " "clamping to step %s.",
+            requested_step_number,
+            resolved_step_number,
+        )
+
+    requested_step_pages = get_step_pages(steps[resolved_step_number])
+    if requested_step_pages:
+        if 0 <= requested_page_number < len(requested_step_pages):
+            return resolved_step_number, requested_page_number
+        logger.info(
+            "Form sidenav destination %s/%s no longer exists; "
+            "falling back to first page in step.",
+            requested_step_number,
+            requested_page_number,
+        )
+        return resolved_step_number, 0
+
+    fallback_step_numbers = list(range(resolved_step_number - 1, -1, -1))
+    fallback_step_numbers.extend(range(resolved_step_number + 1, len(steps)))
 
     for fallback_step_number in fallback_step_numbers:
         fallback_pages = get_step_pages(steps[fallback_step_number])

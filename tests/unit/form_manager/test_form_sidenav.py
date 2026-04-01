@@ -129,6 +129,13 @@ def test_resolve_form_edit_destination_falls_back_to_previous_visible_step_when_
     assert resolve_form_edit_destination(steps, 2, 0) == (1, 0)
 
 
+@pytest.mark.parametrize("schema_cls", [TribalShortForm, TribalLongForm])
+def test_resolve_form_edit_destination_clamps_out_of_range_step_to_last_visible_step(schema_cls):
+    steps = get_filtered_steps(schema_cls, [])
+
+    assert resolve_form_edit_destination(steps, 999, 0) == (len(steps) - 1, 0)
+
+
 @pytest.mark.parametrize(
     ("form_name", "expected"),
     [

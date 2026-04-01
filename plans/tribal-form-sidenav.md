@@ -139,10 +139,10 @@ updated tribal E2E tests.
 
 ### Acceptance criteria
 
-- [ ] Visible destinations are recomputed after sidenav-triggered saves using the same filtering logic as the rest of the form flow.
-- [ ] If a requested child page disappears after save, the user is redirected to a viable fallback instead of an invalid destination.
-- [ ] If a selected section still has visible pages, fallback routing lands on that section's first visible page.
-- [ ] Destination resolution behavior is covered by generic `form_sidenav` unit tests that exercise both tribal schemas.
-- [ ] Tribal Short Form integration coverage remains variant-specific and continues to pass under the generic naming.
-- [ ] Tribal Long Form integration coverage is added in a dedicated `test_tribal_long_form_integration.py` file.
-- [ ] Tribal E2E coverage is updated to reflect the left-rail navigation contract for both variants.
+- [x] Visible destinations are recomputed after sidenav-triggered saves using the same filtering logic as the rest of the form flow.
+- [x] If a requested child page disappears after save, the user is redirected to a viable fallback instead of an invalid destination.
+- [x] If a selected section still has visible pages, fallback routing lands on that section's first visible page.
+- [x] Destination resolution behavior is covered by generic `form_sidenav` unit tests that exercise both tribal schemas.
+- [x] Tribal Short Form integration coverage remains variant-specific and continues to pass under the generic naming.
+- [x] Tribal Long Form integration coverage is added in a dedicated `test_tribal_long_form_integration.py` file.
+- [x] Tribal E2E coverage is updated to reflect the left-rail navigation contract for both variants.
