@@ -73,11 +73,11 @@ active child page for both tribal variants.
 
 ### Acceptance criteria
 
-- [ ] The active edit section expands to show its visible child pages for both tribal forms.
-- [ ] Inactive sections remain collapsed.
-- [ ] The current parent section and current child page are both visually marked as current on edit pages.
-- [ ] Hidden pages caused by filtering do not appear in the sidenav.
-- [ ] Duplicate child labels in the long form remain unchanged rather than being disambiguated in code.
+- [x] The active edit section expands to show its visible child pages for both tribal forms.
+- [x] Inactive sections remain collapsed.
+- [x] The current parent section and current child page are both visually marked as current on edit pages.
+- [x] Hidden pages caused by filtering do not appear in the sidenav.
+- [x] Duplicate child labels in the long form remain unchanged rather than being disambiguated in code.
 
 ---
 
