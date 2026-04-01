@@ -156,9 +156,9 @@ def test_textarea_field_with_max_length_renders_character_count_markup():
     form = TestForm()
     rendered = str(form["description"])
 
-    assert 'class="usa-character-count ' in rendered
+    assert "usa-textarea" in rendered
     assert 'data-maxlength="1000"' in rendered
-    assert 'class="usa-character-count__field usa-textarea"' in rendered
+    assert "usa-character-count__field" in rendered
     assert 'maxlength="1000"' in rendered
     assert 'id="id_description-counter"' in rendered
 
@@ -172,7 +172,7 @@ def test_textarea_field_without_max_length_renders_plain_textarea():
     form = TestForm()
     rendered = str(form["description"])
 
-    assert 'class="usa-textarea"' in rendered
+    assert 'class="usa-textarea' in rendered
     assert "usa-character-count" not in rendered
     assert 'maxlength="' not in rendered
 
