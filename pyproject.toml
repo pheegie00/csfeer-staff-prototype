@@ -26,6 +26,7 @@ dependencies = [
     "phonenumbers>=9.0.20",
     "semver>=3.0.4",
     "weasyprint>=62.3",
+    "django-storages>=1.14.6",
 ]
 
 [dependency-groups]

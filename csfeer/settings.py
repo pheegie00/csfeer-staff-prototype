@@ -87,6 +87,20 @@ TEMPLATES = [
 CRISPY_TEMPLATE_PACK = "uswds"
 CRISPY_ALLOWED_TEMPLATE_PACKS = ("uni_form", "uswds")
 
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+AWS_STORAGE_BUCKET_NAME = settings.aws_storage_bucket_name
+AWS_S3_ENDPOINT_URL = settings.aws_s3_endpoint_url
+
+
 STATIC_URL = "/static/"
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
