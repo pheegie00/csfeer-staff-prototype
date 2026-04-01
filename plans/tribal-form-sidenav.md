@@ -95,11 +95,11 @@ even when required fields are incomplete.
 
 ### Acceptance criteria
 
-- [ ] Clicking a top-level section on an edit page saves current draft data and moves to the first visible page in that section.
-- [ ] Clicking a child page on an edit page saves current draft data and moves to that visible page.
-- [ ] Clicking `Review and Submit` from an edit page saves current draft data and routes to review even if required fields are incomplete.
-- [ ] Posted values persist across sidenav navigation in the same way they do for the current draft-save flow.
-- [ ] The genericized submit-form IDs and context names are used consistently in templates and JavaScript hooks.
+- [x] Clicking a top-level section on an edit page saves current draft data and moves to the first visible page in that section.
+- [x] Clicking a child page on an edit page saves current draft data and moves to that visible page.
+- [x] Clicking `Review and Submit` from an edit page saves current draft data and routes to review even if required fields are incomplete.
+- [x] Posted values persist across sidenav navigation in the same way they do for the current draft-save flow.
+- [x] The genericized submit-form IDs and context names are used consistently in templates and JavaScript hooks.
 
 ---
 
