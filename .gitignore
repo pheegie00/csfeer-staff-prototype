@@ -237,6 +237,7 @@ playwright-report/
 # thoughts
 /thoughts/*
 !/thoughts/shared/
+/thoughts/shared/plans/
 # Dolt database files (added by bd init)
 .dolt/
 *.db
