@@ -116,11 +116,11 @@ inline `Edit section` links intact.
 
 ### Acceptance criteria
 
-- [ ] The review page renders the same left-rail navigation container used on tribal edit pages.
-- [ ] `Review and Submit` is the highlighted current item on review.
-- [ ] Other sections are collapsed on review.
-- [ ] Existing inline `Edit section` links remain available and continue to return users to page 0 of the selected step.
-- [ ] Mobile behavior remains unchanged, with the sidenav hidden outside desktop layouts.
+- [x] The review page renders the same left-rail navigation container used on tribal edit pages.
+- [x] `Review and Submit` is the highlighted current item on review.
+- [x] Other sections are collapsed on review.
+- [x] Existing inline `Edit section` links remain available and continue to return users to page 0 of the selected step.
+- [x] Mobile behavior remains unchanged, with the sidenav hidden outside desktop layouts.
 
 ---
 

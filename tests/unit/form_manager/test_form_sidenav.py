@@ -88,6 +88,29 @@ def test_build_form_sidenav_items_keeps_duplicate_long_form_child_labels_unchang
 
 
 @pytest.mark.parametrize("schema_cls", [TribalShortForm, TribalLongForm])
+def test_build_form_sidenav_items_marks_review_as_current_and_collapses_edit_sections_on_review(
+    schema_cls,
+):
+    steps = get_filtered_steps(schema_cls, [])
+    entry = cast(Any, SimpleNamespace(pk=uuid4()))
+
+    sidenav_items = build_form_sidenav_items(
+        entry,
+        steps,
+        0,
+        0,
+        is_review_page=True,
+    )
+
+    assert [item["title"] for item in sidenav_items[:-1]] == [step.title for step in steps]
+    assert all(item["is_current"] is False for item in sidenav_items[:-1])
+    assert all(item["children"] == [] for item in sidenav_items[:-1])
+    assert sidenav_items[-1]["title"] == "Review and Submit"
+    assert sidenav_items[-1]["is_current"] is True
+    assert sidenav_items[-1]["children"] == []
+
+
+@pytest.mark.parametrize("schema_cls", [TribalShortForm, TribalLongForm])
 def test_resolve_form_edit_destination_falls_back_to_first_visible_page_in_step(schema_cls):
     fields_to_exclude = [
         field_name
