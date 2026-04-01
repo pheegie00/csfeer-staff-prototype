@@ -50,7 +50,7 @@ def test_can_render_and_edit_form(django_db_setup, form_entry: "FormEntry", auth
 def test_non_tribal_forms_keep_step_indicator_layout(
     django_db_setup, form_entry: "FormEntry", authenticated_client
 ):
-    """Non-short-form edit pages should keep the existing step indicator."""
+    """Non-tribal edit pages should keep the existing step indicator."""
     url = reverse("form_edit", args=[form_entry.pk])
 
     response = authenticated_client.get(url, {"step": 0, "page": 0})

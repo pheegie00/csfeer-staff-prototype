@@ -6,9 +6,9 @@
   {% include "form_manager/_form_header.html" %}
 
   <div class="grid-row grid-gap-4">
-    {% if use_short_form_sidenav %}
+    {% if use_form_sidenav %}
     <div class="display-none desktop:display-block desktop:grid-col-3 desktop:margin-top-6">
-      {% include "form_manager/_short_form_sidenav.html" %}
+      {% include "form_manager/_form_sidenav.html" %}
     </div>
     <div class="grid-col-12 desktop:grid-col-9">
     {% else %}
@@ -71,7 +71,7 @@
         {% endfor %}
         </c-accordion>
 
-        <form id="csf-form" method="post" action="{% url 'form_finalize' entry.id %}" novalidate>
+        <form id="form-review-form" method="post" action="{% url 'form_finalize' entry.id %}" novalidate>
             {% csrf_token %}
             <div class="margin-top-4 padding-top-2 border-top-1px border-base-lighter">
                 <div class="display-flex flex-justify flex-wrap flex-gap-1 flex-align-end">

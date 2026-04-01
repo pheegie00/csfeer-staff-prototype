@@ -1,7 +1,5 @@
 """Integration tests for TribalShortForm"""
 
-import re
-from html import unescape
 from typing import TYPE_CHECKING
 
 import pytest
@@ -10,29 +8,14 @@ from django.urls import reverse
 
 from form_manager.constants import CSBGAnnualReportForms
 from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
+from tests.unit.form_manager.form_sidenav_test_helpers import (
+    get_sidenav_href,
+    get_sidenav_link_markup,
+    get_sidenav_markup,
+)
 
 if TYPE_CHECKING:
     from django.test.client import Client
-
-
-def get_sidenav_markup(content: str) -> str:
-    match = re.search(r'(<nav aria-label="Form sections">.*?</nav>)', content, re.DOTALL)
-    assert match is not None
-    return match.group(1)
-
-
-def get_sidenav_href(content: str, title: str) -> str:
-    link_markup = get_sidenav_link_markup(content, title)
-    match = re.search(r'href="([^"]+)"', link_markup)
-    assert match is not None
-    return unescape(match.group(1))
-
-
-def get_sidenav_link_markup(content: str, title: str) -> str:
-    sidenav = get_sidenav_markup(content)
-    match = re.search(rf"(<a\b[^>]*>\s*{re.escape(title)}\s*</a>)", sidenav)
-    assert match is not None
-    return match.group(1)
 
 
 @pytest.fixture
@@ -315,7 +298,7 @@ def test_tribal_short_form_review_page_uses_left_rail_navigation_and_keeps_edit_
     assert sidenav.count('class="usa-current"') == 1
     review_link = get_sidenav_link_markup(content, "Review and Submit")
     assert 'class="usa-current"' in review_link
-    assert 'data-save-draft-form="csf-form"' not in review_link
+    assert 'data-save-draft-form="form-edit-form"' not in review_link
     assert "usa-sidenav__sublist" not in sidenav
 
     first_section_edit_url = (
@@ -343,8 +326,8 @@ def test_tribal_short_form_edit_sidenav_links_submit_the_current_form(
     )
     review_link = get_sidenav_link_markup(response.content.decode("utf-8"), "Review and Submit")
 
-    assert 'data-save-draft-form="csf-form"' in section_link
-    assert 'data-save-draft-form="csf-form"' in review_link
+    assert 'data-save-draft-form="form-edit-form"' in section_link
+    assert 'data-save-draft-form="form-edit-form"' in review_link
 
 
 @pytest.mark.django_db

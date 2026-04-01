@@ -5,9 +5,9 @@
   {% include "form_manager/_form_header.html" %}
 
   <div class="grid-row grid-gap-4">
-    {% if use_short_form_sidenav %}
+    {% if use_form_sidenav %}
     <div class="display-none desktop:display-block desktop:grid-col-3 desktop:margin-top-6">
-      {% include "form_manager/_short_form_sidenav.html" %}
+      {% include "form_manager/_form_sidenav.html" %}
     </div>
     <div class="grid-col-12 desktop:grid-col-9">
     {% else %}
@@ -15,7 +15,7 @@
       {% include "form_manager/_step_indicator.html" with current_step_title=current_step.title %}
     {% endif %}
 
-      <c-form id="csf-form" class="" method="post" action="{{ next_url }}" x-data="" novalidate @change="updateCalculatedFields">
+      <c-form id="form-edit-form" class="" method="post" action="{{ next_url }}" x-data="" novalidate @change="updateCalculatedFields">
         {% csrf_token %}
         {{ current_page }}
       </c-form>

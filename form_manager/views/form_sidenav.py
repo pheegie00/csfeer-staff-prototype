@@ -3,6 +3,7 @@ from typing import TypedDict
 
 from django.urls import reverse
 
+from form_manager.constants import CSBGAnnualReportForms
 from form_manager.models import FormEntry
 from form_manager.schema.layout import (
     AbstractPageBlock,
@@ -15,11 +16,21 @@ from form_manager.schema.layout import (
 logger = logging.getLogger(__name__)
 
 
-class ShortFormSidenavItem(TypedDict):
+FORM_SIDENAV_FORM_NAMES = {
+    CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0,
+    CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT,
+}
+
+
+class FormSidenavItem(TypedDict):
     title: str | None
     href: str
     is_current: bool
-    children: list["ShortFormSidenavItem"]
+    children: list["FormSidenavItem"]
+
+
+def uses_form_sidenav(form_definition_name: str) -> bool:
+    return form_definition_name in FORM_SIDENAV_FORM_NAMES
 
 
 def remove_nodes_with_excluded_fields(
@@ -50,7 +61,7 @@ def remove_nodes_with_excluded_fields(
     return [remove_excluded_nodes(comp) for comp in components]
 
 
-def get_short_form_page_title(page: AbstractPageBlock) -> str:
+def get_page_title(page: AbstractPageBlock) -> str:
     if page.title:
         return page.title
 
@@ -61,46 +72,46 @@ def get_short_form_page_title(page: AbstractPageBlock) -> str:
     return "Untitled page"
 
 
-def get_short_form_step_pages(step: StepBlock) -> list[AbstractPageBlock]:
+def get_step_pages(step: StepBlock) -> list[AbstractPageBlock]:
     return [child for child in step.children or [] if isinstance(child, AbstractPageBlock)]
 
 
-def get_short_form_edit_url(entry: FormEntry, step_number: int, page_number: int) -> str:
+def get_form_edit_url(entry: FormEntry, step_number: int, page_number: int) -> str:
     return reverse("form_edit", kwargs={"pk": entry.pk}) + f"?step={step_number}&page={page_number}"
 
 
-def build_short_form_sidenav_children(
+def build_form_sidenav_children(
     entry: FormEntry, step: StepBlock, step_number: int, current_page_number: int
-) -> list[ShortFormSidenavItem]:
+) -> list[FormSidenavItem]:
     return [
         {
-            "title": get_short_form_page_title(page),
-            "href": get_short_form_edit_url(entry, step_number, page_index),
+            "title": get_page_title(page),
+            "href": get_form_edit_url(entry, step_number, page_index),
             "is_current": page_index == current_page_number,
             "children": [],
         }
-        for page_index, page in enumerate(get_short_form_step_pages(step))
+        for page_index, page in enumerate(get_step_pages(step))
     ]
 
 
-def build_short_form_sidenav_items(
+def build_form_sidenav_items(
     entry: FormEntry,
     steps: list[StepBlock],
     current_step_number: int,
     current_page_number: int,
     *,
     is_review_page: bool = False,
-) -> list[ShortFormSidenavItem]:
-    sidenav_items: list[ShortFormSidenavItem] = []
+) -> list[FormSidenavItem]:
+    sidenav_items: list[FormSidenavItem] = []
 
     for step_index, step in enumerate(steps):
         sidenav_items.append(
             {
                 "title": step.title,
-                "href": get_short_form_edit_url(entry, step_index, 0),
+                "href": get_form_edit_url(entry, step_index, 0),
                 "is_current": not is_review_page and step_index == current_step_number,
                 "children": (
-                    build_short_form_sidenav_children(entry, step, step_index, current_page_number)
+                    build_form_sidenav_children(entry, step, step_index, current_page_number)
                     if not is_review_page and step_index == current_step_number
                     else []
                 ),
@@ -119,18 +130,18 @@ def build_short_form_sidenav_items(
     return sidenav_items
 
 
-def resolve_short_form_edit_destination(
+def resolve_form_edit_destination(
     steps: list[StepBlock], requested_step_number: int, requested_page_number: int
 ) -> tuple[int, int]:
     """Return a visible edit destination after filtering changes the page set."""
 
     if 0 <= requested_step_number < len(steps):
-        requested_step_pages = get_short_form_step_pages(steps[requested_step_number])
+        requested_step_pages = get_step_pages(steps[requested_step_number])
         if 0 <= requested_page_number < len(requested_step_pages):
             return requested_step_number, requested_page_number
         if requested_step_pages:
             logger.info(
-                "Short form destination %s/%s no longer exists; "
+                "Form sidenav destination %s/%s no longer exists; "
                 "falling back to first page in step.",
                 requested_step_number,
                 requested_page_number,
@@ -141,10 +152,10 @@ def resolve_short_form_edit_destination(
     fallback_step_numbers.extend(range(requested_step_number + 1, len(steps)))
 
     for fallback_step_number in fallback_step_numbers:
-        fallback_pages = get_short_form_step_pages(steps[fallback_step_number])
+        fallback_pages = get_step_pages(steps[fallback_step_number])
         if fallback_pages:
             logger.info(
-                "Short form destination %s/%s has no visible pages; "
+                "Form sidenav destination %s/%s has no visible pages; "
                 "falling back to step %s page 0.",
                 requested_step_number,
                 requested_page_number,
@@ -152,4 +163,4 @@ def resolve_short_form_edit_destination(
             )
             return fallback_step_number, 0
 
-    raise ValueError("No visible short-form edit destination is available.")
+    raise ValueError("No visible form sidenav edit destination is available.")

@@ -6,15 +6,15 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from form_manager.constants import CSBGAnnualReportForms
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.schema.layout import PageBlock
 from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
-from form_manager.views.short_form_navigation import (
-    build_short_form_sidenav_items,
+from form_manager.views.form_sidenav import (
+    build_form_sidenav_items,
     remove_nodes_with_excluded_fields,
-    resolve_short_form_edit_destination,
+    resolve_form_edit_destination,
+    uses_form_sidenav,
 )
 
 logger = logging.getLogger(__name__)
@@ -97,9 +97,7 @@ def form_edit(request, pk):
     django_form_class = schema_cls.get_form_fields_class()
 
     ui_components = [step.model_copy(deep=True) for step in schema.ui]
-    use_short_form_sidenav = (
-        entry.form_definition.name == CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0_SHORT
-    )
+    use_form_sidenav = uses_form_sidenav(entry.form_definition.name)
 
     def has_permission():
 
@@ -138,8 +136,8 @@ def form_edit(request, pk):
         logger.info("Excluding the following fields: %s", form.fields_to_exclude)
         ui_components = remove_nodes_with_excluded_fields(ui_components, form.fields_to_exclude)
 
-    if use_short_form_sidenav:
-        current_step_number, current_page_number = resolve_short_form_edit_destination(
+    if use_form_sidenav:
+        current_step_number, current_page_number = resolve_form_edit_destination(
             ui_components, current_step_number, current_page_number
         )
 
@@ -189,14 +187,14 @@ def form_edit(request, pk):
     context = {
         "steps": ui_components,
         "entry": entry,
-        "use_short_form_sidenav": use_short_form_sidenav,
-        "short_form_sidenav_items": build_short_form_sidenav_items(
+        "use_form_sidenav": use_form_sidenav,
+        "form_sidenav_items": build_form_sidenav_items(
             entry,
             ui_components,
             current_step_number,
             current_page_number,
         ),
-        "short_form_sidenav_submit_form_id": "csf-form",
+        "form_sidenav_submit_form_id": "form-edit-form",
         "current_step_number": current_step_number,
         "current_page_number": current_page_number,
         "current_step": ui_components[current_step_number],

@@ -1,18 +1,18 @@
 <c-side_nav aria_label="Form sections">
-  {% for item in short_form_sidenav_items %}
+  {% for item in form_sidenav_items %}
     {% if item.children %}
       <c-side_nav.item
         text="{{ item.title }}"
         href="{{ item.href }}"
         is_current="{% if item.is_current %}true{% endif %}"
-        submit_form_id="{{ short_form_sidenav_submit_form_id }}"
+        submit_form_id="{{ form_sidenav_submit_form_id }}"
       >
         {% for child in item.children %}
           <c-side_nav.item
             text="{{ child.title }}"
             href="{{ child.href }}"
             is_current="{% if child.is_current %}true{% endif %}"
-            submit_form_id="{{ short_form_sidenav_submit_form_id }}"
+            submit_form_id="{{ form_sidenav_submit_form_id }}"
           />
         {% endfor %}
       </c-side_nav.item>
@@ -21,7 +21,7 @@
         text="{{ item.title }}"
         href="{{ item.href }}"
         is_current="{% if item.is_current %}true{% endif %}"
-        submit_form_id="{{ short_form_sidenav_submit_form_id }}"
+        submit_form_id="{{ form_sidenav_submit_form_id }}"
       />
     {% endif %}
   {% endfor %}
