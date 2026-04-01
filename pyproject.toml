@@ -27,7 +27,7 @@ dependencies = [
     "semver>=3.0.4",
     "weasyprint>=62.3",
     "django-storages>=1.14.6",
-    "django-cotton-uswds",
+    "django-cotton-uswds>=1.1.0",
 ]
 
 [dependency-groups]
@@ -95,7 +95,4 @@ markers = [
 
 [tool.setuptools]
 py-modules = []
-
-[tool.uv.sources]
-django-cotton-uswds = { git = "https://github.com/focusconsulting/django-cotton-uswds.git", rev = "6fdd3ebe425566e92883606e5e9e0e0a3dbd17a5" }
 
