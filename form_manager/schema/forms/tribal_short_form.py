@@ -201,7 +201,7 @@ class TribalShortForm(BaseFormSchema):
         frozen=True,
         default=[
             StepBlock(
-                title="Basic Information",
+                title="Section 1: Tribal Administration",
                 children=[
                     PermanentPageBlock(
                         title="Your basic information",
@@ -230,21 +230,25 @@ class TribalShortForm(BaseFormSchema):
                 ],
             ),
             StepBlock(
-                title="Expenditure categories",
+                title="Section 2: Tribal Expenditures",
                 children=[
                     PermanentPageBlock(
                         children=[
+                            PageTitleBlock(title="Expenditure categories"),
                             AlertBoxBlock(
                                 alert_type="info",
                                 heading="How to select expenditure categories",
-                                message="When you select a category, related questions will appear in the following pages. Be sure to save to ensure that all changes are preserved.",
+                                message=(
+                                    "When you select a category, related questions will appear in "
+                                    "the following pages. Be sure to save to ensure that all "
+                                    "changes are preserved."
+                                ),
                             ),
-                            PageTitleBlock(title="Expenditure categories"),
                             FieldBlock(field_name="applicable_topics"),
                         ],
                     ),
                     PermanentPageBlock(
-                        title="Expenditure categories",
+                        title="Use of funds",
                         children=[
                             FieldGroupBlock(
                                 description="Provide the amounts for each selected category.",
@@ -279,7 +283,7 @@ class TribalShortForm(BaseFormSchema):
                 ],
             ),
             StepBlock(
-                title="Expenditure details",
+                title="Section 3: Expenditure Narrative",
                 children=[
                     PageBlock(
                         title="Details on employment services",

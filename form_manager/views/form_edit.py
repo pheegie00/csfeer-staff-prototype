@@ -182,6 +182,7 @@ def form_edit(request, pk):
         is_last_page=next_step_number is None,
         current_step_number=current_step_number,
         current_page_number=current_page_number,
+        page_section_label=ui_components[current_step_number].title if use_form_sidenav else None,
     )
 
     context = {

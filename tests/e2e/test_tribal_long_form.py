@@ -152,12 +152,12 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
 
-    # Continue to Expenditure details
+    # Continue to Expenditure Narrative
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText")
-    assert "Expenditure details" in body_text
+    assert "Section 3: Expenditure Narrative" in body_text
 
     # ==========================================
     # STEP 3: Expenditure details
@@ -206,15 +206,15 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
 
-    # Continue to Demographic information
+    # Continue to Characteristics Report
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText")
-    assert "Demographic information" in body_text
+    assert "Section 4: Characteristics Report" in body_text
 
     # ==========================================
-    # STEP 4: Demographic information
+    # STEP 4: Characteristics Report
     # Page 1: Total individuals and households
     # ==========================================
     # Realistic data: 150 individuals across 125 households (~1.2 people per household)
@@ -238,7 +238,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
     page.wait_for_timeout(1000)
 
     # ==========================================
-    # STEP 4: Demographic information
+    # STEP 4: Characteristics Report
     # Page 2: Sex breakdown
     # ==========================================
     # Sex distribution: 65 male, 60 female (total 125)
@@ -259,7 +259,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
     page.wait_for_timeout(1000)
 
     # ==========================================
-    # STEP 4: Demographic information
+    # STEP 4: Characteristics Report
     # Page 3: Employment status
     # ==========================================
     body_text = page.evaluate("() => document.body.innerText.toLowerCase()")

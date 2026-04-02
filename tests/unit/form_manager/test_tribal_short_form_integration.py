@@ -1,5 +1,6 @@
 """Integration tests for TribalShortForm"""
 
+import re
 from typing import TYPE_CHECKING
 
 import pytest
@@ -104,9 +105,9 @@ def test_tribal_short_form_edit_page_uses_left_rail_navigation(
     assert "usa-step-indicator" not in content
 
     for nav_title in [
-        "Basic Information",
-        "Expenditure categories",
-        "Expenditure details",
+        "Section 1: Tribal Administration",
+        "Section 2: Tribal Expenditures",
+        "Section 3: Expenditure Narrative",
         "Review and Submit",
     ]:
         assert nav_title in content
@@ -148,7 +149,9 @@ def test_tribal_short_form_top_level_sidenav_navigation_saves_draft_and_opens_fi
 
     assert response.status_code == 200
 
-    target_href = get_sidenav_href(response.content.decode("utf-8"), "Expenditure categories")
+    target_href = get_sidenav_href(
+        response.content.decode("utf-8"), "Section 2: Tribal Expenditures"
+    )
 
     response = authenticated_client.post(
         target_href,
@@ -322,7 +325,7 @@ def test_tribal_short_form_edit_sidenav_links_submit_the_current_form(
     assert response.status_code == 200
 
     section_link = get_sidenav_link_markup(
-        response.content.decode("utf-8"), "Expenditure categories"
+        response.content.decode("utf-8"), "Section 2: Tribal Expenditures"
     )
     review_link = get_sidenav_link_markup(response.content.decode("utf-8"), "Review and Submit")
 
@@ -376,6 +379,30 @@ def test_tribal_short_form_filter_page_renders(
 
     # Verify applicable_topics filter field is present
     assert "applicable_topics" in content or "Expenditure categories" in content
+
+
+@pytest.mark.django_db
+def test_tribal_short_form_section_label_renders_above_page_title_on_filter_page(
+    django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
+):
+    response = authenticated_client.get(
+        reverse("form_edit", args=[tribal_short_form_entry.pk]),
+        query_params={"step": 1, "page": 0},
+    )
+
+    assert response.status_code == 200
+
+    content = response.content.decode("utf-8")
+
+    assert re.search(
+        (
+            r"form-page-section-label[^>]*>\s*Section 2: Tribal Expenditures\s*</p>\s*"
+            r"<h1[^>]*>\s*Expenditure categories\s*</h1>.*"
+            r"How to select expenditure categories"
+        ),
+        content,
+        re.DOTALL,
+    )
 
 
 @pytest.mark.django_db

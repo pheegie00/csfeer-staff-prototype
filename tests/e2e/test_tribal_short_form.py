@@ -138,12 +138,12 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
 
-    # Continue to Expenditure details
+    # Continue to Expenditure Narrative
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText")
-    assert "Expenditure details" in body_text
+    assert "Section 3: Expenditure Narrative" in body_text
 
     # Fill employment services description
     page.get_by_label("Description *").fill(
@@ -235,9 +235,9 @@ def test_tribal_short_form_has_four_steps(authenticated_page: Page, base_url: st
     assert page.locator(".usa-step-indicator").count() == 0
 
     expected_sections = [
-        "Basic Information",
-        "Expenditure categories",
-        "Expenditure details",
+        "Section 1: Tribal Administration",
+        "Section 2: Tribal Expenditures",
+        "Section 3: Expenditure Narrative",
         "Review and Submit",
     ]
 
@@ -245,7 +245,7 @@ def test_tribal_short_form_has_four_steps(authenticated_page: Page, base_url: st
     for section_name in expected_sections:
         assert section_name in sidenav_text
 
-    assert "Demographic information" not in sidenav_text
+    assert "Section 4: Characteristics Report" not in sidenav_text
 
 
 @pytest.mark.e2e
@@ -280,7 +280,7 @@ def test_tribal_short_form_vs_long_form_comparison(authenticated_page: Page, bas
 
     page.wait_for_selector('input[name="org_name"]')
     long_sidenav_text = get_form_sidenav(page).inner_text()
-    assert "Demographic information" in long_sidenav_text
+    assert "Section 4: Characteristics Report" in long_sidenav_text
     assert page.locator(".usa-step-indicator").count() == 0
 
     # Navigate back
@@ -297,5 +297,5 @@ def test_tribal_short_form_vs_long_form_comparison(authenticated_page: Page, bas
 
     page.wait_for_selector('input[name="org_name"]')
     short_sidenav_text = get_form_sidenav(page).inner_text()
-    assert "Demographic information" not in short_sidenav_text
+    assert "Section 4: Characteristics Report" not in short_sidenav_text
     assert page.locator(".usa-step-indicator").count() == 0

@@ -91,10 +91,14 @@ def test_tribal_short_form_has_three_steps():
     assert len(ui_definition) == 3
 
     step_titles = [step["title"] for step in ui_definition]
-    expected_titles = ["Basic Information", "Expenditure categories", "Expenditure details"]
+    expected_titles = [
+        "Section 1: Tribal Administration",
+        "Section 2: Tribal Expenditures",
+        "Section 3: Expenditure Narrative",
+    ]
 
     assert step_titles == expected_titles
-    assert "Demographic information" not in step_titles
+    assert "Section 4: Characteristics Report" not in step_titles
 
 
 @pytest.mark.django_db
@@ -188,7 +192,7 @@ def test_tribal_short_form_has_alert_and_title_blocks():
 
     # Get the expenditure categories step (second step, index 1)
     expenditure_step = schema.ui[1]
-    assert expenditure_step.title == "Expenditure categories"
+    assert expenditure_step.title == "Section 2: Tribal Expenditures"
     assert expenditure_step.children is not None, "Expenditure step should have children"
 
     # Get the first page of the expenditure step
@@ -198,7 +202,9 @@ def test_tribal_short_form_has_alert_and_title_blocks():
 
     # Verify AlertBoxBlock is present
     alert_blocks = [child for child in first_page.children if isinstance(child, AlertBoxBlock)]
-    assert len(alert_blocks) == 1, "Expected exactly one AlertBoxBlock in expenditure categories page"
+    assert (
+        len(alert_blocks) == 1
+    ), "Expected exactly one AlertBoxBlock in expenditure categories page"
 
     alert = alert_blocks[0]
     assert alert.alert_type == "info"
@@ -207,7 +213,9 @@ def test_tribal_short_form_has_alert_and_title_blocks():
 
     # Verify PageTitleBlock is present
     title_blocks = [child for child in first_page.children if isinstance(child, PageTitleBlock)]
-    assert len(title_blocks) == 1, "Expected exactly one PageTitleBlock in expenditure categories page"
+    assert (
+        len(title_blocks) == 1
+    ), "Expected exactly one PageTitleBlock in expenditure categories page"
 
     title = title_blocks[0]
     assert title.title == "Expenditure categories"

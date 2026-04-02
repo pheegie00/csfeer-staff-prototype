@@ -246,7 +246,7 @@ class TribalLongForm(BaseFormSchema):
         frozen=True,
         default=[
             StepBlock(
-                title="Basic Information",
+                title="Section 1: Tribal Administration",
                 children=[
                     PermanentPageBlock(
                         title="Your basic information",
@@ -275,10 +275,11 @@ class TribalLongForm(BaseFormSchema):
                 ],
             ),
             StepBlock(
-                title="Expenditure categories",
+                title="Section 2: Tribal Expenditures",
                 children=[
                     PermanentPageBlock(
                         children=[
+                            PageTitleBlock(title="Expenditure categories"),
                             AlertBoxBlock(
                                 alert_type="info",
                                 heading="How to select expenditure categories",
@@ -288,12 +289,11 @@ class TribalLongForm(BaseFormSchema):
                                     "are preserved."
                                 ),
                             ),
-                            PageTitleBlock(title="Expenditure categories"),
                             FieldBlock(field_name="applicable_topics"),
                         ],
                     ),
                     PermanentPageBlock(
-                        title="Expenditure categories",
+                        title="Use of funds",
                         children=[
                             FieldGroupBlock(
                                 description="Provide the amounts for each selected category.",
@@ -328,7 +328,7 @@ class TribalLongForm(BaseFormSchema):
                 ],
             ),
             StepBlock(
-                title="Expenditure details",
+                title="Section 3: Expenditure Narrative",
                 children=[
                     PageBlock(
                         title="Details on employment services",
@@ -390,7 +390,7 @@ class TribalLongForm(BaseFormSchema):
                 ],
             ),
             StepBlock(
-                title="Demographic information",
+                title="Section 4: Characteristics Report",
                 children=[
                     PageBlock(
                         title="Let's collect demographic details",

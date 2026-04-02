@@ -6,7 +6,6 @@ from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.constants import CSBGAnnualReportForms, FormFamilies
 from form_manager.models import FormDefinition
-from form_manager.schema.fields import acf_fields
 from form_manager.schema.forms import ALL_FORM_SCHEMAS
 from form_manager.schema.forms.tribal_long_form import TribalLongForm, TribalLongFormFields
 from form_manager.schema.layout import AlertBoxBlock, PageTitleBlock
@@ -29,10 +28,10 @@ def test_tribal_long_form_has_four_steps():
 
     step_titles = [step["title"] for step in ui_definition]
     expected_titles = [
-        "Basic Information",
-        "Expenditure categories",
-        "Expenditure details",
-        "Demographic information",
+        "Section 1: Tribal Administration",
+        "Section 2: Tribal Expenditures",
+        "Section 3: Expenditure Narrative",
+        "Section 4: Characteristics Report",
     ]
 
     assert step_titles == expected_titles
@@ -54,7 +53,7 @@ def test_tribal_long_form_has_alert_and_title_blocks():
     assert len(schema.ui) > 1
 
     expenditure_step = schema.ui[1]
-    assert expenditure_step.title == "Expenditure categories"
+    assert expenditure_step.title == "Section 2: Tribal Expenditures"
     assert expenditure_step.children is not None
 
     first_page = expenditure_step.children[0]
@@ -62,7 +61,9 @@ def test_tribal_long_form_has_alert_and_title_blocks():
     assert len(first_page.children) > 0
 
     alert_blocks = [child for child in first_page.children if isinstance(child, AlertBoxBlock)]
-    assert len(alert_blocks) == 1, "Expected exactly one AlertBoxBlock in expenditure categories page"
+    assert (
+        len(alert_blocks) == 1
+    ), "Expected exactly one AlertBoxBlock in expenditure categories page"
 
     alert = alert_blocks[0]
     assert alert.alert_type == "info"
@@ -70,7 +71,9 @@ def test_tribal_long_form_has_alert_and_title_blocks():
     assert "select a category" in alert.message.lower()
 
     title_blocks = [child for child in first_page.children if isinstance(child, PageTitleBlock)]
-    assert len(title_blocks) == 1, "Expected exactly one PageTitleBlock in expenditure categories page"
+    assert (
+        len(title_blocks) == 1
+    ), "Expected exactly one PageTitleBlock in expenditure categories page"
 
     title = title_blocks[0]
     assert title.title == "Expenditure categories"

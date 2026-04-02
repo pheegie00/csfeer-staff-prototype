@@ -1,5 +1,7 @@
 """Integration tests for TribalLongForm"""
 
+import re
+
 import pytest
 from django.core.management import call_command
 from django.urls import reverse
@@ -54,10 +56,10 @@ def test_tribal_long_form_edit_page_uses_left_rail_navigation(
     assert "usa-step-indicator" not in content
 
     for nav_title in [
-        "Basic Information",
-        "Expenditure categories",
-        "Expenditure details",
-        "Demographic information",
+        "Section 1: Tribal Administration",
+        "Section 2: Tribal Expenditures",
+        "Section 3: Expenditure Narrative",
+        "Section 4: Characteristics Report",
         "Review and Submit",
     ]:
         assert nav_title in content
@@ -102,7 +104,9 @@ def test_tribal_long_form_top_level_sidenav_navigation_saves_draft_and_opens_fir
 
     assert response.status_code == 200
 
-    target_href = get_sidenav_href(response.content.decode("utf-8"), "Demographic information")
+    target_href = get_sidenav_href(
+        response.content.decode("utf-8"), "Section 4: Characteristics Report"
+    )
 
     response = authenticated_client.post(
         target_href,
@@ -280,9 +284,33 @@ def test_tribal_long_form_edit_sidenav_links_submit_the_current_form(
     assert response.status_code == 200
 
     section_link = get_sidenav_link_markup(
-        response.content.decode("utf-8"), "Demographic information"
+        response.content.decode("utf-8"), "Section 4: Characteristics Report"
     )
     review_link = get_sidenav_link_markup(response.content.decode("utf-8"), "Review and Submit")
 
     assert 'data-save-draft-form="form-edit-form"' in section_link
     assert 'data-save-draft-form="form-edit-form"' in review_link
+
+
+@pytest.mark.django_db
+def test_tribal_long_form_section_label_renders_above_page_title_on_filter_page(
+    django_db_setup, tribal_long_form_entry: "FormEntry", authenticated_client
+):
+    response = authenticated_client.get(
+        reverse("form_edit", args=[tribal_long_form_entry.pk]),
+        query_params={"step": 1, "page": 0},
+    )
+
+    assert response.status_code == 200
+
+    content = response.content.decode("utf-8")
+
+    assert re.search(
+        (
+            r"form-page-section-label[^>]*>\s*Section 2: Tribal Expenditures\s*</p>\s*"
+            r"<h1[^>]*>\s*Expenditure categories\s*</h1>.*"
+            r"How to select expenditure categories"
+        ),
+        content,
+        re.DOTALL,
+    )

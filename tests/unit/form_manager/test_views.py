@@ -62,6 +62,7 @@ def test_non_tribal_forms_keep_step_indicator_layout(
     assert "usa-step-indicator" in content
     assert 'aria-label="Form sections"' not in content
     assert "usa-sidenav" not in content
+    assert "form-page-section-label" not in content
 
 
 @pytest.mark.django_db
