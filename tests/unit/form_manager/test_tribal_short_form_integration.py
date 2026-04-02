@@ -100,9 +100,14 @@ def test_tribal_short_form_edit_page_uses_left_rail_navigation(
 
     content = response.content.decode("utf-8")
 
+    assert 'class="grid-row grid-gap-6"' in content
     assert 'aria-label="Form sections"' in content
     assert "usa-sidenav" in content
     assert "usa-step-indicator" not in content
+    assert (
+        'class="display-none desktop:display-block desktop:grid-col-3 desktop:margin-top-0"'
+        in content
+    )
 
     for nav_title in [
         "Section 1: Tribal Administration",
@@ -296,8 +301,13 @@ def test_tribal_short_form_review_page_uses_left_rail_navigation_and_keeps_edit_
     content = response.content.decode("utf-8")
     sidenav = get_sidenav_markup(content)
 
+    assert 'class="grid-row grid-gap-6"' in content
     assert "usa-sidenav" in sidenav
     assert "usa-step-indicator" not in content
+    assert (
+        'class="display-none desktop:display-block desktop:grid-col-3 desktop:margin-top-0"'
+        in content
+    )
     assert sidenav.count('class="usa-current"') == 1
     review_link = get_sidenav_link_markup(content, "Review and Submit")
     assert 'class="usa-current"' in review_link
@@ -393,6 +403,12 @@ def test_tribal_short_form_section_label_renders_above_page_title_on_filter_page
     assert response.status_code == 200
 
     content = response.content.decode("utf-8")
+
+    assert 'class="form-page-section-label font-body-sm margin-top-0 margin-bottom-1"' in content
+    assert (
+        'class="font-heading-2xl semibold font-family-sans font-weight-semibold margin-top-0"'
+        in content
+    )
 
     assert re.search(
         (
