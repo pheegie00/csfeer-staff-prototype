@@ -137,8 +137,12 @@ Run unit tests:
     docker pull $FULL_IMAGE_NAME
     apk update && apk add --no-cache make python3 py3-pip curl
     curl -LsSf https://astral.sh/uv/install.sh | sh
+    echo "127.0.0.1   oauth.csfeer" >> /etc/hosts
+    echo "127.0.0.1   ui.csfeer" >> /etc/hosts
+    echo "127.0.0.1   storage.csfeer" >> /etc/hosts
     echo "starting unit tests ..."
-    IMAGE_NAME=$FULL_IMAGE_NAME make test-unit-ci
+    make setup-tests-ci IMAGE_NAME=$FULL_IMAGE_NAME
+    make test-unit-ci IMAGE_NAME=$FULL_IMAGE_NAME
 
 
 Run e2e tests:
@@ -166,8 +170,9 @@ Run e2e tests:
     echo "starting unit tests ..."
     echo "127.0.0.1   oauth.csfeer" >> /etc/hosts
     echo "127.0.0.1   ui.csfeer" >> /etc/hosts
-    cat /etc/hosts
-    IMAGE_NAME=$FULL_IMAGE_NAME-e2e make test-e2e-ci
+    echo "127.0.0.1   storage.csfeer" >> /etc/hosts
+    make setup-tests-ci IMAGE_NAME=$FULL_IMAGE_NAME
+    make test-e2e-ci IMAGE_NAME=$FULL_IMAGE_NAME-e2e 
 
 
 
