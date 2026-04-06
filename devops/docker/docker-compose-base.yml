@@ -101,8 +101,8 @@ services:
       AWS_ACCESS_KEY_ID: alfq80VW6dJW4sYxDaam
       AWS_SECRET_ACCESS_KEY: KA8dxUCwYDHm2JSgDKZvezRDeIVGT2RX3ITjP55F
       AWS_S3_ENDPOINT_URL: http://storage.csfeer:9000
-    # post_start:
-    #   - command: "uv run python manage.py migrate"
+    post_start:
+      - command: "uv run python manage.py migrate"
     security_opt:
       - "no-new-privileges:true"
     ports:
