@@ -171,7 +171,7 @@ Run e2e tests:
     echo "127.0.0.1   oauth.csfeer" >> /etc/hosts
     echo "127.0.0.1   ui.csfeer" >> /etc/hosts
     echo "127.0.0.1   storage.csfeer" >> /etc/hosts
-    make setup-tests-ci IMAGE_NAME=$FULL_IMAGE_NAME
+    make setup-tests-ci IMAGE_NAME=$FULL_IMAGE_NAME-e2e
     make test-e2e-ci IMAGE_NAME=$FULL_IMAGE_NAME-e2e 
 
 
