@@ -9,6 +9,13 @@ services:
     post_start:
       - command: bash -c "bash /opt/keycloak/setup-keycloak.sh | tee /proc/1/fd/1"
 
+  storage:
+    extends:
+      file: ./docker-compose-base.yml
+      service: storage
+    post_start:
+      - command: sh -c "sh /create-buckets.sh | tee /proc/1/fd/1"
+
   db:
     extends:
       file: ./docker-compose-base.yml
@@ -36,3 +43,4 @@ services:
 
 volumes:
   pgdata:
+  storage:
