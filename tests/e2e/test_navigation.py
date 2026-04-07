@@ -55,6 +55,17 @@ def test_authenticated_navigation(authenticated_page: Page, base_url: str) -> No
 
 @pytest.mark.e2e
 @pytest.mark.auth
+def test_footer_version_comment(authenticated_page: Page, base_url: str) -> None:
+    """Test that the footer contains an HTML comment with the app version."""
+    page = authenticated_page
+    page.goto(base_url)
+
+    html = page.content()
+    assert "<!-- version:" in html, "Expected footer to contain a version HTML comment"
+
+
+@pytest.mark.e2e
+@pytest.mark.auth
 @pytest.mark.skip(
     reason="App redirects all requests to OAuth - 404 testing requires auth middleware changes"
 )
