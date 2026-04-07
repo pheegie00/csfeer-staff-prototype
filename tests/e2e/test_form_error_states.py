@@ -6,7 +6,7 @@ that shows validation errors after users visit the review page.
 """
 
 import pytest
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Page
 
 
 @pytest.mark.e2e
@@ -37,8 +37,7 @@ def test_error_states_display_after_review_visit(authenticated_page: Page, base_
             card.get_by_role("link", name="Start New Form").click()
             break
 
-    # Wait for form to load
-    page.wait_for_selector('h4:has-text("Step 1 of 5 Basic Information")')
+    page.get_by_role("heading", name="Your basic information").wait_for()
 
     # Step 1: Fill only some required fields (intentionally incomplete)
     page.get_by_label("Name of Tribe or Tribal Organization *").fill("E2E Error State Test Tribe")
@@ -52,8 +51,7 @@ def test_error_states_display_after_review_visit(authenticated_page: Page, base_
     page.wait_for_timeout(500)
     page.get_by_role("button", name="Next →").click()
 
-    # Wait for Step 2
-    page.wait_for_selector('h4:has-text("Step 2 of 5 Expenditure categories")')
+    page.get_by_text("Select all that apply:").wait_for()
 
     # Select one category
     page.evaluate(
@@ -187,8 +185,7 @@ def test_errors_cleared_after_form_submission(authenticated_page: Page, base_url
             card.get_by_role("link", name="Start New Form").click()
             break
 
-    # Wait for form to load
-    page.wait_for_selector('h4:has-text("Step 1 of 5 Basic Information")')
+    page.get_by_role("heading", name="Your basic information").wait_for()
 
     # Step 1: Fill ALL required fields completely
     page.get_by_label("Name of Tribe or Tribal Organization *").fill("E2E Complete Form Test")
@@ -203,7 +200,7 @@ def test_errors_cleared_after_form_submission(authenticated_page: Page, base_url
     page.get_by_role("button", name="Next →").click()
 
     # Step 2: Select category
-    page.wait_for_selector('h4:has-text("Step 2 of 5 Expenditure categories")')
+    page.get_by_text("Select all that apply:").wait_for()
     page.evaluate(
         """
         () => {
@@ -323,8 +320,7 @@ def test_errors_persist_across_page_navigation(authenticated_page: Page, base_ur
             card.get_by_role("link", name="Start New Form").click()
             break
 
-    # Wait for form to load
-    page.wait_for_selector('h4:has-text("Step 1 of 5 Basic Information")')
+    page.get_by_role("heading", name="Your basic information").wait_for()
 
     # Fill partial data on Step 1
     page.get_by_label("Name of Tribe or Tribal Organization *").fill("Persistence Test")

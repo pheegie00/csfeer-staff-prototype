@@ -31,8 +31,9 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
             card.get_by_role("link", name="Start New Form").click()
             break
 
-    # Wait for form to load - should be on Step 1 of 5
-    page.wait_for_selector('h4:has-text("Step 1 of 5 Basic Information")')
+    page.get_by_role("heading", name="Your basic information").wait_for()
+    assert page.locator('nav[aria-label="Form sections"]').is_visible()
+    assert page.locator(".usa-step-indicator").count() == 0
 
     # ==========================================
     # STEP 1: Basic Information
@@ -50,11 +51,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
     # Click Next
     page.get_by_role("button", name="Next →").click()
 
-    # Wait for Step 2: Expenditure categories
-    page.wait_for_selector('h4:has-text("Step 2 of 5 Expenditure categories")')
-
-    # Verify Basic Information is marked completed
-    assert page.locator('text="Basic Information" >> text="completed"').is_visible()
+    page.get_by_text("Select all that apply:").wait_for()
 
     # ==========================================
     # STEP 2: Expenditure categories
@@ -154,11 +151,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
         page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText")
-    assert "3 of 5" in body_text
     assert "Expenditure details" in body_text
-
-    # Verify Expenditure categories is marked completed
-    assert page.locator('text="Expenditure categories" >> text="completed"').is_visible()
 
     # ==========================================
     # STEP 3: Expenditure details
@@ -212,11 +205,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
         page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText")
-    assert "4 of 5" in body_text
     assert "Demographic information" in body_text
-
-    # Verify Expenditure details is marked completed
-    assert page.locator('text="Expenditure details" >> text="completed"').is_visible()
 
     # ==========================================
     # STEP 4: Demographic information
@@ -292,19 +281,9 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
         page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText")
-    assert "5 of 5" in body_text
     assert "Review and Submit" in body_text
-
-    # ==========================================
-    # STEP 5: Review and Submit
-    # ==========================================
-    # Verify Demographic information is marked completed
-    assert page.locator('text="Demographic information" >> text="completed"').is_visible()
-
-    # Verify all sections are completed
-    assert page.locator('text="Basic Information" >> text="completed"').is_visible()
-    assert page.locator('text="Expenditure categories" >> text="completed"').is_visible()
-    assert page.locator('text="Expenditure details" >> text="completed"').is_visible()
+    assert page.locator('nav[aria-label="Form sections"]').is_visible()
+    assert page.locator(".usa-step-indicator").count() == 0
 
     # Verify basic information in review page
     assert page.get_by_text("E2E Long Form Test Tribe").is_visible()
