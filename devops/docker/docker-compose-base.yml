@@ -65,6 +65,27 @@ services:
           - db.csfeer
     hostname: db.csfeer
 
+  storage:
+    image: rustfs/rustfs:latest-glibc
+    ports:
+      - 9000:9000
+      - 9001:9001
+      - 7001:7001
+    volumes:
+      - storage:/data
+      - ../../devops/mocks/rustfs/create-buckets.sh:/create-buckets.sh:ro
+    hostname: storage.csfeer
+    environment:
+      RUSTFS_ACCESS_KEY: admin
+      RUSTFS_SECRET_KEY: admin
+      RUSTFS_CONSOLE_ENABLE: true
+      RUSTFS_SERVER_DOMAINS: "storage.csfeer"
+      BUCKET_TO_CREATE: core-local
+      IAM_KEY_TO_CREATE: alfq80VW6dJW4sYxDaam
+      IAM_SECRET_TO_CREATE: KA8dxUCwYDHm2JSgDKZvezRDeIVGT2RX3ITjP55F
+    post_start:
+      - command: sh /create-buckets.sh
+  
   app:
     environment:
       DJANGO_ALLOW_ASYNC_UNSAFE: true
@@ -77,6 +98,9 @@ services:
       DJANGO_SETTINGS_MODULE: csfeer.settings
       DB_CONFIG__PGHOST: db
       ENVIRONMENT: docker
+      AWS_ACCESS_KEY_ID: alfq80VW6dJW4sYxDaam
+      AWS_SECRET_ACCESS_KEY: KA8dxUCwYDHm2JSgDKZvezRDeIVGT2RX3ITjP55F
+      AWS_S3_ENDPOINT_URL: http://storage.csfeer:9000
     post_start:
       - command: "uv run python manage.py migrate"
     security_opt:
@@ -88,9 +112,11 @@ services:
     depends_on:
       - db
       - mock-oauth
+      - storage
     cap_drop:
       - all
     hostname: ui.csfeer
 
 volumes:
   pgdata:
+  storage:

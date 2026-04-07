@@ -46,6 +46,8 @@ class AppConfig(BaseSettings):
     logging_config: LoggingConfig = LoggingConfig()
     environment: str = "local"
     api_key: str = "SECRET123"
+    aws_storage_bucket_name: str = "core-local"
+    aws_s3_endpoint_url: str | None = None
 
     @property
     def is_local(self) -> bool:

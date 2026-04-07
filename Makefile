@@ -38,8 +38,16 @@ reset-db:
 test-unit:
 	docker compose run --rm app uv run pytest $${TEST:-tests/unit} -v
 
+setup-tests-ci:
+	@echo "Starting services..."
+	$(CI_COMPOSE) up -d --remove-orphans
+	$(CI_COMPOSE) exec app uv run manage.py migrate --noinput
+	@echo "Loading seed data..."
+	$(CI_COMPOSE) exec app uv run manage.py seed_demo_org --all
+	$(CI_COMPOSE) exec app uv run manage.py load_initial_forms
+
 test-unit-ci:
-	$(CI_COMPOSE) run --rm app uv run pytest $${TEST:-tests/unit} -v
+	$(CI_COMPOSE) exec app uv run pytest $${TEST:-tests/unit} -v
 
 # Usage: make test-e2e [TEST=tests/e2e/test_form_manager.py::test_name]
 test-e2e:
@@ -50,16 +58,7 @@ test-e2e:
 	docker compose exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e
 
 test-e2e-ci:
-	@echo "Starting services..."
-	$(CI_COMPOSE) up -d --remove-orphans
-	@echo "Loading seed data..."
-	$(CI_COMPOSE) exec app uv run manage.py migrate
-	$(CI_COMPOSE) exec app uv run manage.py seed_demo_org --all
-	$(CI_COMPOSE) exec app uv run manage.py load_initial_forms
-	@echo "Running tests ..."
 	$(CI_COMPOSE) exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e -s
-	@echo "Tearing down containers."
-	$(CI_COMPOSE) down
 
 # ── Native (host) ─────────────────────────────────────────────────────────────
 

@@ -1,10 +1,9 @@
-name: E2E Tests
+name: Run Tests
 
 on:
   workflow_dispatch:
-  # Uncomment to enable automatic runs:
-  # pull_request:
-  #   branches: [main]
+  pull_request:
+    branches: [main]
   # push:
   #   branches: [main]
 
@@ -17,51 +16,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+      - name: Build Docker image
+        run: docker build --target prod-e2e -t csfeer:ci .
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-
-      - name: Install dependencies
+      - name: Run unit tests
         run: |
-          uv sync
-
-      - name: Install Playwright browsers
-        run: |
-          uv run playwright install chromium --with-deps
-
-      - name: Add hosts entries
-        run: |
-          echo "127.0.0.1 oauth.csfeer" | sudo tee -a /etc/hosts
-          echo "127.0.0.1 ui.csfeer" | sudo tee -a /etc/hosts
-
-      - name: Start Docker services
-        run: |
-          docker compose up -d
-          docker compose ps
-
-      - name: Wait for services to be ready
-        run: |
-          timeout 60 bash -c 'until docker compose exec -T db pg_isready -U csfeer; do sleep 2; done' || (echo "Database failed to become ready" && exit 1)
-          timeout 60 bash -c 'until curl -f http://oauth.csfeer:8081 > /dev/null 2>&1; do sleep 2; done' || (echo "OAuth service failed to become ready" && exit 1)
-          sleep 10
-
-      - name: Run migrations
-        run: |
-          docker compose exec -T app uv run python manage.py migrate
-
-      - name: Setup OAuth
-        run: |
-          docker compose run --rm oauth-setup
+          export KC_SETUP_DELAY=60
+          sudo bash -c "echo '127.0.0.1   oauth.csfeer' >> /etc/hosts"
+          sudo bash -c "echo '127.0.0.1   ui.csfeer' >> /etc/hosts"
+          mkdir -p tests/videos && chmod 777 tests/videos
+          mkdir -p tests/traces && chmod 777 tests/traces
+          mkdir -p tests/screenshots && chmod 777 tests/screenshots
+          make setup-tests-ci IMAGE_NAME=csfeer:ci
+          make test-unit-ci IMAGE_NAME=csfeer:ci
+        env:
+          IMAGE_NAME: csfeer:ci
 
       - name: Run e2e tests
         run: |
-          uv run pytest tests/e2e/ -v -m e2e --maxfail=5
+          export KC_SETUP_DELAY=60
+          sudo bash -c "echo '127.0.0.1   oauth.csfeer' >> /etc/hosts"
+          sudo bash -c "echo '127.0.0.1   ui.csfeer' >> /etc/hosts"
+          mkdir -p tests/videos && chmod 777 tests/videos
+          mkdir -p tests/traces && chmod 777 tests/traces
+          mkdir -p tests/screenshots && chmod 777 tests/screenshots
+          make setup-tests-ci IMAGE_NAME=csfeer:ci
+          make test-e2e-ci IMAGE_NAME=csfeer:ci
         env:
-          BASE_URL: http://ui.csfeer:8000
+          IMAGE_NAME: csfeer:ci
 
       - name: Upload test artifacts
         if: always()
@@ -84,10 +66,4 @@ jobs:
 
       - name: Docker logs on failure
         if: failure()
-        run: |
-          docker compose logs
-
-      - name: Cleanup
-        if: always()
-        run: |
-          docker compose down --volumes
+        run: IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml logs
