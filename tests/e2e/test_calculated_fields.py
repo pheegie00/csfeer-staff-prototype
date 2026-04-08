@@ -61,8 +61,7 @@ def test_calculated_currency_field_auto_updates(authenticated_page: Page, base_u
             card.get_by_text("Start New Form").click()
             break
 
-    # Wait for form to load - Step 1 of 4: Basic Information
-    page.wait_for_selector('h4:has-text("Step 1 of 4 Basic Information")')
+    page.get_by_role("heading", name="Your basic information").wait_for()
 
     # Fill minimal required data for Step 1
     page.get_by_label("Name of Tribe or Tribal Organization *").fill("E2E Calculated Field Test")
@@ -76,8 +75,7 @@ def test_calculated_currency_field_auto_updates(authenticated_page: Page, base_u
     page.wait_for_timeout(500)
     page.get_by_role("button", name="Next →").click()
 
-    # Wait for Step 2 to load
-    page.wait_for_selector('h4:has-text("Step 2 of 4 Expenditure categories")')
+    page.get_by_text("Select all that apply:").wait_for()
 
     # Select expenditure categories to reveal amount fields
     # Use JavaScript to click checkboxes (works with Alpine.js)

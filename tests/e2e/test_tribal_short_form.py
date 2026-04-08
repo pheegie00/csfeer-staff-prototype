@@ -31,8 +31,9 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
             card.get_by_role("link", name="Start New Form").click()
             break
 
-    # Wait for form to load - should be on Step 1 of 4
-    page.wait_for_selector('h4:has-text("Step 1 of 4 Basic Information")')
+    page.get_by_role("heading", name="Your basic information").wait_for()
+    assert page.locator('nav[aria-label="Form sections"]').is_visible()
+    assert page.locator(".usa-step-indicator").count() == 0
 
     # Step 1: Fill Basic Information
     page.get_by_label("Name of Tribe or Tribal Organization *").fill("E2E Test Tribal Nation")
@@ -50,11 +51,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     # Click Next
     page.get_by_role("button", name="Next →").click()
 
-    # Wait for Step 2: Expenditure categories
-    page.wait_for_selector('h4:has-text("Step 2 of 4 Expenditure categories")')
-
-    # Verify Basic Information is marked completed
-    assert page.locator('text="Basic Information" >> text="completed"').is_visible()
+    page.get_by_text("Select all that apply:").wait_for()
 
     # Select expenditure categories (Employment and Housing)
     # Wait for checkboxes to be visible
@@ -143,11 +140,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
         page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText")
-    assert "3 of 4" in body_text
     assert "Expenditure details" in body_text
-
-    # Verify Expenditure categories is marked completed
-    assert page.locator('text="Expenditure categories" >> text="completed"').is_visible()
 
     # Fill employment services description
     page.get_by_label("Description *").fill(
@@ -179,13 +172,9 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
         page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
     body_text = page.evaluate("() => document.body.innerText")
-    assert "4 of 4" in body_text
     assert "Review and Submit" in body_text
-
-    # Verify all sections are completed
-    assert page.locator('text="Basic Information" >> text="completed"').is_visible()
-    assert page.locator('text="Expenditure categories" >> text="completed"').is_visible()
-    assert page.locator('text="Expenditure details" >> text="completed"').is_visible()
+    assert page.locator('nav[aria-label="Form sections"]').is_visible()
+    assert page.locator(".usa-step-indicator").count() == 0
 
     # Verify data in review page
     assert page.get_by_text("E2E Test Tribal Nation").is_visible()
@@ -221,8 +210,10 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
 
 @pytest.mark.e2e
 @pytest.mark.auth
-def test_tribal_short_form_has_four_steps(authenticated_page: Page, base_url: str) -> None:
-    """Test that TribalShortForm has exactly 4 steps, not 5."""
+def test_tribal_short_form_has_four_top_level_nav_items(
+    authenticated_page: Page, base_url: str
+) -> None:
+    """Test that TribalShortForm renders a four-item top-level form rail."""
     page = authenticated_page
 
     # Navigate to forms page
@@ -237,35 +228,25 @@ def test_tribal_short_form_has_four_steps(authenticated_page: Page, base_url: st
             card.get_by_role("link", name="Start New Form").click()
             break
 
-    # Wait for form to load
-    page.wait_for_selector('h4:has-text("Step 1 of 4")')
+    page.get_by_role("heading", name="Your basic information").wait_for()
 
-    # Verify step indicator shows 4 steps total
-    step_indicator = page.locator('h4:has-text("Step 1 of 4")')
-    assert step_indicator.is_visible(), "Should show Step 1 of 4"
+    side_nav = page.locator('nav[aria-label="Form sections"]')
+    assert side_nav.is_visible(), "Should show the default form rail"
+    assert page.locator(".usa-step-indicator").count() == 0
 
-    # Verify no demographic information in step list
-    step_list = page.locator(".usa-step-indicator__segments")
-    assert (
-        step_list.get_by_text("Demographic information").count() == 0
-    ), "Should NOT have demographic information step"
+    top_level_items = side_nav.locator(":scope > ul > li")
+    assert top_level_items.count() == 4, "Short form should have three sections plus review"
+    assert side_nav.get_by_text("Demographic information").count() == 0
 
-    # Count visible steps in the step indicator (should be 4)
-    step_segments = page.locator(".usa-step-indicator__segment")
-    step_count = step_segments.count()
-    assert step_count == 4, f"Should have 4 steps, but found {step_count}"
-
-    # Verify the step names in the step indicator
     steps = [
-        "Basic Information",
-        "Expenditure categories",
-        "Expenditure details",
-        "Review and Submit",
+        "Section 1: Basic Information",
+        "Section 2: Expenditure categories",
+        "Section 3: Expenditure details",
+        "Review & Submit",
     ]
 
     for step_name in steps:
-        step_in_indicator = step_list.locator(f"text={step_name}")
-        assert step_in_indicator.count() > 0, f"Step '{step_name}' should be in step indicator"
+        assert side_nav.get_by_text(step_name).count() > 0, f"Expected rail item '{step_name}'"
 
 
 @pytest.mark.e2e
@@ -289,7 +270,7 @@ def test_tribal_short_form_vs_long_form_comparison(authenticated_page: Page, bas
     assert long_form.is_visible(), "TribalLongForm should be available"
     assert short_form.is_visible(), "TribalShortForm should be available"
 
-    # Start LongForm and verify it has 5 steps
+    # Start LongForm and verify it has 5 top-level rail items
     form_cards = page.locator(".grid-col-12.tablet\\:grid-col-6")
     for i in range(form_cards.count()):
         card = form_cards.nth(i)
@@ -298,14 +279,16 @@ def test_tribal_short_form_vs_long_form_comparison(authenticated_page: Page, bas
             card.get_by_role("link", name="Start New Form").click()
             break
 
-    page.wait_for_selector('h4:has-text("Step 1 of 5")')
-    assert page.locator('h4:has-text("Step 1 of 5")').is_visible(), "LongForm should have 5 steps"
+    page.get_by_role("heading", name="Your basic information").wait_for()
+    long_nav = page.locator('nav[aria-label="Form sections"]')
+    assert long_nav.is_visible()
+    assert long_nav.locator(":scope > ul > li").count() == 5
 
     # Navigate back
     page.goto(f"{base_url}/forms/")
     page.wait_for_load_state("networkidle")
 
-    # Start ShortForm and verify it has 4 steps
+    # Start ShortForm and verify it has 4 top-level rail items
     form_cards = page.locator(".grid-col-12.tablet\\:grid-col-6")
     for i in range(form_cards.count()):
         card = form_cards.nth(i)
@@ -313,5 +296,7 @@ def test_tribal_short_form_vs_long_form_comparison(authenticated_page: Page, bas
             card.get_by_role("link", name="Start New Form").click()
             break
 
-    page.wait_for_selector('h4:has-text("Step 1 of 4")')
-    assert page.locator('h4:has-text("Step 1 of 4")').is_visible(), "ShortForm should have 4 steps"
+    page.get_by_role("heading", name="Your basic information").wait_for()
+    short_nav = page.locator('nav[aria-label="Form sections"]')
+    assert short_nav.is_visible()
+    assert short_nav.locator(":scope > ul > li").count() == 4

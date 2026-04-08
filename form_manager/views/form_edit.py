@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from form_manager.models import FormEntry
+from form_manager.schema.navigation import build_side_nav_items
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.schema.layout import FieldBlock, PageBlock, StepBlock
 from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
@@ -123,7 +124,7 @@ def form_edit(request, pk):
     # The django form is expected to be available on schema.form_fields
     django_form_class = schema_cls.get_form_fields_class()
 
-    ui_components = schema.ui
+    ui_components = [step.model_copy(deep=True) for step in schema.ui]
 
     def has_permission():
 
@@ -214,6 +215,11 @@ def form_edit(request, pk):
         "current_page": page_to_render,
         "next_url": next_page_url,
         "prev_url": prev_page_url,
+        "side_nav_items": build_side_nav_items(
+            ui_components,
+            current_step_number=current_step_number,
+            current_page_number=current_page_number,
+        ),
     }
 
     return render(request, "form_manager/form_edit.html", context)

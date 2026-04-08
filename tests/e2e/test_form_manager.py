@@ -20,7 +20,7 @@ def test_forms_page_loads(authenticated_page: Page, base_url: str) -> None:
 @pytest.mark.e2e
 @pytest.mark.auth
 def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) -> None:
-    """Test that clearing a field value and saving removes the value, and test Save & Exit button."""
+    """Test clearing a field value persists and Save & Exit returns to the forms list."""
     page = authenticated_page
 
     # Navigate to forms page
@@ -35,8 +35,7 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
             card.get_by_role("link", name="Start New Form").click()
             break
 
-    # Wait for form to load - Step 1 of 4: Basic Information
-    page.wait_for_selector('h4:has-text("Step 1 of 4 Basic Information")')
+    page.get_by_role("heading", name="Your basic information").wait_for()
 
     # Fill the "Name of Tribe" field
     tribe_name_field = page.get_by_label("Name of Tribe or Tribal Organization *")
@@ -53,16 +52,14 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
     page.wait_for_timeout(500)
     page.get_by_role("button", name="Next →").click()
 
-    # Wait for Step 2 to load
-    page.wait_for_selector('h4:has-text("Step 2 of 4 Expenditure categories")')
+    page.get_by_text("Select all that apply:").wait_for()
 
     # Go back to Step 1
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     page.get_by_text("← Back").click()
 
-    # Wait for Step 1 to load again
-    page.wait_for_selector('h4:has-text("Step 1 of 4 Basic Information")')
+    page.get_by_role("heading", name="Your basic information").wait_for()
 
     # Verify the field still has the value
     tribe_name_value = tribe_name_field.input_value()
@@ -81,12 +78,11 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
     page.wait_for_timeout(500)
     page.get_by_role("button", name="Next →").click()
 
-    # Wait for Step 2
-    page.wait_for_selector('h4:has-text("Step 2 of 4 Expenditure categories")')
+    page.get_by_text("Select all that apply:").wait_for()
 
     # Go back to Step 1 again to verify the cleared value persisted
     page.get_by_text("← Back").click()
-    page.wait_for_selector('h4:has-text("Step 1 of 4 Basic Information")')
+    page.get_by_role("heading", name="Your basic information").wait_for()
 
     # Verify the field is still empty (the bug would cause it to show the old value)
     final_value = tribe_name_field.input_value()
@@ -97,8 +93,7 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
     page.wait_for_timeout(500)
     page.get_by_role("button", name="Next →").click()
 
-    # Wait for Step 2
-    page.wait_for_selector('h4:has-text("Step 2 of 4 Expenditure categories")')
+    page.get_by_text("Select all that apply:").wait_for()
 
     # Scroll to bottom and click "Save & Exit" button
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
@@ -109,4 +104,3 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
     page.wait_for_load_state("networkidle")
     assert "/forms/" in page.url
     assert "/edit" not in page.url
-

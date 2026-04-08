@@ -1,0 +1,19 @@
+<c-side_nav aria_label="Form sections">
+  {% for item in side_nav_items %}
+    <c-side_nav.item
+      text="{{ item.label }}"
+      href="{{ item.href }}"
+      is_current="{{ item.is_current|default:'' }}"
+    >
+      {% if item.is_expanded %}
+        {% for page in item.pages %}
+          <c-side_nav.item
+            text="{{ page.label }}"
+            href="{{ page.href }}"
+            is_current="{{ page.is_current|default:'' }}"
+          />
+        {% endfor %}
+      {% endif %}
+    </c-side_nav.item>
+  {% endfor %}
+</c-side_nav>
