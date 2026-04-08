@@ -31,11 +31,11 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       variables:
         FULL_IMAGE_NAME: $CI_REGISTRY/$CI_PROJECT_PATH:mr-$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME-$CI_PIPELINE_ID
-        ENVIRONMENT: development
+        ENVIRONMENT: dev
     - if: $CI_COMMIT_BRANCH == "main" && $CI_COMMIT_TAG == null
       variables:
         FULL_IMAGE_NAME: $CI_REGISTRY/$CI_PROJECT_PATH:rc-$VERSION-$CI_PIPELINE_ID
-        ENVIRONMENT: test
+        ENVIRONMENT: dev
 
 
 stages:
@@ -44,8 +44,6 @@ stages:
   - security-test
   - build
   - run-tests
-  - content:dev
-  - build
   - security-scan
   - deploy:dev
   - deploy:test
@@ -99,7 +97,7 @@ Build image and push to registry:
   script:
     - echo $VERSION
     - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - buildah build --target prod -f $DOCKERFILE -t $FULL_IMAGE_NAME .
+    - buildah build --build-arg VERSION=$CI_COMMIT_SHORT_SHA  --target prod -f $DOCKERFILE -t $FULL_IMAGE_NAME .
     - buildah push $FULL_IMAGE_NAME
 
 
@@ -112,7 +110,7 @@ Build e2e image and push to registry:
   script:
     - echo $VERSION
     - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - buildah build --target prod-e2e -f $DOCKERFILE -t $FULL_IMAGE_NAME-e2e .
+    - buildah build --build-arg VERSION=$CI_COMMIT_SHORT_SHA  --target prod-e2e -f $DOCKERFILE -t $FULL_IMAGE_NAME-e2e .
     - buildah push $FULL_IMAGE_NAME-e2e
 
 Run unit tests:
@@ -121,7 +119,7 @@ Run unit tests:
     - name: docker:28-dind
       alias: docker
       command: ["--tls=false"]
-  stage: build
+  stage: run-tests
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_DRIVER: overlay2
@@ -129,6 +127,7 @@ Run unit tests:
     CI_DEBUG_SERVICES: "true"
   needs: 
     - Build image and push to registry
+    - prepare
   before_script:
     echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script: |
@@ -151,7 +150,7 @@ Run e2e tests:
     - name: docker:28-dind
       alias: docker
       command: ["--tls=false"]
-  stage: build
+  stage: run-tests
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_DRIVER: overlay2
@@ -159,6 +158,7 @@ Run e2e tests:
     CI_DEBUG_SERVICES: "true"
   needs: 
     - Build e2e image and push to registry
+    - prepare
   before_script:
     echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script: |
@@ -544,8 +544,29 @@ gemnasium-python-dependency_scanning:
           $PIP_REQUIREMENTS_FILE
     - if: $CI_COMMIT_BRANCH == "main" && $CI_COMMIT_TAG == null    
 
+deploy:dev:
+  image:
+    name: registry.management.acf.gov/ngsc-oci/security/cosign-vault:0.1.5
+  stage: deploy:dev
+  needs:
+    - prepare
+    - container_scanning
+    - Run unit tests
+    - Run e2e tests
+  variables:
+    DEV_IMAGE: $CI_REGISTRY/$CI_PROJECT_PATH:dev-latest
+    IMAGE_VERSION: dev-$CI_COMMIT_SHORT_SHA
+  script:
+    - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - export STORAGE_DRIVER=vfs
+    - buildah pull $FULL_IMAGE_NAME
+    - buildah tag $FULL_IMAGE_NAME $DEV_IMAGE
+    - buildah push $DEV_IMAGE
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
 release:
-  image: 
+  image:
     name: registry.management.acf.gov/ngsc-oci/security/cosign-vault:0.1.6
   stage: release
   needs:
