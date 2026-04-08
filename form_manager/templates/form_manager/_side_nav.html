@@ -6,11 +6,11 @@
       is_current="{{ item.is_current|default:'' }}"
     >
       {% if item.is_expanded %}
-        {% for child in item.children %}
+        {% for page in item.pages %}
           <c-side_nav.item
-            text="{{ child.label }}"
-            href="{{ child.href }}"
-            is_current="{{ child.is_current|default:'' }}"
+            text="{{ page.label }}"
+            href="{{ page.href }}"
+            is_current="{{ page.is_current|default:'' }}"
           />
         {% endfor %}
       {% endif %}

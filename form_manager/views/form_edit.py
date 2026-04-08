@@ -7,10 +7,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from form_manager.models import FormEntry
+from form_manager.schema.navigation import build_side_nav_items
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.schema.layout import FieldBlock, PageBlock, StepBlock
 from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
-from form_manager.views.navigation import build_side_nav_items
 
 logger = logging.getLogger(__name__)
 

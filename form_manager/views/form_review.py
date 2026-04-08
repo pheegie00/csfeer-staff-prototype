@@ -7,10 +7,10 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
 from form_manager.models import FormEntry
+from form_manager.schema.navigation import build_side_nav_items
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.utils import save_form_entry
 from form_manager.views.form_edit import remove_nodes_with_excluded_fields
-from form_manager.views.navigation import build_side_nav_items
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ def form_review(request, pk):
     context = {
         "form": form,
         "entry": entry,
-        "steps": schema.ui,
+        "steps": ui_components,
         "prev_url": reverse(
             "form_edit",
             kwargs={"pk": entry.pk},
@@ -77,7 +77,7 @@ def form_review(request, pk):
         "side_nav_items": build_side_nav_items(ui_components, is_review=True),
     }
 
-    for component in schema.ui:
+    for component in ui_components:
         component.set_extra_context(form=form)
 
     return render(request, "form_manager/review_and_submit.html", context)
