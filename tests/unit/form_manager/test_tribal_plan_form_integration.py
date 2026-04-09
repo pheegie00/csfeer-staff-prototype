@@ -8,7 +8,7 @@ from django.urls import reverse
 
 from form_manager.constants import CSBGTribalPlanApplicationForms
 from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
-from form_manager.schema.forms.tribal_plan_form import TribalPlanFormFields
+from form_manager.schema.forms.tribal_plan import TribalPlanFormFields
 
 if TYPE_CHECKING:
     from django.test.client import Client
@@ -257,7 +257,7 @@ def test_tribal_plan_form_has_eight_steps(
     django_db_setup, tribal_plan_form_entry: FormEntry, authenticated_client
 ):
     """The form schema has exactly 8 steps."""
-    from form_manager.schema.forms.tribal_plan_form import TribalPlanForm
+    from form_manager.schema.forms.tribal_plan import TribalPlanForm
 
     schema = TribalPlanForm.model_construct()
     assert len(schema.ui) == 8
