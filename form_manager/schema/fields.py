@@ -14,6 +14,7 @@ from django.utils import formats
 from pydantic_core import core_schema
 
 from form_manager.schema.widgets import (
+    ACFCheckboxInput,
     CheckboxSelectMultiple,
     CurrencyInput,
     YesNoDisplayWidget,
@@ -266,6 +267,49 @@ class ACFTextareaField(ACFFieldMixin, forms.CharField):
     widget = forms.Textarea(attrs={"rows": 10, "cols": 70})
 
 
+class ACFFileField(ACFFieldMixin, forms.FileField):
+    """A file upload field with configurable allowed extensions and per-file size limit.
+
+    TODO: Final allowed file types and maximum file size are pending confirmation from ACF.
+    Provisional defaults: pdf, png, jpg, jpeg; 10 MB per file.
+    """
+
+    # Provisional defaults — pending final confirmation from ACF
+    ALLOWED_EXTENSIONS = ["pdf", "png", "jpg", "jpeg"]
+    MAX_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
+
+    def __init__(
+        self,
+        *args,
+        allowed_extensions: list[str] | None = None,
+        max_size_bytes: int | None = None,
+        **kwargs,
+    ):
+        self.allowed_extensions = (
+            allowed_extensions if allowed_extensions is not None else self.ALLOWED_EXTENSIONS
+        )
+        self.max_size_bytes = (
+            max_size_bytes if max_size_bytes is not None else self.MAX_SIZE_BYTES
+        )
+        super().__init__(*args, **kwargs)
+
+    def validate(self, value):
+        super().validate(value)
+        if value:
+            filename = getattr(value, "name", "")
+            if "." in filename:
+                ext = filename.rsplit(".", 1)[-1].lower()
+                if ext not in self.allowed_extensions:
+                    allowed = ", ".join(self.allowed_extensions)
+                    raise forms.ValidationError(
+                        f"File type '.{ext}' is not allowed. Allowed types: {allowed}."
+                    )
+            size = getattr(value, "size", 0)
+            if size > self.max_size_bytes:
+                mb = self.max_size_bytes // (1024 * 1024)
+                raise forms.ValidationError(f"File size must not exceed {mb} MB.")
+
+
 class ACFBoundFieldFilterField(BoundField):
 
     def get_fields_to_exclude(self):
@@ -289,6 +333,16 @@ class ACFBoundFieldFilterField(BoundField):
 
         # If some fields were selected, exclude the others that weren't selected
         return list(set(all_filterable_fields) - set(selected_fields))
+
+
+class ACFBooleanField(ACFFieldMixin, forms.BooleanField):
+    """A boolean field rendered via the c-checkbox design system component."""
+
+    widget = ACFCheckboxInput
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.widget.label = self.title or ""
 
 
 class ACFFieldFilterField(ACFFieldMixin, forms.MultipleChoiceField):
@@ -366,9 +420,11 @@ class ACFFieldsMeta(type):
 
         dct.update(
             {
+                "BooleanField": ACFBooleanField,
                 "IntegerField": ACFIntegerField,
                 "CurrencyField": ACFCurrencyField,
                 "TextareaField": ACFTextareaField,
+                "FileField": ACFFileField,
                 "CalculatedCurrencyField": ACFCalculatedCurrencyField,
                 "CalculatedIntegerField": ACFCalculatedIntegerField,
                 "CalculatedDecimalField": ACFCalculatedDecimalField,

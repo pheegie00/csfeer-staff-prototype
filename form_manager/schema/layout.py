@@ -101,6 +101,8 @@ class AbstractPageBlock(RenderableBaseModel, abc.ABC):
             | "PageTitleBlock"
             | "PageSubtitleBlock"
             | "AlertBoxBlock"
+            | "TextBlock"
+            | "AccordionBlock"
         ]
         | None
     ) = None
@@ -266,3 +268,31 @@ class AlertBoxBlock(RenderableBaseModel):
     message: str
     slim: bool = False
     template_name: str = "form_manager/alert.html"
+
+
+class TextBlock(RenderableBaseModel):
+    """Represents plain long-form text content that is not an alert."""
+
+    type: str = "text"
+    heading: str | None = None
+    text: str
+    bordered: bool = False
+    template_name: str = "form_manager/text_block.html"
+
+
+class AccordionItem(RenderableBaseModel):
+    """Represents a single accordion item with a heading and text content."""
+
+    type: str = "accordion-item"
+    heading: str
+    text: str
+    is_expanded: bool = False
+
+
+class AccordionBlock(RenderableBaseModel):
+    """Represents a USWDS accordion content block."""
+
+    type: str = "accordion"
+    items: list[AccordionItem]
+    multiselectable: bool = True
+    template_name: str = "form_manager/accordion_block.html"

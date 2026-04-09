@@ -1,8 +1,9 @@
 <section class="margin-bottom-6">
-    <h2 class="font-alt-lg font-family-sans text-normal">{{ title }}</h2>
+    {% if title %}
+        <h2 class="font-alt-lg font-family-sans text-normal">{{ title }}</h2>
+    {% endif %}
 
     {% for child in children %}
         {{ child.render }}
     {% endfor %}
 </section>
-

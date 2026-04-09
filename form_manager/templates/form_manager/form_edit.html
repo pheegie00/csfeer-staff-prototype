@@ -12,7 +12,7 @@
       {% include "form_manager/_side_nav.html" %}
     </div>
     <div class="grid-col-12 desktop:grid-col-9">
-      <c-form id="csf-form" class="" method="post" action="{{ next_url }}" x-data="" novalidate @change="updateCalculatedFields">
+      <c-form id="csf-form" class="" method="post" action="{{ next_url }}" enctype="multipart/form-data" x-data="" novalidate @change="updateCalculatedFields">
         {% csrf_token %}
         {{ current_page }}
       </c-form>

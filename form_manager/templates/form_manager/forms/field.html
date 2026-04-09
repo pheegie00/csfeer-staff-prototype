@@ -1,9 +1,9 @@
 <c-form-group error="{% if field.errors %}{{ field.errors.0 }}{% endif %}">
-   {% if field.label and field.field.widget.input_type != "checkbox" %}
+    {% if field.field.widget.input_type != "checkbox" and field.field.widget.input_type != "checkbox_multiple" and field.field.widget.input_type != "hidden" and field.label %}
     <c-label
         id="{{ field.id_for_label }}"
         label="{{ field.field.title }}"
-        required="{% if field.field.required %}True{% endif %}"
+        required="{% if field.field.required %}required{% endif %}"
         error="{% if field.errors %}{{ field.errors.0 }}{% endif %}"
     />
     {% endif %}

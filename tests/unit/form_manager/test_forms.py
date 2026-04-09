@@ -1,13 +1,14 @@
 from unittest.mock import Mock
 
 import pytest
-from django.forms import MultipleChoiceField
+from django.core.files.storage import default_storage
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from form_manager.models import FormEntry
 from form_manager.schema.fields import acf_fields
 from form_manager.schema.forms.base import BaseFields
-from form_manager.utils import save_form_entry
 from form_manager.schema.forms.utils import import_form_schema
+from form_manager.utils import save_form_entry
 
 
 def test_has_filter_fields():
@@ -181,3 +182,35 @@ def test_save_form_entry_handles_yesno_display_field(form_entry: FormEntry, crea
     assert "extra_funding" in form_entry.data
     # The field compresses to "yes-100.00" format
     assert form_entry.data["extra_funding"] == ["yes", "100.00"]
+
+
+@pytest.mark.django_db
+def test_save_form_entry_persists_uploaded_file_to_storage(
+    form_entry: FormEntry, create_user, settings, tmp_path
+):
+    """Uploaded files are persisted and stored as storage paths in FormEntry.data."""
+    user, _ = create_user
+
+    settings.STORAGES = {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    }
+    settings.MEDIA_ROOT = str(tmp_path)
+
+    class UploadForm(BaseFields):
+        attachment = acf_fields.FileField(required=False)
+
+    request_mock = Mock()
+    request_mock.user = user
+    request_mock.POST = {}
+    request_mock.FILES = {
+        "attachment": SimpleUploadedFile("tribal_resolution.pdf", b"test-pdf-bytes")
+    }
+
+    save_form_entry(UploadForm, form_entry, request_mock)
+    form_entry.refresh_from_db()
+
+    saved_path = form_entry.data.get("attachment")
+    assert isinstance(saved_path, str)
+    assert saved_path.startswith(f"form_uploads/{form_entry.pk}/attachment/")
+    assert default_storage.exists(saved_path)

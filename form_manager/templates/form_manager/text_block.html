@@ -1,0 +1,8 @@
+<div class="{% if bordered %}usa-card__container margin-top-2 margin-bottom-3 padding-3 border border-base-lighter radius-md{% else %}margin-top-2 margin-bottom-3{% endif %}">
+    {% if heading %}
+    <h3 class="font-heading-lg margin-top-0 margin-bottom-2">{{ heading }}</h3>
+    {% endif %}
+    <div class="usa-prose">
+        {{ text|linebreaksbr }}
+    </div>
+</div>

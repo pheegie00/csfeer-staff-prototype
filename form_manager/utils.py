@@ -2,8 +2,12 @@ import datetime as _dt
 import decimal
 import json
 import logging
+import os
+import uuid
 from inspect import isclass
 
+from django import forms
+from django.core.files.storage import default_storage
 from django.forms import Form
 
 from form_manager.models import (
@@ -176,6 +180,14 @@ def get_fields_to_save(form, request):
     return fields_to_save
 
 
+def _persist_uploaded_file(uploaded_file, form_entry: FormEntry, field_name: str) -> str:
+    """Persist an uploaded file and return its storage path."""
+    file_name = os.path.basename(getattr(uploaded_file, "name", "upload.bin"))
+    unique_prefix = uuid.uuid4().hex
+    path = f"form_uploads/{form_entry.pk}/{field_name}/{unique_prefix}_{file_name}"
+    return default_storage.save(path, uploaded_file)
+
+
 def save_form_entry(form_class: type[Form], form_entry: FormEntry, request):
     old_data = form_entry.data.copy() if form_entry.data else {}
 
@@ -184,7 +196,7 @@ def save_form_entry(form_class: type[Form], form_entry: FormEntry, request):
     # if we passed in the db data values as initial data, the form would indicate that
     # all of the fields that aren't being passed in via POST vars have changed, and
     # that's not what we want for this purpose.
-    form = form_class(request.POST, initial={})
+    form = form_class(request.POST, request.FILES, initial={})
 
     new_data = {}
 
@@ -193,7 +205,15 @@ def save_form_entry(form_class: type[Form], form_entry: FormEntry, request):
 
     # construct a dict of changed data values
     for field_name in fields_to_save:
-        new_data[field_name] = form[field_name].value()
+        field = form.fields[field_name]
+
+        if isinstance(field, forms.FileField):
+            uploaded_file = request.FILES.get(form.add_prefix(field_name))
+            if uploaded_file:
+                new_data[field_name] = _persist_uploaded_file(uploaded_file, form_entry, field_name)
+            continue
+
+        new_data[field_name] = to_jsonable(form[field_name].value())
 
     logger.info("Old data: %s", old_data)
 
