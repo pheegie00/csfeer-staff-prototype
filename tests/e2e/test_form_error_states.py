@@ -364,7 +364,7 @@ def test_errors_persist_across_page_navigation(authenticated_page: Page, base_ur
         # Try to navigate forward multiple times to reach review
         for _ in range(5):
             buttons = page.get_by_role("button", name="Next →")
-            review_button = page.get_by_role("button", name="Review & Submit →")
+            review_button = page.get_by_role("button", name="Review and Submit →")
 
             if review_button.is_visible():
                 review_button.click()

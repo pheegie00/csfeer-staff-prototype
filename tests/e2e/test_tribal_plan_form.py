@@ -58,9 +58,9 @@ def test_tribal_plan_form_available_in_list(authenticated_page: Page, base_url: 
     page.goto(f"{base_url}/forms/")
     page.wait_for_load_state("networkidle")
 
-    assert page.get_by_text(FORM_NAME).first.is_visible(), (
-        f"Expected '{FORM_NAME}' to appear on the forms list page"
-    )
+    assert page.get_by_text(
+        FORM_NAME
+    ).first.is_visible(), f"Expected '{FORM_NAME}' to appear on the forms list page"
 
 
 # ---------------------------------------------------------------------------
@@ -71,7 +71,7 @@ def test_tribal_plan_form_available_in_list(authenticated_page: Page, base_url: 
 @pytest.mark.e2e
 @pytest.mark.auth
 def test_tribal_plan_form_nav_rail_has_nine_items(authenticated_page: Page, base_url: str) -> None:
-    """The form side navigation rail should have 9 items (8 sections + Review & Submit)."""
+    """The form side navigation rail should have 9 items (8 sections + Review and Submit)."""
     page = authenticated_page
     _start_tribal_plan_form(page, base_url)
 
@@ -83,8 +83,7 @@ def test_tribal_plan_form_nav_rail_has_nine_items(authenticated_page: Page, base
 
     top_level_items = side_nav.locator(":scope > ul > li")
     assert top_level_items.count() == 9, (
-        f"Expected 9 nav items (8 sections + Review & Submit), "
-        f"got {top_level_items.count()}"
+        f"Expected 9 nav items (8 sections + Review and Submit), " f"got {top_level_items.count()}"
     )
 
 
@@ -111,9 +110,9 @@ def test_tribal_plan_form_nav_rail_section_labels(authenticated_page: Page, base
     ]
 
     for section in expected_sections:
-        assert side_nav.get_by_text(section).count() > 0, (
-            f"Expected nav rail to contain '{section}'"
-        )
+        assert (
+            side_nav.get_by_text(section).count() > 0
+        ), f"Expected nav rail to contain '{section}'"
 
 
 # ---------------------------------------------------------------------------

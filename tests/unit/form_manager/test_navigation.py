@@ -43,7 +43,7 @@ def test_build_side_nav_items_marks_current_step_page_and_review_state():
     assert current_step["pages"][1]["label"] == "Administration costs"
     assert current_step["pages"][1]["is_current"] is False
 
-    assert review_item["label"] == "Review & Submit"
+    assert review_item["label"] == "Review and Submit"
     assert review_item["is_current"] is False
 
     review_nav_items = build_side_nav_items(steps, is_review=True)
