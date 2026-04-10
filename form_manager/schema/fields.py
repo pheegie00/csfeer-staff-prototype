@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import inspect
+import os
+import re
 from collections.abc import Iterable
 from datetime import date, datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any, cast
 
 from django import forms
+from django.core.files.storage import default_storage
 from django.forms.boundfield import BoundField
 from django.utils import formats
 from pydantic_core import core_schema
@@ -267,12 +270,75 @@ class ACFTextareaField(ACFFieldMixin, forms.CharField):
     widget = forms.Textarea(attrs={"rows": 10, "cols": 70})
 
 
+class _StorageFilePath:
+    """Wraps a storage path string to provide .url and a clean display name."""
+
+    def __init__(self, path: str):
+        self._path = path
+
+    @property
+    def path(self) -> str:
+        return self._path
+
+    @property
+    def url(self) -> str:
+        return default_storage.url(self._path)
+
+    def __str__(self) -> str:
+        # Strip the UUID prefix added by _persist_uploaded_file: "{32 hex}_{original}"
+        basename = os.path.basename(self._path)
+        return re.sub(r"^[0-9a-f]{32}_", "", basename)
+
+    def __bool__(self) -> bool:
+        return bool(self._path)
+
+
+class ACFMultiFileWidget(forms.FileInput):
+    """File input widget that lists existing uploaded files (each with a Remove checkbox)
+    and provides an upload input to add more files."""
+
+    template_name = "form_manager/widgets/multi_file_input.html"
+
+    def format_value(self, value) -> list[_StorageFilePath]:
+        """Convert stored value (string or list of strings) to list of _StorageFilePath."""
+        if not value:
+            return []
+        if isinstance(value, str):
+            return [_StorageFilePath(value)]
+        if isinstance(value, list):
+            return [_StorageFilePath(v) for v in value if v]
+        return []
+
+    def value_from_datadict(self, data, files, name):
+        """Return a truthy signal if new files were uploaded or delete boxes were checked;
+        return None (no interaction) otherwise so existing files are preserved unchanged.
+
+        data may be a plain dict (when validating stored entry data for show_errors),
+        so .getlist() is accessed via getattr to avoid AttributeError.
+        """
+        no_list: list = []
+        new_files = getattr(files, "getlist", lambda _: no_list)(name)
+        deletes = getattr(data, "getlist", lambda _: no_list)(f"{name}_delete")
+        if new_files or deletes:
+            return True
+        return None
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        # Don't require a new upload when files are already present
+        if context["widget"]["value"]:
+            context["widget"]["required"] = False
+        return context
+
+
 class ACFFileField(ACFFieldMixin, forms.FileField):
     """A file upload field with configurable allowed extensions and per-file size limit.
 
     TODO: Final allowed file types and maximum file size are pending confirmation from ACF.
     Provisional defaults: pdf, png, jpg, jpeg; 10 MB per file.
     """
+
+    widget = ACFMultiFileWidget()
 
     # Provisional defaults — pending final confirmation from ACF
     ALLOWED_EXTENSIONS = ["pdf", "png", "jpg", "jpeg"]

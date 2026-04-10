@@ -208,9 +208,22 @@ def save_form_entry(form_class: type[Form], form_entry: FormEntry, request):
         field = form.fields[field_name]
 
         if isinstance(field, forms.FileField):
-            uploaded_file = request.FILES.get(form.add_prefix(field_name))
-            if uploaded_file:
-                new_data[field_name] = _persist_uploaded_file(uploaded_file, form_entry, field_name)
+            prefixed_name = form.add_prefix(field_name)
+
+            # Normalise existing value to a list (handles legacy single-string format)
+            current = old_data.get(field_name) or []
+            if isinstance(current, str):
+                current = [current] if current else []
+
+            # Paths checked for removal via the per-file Remove checkboxes
+            to_delete = set(request.POST.getlist(f"{prefixed_name}_delete"))
+
+            # Keep files not marked for deletion, then append any new uploads
+            remaining = [f for f in current if f not in to_delete]
+            for uploaded_file in request.FILES.getlist(prefixed_name):
+                remaining.append(_persist_uploaded_file(uploaded_file, form_entry, field_name))
+
+            new_data[field_name] = remaining if remaining else None
             continue
 
         new_data[field_name] = to_jsonable(form[field_name].value())
