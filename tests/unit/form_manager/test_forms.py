@@ -210,7 +210,8 @@ def test_save_form_entry_persists_uploaded_file_to_storage(
     save_form_entry(UploadForm, form_entry, request_mock)
     form_entry.refresh_from_db()
 
-    saved_path = form_entry.data.get("attachment")
-    assert isinstance(saved_path, str)
+    saved_paths = form_entry.data.get("attachment")
+    assert isinstance(saved_paths, list) and len(saved_paths) == 1
+    saved_path = saved_paths[0]
     assert saved_path.startswith(f"form_uploads/{form_entry.pk}/attachment/")
     assert default_storage.exists(saved_path)

@@ -313,12 +313,17 @@ class ACFMultiFileWidget(forms.FileInput):
         """Return a truthy signal if new files were uploaded or delete boxes were checked;
         return None (no interaction) otherwise so existing files are preserved unchanged.
 
-        data may be a plain dict (when validating stored entry data for show_errors),
-        so .getlist() is accessed via getattr to avoid AttributeError.
+        data/files may be plain dicts (when validating stored entry data for show_errors,
+        or in tests), so .getlist() is accessed via getattr to avoid AttributeError.
+        Plain dicts fall back to .get() wrapped in a list.
         """
-        no_list: list = []
-        new_files = getattr(files, "getlist", lambda _: no_list)(name)
-        deletes = getattr(data, "getlist", lambda _: no_list)(f"{name}_delete")
+        if hasattr(files, "getlist"):
+            new_files = files.getlist(name)
+        else:
+            f = files.get(name)
+            new_files = [f] if f is not None else []
+
+        deletes = getattr(data, "getlist", lambda _: [])(f"{name}_delete")
         if new_files or deletes:
             return True
         return None

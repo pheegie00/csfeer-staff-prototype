@@ -216,11 +216,16 @@ def save_form_entry(form_class: type[Form], form_entry: FormEntry, request):
                 current = [current] if current else []
 
             # Paths checked for removal via the per-file Remove checkboxes
-            to_delete = set(request.POST.getlist(f"{prefixed_name}_delete"))
+            to_delete = set(getattr(request.POST, "getlist", lambda _: [])(f"{prefixed_name}_delete"))
 
             # Keep files not marked for deletion, then append any new uploads
             remaining = [f for f in current if f not in to_delete]
-            for uploaded_file in request.FILES.getlist(prefixed_name):
+            if hasattr(request.FILES, "getlist"):
+                uploaded_files = request.FILES.getlist(prefixed_name)
+            else:
+                f = request.FILES.get(prefixed_name)
+                uploaded_files = [f] if f is not None else []
+            for uploaded_file in uploaded_files:
                 remaining.append(_persist_uploaded_file(uploaded_file, form_entry, field_name))
 
             new_data[field_name] = remaining if remaining else None
