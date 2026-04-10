@@ -22,8 +22,8 @@ start: ## Start all services
 	docker compose up -d
 
 # Start only db and mock-oauth (run the app locally via uv or VSCode launch config)
-start-local: ## Start only db and mock-oauth (for local dev)
-	docker compose up -d db mock-oauth
+start-local: ## Start only storage, db and mock-oauth for local development
+	docker compose up -d db mock-oauth storage
 
 stop: ## Stop all services
 	docker compose down
