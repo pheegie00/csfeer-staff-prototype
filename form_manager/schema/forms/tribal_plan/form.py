@@ -20,6 +20,7 @@ from form_manager.schema.layout import (
     AccordionBlock,
     AccordionItem,
     AlertBoxBlock,
+    ConditionalBlock,
     FieldBlock,
     FieldGroupBlock,
     PermanentPageBlock,
@@ -69,11 +70,17 @@ class TribalPlanForm(BaseFormSchema):
                             ),
                             SectionBlock(
                                 title="Tribal Representation",
+                                alpine_controller_field="is_multi_tribe",
                                 children=[
                                     ReviewSubheadingBlock(title="Tribal Representation"),
                                     FieldBlock(field_name="is_multi_tribe"),
-                                    FieldBlock(field_name="multi_tribe_names"),
-                                    FieldBlock(field_name="tribal_resolution_upload"),
+                                    ConditionalBlock(
+                                        show_when="yes",
+                                        children=[
+                                            FieldBlock(field_name="multi_tribe_names"),
+                                            FieldBlock(field_name="tribal_resolution_upload"),
+                                        ],
+                                    ),
                                 ],
                             ),
                         ],
@@ -123,28 +130,26 @@ class TribalPlanForm(BaseFormSchema):
                     ),
                     PermanentPageBlock(
                         title="Delegation of Authority",
-                        subtitle=(
-                            "If signature authority is being delegated, complete the "
-                            "Additional Authorized Official fields below."
-                        ),
                         children=[
                             SectionBlock(
                                 title="Delegation of Authority",
+                                alpine_controller_field="has_delegation",
                                 children=[
                                     ReviewSubheadingBlock(title="Delegation of Authority"),
                                     FieldBlock(field_name="has_delegation"),
-                                ],
-                            ),
-                            SectionBlock(
-                                title="Additional Authorized Official",
-                                description="Complete only if signature authority is being delegated.",
-                                children=[
-                                    ReviewSubheadingBlock(title="Additional Authorized Official"),
-                                    FieldBlock(field_name="delegation_name"),
-                                    FieldBlock(field_name="delegation_title"),
-                                    FieldBlock(field_name="delegation_phone"),
-                                    FieldBlock(field_name="delegation_extension"),
-                                    FieldBlock(field_name="delegation_email"),
+                                    ConditionalBlock(
+                                        show_when="yes",
+                                        children=[
+                                            ReviewSubheadingBlock(
+                                                title="Additional Authorized Official"
+                                            ),
+                                            FieldBlock(field_name="delegation_name"),
+                                            FieldBlock(field_name="delegation_title"),
+                                            FieldBlock(field_name="delegation_phone"),
+                                            FieldBlock(field_name="delegation_extension"),
+                                            FieldBlock(field_name="delegation_email"),
+                                        ],
+                                    ),
                                 ],
                             ),
                         ],
@@ -160,11 +165,17 @@ class TribalPlanForm(BaseFormSchema):
                         children=[
                             SectionBlock(
                                 title="Tribal Recognition",
+                                alpine_controller_field="has_recognition",
                                 children=[
                                     ReviewSubheadingBlock(title="Tribal Recognition"),
                                     FieldBlock(field_name="has_recognition"),
-                                    FieldBlock(field_name="recognition_citation"),
-                                    FieldBlock(field_name="recognition_upload"),
+                                    ConditionalBlock(
+                                        show_when="yes",
+                                        children=[
+                                            FieldBlock(field_name="recognition_citation"),
+                                            FieldBlock(field_name="recognition_upload"),
+                                        ],
+                                    ),
                                 ],
                             ),
                         ],

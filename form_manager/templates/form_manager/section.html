@@ -1,4 +1,10 @@
-<section class="margin-bottom-6">
+<section class="margin-bottom-6"
+    {% if alpine_controller_field %}
+    x-data="{ checked: '' }"
+    x-init="checked = $el.querySelector('[name={{ alpine_controller_field }}]:checked')?.value || ''"
+    x-on:change="if ($event.target.name === '{{ alpine_controller_field }}') checked = $event.target.value"
+    {% endif %}
+>
     {% if title %}
         <h2 class="font-alt-lg font-family-sans text-normal">{{ title }}</h2>
     {% endif %}

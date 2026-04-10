@@ -129,7 +129,8 @@ class SectionBlock(RenderableBaseModel):
     type: str = "section"
     title: str | None = None
     description: str | None = None
-    children: list[Self | "FieldBlock" | "FieldGroupBlock" | "ReviewSubheadingBlock"] | None = None
+    children: list[Self | "FieldBlock" | "FieldGroupBlock" | "ReviewSubheadingBlock" | "ConditionalBlock"] | None = None
+    alpine_controller_field: str | None = None
     template_name: str = "form_manager/section.html"
 
 
@@ -141,6 +142,17 @@ class FieldGroupBlock(RenderableBaseModel):
     description: str | None = None
     children: list[Self | "FieldBlock" | "ReviewSubheadingBlock"] | None = None
     template_name: str = "form_manager/field_group.html"
+
+
+class ConditionalBlock(RenderableBaseModel):
+    """A block whose children are conditionally shown based on a sibling field's value.
+    Requires the parent SectionBlock to have alpine_controller_field set to the
+    controlling radio field name."""
+
+    type: str = "conditional"
+    show_when: str = "yes"
+    children: list["FieldBlock | ReviewSubheadingBlock"] | None = None
+    template_name: str = "form_manager/conditional_block.html"
 
 
 class FieldBlock(RenderableBaseModel):
