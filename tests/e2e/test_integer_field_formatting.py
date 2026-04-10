@@ -32,8 +32,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
             card.get_by_role("link", name="Start New Form").click()
             break
 
-    # Wait for form to load - Step 1 of 5: Basic Information
-    page.wait_for_selector('h4:has-text("Step 1 of 5 Basic Information")')
+    page.get_by_role("heading", name="Your basic information").wait_for()
 
     # Fill minimal required data for Step 1
     page.get_by_label("Name of Tribe or Tribal Organization *").fill("E2E Integer Format Test")
@@ -46,7 +45,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     page.get_by_role("button", name="Next →").click()
-    page.wait_for_selector('h4:has-text("Step 2 of 5 Expenditure categories")')
+    page.get_by_text("Select all that apply:").wait_for()
 
     # Select at least one expenditure category to proceed
     page.evaluate(
@@ -114,9 +113,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
         page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
-    body_text = page.evaluate("() => document.body.innerText")
-    assert "4 of 5" in body_text
-    assert "Demographic information" in body_text
+    assert page.get_by_role("heading", name="Let's collect demographic details").is_visible()
 
     # ==========================================
     # Test 1: Comma formatting on input

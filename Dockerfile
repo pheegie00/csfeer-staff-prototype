@@ -11,6 +11,8 @@ ENV PYTHONUNBUFFERED=1
 
 ENV UVLOOP_DISABLE=1
 
+ARG VERSION=local
+
 # Install os dependencies
 RUN pip install 'uv==0.7.20'
 RUN apt-get update && apt-get upgrade --yes \
@@ -38,6 +40,8 @@ COPY --chown=python:python ./users /app/users
 COPY --chown=python:python ./pyproject.toml .
 COPY --chown=python:python ./uv.lock .
 COPY --chown=python:python ./manage.py .
+
+RUN echo $VERSION >> /app/.version
 
 # Create logs directory for Django logging
 RUN mkdir -p /app/logs && chown python:python /app/logs

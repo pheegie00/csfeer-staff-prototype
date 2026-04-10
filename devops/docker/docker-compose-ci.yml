@@ -5,11 +5,27 @@ services:
       file: ./docker-compose-base.yml
       service: mock-oauth
     environment:
-      SETUP_DELAY: 20
+      SETUP_DELAY: ${KC_SETUP_DELAY:-20}
+    post_start:
+      - command: bash -c "bash /opt/keycloak/setup-keycloak.sh | tee /proc/1/fd/1"
+
+  storage:
+    extends:
+      file: ./docker-compose-base.yml
+      service: storage
+    post_start:
+      - command: sh -c "sh /create-buckets.sh | tee /proc/1/fd/1"
+
   db:
     extends:
       file: ./docker-compose-base.yml
       service: db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d mydatabase"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
 
   app:
     environment:
@@ -23,7 +39,8 @@ services:
       file: ./docker-compose-base.yml
       service: app
     volumes:
-      - ../../tests:/app/tests/
+      - ../../tests/:/app/tests/
 
 volumes:
   pgdata:
+  storage:

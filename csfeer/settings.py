@@ -75,6 +75,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "csfeer.context_processors.app_version",
             ],
             "builtins": [
                 "pattern_library.loader_tags",
@@ -260,3 +261,6 @@ LOGGING = {
 }
 
 USE_THOUSAND_SEPARATOR = True
+
+_version_file = BASE_DIR / ".version"
+APP_VERSION = _version_file.read_text().strip() if _version_file.exists() else "unknown"

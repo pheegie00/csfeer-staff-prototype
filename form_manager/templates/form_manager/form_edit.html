@@ -5,9 +5,13 @@
   <div class="grid-row">
     <div class="grid-col-12">
       {% include "form_manager/_form_header.html" %}
-
-      {% include "form_manager/_step_indicator.html" with current_step_title=current_step.title %}
-
+    </div>
+  </div>
+  <div class="grid-row grid-gap-4">
+    <div class="grid-col-12 desktop:grid-col-3">
+      {% include "form_manager/_side_nav.html" %}
+    </div>
+    <div class="grid-col-12 desktop:grid-col-9">
       <c-form id="csf-form" class="" method="post" action="{{ next_url }}" x-data="" novalidate @change="updateCalculatedFields">
         {% csrf_token %}
         {{ current_page }}

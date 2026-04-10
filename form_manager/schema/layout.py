@@ -78,9 +78,7 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
 
 
 class StepBlock(RenderableBaseModel):
-    """Represents a step in a multi-step form UI. It is tied to an item
-    in a USWDS step indicator component.
-    """
+    """Represents a step in a multi-step form UI."""
 
     type: str = "step"
     title: str | None = None
