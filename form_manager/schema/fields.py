@@ -267,7 +267,7 @@ class ACFCalculatedCurrencyField(ACFCalculatedDecimalField, ACFCurrencyField):
 class ACFTextareaField(ACFFieldMixin, forms.CharField):
     """A text area field"""
 
-    widget = forms.Textarea(attrs={"rows": 10, "cols": 70})
+    widget = forms.Textarea(attrs={"rows": 10, "cols": 49})
 
 
 class _StorageFilePath:
@@ -354,9 +354,7 @@ class ACFFileField(ACFFieldMixin, forms.FileField):
         self.allowed_extensions = (
             allowed_extensions if allowed_extensions is not None else self.ALLOWED_EXTENSIONS
         )
-        self.max_size_bytes = (
-            max_size_bytes if max_size_bytes is not None else self.MAX_SIZE_BYTES
-        )
+        self.max_size_bytes = max_size_bytes if max_size_bytes is not None else self.MAX_SIZE_BYTES
         super().__init__(*args, **kwargs)
 
     def validate(self, value):
