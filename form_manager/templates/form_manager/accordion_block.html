@@ -1,0 +1,13 @@
+<c-accordion type="{% if multiselectable %}multiselectable{% endif %}" class="margin-top-2 margin-bottom-3">
+  {% for item in items %}
+    <c-accordion-item
+      heading="{{ item.heading }}"
+      control-id="accordion-{{ forloop.counter }}-{{ item.heading|slugify }}"
+      :is-expanded="{{ item.is_expanded|yesno:'True,False' }}"
+    >
+      <div class="usa-prose">
+        {{ item.text|linebreaksbr }}
+      </div>
+    </c-accordion-item>
+  {% endfor %}
+</c-accordion>

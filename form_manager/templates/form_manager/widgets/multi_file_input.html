@@ -1,0 +1,21 @@
+{% if widget.value %}
+<ul class="usa-list usa-list--unstyled margin-bottom-2">
+  {% for file in widget.value %}
+  <li class="display-flex flex-align-center padding-y-05 border-bottom-1px border-base-lighter">
+    <a href="{{ file.url }}" target="_blank" rel="noopener noreferrer" class="usa-link flex-fill">{{ file }}</a>
+    <label class="display-flex flex-align-center gap-1 margin-left-2 cursor-pointer">
+      <input type="checkbox" name="{{ widget.name }}_delete" value="{{ file.path }}" class="margin-right-05">
+      <span class="text-error font-body-2xs">Remove</span>
+    </label>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+<c-file_input
+    id="{{ widget.attrs.id }}"
+    name="{{ widget.name }}"
+    accept="{{ widget.attrs.accept }}"
+    :disabled="{{ widget.attrs.disabled }}"
+    :required="{{ widget.required }}"
+    :attrs="widget.attrs"
+/>

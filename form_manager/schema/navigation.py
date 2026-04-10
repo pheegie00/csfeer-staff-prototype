@@ -85,7 +85,7 @@ def build_side_nav_items(
     side_nav_items.append(
         {
             "kind": "review",
-            "label": "Review & Submit",
+            "label": "Review and Submit",
             "href": PLACEHOLDER_HREF,
             "is_current": is_review,
             "is_expanded": False,

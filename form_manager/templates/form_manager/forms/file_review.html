@@ -1,0 +1,18 @@
+{% extends "form_manager/forms/field_review.html" %}
+{% load form_manager_tags %}
+
+{% block component_value %}
+{% with files=component.value|as_file_list %}
+{% if files %}
+<ul class="usa-list usa-list--unstyled">
+  {% for file in files %}
+  <li>
+    <a href="{{ file.url }}" target="_blank" rel="noopener noreferrer" class="usa-link">{{ file }}</a>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+—
+{% endif %}
+{% endwith %}
+{% endblock %}

@@ -7,9 +7,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from form_manager.models import FormEntry
-from form_manager.schema.navigation import build_side_nav_items
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.schema.layout import FieldBlock, PageBlock, StepBlock
+from form_manager.schema.navigation import build_side_nav_items
 from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
 
 logger = logging.getLogger(__name__)
@@ -140,7 +140,7 @@ def form_edit(request, pk):
             messages.error(request, "Permission denied.")
             return redirect("form_list")  # Assuming a form list URL
 
-        form = django_form_class(request.POST)
+        form = django_form_class(request.POST, request.FILES, initial=entry.data or {})
 
         save_form_entry(django_form_class, entry, request)
 
@@ -154,7 +154,7 @@ def form_edit(request, pk):
     # If user has visited the review page, create a bound form with validation
     # to show error states. Otherwise, create an unbound form.
     if show_errors and entry.data:
-        form = django_form_class(entry.data)
+        form = django_form_class(entry.data, initial=entry.data)
         form.is_valid(use_default_if_excluded=True)
     else:
         form = django_form_class(initial=entry.data or {})

@@ -7,8 +7,8 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
 from form_manager.models import FormEntry
-from form_manager.schema.navigation import build_side_nav_items
 from form_manager.schema.forms.utils import import_form_schema
+from form_manager.schema.navigation import build_side_nav_items
 from form_manager.utils import save_form_entry
 from form_manager.views.form_edit import remove_nodes_with_excluded_fields
 
@@ -48,7 +48,7 @@ def form_review(request, pk):
 
     entry.refresh_from_db()
 
-    form = django_form_class(entry.data)
+    form = django_form_class(entry.data, initial=entry.data)
 
     is_valid = form.is_valid(use_default_if_excluded=True)
 

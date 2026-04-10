@@ -3,17 +3,21 @@
 from __future__ import annotations
 
 import inspect
+import os
+import re
 from collections.abc import Iterable
 from datetime import date, datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any, cast
 
 from django import forms
+from django.core.files.storage import default_storage
 from django.forms.boundfield import BoundField
 from django.utils import formats
 from pydantic_core import core_schema
 
 from form_manager.schema.widgets import (
+    ACFCheckboxInput,
     CheckboxSelectMultiple,
     CurrencyInput,
     YesNoDisplayWidget,
@@ -263,7 +267,116 @@ class ACFCalculatedCurrencyField(ACFCalculatedDecimalField, ACFCurrencyField):
 class ACFTextareaField(ACFFieldMixin, forms.CharField):
     """A text area field"""
 
-    widget = forms.Textarea(attrs={"rows": 10, "cols": 70})
+    widget = forms.Textarea(attrs={"rows": 10, "cols": 49})
+
+
+class _StorageFilePath:
+    """Wraps a storage path string to provide .url and a clean display name."""
+
+    def __init__(self, path: str):
+        self._path = path
+
+    @property
+    def path(self) -> str:
+        return self._path
+
+    @property
+    def url(self) -> str:
+        return default_storage.url(self._path)
+
+    def __str__(self) -> str:
+        # Strip the UUID prefix added by _persist_uploaded_file: "{32 hex}_{original}"
+        basename = os.path.basename(self._path)
+        return re.sub(r"^[0-9a-f]{32}_", "", basename)
+
+    def __bool__(self) -> bool:
+        return bool(self._path)
+
+
+class ACFMultiFileWidget(forms.FileInput):
+    """File input widget that lists existing uploaded files (each with a Remove checkbox)
+    and provides an upload input to add more files."""
+
+    template_name = "form_manager/widgets/multi_file_input.html"
+
+    def format_value(self, value) -> list[_StorageFilePath]:
+        """Convert stored value (string or list of strings) to list of _StorageFilePath."""
+        if not value:
+            return []
+        if isinstance(value, str):
+            return [_StorageFilePath(value)]
+        if isinstance(value, list):
+            return [_StorageFilePath(v) for v in value if v]
+        return []
+
+    def value_from_datadict(self, data, files, name):
+        """Return a truthy signal if new files were uploaded or delete boxes were checked;
+        return None (no interaction) otherwise so existing files are preserved unchanged.
+
+        data/files may be plain dicts (when validating stored entry data for show_errors,
+        or in tests), so .getlist() is accessed via getattr to avoid AttributeError.
+        Plain dicts fall back to .get() wrapped in a list.
+        """
+        if hasattr(files, "getlist"):
+            new_files = files.getlist(name)
+        else:
+            f = files.get(name)
+            new_files = [f] if f is not None else []
+
+        deletes = getattr(data, "getlist", lambda _: [])(f"{name}_delete")
+        if new_files or deletes:
+            return True
+        return None
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        # Don't require a new upload when files are already present
+        if context["widget"]["value"]:
+            context["widget"]["required"] = False
+        return context
+
+
+class ACFFileField(ACFFieldMixin, forms.FileField):
+    """A file upload field with configurable allowed extensions and per-file size limit.
+
+    TODO: Final allowed file types and maximum file size are pending confirmation from ACF.
+    Provisional defaults: pdf, png, jpg, jpeg; 10 MB per file.
+    """
+
+    widget = ACFMultiFileWidget()
+
+    # Provisional defaults — pending final confirmation from ACF
+    ALLOWED_EXTENSIONS = ["pdf", "png", "jpg", "jpeg"]
+    MAX_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
+
+    def __init__(
+        self,
+        *args,
+        allowed_extensions: list[str] | None = None,
+        max_size_bytes: int | None = None,
+        **kwargs,
+    ):
+        self.allowed_extensions = (
+            allowed_extensions if allowed_extensions is not None else self.ALLOWED_EXTENSIONS
+        )
+        self.max_size_bytes = max_size_bytes if max_size_bytes is not None else self.MAX_SIZE_BYTES
+        super().__init__(*args, **kwargs)
+
+    def validate(self, value):
+        super().validate(value)
+        if value:
+            filename = getattr(value, "name", "")
+            if "." in filename:
+                ext = filename.rsplit(".", 1)[-1].lower()
+                if ext not in self.allowed_extensions:
+                    allowed = ", ".join(self.allowed_extensions)
+                    raise forms.ValidationError(
+                        f"File type '.{ext}' is not allowed. Allowed types: {allowed}."
+                    )
+            size = getattr(value, "size", 0)
+            if size > self.max_size_bytes:
+                mb = self.max_size_bytes // (1024 * 1024)
+                raise forms.ValidationError(f"File size must not exceed {mb} MB.")
 
 
 class ACFBoundFieldFilterField(BoundField):
@@ -289,6 +402,16 @@ class ACFBoundFieldFilterField(BoundField):
 
         # If some fields were selected, exclude the others that weren't selected
         return list(set(all_filterable_fields) - set(selected_fields))
+
+
+class ACFBooleanField(ACFFieldMixin, forms.BooleanField):
+    """A boolean field rendered via the c-checkbox design system component."""
+
+    widget = ACFCheckboxInput
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.widget.label = self.title or ""
 
 
 class ACFFieldFilterField(ACFFieldMixin, forms.MultipleChoiceField):
@@ -366,9 +489,11 @@ class ACFFieldsMeta(type):
 
         dct.update(
             {
+                "BooleanField": ACFBooleanField,
                 "IntegerField": ACFIntegerField,
                 "CurrencyField": ACFCurrencyField,
                 "TextareaField": ACFTextareaField,
+                "FileField": ACFFileField,
                 "CalculatedCurrencyField": ACFCalculatedCurrencyField,
                 "CalculatedIntegerField": ACFCalculatedIntegerField,
                 "CalculatedDecimalField": ACFCalculatedDecimalField,
