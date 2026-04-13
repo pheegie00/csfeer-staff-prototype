@@ -242,7 +242,7 @@ def test_tribal_short_form_has_four_top_level_nav_items(
         "Section 1: Basic Information",
         "Section 2: Expenditure categories",
         "Section 3: Expenditure details",
-        "Review & Submit",
+        "Review and Submit",
     ]
 
     for step_name in steps:

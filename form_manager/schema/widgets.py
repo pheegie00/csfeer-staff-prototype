@@ -7,9 +7,25 @@ class CurrencyInput(forms.NumberInput):
     template_name = "form_manager/widgets/currency.html"
 
 
+class ACFCheckboxInput(forms.CheckboxInput):
+    """A single checkbox rendered via the c-checkbox design system component."""
+
+    template_name = "form_manager/widgets/checkbox.html"
+
+    def __init__(self, *args, **kwargs):
+        self.label = kwargs.pop("label", "")
+        super().__init__(*args, **kwargs)
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context["widget"]["label"] = self.label
+        return context
+
+
 class CheckboxSelectMultiple(forms.CheckboxSelectMultiple):
     """A multi-checkbox component."""
 
+    input_type = "checkbox_multiple"
     template_name = "form_manager/widgets/checkbox_select_multiple.html"
 
 

@@ -2,8 +2,12 @@ import datetime as _dt
 import decimal
 import json
 import logging
+import os
+import uuid
 from inspect import isclass
 
+from django import forms
+from django.core.files.storage import default_storage
 from django.forms import Form
 
 from form_manager.models import (
@@ -176,6 +180,14 @@ def get_fields_to_save(form, request):
     return fields_to_save
 
 
+def _persist_uploaded_file(uploaded_file, form_entry: FormEntry, field_name: str) -> str:
+    """Persist an uploaded file and return its storage path."""
+    file_name = os.path.basename(getattr(uploaded_file, "name", "upload.bin"))
+    unique_prefix = uuid.uuid4().hex
+    path = f"form_uploads/{form_entry.pk}/{field_name}/{unique_prefix}_{file_name}"
+    return default_storage.save(path, uploaded_file)
+
+
 def save_form_entry(form_class: type[Form], form_entry: FormEntry, request):
     old_data = form_entry.data.copy() if form_entry.data else {}
 
@@ -184,7 +196,7 @@ def save_form_entry(form_class: type[Form], form_entry: FormEntry, request):
     # if we passed in the db data values as initial data, the form would indicate that
     # all of the fields that aren't being passed in via POST vars have changed, and
     # that's not what we want for this purpose.
-    form = form_class(request.POST, initial={})
+    form = form_class(request.POST, request.FILES, initial={})
 
     new_data = {}
 
@@ -193,7 +205,33 @@ def save_form_entry(form_class: type[Form], form_entry: FormEntry, request):
 
     # construct a dict of changed data values
     for field_name in fields_to_save:
-        new_data[field_name] = form[field_name].value()
+        field = form.fields[field_name]
+
+        if isinstance(field, forms.FileField):
+            prefixed_name = form.add_prefix(field_name)
+
+            # Normalise existing value to a list (handles legacy single-string format)
+            current = old_data.get(field_name) or []
+            if isinstance(current, str):
+                current = [current] if current else []
+
+            # Paths checked for removal via the per-file Remove checkboxes
+            to_delete = set(getattr(request.POST, "getlist", lambda _: [])(f"{prefixed_name}_delete"))
+
+            # Keep files not marked for deletion, then append any new uploads
+            remaining = [f for f in current if f not in to_delete]
+            if hasattr(request.FILES, "getlist"):
+                uploaded_files = request.FILES.getlist(prefixed_name)
+            else:
+                f = request.FILES.get(prefixed_name)
+                uploaded_files = [f] if f is not None else []
+            for uploaded_file in uploaded_files:
+                remaining.append(_persist_uploaded_file(uploaded_file, form_entry, field_name))
+
+            new_data[field_name] = remaining if remaining else None
+            continue
+
+        new_data[field_name] = to_jsonable(form[field_name].value())
 
     logger.info("Old data: %s", old_data)
 

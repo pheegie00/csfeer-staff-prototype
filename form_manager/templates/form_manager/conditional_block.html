@@ -1,0 +1,5 @@
+<div x-show="checked === '{{ show_when }}'" x-transition>
+    {% for child in children %}
+        {{ child.render }}
+    {% endfor %}
+</div>

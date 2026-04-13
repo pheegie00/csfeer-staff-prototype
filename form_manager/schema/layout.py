@@ -101,6 +101,8 @@ class AbstractPageBlock(RenderableBaseModel, abc.ABC):
             | "PageTitleBlock"
             | "PageSubtitleBlock"
             | "AlertBoxBlock"
+            | "TextBlock"
+            | "AccordionBlock"
         ]
         | None
     ) = None
@@ -127,7 +129,8 @@ class SectionBlock(RenderableBaseModel):
     type: str = "section"
     title: str | None = None
     description: str | None = None
-    children: list[Self | "FieldBlock" | "FieldGroupBlock" | "ReviewSubheadingBlock"] | None = None
+    children: list[Self | "FieldBlock" | "FieldGroupBlock" | "ReviewSubheadingBlock" | "ConditionalBlock"] | None = None
+    alpine_controller_field: str | None = None
     template_name: str = "form_manager/section.html"
 
 
@@ -139,6 +142,17 @@ class FieldGroupBlock(RenderableBaseModel):
     description: str | None = None
     children: list[Self | "FieldBlock" | "ReviewSubheadingBlock"] | None = None
     template_name: str = "form_manager/field_group.html"
+
+
+class ConditionalBlock(RenderableBaseModel):
+    """A block whose children are conditionally shown based on a sibling field's value.
+    Requires the parent SectionBlock to have alpine_controller_field set to the
+    controlling radio field name."""
+
+    type: str = "conditional"
+    show_when: str = "yes"
+    children: list["FieldBlock | ReviewSubheadingBlock"] | None = None
+    template_name: str = "form_manager/conditional_block.html"
 
 
 class FieldBlock(RenderableBaseModel):
@@ -266,3 +280,31 @@ class AlertBoxBlock(RenderableBaseModel):
     message: str
     slim: bool = False
     template_name: str = "form_manager/alert.html"
+
+
+class TextBlock(RenderableBaseModel):
+    """Represents plain long-form text content that is not an alert."""
+
+    type: str = "text"
+    heading: str | None = None
+    text: str
+    bordered: bool = False
+    template_name: str = "form_manager/text_block.html"
+
+
+class AccordionItem(RenderableBaseModel):
+    """Represents a single accordion item with a heading and text content."""
+
+    type: str = "accordion-item"
+    heading: str
+    text: str
+    is_expanded: bool = False
+
+
+class AccordionBlock(RenderableBaseModel):
+    """Represents a USWDS accordion content block."""
+
+    type: str = "accordion"
+    items: list[AccordionItem]
+    multiselectable: bool = True
+    template_name: str = "form_manager/accordion_block.html"
