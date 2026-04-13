@@ -80,10 +80,7 @@ def get_next_step_and_page(
     current_step_pages = get_step_pages(components[current_step])
 
     # If we're on the last step and page, move on to the review page
-    if (
-        current_step == len(components) - 1
-        and current_page == len(current_step_pages) - 1
-    ):
+    if current_step == len(components) - 1 and current_page == len(current_step_pages) - 1:
         return None, None
 
     # If there's no children in the current step, move to the next step and first page
@@ -170,6 +167,15 @@ def form_edit(request, pk):
     current_step_number = _parse_step_or_page_param(request.GET.get("step"))
     current_page_number = _parse_step_or_page_param(request.GET.get("page"))
 
+    if request.method == "GET" and ("step" not in request.GET or "page" not in request.GET):
+        return redirect(
+            build_form_edit_url(
+                entry.pk,
+                step_number=current_step_number,
+                page_number=current_page_number,
+            )
+        )
+
     # Check if user has visited the review page for this entry
     show_errors = request.session.get(f"show_errors_{entry.pk}", False)
 
@@ -245,6 +251,7 @@ def form_edit(request, pk):
     if next_step_number is None:
         next_page_url = reverse("form_review", kwargs={"pk": entry.pk})
     else:
+        assert next_page_number is not None
         next_page_url = build_form_edit_url(
             entry.pk,
             step_number=next_step_number,

@@ -40,11 +40,25 @@ def test_can_start_new_form(django_db_setup, seed_data, client: "Client"):
 def test_can_render_and_edit_form(django_db_setup, form_entry: "FormEntry", authenticated_client):
     """Ensure the load_initial_forms command loads successfully."""
 
-    url = reverse("form_edit", args=[form_entry.pk])
+    url = build_form_edit_url(form_entry.pk, step_number=0, page_number=0)
 
     response = authenticated_client.get(url)
 
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_form_edit_redirects_to_canonical_first_page_when_query_params_missing(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    response = authenticated_client.get(url)
+
+    assert response.status_code == 302
+    assert response.headers.get("Location") == build_form_edit_url(
+        form_entry.pk, step_number=0, page_number=0
+    )
 
 
 @pytest.mark.django_db
@@ -53,7 +67,7 @@ def test_can_correctly_filter_fields(
 ):
     """Ensure the load_initial_forms command loads successfully and test Next button behavior."""
 
-    url = reverse("form_edit", args=[form_entry.pk])
+    url = build_form_edit_url(form_entry.pk, step_number=0, page_number=0)
 
     # Make a GET request to the form's first page
     response = authenticated_client.get(url)

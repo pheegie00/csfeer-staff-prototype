@@ -4,7 +4,7 @@ import pytest
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from form_manager.models import FormEntry
+from form_manager.models import FormAuditDetail, FormAuditTrail, FormEntry
 from form_manager.schema.fields import acf_fields
 from form_manager.schema.forms.base import BaseFields
 from form_manager.schema.forms.utils import import_form_schema
@@ -130,6 +130,58 @@ def test_save_form_entry_excludes_calculated_fields(form_entry: FormEntry, creat
     assert "total_cost" not in form_entry.data
     assert form_entry.data["item1_cost"] == "50,000.00"
     assert form_entry.data["item2_cost"] == "25,000.00"
+
+
+@pytest.mark.django_db
+def test_save_form_entry_does_not_create_audit_trail_when_nothing_changes(
+    form_entry: FormEntry, create_user
+):
+    """No-op saves should not create additional audit rows or field diff details."""
+    user, _ = create_user
+
+    form_schema = import_form_schema(form_entry.form_definition.schema_class)
+    form_class = form_schema.get_form_fields_class()
+
+    request_mock = Mock()
+    request_mock.user = user
+    request_mock.POST = {
+        "first_name": "John",
+        "last_name": "Doe",
+    }
+    request_mock.FILES = {}
+
+    save_form_entry(form_class, form_entry, request_mock)
+
+    assert FormAuditTrail.objects.filter(form_entry=form_entry).count() == 1
+    assert FormAuditDetail.objects.filter(form_entry=form_entry).count() == 2
+    assert FormAuditTrail.objects.get(form_entry=form_entry).action == "save"
+
+    save_form_entry(form_class, form_entry, request_mock)
+
+    assert FormAuditTrail.objects.filter(form_entry=form_entry).count() == 1
+    assert FormAuditDetail.objects.filter(form_entry=form_entry).count() == 2
+
+
+@pytest.mark.django_db
+def test_save_form_entry_creates_save_audit_trail(form_entry: FormEntry, create_user):
+    """Draft saves should be recorded as save actions, not submit actions."""
+    user, _ = create_user
+
+    form_schema = import_form_schema(form_entry.form_definition.schema_class)
+    form_class = form_schema.get_form_fields_class()
+
+    request_mock = Mock()
+    request_mock.user = user
+    request_mock.POST = {
+        "first_name": "John",
+        "last_name": "Doe",
+    }
+    request_mock.FILES = {}
+
+    save_form_entry(form_class, form_entry, request_mock)
+
+    audit = FormAuditTrail.objects.get(form_entry=form_entry)
+    assert audit.action == "save"
 
 
 @pytest.mark.django_db
