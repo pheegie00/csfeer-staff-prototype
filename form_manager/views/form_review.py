@@ -7,7 +7,11 @@ from django.views.decorators.http import require_http_methods
 
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
-from form_manager.schema.navigation import build_form_edit_url, build_side_nav_items
+from form_manager.schema.navigation import (
+    build_form_edit_url,
+    build_review_sections,
+    build_side_nav_items,
+)
 from form_manager.utils import save_form_entry
 from form_manager.views.form_edit import remove_nodes_with_excluded_fields
 
@@ -64,6 +68,7 @@ def form_review(request, pk):
         "form": form,
         "entry": entry,
         "steps": ui_components,
+        "review_sections": build_review_sections(ui_components, entry_pk=entry.pk),
         "prev_url": build_form_edit_url(
             entry.pk,
             step_number=len(ui_components) - 1,

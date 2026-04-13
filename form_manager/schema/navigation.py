@@ -3,7 +3,13 @@ from uuid import UUID
 
 from django.urls import reverse
 
-from form_manager.schema.layout import AbstractPageBlock, PageTitleBlock, StepBlock
+from form_manager.schema.layout import (
+    AbstractPageBlock,
+    FieldBlock,
+    PageTitleBlock,
+    ReviewSubheadingBlock,
+    StepBlock,
+)
 
 EntryPk = UUID | str
 
@@ -22,6 +28,12 @@ class SideNavSection(TypedDict):
     is_current: bool
     is_expanded: bool
     pages: list[SideNavPage]
+
+
+class ReviewSection(TypedDict):
+    title: str | None
+    edit_url: str
+    blocks: list[FieldBlock | ReviewSubheadingBlock]
 
 
 def build_form_edit_url(entry_pk: EntryPk, *, step_number: int, page_number: int) -> str:
@@ -106,3 +118,33 @@ def build_side_nav_items(
     )
 
     return side_nav_items
+
+
+def build_review_sections(steps: list[StepBlock], *, entry_pk: EntryPk) -> list[ReviewSection]:
+    final: list[ReviewSection] = []
+
+    for step_index, initial_step in enumerate(steps):
+        _get_step_pages(initial_step, step_index=step_index)
+        section: ReviewSection = {
+            "title": initial_step.title,
+            "edit_url": build_form_edit_url(entry_pk, step_number=step_index, page_number=0),
+            "blocks": [],
+        }
+
+        def find_review_blocks(node, blocks: list[FieldBlock | ReviewSubheadingBlock]):
+            for child in node.children or []:
+                if isinstance(child, ReviewSubheadingBlock):
+                    blocks.append(child)
+
+                if isinstance(child, FieldBlock):
+                    blocks.append(child)
+
+                if child.children:
+                    blocks = find_review_blocks(child, blocks)
+
+            return blocks
+
+        section["blocks"] = find_review_blocks(initial_step, [])
+        final.append(section)
+
+    return final
