@@ -110,9 +110,10 @@ def test_back_button_not_shown_on_first_page(
     django_db_setup, form_entry: "FormEntry", authenticated_client
 ):
     """
-    Test that the back button and Save & Exit button are not displayed on the first page (step=0, page=0).
-    This regression test ensures that current_step_number and current_page_number
-    are correctly passed to the page template context.
+    Test that the back button and Save & Exit button are not displayed on
+    the first page (step=0, page=0). This regression test ensures that
+    current_step_number and current_page_number are correctly passed to
+    the page template context.
     """
     url = reverse("form_edit", args=[form_entry.pk])
 
@@ -257,6 +258,27 @@ def test_save_and_exit_redirects_to_form_list(
     # Should redirect to form_list
     assert response.status_code == 302
     assert response.headers.get("Location") == reverse("form_list")
+
+
+@pytest.mark.django_db
+def test_side_nav_redirect_rejects_external_urls(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    response = authenticated_client.post(
+        url,
+        data={
+            "first_name": "John",
+            "last_name": "Doe",
+            "redirect_to": "//attacker.example/phish",
+        },
+        query_params={"step": 0, "page": 0},
+    )
+
+    assert response.status_code == 200
+    assert response.context["current_step_number"] == 0
+    assert response.context["current_page_number"] == 0
 
     # Data should be saved
     form_entry.refresh_from_db()

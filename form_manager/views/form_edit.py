@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
+from django.urls import Resolver404, resolve, reverse
 
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
@@ -46,6 +46,37 @@ def normalize_step_and_page(
 
 def get_step_page(components: list[StepBlock], step: int, page: int) -> AbstractPageBlock:
     return _get_step_pages(components, step)[page]
+
+
+def _get_safe_nav_redirect(redirect_to: str, *, entry_pk: str) -> str | None:
+    """Allow side-nav POST redirects only to this entry's edit/review routes.
+
+    The edit form stores a client-provided `redirect_to` value in a hidden input so
+    the side nav can save the current page before navigating elsewhere. Because that
+    value can be tampered with, we only allow redirects that:
+
+    1. stay on this host (reject `//example.com` style URLs),
+    2. resolve to a known form route, and
+    3. target the same FormEntry being edited.
+
+    Any other value falls back to the normal post-save flow and keeps the user on
+    the current page.
+    """
+    if not redirect_to.startswith("/") or redirect_to.startswith("//"):
+        return None
+
+    try:
+        match = resolve(redirect_to)
+    except Resolver404:
+        return None
+
+    if match.kwargs.get("pk") != str(entry_pk):
+        return None
+
+    if match.view_name not in {"form_edit", "form_review"}:
+        return None
+
+    return redirect_to
 
 
 def get_next_step_and_page(
@@ -96,7 +127,15 @@ def remove_nodes_with_excluded_fields(
 ) -> list[StepBlock]:
     """This function takes a list of UI components (steps), removes any descendant FieldBlock
     components whose names are listed in `fields_to_exclude`, and removes any PageBlock nodes that
-    lack descendant FieldBlock nodes."""
+    lack descendant FieldBlock nodes.
+
+    TODO: prune StepBlocks that become empty after filtering so navigation/review helpers
+    can safely skip fully excluded sections instead of assuming every visible section
+    still has at least one page.
+
+    Current navigation assumes each visible section still has at least one page after filtering.
+    Empty sections are not removed in this pass.
+    """
 
     def remove_excluded_nodes(component):
 
@@ -177,6 +216,12 @@ def form_edit(request, pk):
         page_action = request.POST.get("page-action")
         if page_action == "save-exit":
             return redirect("form_list")
+
+        # Side nav navigation: save and redirect to the clicked page
+        redirect_to = request.POST.get("redirect_to", "")
+        safe_redirect_to = _get_safe_nav_redirect(redirect_to, entry_pk=str(entry.pk))
+        if safe_redirect_to:
+            return redirect(safe_redirect_to)
 
         messages.success(request, "Draft saved.")
 

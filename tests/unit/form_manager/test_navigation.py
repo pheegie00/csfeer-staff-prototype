@@ -79,11 +79,13 @@ def test_build_side_nav_items_builds_real_urls(steps, entry_pk):
         entry_pk=entry_pk,
     )
 
+    # Section 1 links to its first child page (step=0, page=0)
     assert side_nav_items[0]["href"] == build_form_edit_url(entry_pk, step_number=0, page_number=0)
     assert side_nav_items[0]["pages"][0]["href"] == build_form_edit_url(
         entry_pk, step_number=0, page_number=0
     )
 
+    # Section 2 links to its first child page (step=1, page=0)
     assert side_nav_items[1]["href"] == build_form_edit_url(entry_pk, step_number=1, page_number=0)
     assert side_nav_items[1]["pages"][0]["href"] == build_form_edit_url(
         entry_pk, step_number=1, page_number=0
@@ -92,6 +94,7 @@ def test_build_side_nav_items_builds_real_urls(steps, entry_pk):
         entry_pk, step_number=1, page_number=1
     )
 
+    # Review and Submit links to the review URL
     assert side_nav_items[2]["href"] == review_url
 
 
@@ -104,3 +107,16 @@ def test_build_side_nav_items_review_state_has_real_urls(steps, entry_pk):
     assert side_nav_items[0]["href"] == build_form_edit_url(entry_pk, step_number=0, page_number=0)
     assert side_nav_items[1]["href"] == build_form_edit_url(entry_pk, step_number=1, page_number=0)
     assert side_nav_items[-1]["href"] == review_url
+
+
+@pytest.mark.django_db
+def test_build_side_nav_items_raises_for_empty_sections(entry_pk):
+    steps = [
+        StepBlock(
+            title="Empty section",
+            children=[],
+        )
+    ]
+
+    with pytest.raises(ValueError, match="Section 1 has no pages after filtering"):
+        build_side_nav_items(steps, entry_pk=entry_pk)
