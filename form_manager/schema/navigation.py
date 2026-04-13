@@ -55,16 +55,8 @@ def _get_page_nav_label(page: AbstractPageBlock, page_index: int) -> str:
     return f"Page {page_index + 1}"
 
 
-def _get_step_pages(step: StepBlock, *, step_index: int) -> list[AbstractPageBlock]:
-    pages = [child for child in (step.children or []) if isinstance(child, AbstractPageBlock)]
-
-    if not pages:
-        raise ValueError(
-            f"Section {step_index + 1} has no pages after filtering. "
-            "Current navigation requires at least one page per visible section."
-        )
-
-    return pages
+def _get_step_pages(step: StepBlock) -> list[AbstractPageBlock]:
+    return [child for child in (step.children or []) if isinstance(child, AbstractPageBlock)]
 
 
 def build_side_nav_items(
@@ -78,7 +70,7 @@ def build_side_nav_items(
     side_nav_items: list[SideNavSection] = []
 
     for step_index, step in enumerate(steps):
-        step_pages = _get_step_pages(step, step_index=step_index)
+        step_pages = _get_step_pages(step)
         children: list[SideNavPage] = [
             {
                 "kind": "page",
@@ -124,7 +116,6 @@ def build_review_sections(steps: list[StepBlock], *, entry_pk: EntryPk) -> list[
     final: list[ReviewSection] = []
 
     for step_index, initial_step in enumerate(steps):
-        _get_step_pages(initial_step, step_index=step_index)
         section: ReviewSection = {
             "title": initial_step.title,
             "edit_url": build_form_edit_url(entry_pk, step_number=step_index, page_number=0),
