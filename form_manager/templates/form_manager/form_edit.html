@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load static %}
 {% block content %}
 <div class="grid-container">
   <div class="grid-row">
@@ -22,29 +21,4 @@
     </div>
   </div>
 </div>
-
-<script>
-  // Initialize USWDS date pickers
-  document.addEventListener('DOMContentLoaded', function() {
-    const datePickers = document.querySelectorAll('.usa-date-picker');
-    datePickers.forEach(function(picker) {
-      // USWDS date picker will auto-initialize
-    });
-  });
-
-  // Side nav navigation: save current page before navigating
-  document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('csf-form');
-    const redirectInput = document.getElementById('nav-redirect-to');
-
-    document.querySelectorAll('.usa-sidenav a').forEach(function(link) {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        redirectInput.value = this.getAttribute('href');
-        form.action = window.location.pathname + window.location.search;
-        form.submit();
-      });
-    });
-  });
-</script>
 {% endblock %}

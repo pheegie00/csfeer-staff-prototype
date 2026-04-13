@@ -261,6 +261,27 @@ def test_save_and_exit_redirects_to_form_list(
 
 
 @pytest.mark.django_db
+def test_side_nav_redirect_accepts_valid_same_entry_url(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    target = reverse("form_edit", args=[form_entry.pk]) + "?step=2&page=0"
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    response = authenticated_client.post(
+        url,
+        data={
+            "first_name": "John",
+            "last_name": "Doe",
+            "redirect_to": target,
+        },
+        query_params={"step": 1, "page": 0},
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"] == target
+
+
+@pytest.mark.django_db
 def test_side_nav_redirect_rejects_external_urls(
     django_db_setup, form_entry: "FormEntry", authenticated_client
 ):

@@ -65,12 +65,13 @@ def _get_safe_nav_redirect(redirect_to: str, *, entry_pk: str) -> str | None:
     if not redirect_to.startswith("/") or redirect_to.startswith("//"):
         return None
 
+    path_only = redirect_to.split("?")[0]
     try:
-        match = resolve(redirect_to)
+        match = resolve(path_only)
     except Resolver404:
         return None
 
-    if match.kwargs.get("pk") != str(entry_pk):
+    if str(match.kwargs.get("pk")) != str(entry_pk):
         return None
 
     if match.view_name not in {"form_edit", "form_review"}:
