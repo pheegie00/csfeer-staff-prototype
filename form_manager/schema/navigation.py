@@ -55,8 +55,24 @@ def _get_page_nav_label(page: AbstractPageBlock, page_index: int) -> str:
     return f"Page {page_index + 1}"
 
 
-def _get_step_pages(step: StepBlock) -> list[AbstractPageBlock]:
+def get_step_pages(step: StepBlock) -> list[AbstractPageBlock]:
     return [child for child in (step.children or []) if isinstance(child, AbstractPageBlock)]
+
+
+def _collect_review_blocks(node) -> list[FieldBlock | ReviewSubheadingBlock]:
+    blocks: list[FieldBlock | ReviewSubheadingBlock] = []
+
+    for child in node.children or []:
+        if isinstance(child, ReviewSubheadingBlock):
+            blocks.append(child)
+
+        if isinstance(child, FieldBlock):
+            blocks.append(child)
+
+        if child.children:
+            blocks.extend(_collect_review_blocks(child))
+
+    return blocks
 
 
 def build_side_nav_items(
@@ -70,7 +86,7 @@ def build_side_nav_items(
     side_nav_items: list[SideNavSection] = []
 
     for step_index, step in enumerate(steps):
-        step_pages = _get_step_pages(step)
+        step_pages = get_step_pages(step)
         children: list[SideNavPage] = [
             {
                 "kind": "page",
@@ -119,23 +135,8 @@ def build_review_sections(steps: list[StepBlock], *, entry_pk: EntryPk) -> list[
         section: ReviewSection = {
             "title": initial_step.title,
             "edit_url": build_form_edit_url(entry_pk, step_number=step_index, page_number=0),
-            "blocks": [],
+            "blocks": _collect_review_blocks(initial_step),
         }
-
-        def find_review_blocks(node, blocks: list[FieldBlock | ReviewSubheadingBlock]):
-            for child in node.children or []:
-                if isinstance(child, ReviewSubheadingBlock):
-                    blocks.append(child)
-
-                if isinstance(child, FieldBlock):
-                    blocks.append(child)
-
-                if child.children:
-                    blocks = find_review_blocks(child, blocks)
-
-            return blocks
-
-        section["blocks"] = find_review_blocks(initial_step, [])
         final.append(section)
 
     return final

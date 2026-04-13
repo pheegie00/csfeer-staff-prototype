@@ -9,7 +9,7 @@ from django.urls import Resolver404, resolve, reverse
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.schema.layout import AbstractPageBlock, FieldBlock, PageBlock, StepBlock
-from form_manager.schema.navigation import build_form_edit_url, build_side_nav_items
+from form_manager.schema.navigation import build_form_edit_url, build_side_nav_items, get_step_pages
 from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
 
 logger = logging.getLogger(__name__)
@@ -22,12 +22,6 @@ def _parse_step_or_page_param(raw_value: str | None) -> int:
         return 0
 
 
-def _get_step_pages(components: list[StepBlock], step: int) -> list[AbstractPageBlock]:
-    return [
-        child for child in (components[step].children or []) if isinstance(child, AbstractPageBlock)
-    ]
-
-
 def normalize_step_and_page(
     components: list[StepBlock], current_step: int, current_page: int
 ) -> tuple[int, int]:
@@ -35,7 +29,7 @@ def normalize_step_and_page(
         raise Http404("Form has no steps defined")
 
     normalized_step = min(max(current_step, 0), len(components) - 1)
-    step_pages = _get_step_pages(components, normalized_step)
+    step_pages = get_step_pages(components[normalized_step])
 
     if not step_pages:
         raise Http404("Form section has no pages defined")
@@ -45,7 +39,7 @@ def normalize_step_and_page(
 
 
 def get_step_page(components: list[StepBlock], step: int, page: int) -> AbstractPageBlock:
-    return _get_step_pages(components, step)[page]
+    return get_step_pages(components[step])[page]
 
 
 def _get_safe_nav_redirect(redirect_to: str, *, entry_pk: str) -> str | None:
@@ -83,7 +77,7 @@ def _get_safe_nav_redirect(redirect_to: str, *, entry_pk: str) -> str | None:
 def get_next_step_and_page(
     components, current_step: int, current_page: int
 ) -> tuple[int | None, int | None]:
-    current_step_pages = _get_step_pages(components, current_step)
+    current_step_pages = get_step_pages(components[current_step])
 
     # If we're on the last step and page, move on to the review page
     if (
@@ -117,7 +111,7 @@ def get_previous_step_and_page(
     # if we're on the first page of a step, decrement the current step and
     # return the last page of the previous step.
     if current_page == 0:
-        return current_step - 1, len(_get_step_pages(components, current_step - 1)) - 1
+        return current_step - 1, len(get_step_pages(components[current_step - 1])) - 1
 
     # Otherwise, stay on the current step but decrement the next page
     return current_step, current_page - 1
@@ -208,8 +202,6 @@ def form_edit(request, pk):
         if not has_permission():
             messages.error(request, "Permission denied.")
             return redirect("form_list")  # Assuming a form list URL
-
-        form = django_form_class(request.POST, request.FILES, initial=entry.data or {})
 
         save_form_entry(django_form_class, entry, request)
 
