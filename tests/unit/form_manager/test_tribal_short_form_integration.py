@@ -8,6 +8,7 @@ from django.urls import reverse
 
 from form_manager.constants import CSBGAnnualReportForms
 from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
+from form_manager.schema.navigation import build_form_edit_url
 
 if TYPE_CHECKING:
     from django.test.client import Client
@@ -37,8 +38,13 @@ def tribal_short_form_entry(create_user, tribal_short_form_schema) -> FormEntry:
         organization=org,
         created_by=user,
         version_number="1",
-        # Must be non-empty; an empty selection excludes all Section 3 fields, leaving it with no pages.
-        data={"applicable_topics": ["employment_expenditure,employment_related_services_description"]},
+        # Must be non-empty; an empty selection excludes all Section 3
+        # fields, leaving it with no pages.
+        data={
+            "applicable_topics": [
+                "employment_expenditure,employment_related_services_description"
+            ]
+        },
     )
 
     return entry
@@ -73,7 +79,7 @@ def test_tribal_short_form_renders(
     django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
 ):
     """Test that TribalShortForm renders correctly"""
-    url = reverse("form_edit", args=[tribal_short_form_entry.pk])
+    url = build_form_edit_url(tribal_short_form_entry.pk, step_number=0, page_number=0)
     response = authenticated_client.get(url)
 
     assert response.status_code == 200
@@ -161,8 +167,6 @@ def test_tribal_short_form_no_demographic_fields(
     django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
 ):
     """Verify that demographic fields are not present in any step"""
-    url = reverse("form_edit", args=[tribal_short_form_entry.pk])
-
     # Check that demographic fields are not in the form fields
     from form_manager.schema.forms.tribal_short_form import TribalShortFormFields
 
