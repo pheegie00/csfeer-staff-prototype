@@ -1,8 +1,11 @@
 from typing import TypedDict
+from uuid import UUID
+
+from django.urls import reverse
 
 from form_manager.schema.layout import AbstractPageBlock, PageTitleBlock, StepBlock
 
-PLACEHOLDER_HREF = "#"
+EntryPk = UUID | str
 
 
 class SideNavPage(TypedDict):
@@ -21,6 +24,14 @@ class SideNavSection(TypedDict):
     pages: list[SideNavPage]
 
 
+def build_form_edit_url(entry_pk: EntryPk, *, step_number: int, page_number: int) -> str:
+    return reverse(
+        "form_edit",
+        kwargs={"pk": entry_pk},
+        query={"step": step_number, "page": page_number},
+    )
+
+
 def _get_page_nav_label(page: AbstractPageBlock, page_index: int) -> str:
     if page.title:
         return page.title
@@ -32,18 +43,16 @@ def _get_page_nav_label(page: AbstractPageBlock, page_index: int) -> str:
     return f"Page {page_index + 1}"
 
 
-def _build_page_nav_item(
-    page: AbstractPageBlock,
-    *,
-    page_index: int,
-    is_current: bool,
-) -> SideNavPage:
-    return {
-        "kind": "page",
-        "label": _get_page_nav_label(page, page_index),
-        "href": PLACEHOLDER_HREF,
-        "is_current": is_current,
-    }
+def _get_step_pages(step: StepBlock, *, step_index: int) -> list[AbstractPageBlock]:
+    pages = [child for child in (step.children or []) if isinstance(child, AbstractPageBlock)]
+
+    if not pages:
+        raise ValueError(
+            f"Section {step_index + 1} has no pages after filtering. "
+            "Current navigation requires at least one page per visible section."
+        )
+
+    return pages
 
 
 def build_side_nav_items(
@@ -52,32 +61,35 @@ def build_side_nav_items(
     current_step_number: int | None = None,
     current_page_number: int | None = None,
     is_review: bool = False,
+    entry_pk: EntryPk,
 ) -> list[SideNavSection]:
     side_nav_items: list[SideNavSection] = []
 
     for step_index, step in enumerate(steps):
-        children = [
-            _build_page_nav_item(
-                page,
-                page_index=page_index,
-                is_current=(
+        step_pages = _get_step_pages(step, step_index=step_index)
+        children: list[SideNavPage] = [
+            {
+                "kind": "page",
+                "label": _get_page_nav_label(page, page_index),
+                "href": build_form_edit_url(
+                    entry_pk, step_number=step_index, page_number=page_index
+                ),
+                "is_current": (
                     not is_review
                     and step_index == current_step_number
                     and page_index == current_page_number
                 ),
-            )
-            for page_index, page in enumerate(step.children or [])
+            }
+            for page_index, page in enumerate(step_pages)
         ]
-
-        is_current = not is_review and step_index == current_step_number
 
         side_nav_items.append(
             {
                 "kind": "section",
                 "label": f"Section {step_index + 1}: {step.title}",
-                "href": PLACEHOLDER_HREF,
-                "is_current": is_current,
-                "is_expanded": is_current,
+                "href": build_form_edit_url(entry_pk, step_number=step_index, page_number=0),
+                "is_current": not is_review and step_index == current_step_number,
+                "is_expanded": not is_review and step_index == current_step_number,
                 "pages": children,
             }
         )
@@ -86,7 +98,7 @@ def build_side_nav_items(
         {
             "kind": "review",
             "label": "Review and Submit",
-            "href": PLACEHOLDER_HREF,
+            "href": reverse("form_review", kwargs={"pk": entry_pk}),
             "is_current": is_review,
             "is_expanded": False,
             "pages": [],

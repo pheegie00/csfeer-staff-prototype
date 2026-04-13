@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING
 import pytest
 from django.urls import reverse
 
-from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
+from form_manager.models import FormDefinition, FormEntry
+from form_manager.schema.navigation import build_form_edit_url
 
 if TYPE_CHECKING:
     from django.test.client import Client
@@ -194,12 +195,40 @@ def test_review_back_button_accounts_for_excluded_fields(
     # With the "Specific costs" page removed, step 1 has only 1 page (the
     # PermanentPageBlock at index 0). So the back button should point to
     # step=1, page=0 — NOT step=1, page=1 which would cause a 500.
-    expected_url = reverse(
-        "form_edit",
-        kwargs={"pk": form_entry.pk},
-        query={"step": 1, "page": 0},
-    )
+    expected_url = build_form_edit_url(form_entry.pk, step_number=1, page_number=0)
     assert prev_url == expected_url
+
+
+@pytest.mark.django_db
+def test_invalid_query_params_fall_back_to_first_page(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    response = authenticated_client.get(url, {"step": "not-a-number", "page": "also-bad"})
+
+    assert response.status_code == 200
+    assert response.context["current_step_number"] == 0
+    assert response.context["current_page_number"] == 0
+
+
+@pytest.mark.django_db
+def test_out_of_range_page_query_params_clamp_to_last_visible_page(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    authenticated_client.post(
+        url,
+        data={"applicable_topics": []},
+        query_params={"step": 1, "page": 0},
+    )
+
+    response = authenticated_client.get(url, {"step": 1, "page": 99})
+
+    assert response.status_code == 200
+    assert response.context["current_step_number"] == 1
+    assert response.context["current_page_number"] == 0
 
 
 @pytest.mark.django_db

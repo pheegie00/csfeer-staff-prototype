@@ -8,36 +8,65 @@ from django.urls import reverse
 
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
-from form_manager.schema.layout import FieldBlock, PageBlock, StepBlock
-from form_manager.schema.navigation import build_side_nav_items
+from form_manager.schema.layout import AbstractPageBlock, FieldBlock, PageBlock, StepBlock
+from form_manager.schema.navigation import build_form_edit_url, build_side_nav_items
 from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
 
 logger = logging.getLogger(__name__)
 
 
-def get_step_page(components, step: int, page: int) -> PageBlock:
-    return components[step].children[page]
+def _parse_step_or_page_param(raw_value: str | None) -> int:
+    try:
+        return int(raw_value or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _get_step_pages(components: list[StepBlock], step: int) -> list[AbstractPageBlock]:
+    return [
+        child for child in (components[step].children or []) if isinstance(child, AbstractPageBlock)
+    ]
+
+
+def normalize_step_and_page(
+    components: list[StepBlock], current_step: int, current_page: int
+) -> tuple[int, int]:
+    if not components:
+        raise Http404("Form has no steps defined")
+
+    normalized_step = min(max(current_step, 0), len(components) - 1)
+    step_pages = _get_step_pages(components, normalized_step)
+
+    if not step_pages:
+        raise Http404("Form section has no pages defined")
+
+    normalized_page = min(max(current_page, 0), len(step_pages) - 1)
+    return normalized_step, normalized_page
+
+
+def get_step_page(components: list[StepBlock], step: int, page: int) -> AbstractPageBlock:
+    return _get_step_pages(components, step)[page]
 
 
 def get_next_step_and_page(
     components, current_step: int, current_page: int
 ) -> tuple[int | None, int | None]:
-    current_ui_step = components[current_step]
+    current_step_pages = _get_step_pages(components, current_step)
 
     # If we're on the last step and page, move on to the review page
     if (
         current_step == len(components) - 1
-        and current_page == len(current_ui_step.children or []) - 1
+        and current_page == len(current_step_pages) - 1
     ):
         return None, None
 
     # If there's no children in the current step, move to the next step and first page
-    if not current_ui_step.children or len(current_ui_step.children) == 0:
+    if not current_step_pages:
         return current_step + 1, 0
 
     # Check if we're on the last page, and if so, move to the next step
     # and first page
-    if current_page == len(current_ui_step.children) - 1:
+    if current_page == len(current_step_pages) - 1:
         return current_step + 1, 0
 
     # Otherwise, stay on the current step but advance the next page
@@ -56,7 +85,7 @@ def get_previous_step_and_page(
     # if we're on the first page of a step, decrement the current step and
     # return the last page of the previous step.
     if current_page == 0:
-        return current_step - 1, len(components[current_step - 1].children) - 1
+        return current_step - 1, len(_get_step_pages(components, current_step - 1)) - 1
 
     # Otherwise, stay on the current step but decrement the next page
     return current_step, current_page - 1
@@ -104,8 +133,8 @@ def form_edit(request, pk):
 
     schema_class_ref = entry.form_definition.schema_class
 
-    current_step_number = int(request.GET.get("step", 0))
-    current_page_number = int(request.GET.get("page", 0))
+    current_step_number = _parse_step_or_page_param(request.GET.get("step"))
+    current_page_number = _parse_step_or_page_param(request.GET.get("page"))
 
     # Check if user has visited the review page for this entry
     show_errors = request.session.get(f"show_errors_{entry.pk}", False)
@@ -163,6 +192,10 @@ def form_edit(request, pk):
         logger.info("Excluding the following fields: %s", form.fields_to_exclude)
         ui_components = remove_nodes_with_excluded_fields(ui_components, form.fields_to_exclude)
 
+    current_step_number, current_page_number = normalize_step_and_page(
+        ui_components, current_step_number, current_page_number
+    )
+
     next_step_number, next_page_number = get_next_step_and_page(
         ui_components, current_step_number, current_page_number
     )
@@ -174,29 +207,19 @@ def form_edit(request, pk):
     if next_step_number is None:
         next_page_url = reverse("form_review", kwargs={"pk": entry.pk})
     else:
-        next_page_url = (
-            reverse(
-                "form_edit",
-                kwargs={
-                    "pk": entry.pk,
-                },
-            )
-            + f"?step={next_step_number}&page={next_page_number}"
+        next_page_url = build_form_edit_url(
+            entry.pk,
+            step_number=next_step_number,
+            page_number=next_page_number,
         )
 
-    prev_page_url = (
-        reverse(
-            "form_edit",
-            kwargs={
-                "pk": entry.pk,
-            },
-        )
-        + f"?step={previous_step_number}&page={previous_page_number}"
+    prev_page_url = build_form_edit_url(
+        entry.pk,
+        step_number=previous_step_number or 0,
+        page_number=previous_page_number or 0,
     )
 
-    page_to_render = get_step_page(
-        ui_components, int(current_step_number or 0), current_page_number or 0
-    )
+    page_to_render = get_step_page(ui_components, current_step_number, current_page_number)
 
     page_to_render.set_extra_context(
         prev_url=prev_page_url,
@@ -219,6 +242,7 @@ def form_edit(request, pk):
             ui_components,
             current_step_number=current_step_number,
             current_page_number=current_page_number,
+            entry_pk=entry.pk,
         ),
     }
 
