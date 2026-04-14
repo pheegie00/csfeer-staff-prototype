@@ -3,12 +3,15 @@ import logging
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
-from form_manager.schema.navigation import build_side_nav_items
+from form_manager.schema.navigation import (
+    build_form_edit_url,
+    build_review_sections,
+    build_side_nav_items,
+)
 from form_manager.utils import save_form_entry
 from form_manager.views.form_edit import remove_nodes_with_excluded_fields
 
@@ -65,16 +68,14 @@ def form_review(request, pk):
         "form": form,
         "entry": entry,
         "steps": ui_components,
-        "prev_url": reverse(
-            "form_edit",
-            kwargs={"pk": entry.pk},
-            query={
-                "step": len(ui_components) - 1,
-                "page": len(ui_components[-1].children or []) - 1,
-            },
+        "review_sections": build_review_sections(ui_components, entry_pk=entry.pk),
+        "prev_url": build_form_edit_url(
+            entry.pk,
+            step_number=len(ui_components) - 1,
+            page_number=len(ui_components[-1].children or []) - 1,
         ),
         "is_valid": is_valid,
-        "side_nav_items": build_side_nav_items(ui_components, is_review=True),
+        "side_nav_items": build_side_nav_items(ui_components, is_review=True, entry_pk=entry.pk),
     }
 
     for component in ui_components:

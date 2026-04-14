@@ -4,40 +4,92 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
+from django.urls import Resolver404, resolve, reverse
 
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
-from form_manager.schema.layout import FieldBlock, PageBlock, StepBlock
-from form_manager.schema.navigation import build_side_nav_items
+from form_manager.schema.layout import AbstractPageBlock, FieldBlock, PageBlock, StepBlock
+from form_manager.schema.navigation import build_form_edit_url, build_side_nav_items, get_step_pages
 from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
 
 logger = logging.getLogger(__name__)
 
 
-def get_step_page(components, step: int, page: int) -> PageBlock:
-    return components[step].children[page]
+def _parse_step_or_page_param(raw_value: str | None) -> int:
+    try:
+        return int(raw_value or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def normalize_step_and_page(
+    components: list[StepBlock], current_step: int, current_page: int
+) -> tuple[int, int]:
+    if not components:
+        raise Http404("Form has no steps defined")
+
+    normalized_step = min(max(current_step, 0), len(components) - 1)
+    step_pages = get_step_pages(components[normalized_step])
+
+    if not step_pages:
+        raise Http404("Form section has no pages defined")
+
+    normalized_page = min(max(current_page, 0), len(step_pages) - 1)
+    return normalized_step, normalized_page
+
+
+def get_step_page(components: list[StepBlock], step: int, page: int) -> AbstractPageBlock:
+    return get_step_pages(components[step])[page]
+
+
+def _get_safe_nav_redirect(redirect_to: str, *, entry_pk: str) -> str | None:
+    """Allow side-nav POST redirects only to this entry's edit/review routes.
+
+    The edit form stores a client-provided `redirect_to` value in a hidden input so
+    the side nav can save the current page before navigating elsewhere. Because that
+    value can be tampered with, we only allow redirects that:
+
+    1. stay on this host (reject `//example.com` style URLs),
+    2. resolve to a known form route, and
+    3. target the same FormEntry being edited.
+
+    Any other value falls back to the normal post-save flow and keeps the user on
+    the current page.
+    """
+    if not redirect_to.startswith("/") or redirect_to.startswith("//"):
+        return None
+
+    path_only = redirect_to.split("?")[0]
+    try:
+        match = resolve(path_only)
+    except Resolver404:
+        return None
+
+    if str(match.kwargs.get("pk")) != str(entry_pk):
+        return None
+
+    if match.view_name not in {"form_edit", "form_review"}:
+        return None
+
+    return redirect_to
 
 
 def get_next_step_and_page(
     components, current_step: int, current_page: int
 ) -> tuple[int | None, int | None]:
-    current_ui_step = components[current_step]
+    current_step_pages = get_step_pages(components[current_step])
 
     # If we're on the last step and page, move on to the review page
-    if (
-        current_step == len(components) - 1
-        and current_page == len(current_ui_step.children or []) - 1
-    ):
+    if current_step == len(components) - 1 and current_page == len(current_step_pages) - 1:
         return None, None
 
     # If there's no children in the current step, move to the next step and first page
-    if not current_ui_step.children or len(current_ui_step.children) == 0:
+    if not current_step_pages:
         return current_step + 1, 0
 
     # Check if we're on the last page, and if so, move to the next step
     # and first page
-    if current_page == len(current_ui_step.children) - 1:
+    if current_page == len(current_step_pages) - 1:
         return current_step + 1, 0
 
     # Otherwise, stay on the current step but advance the next page
@@ -56,7 +108,7 @@ def get_previous_step_and_page(
     # if we're on the first page of a step, decrement the current step and
     # return the last page of the previous step.
     if current_page == 0:
-        return current_step - 1, len(components[current_step - 1].children) - 1
+        return current_step - 1, len(get_step_pages(components[current_step - 1])) - 1
 
     # Otherwise, stay on the current step but decrement the next page
     return current_step, current_page - 1
@@ -67,7 +119,15 @@ def remove_nodes_with_excluded_fields(
 ) -> list[StepBlock]:
     """This function takes a list of UI components (steps), removes any descendant FieldBlock
     components whose names are listed in `fields_to_exclude`, and removes any PageBlock nodes that
-    lack descendant FieldBlock nodes."""
+    lack descendant FieldBlock nodes.
+
+    TODO: prune StepBlocks that become empty after filtering so navigation/review helpers
+    can safely skip fully excluded sections instead of assuming every visible section
+    still has at least one page.
+
+    Current navigation assumes each visible section still has at least one page after filtering.
+    Empty sections are not removed in this pass.
+    """
 
     def remove_excluded_nodes(component):
 
@@ -104,8 +164,17 @@ def form_edit(request, pk):
 
     schema_class_ref = entry.form_definition.schema_class
 
-    current_step_number = int(request.GET.get("step", 0))
-    current_page_number = int(request.GET.get("page", 0))
+    current_step_number = _parse_step_or_page_param(request.GET.get("step"))
+    current_page_number = _parse_step_or_page_param(request.GET.get("page"))
+
+    if request.method == "GET" and ("step" not in request.GET or "page" not in request.GET):
+        return redirect(
+            build_form_edit_url(
+                entry.pk,
+                step_number=current_step_number,
+                page_number=current_page_number,
+            )
+        )
 
     # Check if user has visited the review page for this entry
     show_errors = request.session.get(f"show_errors_{entry.pk}", False)
@@ -140,14 +209,18 @@ def form_edit(request, pk):
             messages.error(request, "Permission denied.")
             return redirect("form_list")  # Assuming a form list URL
 
-        form = django_form_class(request.POST, request.FILES, initial=entry.data or {})
-
         save_form_entry(django_form_class, entry, request)
 
         # Check if user clicked "Save & Exit"
         page_action = request.POST.get("page-action")
         if page_action == "save-exit":
             return redirect("form_list")
+
+        # Side nav navigation: save and redirect to the clicked page
+        redirect_to = request.POST.get("redirect_to", "")
+        safe_redirect_to = _get_safe_nav_redirect(redirect_to, entry_pk=str(entry.pk))
+        if safe_redirect_to:
+            return redirect(safe_redirect_to)
 
         messages.success(request, "Draft saved.")
 
@@ -163,6 +236,10 @@ def form_edit(request, pk):
         logger.info("Excluding the following fields: %s", form.fields_to_exclude)
         ui_components = remove_nodes_with_excluded_fields(ui_components, form.fields_to_exclude)
 
+    current_step_number, current_page_number = normalize_step_and_page(
+        ui_components, current_step_number, current_page_number
+    )
+
     next_step_number, next_page_number = get_next_step_and_page(
         ui_components, current_step_number, current_page_number
     )
@@ -174,29 +251,20 @@ def form_edit(request, pk):
     if next_step_number is None:
         next_page_url = reverse("form_review", kwargs={"pk": entry.pk})
     else:
-        next_page_url = (
-            reverse(
-                "form_edit",
-                kwargs={
-                    "pk": entry.pk,
-                },
-            )
-            + f"?step={next_step_number}&page={next_page_number}"
+        assert next_page_number is not None
+        next_page_url = build_form_edit_url(
+            entry.pk,
+            step_number=next_step_number,
+            page_number=next_page_number,
         )
 
-    prev_page_url = (
-        reverse(
-            "form_edit",
-            kwargs={
-                "pk": entry.pk,
-            },
-        )
-        + f"?step={previous_step_number}&page={previous_page_number}"
+    prev_page_url = build_form_edit_url(
+        entry.pk,
+        step_number=previous_step_number or 0,
+        page_number=previous_page_number or 0,
     )
 
-    page_to_render = get_step_page(
-        ui_components, int(current_step_number or 0), current_page_number or 0
-    )
+    page_to_render = get_step_page(ui_components, current_step_number, current_page_number)
 
     page_to_render.set_extra_context(
         prev_url=prev_page_url,
@@ -219,6 +287,7 @@ def form_edit(request, pk):
             ui_components,
             current_step_number=current_step_number,
             current_page_number=current_page_number,
+            entry_pk=entry.pk,
         ),
     }
 

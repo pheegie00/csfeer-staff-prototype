@@ -1,8 +1,17 @@
 from typing import TypedDict
+from uuid import UUID
 
-from form_manager.schema.layout import AbstractPageBlock, PageTitleBlock, StepBlock
+from django.urls import reverse
 
-PLACEHOLDER_HREF = "#"
+from form_manager.schema.layout import (
+    AbstractPageBlock,
+    FieldBlock,
+    PageTitleBlock,
+    ReviewSubheadingBlock,
+    StepBlock,
+)
+
+EntryPk = UUID | str
 
 
 class SideNavPage(TypedDict):
@@ -21,6 +30,20 @@ class SideNavSection(TypedDict):
     pages: list[SideNavPage]
 
 
+class ReviewSection(TypedDict):
+    title: str | None
+    edit_url: str
+    blocks: list[FieldBlock | ReviewSubheadingBlock]
+
+
+def build_form_edit_url(entry_pk: EntryPk, *, step_number: int, page_number: int) -> str:
+    return reverse(
+        "form_edit",
+        kwargs={"pk": entry_pk},
+        query={"step": step_number, "page": page_number},
+    )
+
+
 def _get_page_nav_label(page: AbstractPageBlock, page_index: int) -> str:
     if page.title:
         return page.title
@@ -32,18 +55,24 @@ def _get_page_nav_label(page: AbstractPageBlock, page_index: int) -> str:
     return f"Page {page_index + 1}"
 
 
-def _build_page_nav_item(
-    page: AbstractPageBlock,
-    *,
-    page_index: int,
-    is_current: bool,
-) -> SideNavPage:
-    return {
-        "kind": "page",
-        "label": _get_page_nav_label(page, page_index),
-        "href": PLACEHOLDER_HREF,
-        "is_current": is_current,
-    }
+def get_step_pages(step: StepBlock) -> list[AbstractPageBlock]:
+    return [child for child in (step.children or []) if isinstance(child, AbstractPageBlock)]
+
+
+def _collect_review_blocks(node) -> list[FieldBlock | ReviewSubheadingBlock]:
+    blocks: list[FieldBlock | ReviewSubheadingBlock] = []
+
+    for child in node.children or []:
+        if isinstance(child, ReviewSubheadingBlock):
+            blocks.append(child)
+
+        if isinstance(child, FieldBlock):
+            blocks.append(child)
+
+        if child.children:
+            blocks.extend(_collect_review_blocks(child))
+
+    return blocks
 
 
 def build_side_nav_items(
@@ -52,32 +81,35 @@ def build_side_nav_items(
     current_step_number: int | None = None,
     current_page_number: int | None = None,
     is_review: bool = False,
+    entry_pk: EntryPk,
 ) -> list[SideNavSection]:
     side_nav_items: list[SideNavSection] = []
 
     for step_index, step in enumerate(steps):
-        children = [
-            _build_page_nav_item(
-                page,
-                page_index=page_index,
-                is_current=(
+        step_pages = get_step_pages(step)
+        children: list[SideNavPage] = [
+            {
+                "kind": "page",
+                "label": _get_page_nav_label(page, page_index),
+                "href": build_form_edit_url(
+                    entry_pk, step_number=step_index, page_number=page_index
+                ),
+                "is_current": (
                     not is_review
                     and step_index == current_step_number
                     and page_index == current_page_number
                 ),
-            )
-            for page_index, page in enumerate(step.children or [])
+            }
+            for page_index, page in enumerate(step_pages)
         ]
-
-        is_current = not is_review and step_index == current_step_number
 
         side_nav_items.append(
             {
                 "kind": "section",
                 "label": f"Section {step_index + 1}: {step.title}",
-                "href": PLACEHOLDER_HREF,
-                "is_current": is_current,
-                "is_expanded": is_current,
+                "href": build_form_edit_url(entry_pk, step_number=step_index, page_number=0),
+                "is_current": not is_review and step_index == current_step_number,
+                "is_expanded": not is_review and step_index == current_step_number,
                 "pages": children,
             }
         )
@@ -86,7 +118,7 @@ def build_side_nav_items(
         {
             "kind": "review",
             "label": "Review and Submit",
-            "href": PLACEHOLDER_HREF,
+            "href": reverse("form_review", kwargs={"pk": entry_pk}),
             "is_current": is_review,
             "is_expanded": False,
             "pages": [],
@@ -94,3 +126,17 @@ def build_side_nav_items(
     )
 
     return side_nav_items
+
+
+def build_review_sections(steps: list[StepBlock], *, entry_pk: EntryPk) -> list[ReviewSection]:
+    final: list[ReviewSection] = []
+
+    for step_index, initial_step in enumerate(steps):
+        section: ReviewSection = {
+            "title": initial_step.title,
+            "edit_url": build_form_edit_url(entry_pk, step_number=step_index, page_number=0),
+            "blocks": _collect_review_blocks(initial_step),
+        }
+        final.append(section)
+
+    return final

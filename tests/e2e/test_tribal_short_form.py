@@ -251,6 +251,51 @@ def test_tribal_short_form_has_four_top_level_nav_items(
 
 @pytest.mark.e2e
 @pytest.mark.auth
+def test_tribal_short_form_side_nav_navigates(authenticated_page: Page, base_url: str) -> None:
+    """Clicking a side nav link saves the current page and navigates to the target section."""
+    page = authenticated_page
+
+    page.goto(f"{base_url}/forms/")
+    page.wait_for_load_state("networkidle")
+
+    form_cards = page.locator(".grid-col-12.tablet\\:grid-col-6")
+    for i in range(form_cards.count()):
+        card = form_cards.nth(i)
+        if "Tribal Short Form" in card.inner_text():
+            card.get_by_role("link", name="Start New Form").click()
+            break
+
+    page.get_by_role("heading", name="Your basic information").wait_for()
+    assert "step=0" in page.url
+
+    # Fill required basic info so the save succeeds
+    page.get_by_label("Name of Tribe or Tribal Organization *").fill("Nav Test Tribe")
+    page.get_by_label("Full name *").fill("Nav Test User")
+    page.get_by_label("Title *").fill("Director")
+    page.get_by_label("Primary phone number *").fill("555-000-9999")
+    page.get_by_label("Email address *").fill("navtest@example.org")
+
+    # Click Section 2 in the side nav from Section 1
+    side_nav = page.locator('nav[aria-label="Form sections"]')
+    side_nav.get_by_text("Section 2: Expenditure categories").click()
+    page.wait_for_load_state("networkidle")
+
+    # Should have navigated to step=1
+    assert "step=1" in page.url, f"Expected step=1 in URL, got: {page.url}"
+
+    # Navigate back to Section 1 from Section 2
+    side_nav.get_by_text("Section 1: Basic Information").click()
+    page.wait_for_load_state("networkidle")
+
+    assert "step=0" in page.url, f"Expected step=0 in URL, got: {page.url}"
+    page.get_by_role("heading", name="Your basic information").wait_for()
+
+    # Saved data should be persisted
+    assert page.get_by_label("Name of Tribe or Tribal Organization *").input_value() == "Nav Test Tribe"
+
+
+@pytest.mark.e2e
+@pytest.mark.auth
 def test_tribal_short_form_vs_long_form_comparison(authenticated_page: Page, base_url: str) -> None:
     """Test that TribalShortForm and TribalLongForm are both available and different."""
     page = authenticated_page
