@@ -17,6 +17,15 @@ class CoreUserAdmin(UserAdmin):
     list_display = ("email", "first_name", "last_name", "is_staff", "id")
     ordering = ("email",)
 
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("email", "password1", "password2"),
+            },
+        ),
+    )
     fieldsets = (
         (None, {"fields": ("email", "password")}),
         (_("Personal info"), {"fields": ("first_name", "last_name")}),
