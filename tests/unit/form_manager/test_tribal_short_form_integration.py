@@ -41,9 +41,7 @@ def tribal_short_form_entry(create_user, tribal_short_form_schema) -> FormEntry:
         # Must be non-empty; an empty selection excludes all Section 3
         # fields, leaving it with no pages.
         data={
-            "applicable_topics": [
-                "employment_expenditure,employment_related_services_description"
-            ]
+            "applicable_topics": ["employment_expenditure,employment_related_services_description"]
         },
     )
 
