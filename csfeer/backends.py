@@ -11,11 +11,10 @@ This module contains:
 from typing import cast
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AbstractUser, Group
+from django.contrib.auth.models import AbstractUser
 from oauth2_authcodeflow.auth import AuthenticationBackend
 from oauth2_authcodeflow.conf import settings
 
-from form_manager.models import OrganizationProfile, UserOrganizationMembership
 from users.models import UserProfile
 
 
@@ -74,40 +73,12 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
 
 
 def extend_user_with_roles(user, claims, request=None, access_token=None):
-    """
-    Called automatically on each login to extend user properties with OIDC claims.
+    user.first_name = user.first_name or claims.get("given_name", "")
+    user.last_name = user.last_name or claims.get("family_name", "")
+    user.save(update_fields=["first_name", "last_name"])
 
-    Args:
-        user: Django user instance
-        claims: ID token claims from OIDC provider
-        request: HTTP request object (optional)
-        access_token: Access token string (optional)
-    """
-    # Extract roles from Keycloak standard realm_access claim
-    roles = claims.get("realm_access", {}).get("roles", [])
-
-    # Clear existing groups and assign based on OIDC roles
-    user.groups.clear()
-
-    for role_name in roles:
-        group, _ = Group.objects.get_or_create(name=role_name)
-        user.groups.add(group)
-
-    # Assign staff/superuser based on specific roles
-    user.is_staff = "csfeer_admin" in roles or "csfeer_staff" in roles
-    user.is_superuser = "superuser" in roles or "csfeer_admin" in roles
-    user.save()
-
-    # Update Profile with OIDC ID (sub claim)
-    if not hasattr(user, "profile"):
-        UserProfile.objects.create(user=user)
-
-    user.profile.oidc_user_id = claims.get("sub")
-    user.profile.save()
-
-    # Ensure user has an organization
-    if not UserOrganizationMembership.objects.filter(user=user).exists():
-        # Create a personal organization for the user
-        org_name = f"{user.email}'s Organization"
-        org = OrganizationProfile.objects.create(name=org_name, contact_email=user.email)
-        UserOrganizationMembership.objects.create(user=user, organization=org, role="admin")
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    phone = claims.get("phone_number", "")
+    if phone:
+        profile.phone_number = phone
+        profile.save(update_fields=["phone_number"])

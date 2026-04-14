@@ -1,4 +1,5 @@
 """Static legal and certification text for the CSBG Tribal Plan form."""
+
 # ruff: noqa: E501  (long lines are intentional — paste raw text directly between the triple quotes)
 
 _CSBG_ASSURANCES_NARRATIVE = """

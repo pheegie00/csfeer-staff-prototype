@@ -62,7 +62,9 @@ def test_tribal_long_form_has_alert_and_title_blocks():
     assert len(first_page.children) > 0
 
     alert_blocks = [child for child in first_page.children if isinstance(child, AlertBoxBlock)]
-    assert len(alert_blocks) == 1, "Expected exactly one AlertBoxBlock in expenditure categories page"
+    assert (
+        len(alert_blocks) == 1
+    ), "Expected exactly one AlertBoxBlock in expenditure categories page"
 
     alert = alert_blocks[0]
     assert alert.alert_type == "info"
@@ -70,7 +72,9 @@ def test_tribal_long_form_has_alert_and_title_blocks():
     assert "select a category" in alert.message.lower()
 
     title_blocks = [child for child in first_page.children if isinstance(child, PageTitleBlock)]
-    assert len(title_blocks) == 1, "Expected exactly one PageTitleBlock in expenditure categories page"
+    assert (
+        len(title_blocks) == 1
+    ), "Expected exactly one PageTitleBlock in expenditure categories page"
 
     title = title_blocks[0]
     assert title.title == "Expenditure categories"

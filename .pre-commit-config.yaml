@@ -28,7 +28,7 @@ repos:
     hooks:
       - id: generate-er-diagrams
         name: Generate ER Diagrams
-        entry: make create-erds
+        entry: make native-create-erds
         language: system
         files: models\.py$
         pass_filenames: false

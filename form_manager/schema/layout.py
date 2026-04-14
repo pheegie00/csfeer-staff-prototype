@@ -82,7 +82,7 @@ class StepBlock(RenderableBaseModel):
 
     type: str = "step"
     title: str | None = None
-    children: list[Self | "SectionBlock" | "PageBlock" | "PermanentPageBlock"] | None = None
+    children: list["AbstractPageBlock"] | None = None
 
 
 class AbstractPageBlock(RenderableBaseModel, abc.ABC):
@@ -129,7 +129,10 @@ class SectionBlock(RenderableBaseModel):
     type: str = "section"
     title: str | None = None
     description: str | None = None
-    children: list[Self | "FieldBlock" | "FieldGroupBlock" | "ReviewSubheadingBlock" | "ConditionalBlock"] | None = None
+    children: (
+        list[Self | "FieldBlock" | "FieldGroupBlock" | "ReviewSubheadingBlock" | "ConditionalBlock"]
+        | None
+    ) = None
     alpine_controller_field: str | None = None
     template_name: str = "form_manager/section.html"
 

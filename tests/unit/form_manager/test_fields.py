@@ -2,7 +2,7 @@ import pytest
 from django import forms
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from form_manager.schema.fields import ACFFileField, _StorageFilePath, acf_fields
+from form_manager.schema.fields import ACFFileField, StorageFilePath, acf_fields
 from form_manager.schema.forms.base import (
     BaseFields,
 )
@@ -431,15 +431,15 @@ def test_default_if_excluded_none_behaves_normally():
 
 
 def test_storage_file_path_strips_uuid_prefix():
-    """_StorageFilePath.__str__ removes the 32-char hex UUID prefix from the filename."""
+    """StorageFilePath.__str__ removes the 32-char hex UUID prefix from the filename."""
     path = "form_uploads/1/attachment/9f4b2e1a8c3d7f0e5b2a1c3d4e5f6789_tribal_resolution.pdf"
-    assert str(_StorageFilePath(path)) == "tribal_resolution.pdf"
+    assert str(StorageFilePath(path)) == "tribal_resolution.pdf"
 
 
 def test_storage_file_path_str_no_prefix():
-    """_StorageFilePath.__str__ returns the bare filename when no UUID prefix is present."""
+    """StorageFilePath.__str__ returns the bare filename when no UUID prefix is present."""
     path = "form_uploads/1/attachment/plain_filename.pdf"
-    assert str(_StorageFilePath(path)) == "plain_filename.pdf"
+    assert str(StorageFilePath(path)) == "plain_filename.pdf"
 
 
 def test_acf_file_field_rejects_disallowed_extension():

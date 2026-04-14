@@ -2,22 +2,22 @@ from typing import Any
 
 from django import template
 
-from form_manager.schema.fields import _StorageFilePath
+from form_manager.schema.fields import StorageFilePath
 from form_manager.schema.layout import FieldBlock, ReviewSubheadingBlock
 
 register = template.Library()
 
 
 @register.filter
-def as_file_list(value) -> list[_StorageFilePath]:
-    """Convert a stored file value (string or list of strings) to a list of _StorageFilePath
+def as_file_list(value) -> list[StorageFilePath]:
+    """Convert a stored file value (string or list of strings) to a list of StorageFilePath
     objects suitable for rendering links in review templates."""
     if not value:
         return []
     if isinstance(value, str):
-        return [_StorageFilePath(value)]
+        return [StorageFilePath(value)]
     if isinstance(value, list):
-        return [_StorageFilePath(v) for v in value if v]
+        return [StorageFilePath(v) for v in value if v]
     return []
 
 

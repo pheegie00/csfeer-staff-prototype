@@ -190,7 +190,10 @@ class TribalPlanFormFields(BaseFields):
 
     # 2.2a
     has_recognition = acf_fields.ChoiceField(
-        title="Do all Tribes/Villages/Communities/Jurisdictions served have state or federal recognition?",
+        title=(
+            "Do all Tribes/Villages/Communities/Jurisdictions served"
+            " have state or federal recognition?"
+        ),
         choices=[("yes", "Yes"), ("no", "No")],
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
     )
@@ -210,7 +213,8 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     # NOTE: 2.2b-no (explanation for lack of recognition) has been removed per 3/24 PO Notes.
-    # POs confirmed: "Tribes don't need to explain. There does not need to be a pop-up if a tribe selects No."
+    # POs confirmed: "Tribes don't need to explain. There does not need to be a pop-up
+    # if a tribe selects No."
 
     # endregion
 
@@ -568,7 +572,8 @@ class TribalPlanFormFields(BaseFields):
 
     # region Additional Documents
 
-    # TODO: Final file upload constraints (allowed types, count, size) pending confirmation from ACF.
+    # TODO: Final file upload constraints (allowed types, count, size) pending
+    # confirmation from ACF.
     additional_documents = acf_fields.FileField(
         title="Additional Documents (Optional)",
         description=(
@@ -583,6 +588,9 @@ class TribalPlanFormFields(BaseFields):
     def clean(self):
         cleaned_data = super().clean()
 
+        if not cleaned_data:
+            return cleaned_data
+
         plan_coverage = cleaned_data.get("plan_coverage")
         is_multi_tribe = cleaned_data.get("is_multi_tribe")
         has_delegation = cleaned_data.get("has_delegation")
@@ -594,12 +602,14 @@ class TribalPlanFormFields(BaseFields):
             if not cleaned_data.get("multi_tribe_names"):
                 self.add_error(
                     "multi_tribe_names",
-                    "Names of all represented tribes are required when representing more than one tribe.",
+                    "Names of all represented tribes are required"
+                    " when representing more than one tribe.",
                 )
             if not cleaned_data.get("tribal_resolution_upload"):
                 self.add_error(
                     "tribal_resolution_upload",
-                    "Tribal resolution documentation is required when representing more than one tribe.",
+                    "Tribal resolution documentation is required"
+                    " when representing more than one tribe.",
                 )
 
         # 1.5: Additional Authorized Official fields are required when delegating authority.
@@ -617,14 +627,15 @@ class TribalPlanFormFields(BaseFields):
                     )
 
         # 2.2b: At least one of citation or upload is required when tribes have recognition.
-        if has_recognition == "yes":
-            if not cleaned_data.get("recognition_citation") and not cleaned_data.get(
-                "recognition_upload"
-            ):
-                self.add_error(
-                    "recognition_citation",
-                    "Provide a recognition citation or upload supporting documentation.",
-                )
+        if (
+            has_recognition == "yes"
+            and not cleaned_data.get("recognition_citation")
+            and not cleaned_data.get("recognition_upload")
+        ):
+            self.add_error(
+                "recognition_citation",
+                "Provide a recognition citation or upload supporting documentation.",
+            )
 
         # 1.1a-Y2 and Year 2 allocations: required when a two-year plan is selected.
         if plan_coverage == "two_year":
@@ -653,7 +664,8 @@ class TribalPlanFormFields(BaseFields):
                 y2_total = sum(Decimal(str(v)) for v in y2_values)
                 if y2_total != Decimal("100"):
                     raise forms.ValidationError(
-                        f"Year 2 allocation percentages must total 100%. Current total: {y2_total}%."
+                        "Year 2 allocation percentages must total 100%."
+                        f" Current total: {y2_total}%."
                     )
 
         return cleaned_data

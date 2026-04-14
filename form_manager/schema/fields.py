@@ -175,7 +175,6 @@ class ACFCurrencyField(ACFFieldMixin, forms.DecimalField):
 
 
 class ACFCalculatedFieldMixin(ACFFieldMixin, forms.Field):
-
     fields: list[str]
 
     class ACFCalculatedBoundField(BoundField):
@@ -193,7 +192,6 @@ class ACFCalculatedFieldMixin(ACFFieldMixin, forms.Field):
             fields_to_exclude = self.form.fields_to_exclude
 
             for field_name in self.field.fields:
-
                 if field_name in fields_to_exclude:
                     continue
 
@@ -281,7 +279,7 @@ class ACFTextareaField(ACFFieldMixin, forms.CharField):
         return defaults | attrs
 
 
-class _StorageFilePath:
+class StorageFilePath:
     """Wraps a storage path string to provide .url and a clean display name."""
 
     def __init__(self, path: str):
@@ -310,14 +308,14 @@ class ACFMultiFileWidget(forms.FileInput):
 
     template_name = "form_manager/widgets/multi_file_input.html"
 
-    def format_value(self, value) -> list[_StorageFilePath]:
-        """Convert stored value (string or list of strings) to list of _StorageFilePath."""
+    def format_value(self, value) -> list[StorageFilePath]:  # type: ignore[override]
+        """Convert stored value (string or list of strings) to list of StorageFilePath."""
         if not value:
             return []
         if isinstance(value, str):
-            return [_StorageFilePath(value)]
+            return [StorageFilePath(value)]
         if isinstance(value, list):
-            return [_StorageFilePath(v) for v in value if v]
+            return [StorageFilePath(v) for v in value if v]
         return []
 
     def value_from_datadict(self, data, files, name):
@@ -391,7 +389,6 @@ class ACFFileField(ACFFieldMixin, forms.FileField):
 
 
 class ACFBoundFieldFilterField(BoundField):
-
     def get_fields_to_exclude(self):
         """Return a list of field names that should be excluded based on the filter fields."""
         all_filterable_fields = []
@@ -457,7 +454,6 @@ class ACFYesNoDisplayField(ACFFieldMixin, forms.MultiValueField):
         subwidgets = []
 
         for field in fields:
-
             field = cast(ACFField, field)
 
             field.widget.attrs.update(
@@ -481,7 +477,6 @@ class ACFYesNoDisplayField(ACFFieldMixin, forms.MultiValueField):
 
 
 class ACFFieldsMeta(type):
-
     def __new__(cls, name, bases=(), dct=None):
         """A metaclass that creates an object of custom ACF form fields from built-in Django
         form fields. They're all accessible on the acf_fields object below."""
@@ -489,7 +484,6 @@ class ACFFieldsMeta(type):
         dct = dct or {}
 
         for name, field_class in forms.fields.__dict__.items():
-
             try:
                 if not issubclass(field_class, forms.Field):
                     continue
@@ -517,5 +511,4 @@ class ACFFieldsMeta(type):
 
 
 class acf_fields(metaclass=ACFFieldsMeta):
-
     ChoiceField: type[forms.ChoiceField]

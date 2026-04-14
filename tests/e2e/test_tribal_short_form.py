@@ -291,7 +291,10 @@ def test_tribal_short_form_side_nav_navigates(authenticated_page: Page, base_url
     page.get_by_role("heading", name="Your basic information").wait_for()
 
     # Saved data should be persisted
-    assert page.get_by_label("Name of Tribe or Tribal Organization *").input_value() == "Nav Test Tribe"
+    assert (
+        page.get_by_label("Name of Tribe or Tribal Organization *").input_value()
+        == "Nav Test Tribe"
+    )
 
 
 @pytest.mark.e2e
