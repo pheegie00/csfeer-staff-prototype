@@ -48,6 +48,7 @@ jobs:
           make test-e2e-ci IMAGE_NAME=csfeer:ci
         env:
           IMAGE_NAME: csfeer:ci
+          PLAYWRIGHT_LOG_BROWSER_CONSOLE: True
 
       # Uncomment these artifact uploads when our
       # artifact storage quota resets in the next 24 hours
