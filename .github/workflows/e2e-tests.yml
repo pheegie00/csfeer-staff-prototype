@@ -49,24 +49,26 @@ jobs:
         env:
           IMAGE_NAME: csfeer:ci
 
-      - name: Upload test artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-artifacts
-          path: |
-            tests/screenshots/
-            tests/videos/
-            tests/traces/
-          retention-days: 1
+      # Uncomment these artifact uploads when our
+      # artifact storage quota resets in the next 24 hours
+      # - name: Upload test artifacts
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: playwright-artifacts
+      #     path: |
+      #       tests/screenshots/
+      #       tests/videos/
+      #       tests/traces/
+      #     retention-days: 1
 
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: test-results/
-          retention-days: 7
+      # - name: Upload test results
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: test-results
+      #     path: test-results/
+      #     retention-days: 7
 
       - name: Docker logs on failure
         if: failure()
