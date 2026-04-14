@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load static %}
 {% block content %}
 <div class="grid-container">
   <div class="grid-row">
@@ -14,6 +13,7 @@
     <div class="grid-col-12 desktop:grid-col-9">
       <c-form id="csf-form" class="" method="post" action="{{ next_url }}" enctype="multipart/form-data" x-data="" novalidate @change="updateCalculatedFields">
         {% csrf_token %}
+        <input type="hidden" name="redirect_to" id="nav-redirect-to" value="">
         {{ current_page }}
       </c-form>
 
@@ -21,14 +21,4 @@
     </div>
   </div>
 </div>
-
-<script>
-  // Initialize USWDS date pickers
-  document.addEventListener('DOMContentLoaded', function() {
-    const datePickers = document.querySelectorAll('.usa-date-picker');
-    datePickers.forEach(function(picker) {
-      // USWDS date picker will auto-initialize
-    });
-  });
-</script>
 {% endblock %}

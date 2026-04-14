@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING
 import pytest
 from django.urls import reverse
 
-from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
+from form_manager.models import FormDefinition, FormEntry
+from form_manager.schema.navigation import build_form_edit_url
 
 if TYPE_CHECKING:
     from django.test.client import Client
@@ -39,11 +40,25 @@ def test_can_start_new_form(django_db_setup, seed_data, client: "Client"):
 def test_can_render_and_edit_form(django_db_setup, form_entry: "FormEntry", authenticated_client):
     """Ensure the load_initial_forms command loads successfully."""
 
-    url = reverse("form_edit", args=[form_entry.pk])
+    url = build_form_edit_url(form_entry.pk, step_number=0, page_number=0)
 
     response = authenticated_client.get(url)
 
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_form_edit_redirects_to_canonical_first_page_when_query_params_missing(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    response = authenticated_client.get(url)
+
+    assert response.status_code == 302
+    assert response.headers.get("Location") == build_form_edit_url(
+        form_entry.pk, step_number=0, page_number=0
+    )
 
 
 @pytest.mark.django_db
@@ -52,7 +67,7 @@ def test_can_correctly_filter_fields(
 ):
     """Ensure the load_initial_forms command loads successfully and test Next button behavior."""
 
-    url = reverse("form_edit", args=[form_entry.pk])
+    url = build_form_edit_url(form_entry.pk, step_number=0, page_number=0)
 
     # Make a GET request to the form's first page
     response = authenticated_client.get(url)
@@ -109,9 +124,10 @@ def test_back_button_not_shown_on_first_page(
     django_db_setup, form_entry: "FormEntry", authenticated_client
 ):
     """
-    Test that the back button and Save & Exit button are not displayed on the first page (step=0, page=0).
-    This regression test ensures that current_step_number and current_page_number
-    are correctly passed to the page template context.
+    Test that the back button and Save & Exit button are not displayed on
+    the first page (step=0, page=0). This regression test ensures that
+    current_step_number and current_page_number are correctly passed to
+    the page template context.
     """
     url = reverse("form_edit", args=[form_entry.pk])
 
@@ -194,12 +210,40 @@ def test_review_back_button_accounts_for_excluded_fields(
     # With the "Specific costs" page removed, step 1 has only 1 page (the
     # PermanentPageBlock at index 0). So the back button should point to
     # step=1, page=0 — NOT step=1, page=1 which would cause a 500.
-    expected_url = reverse(
-        "form_edit",
-        kwargs={"pk": form_entry.pk},
-        query={"step": 1, "page": 0},
-    )
+    expected_url = build_form_edit_url(form_entry.pk, step_number=1, page_number=0)
     assert prev_url == expected_url
+
+
+@pytest.mark.django_db
+def test_invalid_query_params_fall_back_to_first_page(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    response = authenticated_client.get(url, {"step": "not-a-number", "page": "also-bad"})
+
+    assert response.status_code == 200
+    assert response.context["current_step_number"] == 0
+    assert response.context["current_page_number"] == 0
+
+
+@pytest.mark.django_db
+def test_out_of_range_page_query_params_clamp_to_last_visible_page(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    authenticated_client.post(
+        url,
+        data={"applicable_topics": []},
+        query_params={"step": 1, "page": 0},
+    )
+
+    response = authenticated_client.get(url, {"step": 1, "page": 99})
+
+    assert response.status_code == 200
+    assert response.context["current_step_number"] == 1
+    assert response.context["current_page_number"] == 0
 
 
 @pytest.mark.django_db
@@ -228,6 +272,48 @@ def test_save_and_exit_redirects_to_form_list(
     # Should redirect to form_list
     assert response.status_code == 302
     assert response.headers.get("Location") == reverse("form_list")
+
+
+@pytest.mark.django_db
+def test_side_nav_redirect_accepts_valid_same_entry_url(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    target = reverse("form_edit", args=[form_entry.pk]) + "?step=2&page=0"
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    response = authenticated_client.post(
+        url,
+        data={
+            "first_name": "John",
+            "last_name": "Doe",
+            "redirect_to": target,
+        },
+        query_params={"step": 1, "page": 0},
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"] == target
+
+
+@pytest.mark.django_db
+def test_side_nav_redirect_rejects_external_urls(
+    django_db_setup, form_entry: "FormEntry", authenticated_client
+):
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    response = authenticated_client.post(
+        url,
+        data={
+            "first_name": "John",
+            "last_name": "Doe",
+            "redirect_to": "//attacker.example/phish",
+        },
+        query_params={"step": 0, "page": 0},
+    )
+
+    assert response.status_code == 200
+    assert response.context["current_step_number"] == 0
+    assert response.context["current_page_number"] == 0
 
     # Data should be saved
     form_entry.refresh_from_db()

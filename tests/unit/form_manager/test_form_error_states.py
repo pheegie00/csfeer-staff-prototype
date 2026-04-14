@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 import pytest
 from django.urls import reverse
 
-from form_manager.models import FormEntry
+from form_manager.models import FormAuditTrail, FormEntry
 
 if TYPE_CHECKING:
     from django.test.client import Client
@@ -130,6 +130,8 @@ def test_form_finalize_clears_show_errors_flag(
     assert response.status_code == 302
     form_entry.refresh_from_db()
     assert form_entry.status == "submitted"
+    audit = FormAuditTrail.objects.get(form_entry=form_entry)
+    assert audit.action == "submit"
 
 
 @pytest.mark.django_db

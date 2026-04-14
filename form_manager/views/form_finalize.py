@@ -8,8 +8,9 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
-from form_manager.models import FormEntry
+from form_manager.models import FormAuditTrail, FormEntry
 from form_manager.schema.forms.utils import import_form_schema
+from form_manager.schema.navigation import build_form_edit_url
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,7 @@ def form_finalize(request, pk):
     entry.status = "submitted"
     entry.submitted_at = timezone.now()
     entry.save()
+    FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="submit")
 
     # Clear the show_errors flag since form is now submitted
     request.session.pop(f"show_errors_{entry.pk}", None)
@@ -68,11 +70,9 @@ def form_finalize(request, pk):
         request, "There were errors in your form. Please correct them before submitting."
     )
     return redirect(
-        reverse(
-            "form_edit",
-            kwargs={
-                "pk": entry.pk,
-            },
+        build_form_edit_url(
+            entry.pk,
+            step_number=len(schema.ui) - 1,
+            page_number=len(schema.ui[-1].children) - 1,
         )
-        + f"?step={len(schema.ui)-1}&page={len(schema.ui[-1].children)-1}"
     )
