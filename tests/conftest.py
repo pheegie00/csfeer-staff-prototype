@@ -146,6 +146,7 @@ def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "e2e: end-to-end tests using Playwright")
     config.addinivalue_line("markers", "auth: tests that require authentication")
     config.addinivalue_line("markers", "slow: slow running tests")
+    config.addinivalue_line("markers", "accessibility: accessibility tests using axe-core (dev only, not run in CI)")
 
 
 import pytest
