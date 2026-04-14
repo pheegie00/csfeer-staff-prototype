@@ -28,6 +28,7 @@ class UserProfile(BaseModel):
         blank=True,
         help_text="Unique identifier from OIDC provider (Login.gov or Keycloak)",
     )
+    phone_number = models.CharField(max_length=50, blank=True, default="")
 
     def __str__(self):
         return f"Profile for {self.user}"
