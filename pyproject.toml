@@ -27,7 +27,7 @@ dependencies = [
     "semver>=3.0.4",
     "weasyprint>=62.3",
     "django-storages>=1.14.6",
-    "django-cotton-uswds>=1.1.1",
+    "django-cotton-uswds>=1.1.2",
 ]
 
 [dependency-groups]
