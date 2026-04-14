@@ -9,6 +9,7 @@ from django.urls import reverse
 from form_manager.constants import CSBGTribalPlanApplicationForms
 from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
 from form_manager.schema.forms.tribal_plan import TribalPlanFormFields
+from form_manager.schema.navigation import build_form_edit_url
 
 if TYPE_CHECKING:
     from django.test.client import Client
@@ -176,7 +177,7 @@ def test_tribal_plan_form_renders(
     django_db_setup, tribal_plan_form_entry: FormEntry, authenticated_client
 ):
     """GET on the form edit URL returns 200."""
-    url = reverse("form_edit", args=[tribal_plan_form_entry.pk])
+    url = build_form_edit_url(tribal_plan_form_entry.pk, step_number=0, page_number=0)
     response = authenticated_client.get(url)
     assert response.status_code == 200
 

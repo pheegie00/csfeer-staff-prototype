@@ -242,11 +242,18 @@ def save_form_entry(form_class: type[Form], form_entry: FormEntry, request):
     # merge the old and new data
     final_data = old_data | new_data
 
-    form_entry.data = final_data
-    FormAuditTrail.objects.create(form_entry=form_entry, user=request.user, action="submit")
-    record_field_diffs(form_entry, old_data, form_entry.data, user=request.user)
+    if final_data == old_data:
+        logger.info(
+            "Skipping save for FormEntry %s by user %s because no form data changed.",
+            form_entry.pk,
+            request.user.pk,
+        )
+        return
 
+    form_entry.data = final_data
     form_entry.save()
+    FormAuditTrail.objects.create(form_entry=form_entry, user=request.user, action="save")
+    record_field_diffs(form_entry, old_data, form_entry.data, user=request.user)
 
     logger.info(
         "FormEntry %s saved by user %s. Data: %s",
