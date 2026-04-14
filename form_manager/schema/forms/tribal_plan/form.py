@@ -189,8 +189,9 @@ class TribalPlanForm(BaseFormSchema):
                     PermanentPageBlock(
                         title="Goals and Objectives",
                         subtitle=(
-                            "Briefly describe the Tribe or Tribal Organization's CSBG-specific goals "
-                            "and objectives for the Community Services Block Grant funding, as applicable."
+                            "Briefly describe the Tribe or Tribal Organization's"
+                            " CSBG-specific goals and objectives for the"
+                            " Community Services Block Grant funding, as applicable."
                         ),
                         children=[
                             SectionBlock(
@@ -215,7 +216,9 @@ class TribalPlanForm(BaseFormSchema):
                                     ReviewSubheadingBlock(title="Community-Based Feedback"),
                                     FieldBlock(
                                         field_name="community_feedback",
-                                        review_template_name="form_manager/forms/yes_no_display_review.html",
+                                        review_template_name=(
+                                            "form_manager/forms/yes_no_display_review.html"
+                                        ),
                                     ),
                                 ],
                             ),
@@ -230,17 +233,17 @@ class TribalPlanForm(BaseFormSchema):
                     PermanentPageBlock(
                         title="Planned Allocation of Funds",
                         subtitle=(
-                            "For program funds, enter the percentage allocated to each CSBG service "
-                            "area. The total must equal 100%."
+                            "For program funds, enter the percentage allocated to each CSBG"
+                            " service area. The total must equal 100%."
                         ),
                         children=[
                             AlertBoxBlock(
                                 alert_type="info",
                                 heading="Allocation requirements for CSBG funds",
                                 message=(
-                                    "According to the CSBG Act: no more than 5% of funds may be used "
-                                    "for administrative costs, and at least 95% must be allocated to "
-                                    "program services."
+                                    "According to the CSBG Act: no more than 5% of funds"
+                                    " may be used for administrative costs, and at least"
+                                    " 95% must be allocated to program services."
                                 ),
                             ),
                             FieldGroupBlock(
@@ -356,8 +359,8 @@ class TribalPlanForm(BaseFormSchema):
                     PermanentPageBlock(
                         title="Assurances Narrative",
                         subtitle=(
-                            "Provide a narrative description of how the tribe or tribal organization "
-                            "will carry out the required programmatic assurances."
+                            "Provide a narrative description of how the tribe or tribal"
+                            " organization will carry out the required programmatic assurances."
                         ),
                         children=[
                             AlertBoxBlock(
@@ -445,7 +448,9 @@ class TribalPlanForm(BaseFormSchema):
                                     FieldBlock(field_name="drug_free_place_of_performance"),
                                     FieldBlock(
                                         field_name="drug_free_unidentified_workplaces",
-                                        review_template_name="form_manager/forms/yes_no_display_review.html",
+                                        review_template_name=(
+                                            "form_manager/forms/yes_no_display_review.html"
+                                        ),
                                     ),
                                     FieldBlock(field_name="drug_free_signature"),
                                 ],
@@ -463,14 +468,16 @@ class TribalPlanForm(BaseFormSchema):
                                 items=[
                                     AccordionItem(
                                         heading=(
-                                            "Instructions for Certifications - Primary Covered Transactions"
+                                            "Instructions for Certifications"
+                                            " - Primary Covered Transactions"
                                         ),
                                         text=_DEBARMENT_PRIMARY_INSTRUCTIONS_TEXT,
                                         is_expanded=False,
                                     ),
                                     AccordionItem(
                                         heading=(
-                                            "Instructions for Certifications - Lower Tier Covered Transactions"
+                                            "Instructions for Certifications"
+                                            " - Lower Tier Covered Transactions"
                                         ),
                                         text=_DEBARMENT_LOWER_TIER_INSTRUCTIONS_TEXT,
                                         is_expanded=False,
@@ -484,7 +491,10 @@ class TribalPlanForm(BaseFormSchema):
                             SectionBlock(
                                 children=[
                                     ReviewSubheadingBlock(
-                                        title="Debarment, Suspension and Other Responsibility Matters"
+                                        title=(
+                                            "Debarment, Suspension and Other"
+                                            " Responsibility Matters"
+                                        )
                                     ),
                                     FieldBlock(field_name="debarment_attestation"),
                                     FieldBlock(field_name="debarment_signature"),

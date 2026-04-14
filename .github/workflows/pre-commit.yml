@@ -2,9 +2,12 @@ name: Pre-commit Checks
 
 on:
   workflow_dispatch:
-  # Uncomment to enable automatic runs:
-  # pull_request:
-  #   branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   pre-commit:
@@ -26,10 +29,15 @@ jobs:
         pip install uv
 
     - name: Install dependencies
-      run: uv sync --dev
+      run: |
+        sudo apt update
+        sudo apt install graphviz
+        uv sync --dev
 
     - name: Run pre-commit
       run: |
+        uv run pre-commit install
         uv run pre-commit run black --all-files --show-diff-on-failure
-        uv run pre-commit run isort --all-files --show-diff-on-failure
+        uv run pre-commit run ruff --all-files --show-diff-on-failure
         uv run pre-commit run pyright --all-files --show-diff-on-failure
+

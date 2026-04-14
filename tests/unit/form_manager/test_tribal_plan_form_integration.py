@@ -168,8 +168,8 @@ def test_can_start_tribal_plan_form(
     assert FormEntry.objects.count() == 1
 
     entry = FormEntry.objects.first()
-    assert entry.form_definition == tribal_plan_form_schema
-    assert response.headers.get("Location", "") == reverse("form_edit", args=[entry.pk])
+    assert entry and entry.form_definition == tribal_plan_form_schema
+    assert entry and response.headers.get("Location", "") == reverse("form_edit", args=[entry.pk])
 
 
 @pytest.mark.django_db
