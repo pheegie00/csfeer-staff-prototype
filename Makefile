@@ -62,7 +62,7 @@ test-e2e: ## Run e2e tests (TEST=path optional)
 	docker compose exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e
 
 test-e2e-ci: ## Run e2e tests in CI (TEST=path optional)
-	$(CI_COMPOSE) exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e -s
+	$(CI_COMPOSE) exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e -s --screenshot=off --video=off
 
 # ── Native (host) ─────────────────────────────────────────────────────────────
 
