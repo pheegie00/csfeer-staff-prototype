@@ -1,9 +1,0 @@
-<c-vars
-    type=""
- />
-
- <!-- Type Options: borderless (leave blank), bordered, multiselectable -->
-
-<div class="usa-accordion{% if type == 'bordered' %} usa-accordion--bordered{% endif %}{% if type == 'multiselectable' %} usa-accordion--multiselectable{% endif %} {{ extra_classes }}"{% if type == 'multiselectable' %}data-allow-multiple{% endif %}>
-    {{ slot }}
-</div>

@@ -24,7 +24,6 @@ services:
     volumes:
       - ../../csfeer/:/app/csfeer/
       - ../../form_manager/:/app/form_manager/
-      - ../../django_cotton_uswds/:/app/django_cotton_uswds/
       - ../../frontend/built/:/app/csfeer/static/frontend/
       - ../../tests:/app/tests/
       - ../../logs/:/app/logs/

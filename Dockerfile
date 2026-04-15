@@ -17,7 +17,7 @@ ARG VERSION=local
 RUN pip install 'uv==0.7.20'
 RUN apt-get update && apt-get upgrade --yes \
     && apt-get install --no-install-recommends --yes \
-    postgresql libpq-dev gnupg build-essential curl \
+    postgresql libpq-dev gnupg build-essential curl git \
     libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf-xlib-2.0-0 \
     && apt-get autoremove -y && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
@@ -35,7 +35,6 @@ WORKDIR /app
 # Copy Django project apps and other application code
 COPY --chown=python:python ./csfeer /app/csfeer
 COPY --chown=python:python ./core /app/core
-COPY --chown=python:python ./django_cotton_uswds /app/django_cotton_uswds
 COPY --chown=python:python ./form_manager /app/form_manager
 COPY --chown=python:python ./users /app/users
 COPY --chown=python:python ./pyproject.toml .

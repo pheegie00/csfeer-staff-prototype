@@ -490,6 +490,7 @@ dependencies = [
     { name = "boto3" },
     { name = "django" },
     { name = "django-cotton" },
+    { name = "django-cotton-uswds" },
     { name = "django-crispy-forms" },
     { name = "django-json-widget" },
     { name = "django-ninja" },
@@ -634,6 +635,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/49/bf/56875c0a31f601bd1e6d19eecd58a8e40ec6cf793e8d12043b6dc8196b06/django_cotton-2.6.2.tar.gz", hash = "sha256:d4131517d8ec1080495a4779fb8d984264d671e6c850f4fa34c14822817dd693", size = 31854, upload-time = "2026-03-13T23:05:57.322Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0b/b0/be3e3d8654196f69390ed0a2a459e80066a345e184d8364b178fdf149dcd/django_cotton-2.6.2-py3-none-any.whl", hash = "sha256:292d35ad2d2c1da4ae21e688cc44aa18f84716ab64a619ff7b7296e0e30275fc", size = 30910, upload-time = "2026-03-13T23:05:58.258Z" },
+]
+
+[[package]]
+name = "django-cotton-uswds"
+version = "1.1.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+    { name = "django-cotton" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5d/8e/13ac191c02e0be38131b5219f20bc4ac09e97cabcc708fef6744e7d7af87/django_cotton_uswds-1.1.2.tar.gz", hash = "sha256:a40223a9b57d2482b240f06f41a5559abc5a3e14898718338938d4ebfa89f703", size = 144545, upload-time = "2026-04-14T17:28:37.908Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d9/85/c7a06fe5b2aa29691f862dc5b18f5ab04ded686e4aa8357d56cb7e2ca3be/django_cotton_uswds-1.1.2-py3-none-any.whl", hash = "sha256:b48b2f4106e4692cbb760dab99f7cb1edc1eaff0f94e1fbe4bdf12bfb31ec666", size = 169005, upload-time = "2026-04-14T17:28:36.632Z" },
 ]
 
 [[package]]
