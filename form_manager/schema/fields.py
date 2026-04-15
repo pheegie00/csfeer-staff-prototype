@@ -8,6 +8,7 @@ import re
 from collections.abc import Iterable
 from datetime import date, datetime
 from decimal import Decimal
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, cast
 
 from django import forms
@@ -211,7 +212,7 @@ class ACFCalculatedFieldMixin(ACFFieldMixin, forms.Field):
         def data(self):
             return self.get_calculated_value()
 
-        @property
+        @cached_property
         def initial(self):
             return self.get_calculated_value()
 

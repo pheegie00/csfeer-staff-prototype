@@ -7,6 +7,10 @@ from users.managers import CoreUserManager
 
 
 class CoreUser(AbstractUser, BaseModel):
+
+    class Meta(AbstractUser.Meta, BaseModel.Meta):
+        abstract = False
+
     username = None
     email = models.EmailField(_("email address"), unique=True)
 
