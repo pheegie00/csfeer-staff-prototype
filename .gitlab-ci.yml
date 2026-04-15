@@ -71,7 +71,7 @@ prepare:
     - echo $CURRENT_VERSION #debug
     - export MAJOR=$(echo $CURRENT_VERSION | cut -d. -f1)
     - export MINOR=$(echo $CURRENT_VERSION | cut -d. -f2)
-    - export PATCH=$(echo $CURRENT_VERSION | cut -d. -f3)
+    - export PATCH=$(echo $CURRENT_VERSION | cut -d. -f3 | cut -d- -f1)
     - |
       if [[ -n "$BUMP_VERSION" ]]; then
         export NEXT_VERSION=$BUMP_VERSION;
@@ -562,6 +562,8 @@ deploy:dev:
     - buildah pull $FULL_IMAGE_NAME
     - buildah tag $FULL_IMAGE_NAME $DEV_IMAGE
     - buildah push $DEV_IMAGE
+    - git tag "v$VERSION-dev"
+    - git push origin main --tags
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
 
