@@ -10,7 +10,8 @@ from django.urls import reverse
 from form_manager.constants import CSBGTribalPlanApplicationForms
 from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
 from form_manager.schema.choices import FISCAL_YEAR_CHOICES
-from form_manager.schema.forms.tribal_plan import TribalPlanFormFields
+from form_manager.schema.forms.tribal_plan import TribalPlanForm, TribalPlanFormFields
+from form_manager.schema.layout import AlertBoxBlock
 from form_manager.schema.navigation import build_form_edit_url
 
 if TYPE_CHECKING:
@@ -294,6 +295,26 @@ def test_tribal_plan_form_section2_recognition_page(
     assert (
         "Provide a citation to the State statute or code acknowledging State recognition" in content
     )
+
+
+def test_tribal_plan_form_section3_goals_page_has_guidance_alert():
+    """The goals page includes a guidance alert before the textarea field."""
+    schema = TribalPlanForm.model_construct()
+
+    goals_step = schema.ui[2]
+    assert goals_step.title == "Goals and Objectives"
+    assert goals_step.children is not None
+
+    goals_page = goals_step.children[0]
+    assert goals_page.children is not None
+    assert len(goals_page.children) > 1
+
+    assert isinstance(goals_page.children[0], AlertBoxBlock)
+    alert = goals_page.children[0]
+    assert alert.alert_type == "info"
+    assert "align with the purposes of the CSBG program" in alert.message
+    assert "obtaining emergency assistance" in alert.message
+    assert "developing linkages to fill service gaps" in alert.message
 
 
 @pytest.mark.django_db

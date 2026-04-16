@@ -13,6 +13,7 @@ from form_manager.schema.forms.tribal_plan.texts import (
     _DEBARMENT_LOWER_TIER_INSTRUCTIONS_TEXT,
     _DEBARMENT_PRIMARY_INSTRUCTIONS_TEXT,
     _DRUG_FREE_WORKPLACE_CERTIFICATION_TEXT,
+    _GOALS_AND_OBJECTIVES_GUIDANCE_TEXT,
     _LOBBYING_CERTIFICATION_TEXT,
     _TOBACCO_SMOKE_CERTIFICATION_TEXT,
 )
@@ -236,6 +237,10 @@ class TribalPlanForm(BaseFormSchema):
                             " Community Services Block Grant funding, as applicable."
                         ),
                         children=[
+                            AlertBoxBlock(
+                                alert_type="info",
+                                message=_GOALS_AND_OBJECTIVES_GUIDANCE_TEXT,
+                            ),
                             SectionBlock(
                                 children=[
                                     ReviewSubheadingBlock(title="Goals and Objectives"),
