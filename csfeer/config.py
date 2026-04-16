@@ -48,6 +48,7 @@ class AppConfig(BaseSettings):
     api_key: str = "SECRET123"
     aws_storage_bucket_name: str = "core-local"
     aws_s3_endpoint_url: str | None = None
+    csrf_trusted_origins: list[str] = ["https://*.acf.gov"]
 
     @property
     def is_local(self) -> bool:
