@@ -190,8 +190,32 @@ class TribalPlanForm(BaseFormSchema):
                                     ConditionalBlock(
                                         show_when="yes",
                                         children=[
-                                            FieldBlock(field_name="recognition_citation"),
-                                            FieldBlock(field_name="recognition_upload"),
+                                            SectionBlock(
+                                                alpine_controller_field=(
+                                                    "recognition_information_method"
+                                                ),
+                                                children=[
+                                                    FieldBlock(
+                                                        field_name="recognition_information_method"
+                                                    ),
+                                                    ConditionalBlock(
+                                                        show_when="manual",
+                                                        children=[
+                                                            FieldBlock(
+                                                                field_name="recognition_citation"
+                                                            )
+                                                        ],
+                                                    ),
+                                                    ConditionalBlock(
+                                                        show_when="upload",
+                                                        children=[
+                                                            FieldBlock(
+                                                                field_name="recognition_upload"
+                                                            )
+                                                        ],
+                                                    ),
+                                                ],
+                                            ),
                                         ],
                                     ),
                                 ],

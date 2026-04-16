@@ -34,10 +34,11 @@ _Y2_ALLOCATION_FIELDS = [
 
 _NEXT_FISCAL_YEAR_VALUE, _NEXT_FISCAL_YEAR_LABEL = FISCAL_YEAR_CHOICES[1]
 _FOLLOWING_FISCAL_YEAR_VALUE, _FOLLOWING_FISCAL_YEAR_LABEL = FISCAL_YEAR_CHOICES[2]
+_RECOGNITION_METHOD_MANUAL = "manual"
+_RECOGNITION_METHOD_UPLOAD = "upload"
 
 
 class TribalPlanFormFields(BaseFields):
-
     # region Section 1 — CSBG Tribal Administrative Information
 
     # 1.1 Plan Coverage
@@ -225,23 +226,33 @@ class TribalPlanFormFields(BaseFields):
     # 2.2a
     has_recognition = acf_fields.ChoiceField(
         title=(
-            "Do all Tribes/Villages/Communities/Jurisdictions served"
+            "Do all Tribes, Villages, Communities, and Jurisdictions served"
             " have state or federal recognition?"
         ),
         choices=[("yes", "Yes"), ("no", "No")],
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
     )
-    # 2.2b Recognition citation and upload (conditional on has_recognition = yes)
-    recognition_citation = acf_fields.CharField(
-        title="State or federal recognition citation",
-        description="Required if recognition exists. Provide the citation for the recognition.",
-        max_length=500,
+    recognition_information_method = acf_fields.ChoiceField(
+        title="How would you like to provide this information?",
+        choices=[
+            (_RECOGNITION_METHOD_MANUAL, "Enter it manually"),
+            (_RECOGNITION_METHOD_UPLOAD, "Upload a file"),
+        ],
         required=False,
+        widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
+    )
+    # 2.2b Recognition citation and upload (conditional on has_recognition = yes)
+    recognition_citation = acf_fields.TextareaField(
+        title="Provide a citation to the State statute or code acknowledging State recognition",
+        max_length=1000,
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 7, "cols": 49}),
     )
     recognition_upload = acf_fields.FileField(
         title="Recognition documentation",
         description=(
-            "Upload supporting recognition documentation. Required if recognition exists. "
+            "Upload supporting recognition documentation. "
+            "Required if the upload option is selected. "
             "Allowed types: PDF, PNG, JPG, JPEG. Maximum size: 10 MB."
         ),
         required=False,
@@ -629,6 +640,7 @@ class TribalPlanFormFields(BaseFields):
         is_multi_tribe = cleaned_data.get("is_multi_tribe")
         has_delegation = cleaned_data.get("has_delegation")
         has_recognition = cleaned_data.get("has_recognition")
+        recognition_information_method = cleaned_data.get("recognition_information_method")
 
         # 1.2b: Multi-tribe names and tribal resolution upload are required when
         # representing more than one tribe.
@@ -660,16 +672,32 @@ class TribalPlanFormFields(BaseFields):
                         f"{label} is required when delegating signature authority.",
                     )
 
-        # 2.2b: At least one of citation or upload is required when tribes have recognition.
-        if (
-            has_recognition == "yes"
-            and not cleaned_data.get("recognition_citation")
-            and not cleaned_data.get("recognition_upload")
-        ):
-            self.add_error(
-                "recognition_citation",
-                "Provide a recognition citation or upload supporting documentation.",
-            )
+        # 2.2b: When recognition exists, users must choose how to provide it and
+        # complete the field associated with that choice.
+        if has_recognition == "yes":
+            if not recognition_information_method:
+                self.add_error(
+                    "recognition_information_method",
+                    "Select how you want to provide the recognition information.",
+                )
+            elif (
+                recognition_information_method == _RECOGNITION_METHOD_MANUAL
+                and not cleaned_data.get("recognition_citation")
+            ):
+                self.add_error(
+                    "recognition_citation",
+                    (
+                        "Provide a citation to the State statute or code "
+                        "acknowledging State recognition."
+                    ),
+                )
+            elif recognition_information_method == _RECOGNITION_METHOD_UPLOAD and not (
+                cleaned_data.get("recognition_upload") or self.initial.get("recognition_upload")
+            ):
+                self.add_error(
+                    "recognition_upload",
+                    "Upload supporting recognition documentation.",
+                )
 
         # 1.1a-Y2 and Year 2 allocations: required when a two-year plan is selected.
         if plan_coverage == "two_year":

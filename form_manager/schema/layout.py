@@ -154,7 +154,7 @@ class ConditionalBlock(RenderableBaseModel):
 
     type: str = "conditional"
     show_when: str = "yes"
-    children: list["FieldBlock | ReviewSubheadingBlock"] | None = None
+    children: list["SectionBlock | FieldBlock | ReviewSubheadingBlock"] | None = None
     template_name: str = "form_manager/conditional_block.html"
 
 

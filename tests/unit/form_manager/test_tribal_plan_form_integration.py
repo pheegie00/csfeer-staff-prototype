@@ -96,6 +96,7 @@ def _valid_form_data(**overrides) -> dict:
         "delegation_email": "",
         # Section 2 — Recognition
         "has_recognition": "yes",
+        "recognition_information_method": "manual",
         "recognition_citation": "Federal Recognition, 25 U.S.C. § 450",
         # Section 3
         "goals_and_objectives": "Improve community well-being through targeted CSBG programs.",
@@ -236,6 +237,18 @@ def test_plan_coverage_uses_hidden_fiscal_year_fields_and_disabled_display_field
     assert fiscal_year_y2_display.initial == following_fiscal_year_label
 
 
+def test_recognition_information_method_uses_expected_radio_labels():
+    """Recognition method radios use the manual/upload labels shown in the UI."""
+    recognition_method_field = TribalPlanFormFields.base_fields["recognition_information_method"]
+    assert isinstance(recognition_method_field, forms.ChoiceField)
+    recognition_method_choices = list(cast(list[tuple[str, str]], recognition_method_field.choices))
+
+    assert recognition_method_choices == [
+        ("manual", "Enter it manually"),
+        ("upload", "Upload a file"),
+    ]
+
+
 @pytest.mark.django_db
 def test_tribal_plan_form_section1_tribal_org_page(
     django_db_setup, tribal_plan_form_entry: FormEntry, authenticated_client
@@ -263,6 +276,24 @@ def test_tribal_plan_form_section1_authorized_official_page(
     content = response.content.decode()
     assert "authorized_official_name" in content or "Authorized Tribal Official" in content
     assert "authorized_official_email" in content or "Email address" in content
+
+
+@pytest.mark.django_db
+def test_tribal_plan_form_section2_recognition_page(
+    django_db_setup, tribal_plan_form_entry: FormEntry, authenticated_client
+):
+    """Step 1, page 0 renders the recognition method options and citation prompt."""
+    url = reverse("form_edit", args=[tribal_plan_form_entry.pk])
+    response = authenticated_client.get(url, query_params={"step": 1, "page": 0})
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert "How would you like to provide this information?" in content
+    assert "Enter it manually" in content
+    assert "Upload a file" in content
+    assert (
+        "Provide a citation to the State statute or code acknowledging State recognition" in content
+    )
 
 
 @pytest.mark.django_db
@@ -383,26 +414,59 @@ def test_delegation_fields_not_required_when_no():
     assert form.is_valid(), form.errors
 
 
-def test_recognition_requires_citation_or_upload_when_yes():
-    """At least one of citation or upload is required when has_recognition = yes."""
-    data = _valid_form_data(has_recognition="yes", recognition_citation="")
-    # No upload provided (file fields are excluded from plain POST data)
+def test_recognition_requires_method_when_yes():
+    """Recognition method is required when has_recognition = yes."""
+    data = _valid_form_data(
+        has_recognition="yes",
+        recognition_information_method="",
+        recognition_citation="",
+    )
+    form = TribalPlanFormFields(data=data)
+    assert not form.is_valid()
+    assert "recognition_information_method" in form.errors
+
+
+def test_recognition_manual_entry_requires_citation():
+    """Citation is required when the manual recognition method is selected."""
+    data = _valid_form_data(
+        has_recognition="yes",
+        recognition_information_method="manual",
+        recognition_citation="",
+    )
     form = TribalPlanFormFields(data=data)
     assert not form.is_valid()
     assert "recognition_citation" in form.errors
 
 
+def test_recognition_upload_method_requires_file():
+    """An upload is required when the upload recognition method is selected."""
+    data = _valid_form_data(
+        has_recognition="yes",
+        recognition_information_method="upload",
+        recognition_citation="",
+        recognition_upload="",
+    )
+    form = TribalPlanFormFields(data=data)
+    assert not form.is_valid()
+    assert "recognition_upload" in form.errors
+
+
 def test_recognition_not_required_when_no():
     """No recognition fields are required when has_recognition = no."""
-    data = _valid_form_data(has_recognition="no", recognition_citation="")
+    data = _valid_form_data(
+        has_recognition="no",
+        recognition_information_method="",
+        recognition_citation="",
+    )
     form = TribalPlanFormFields(data=data)
     assert form.is_valid(), form.errors
 
 
 def test_recognition_upload_can_use_existing_saved_file():
-    """Existing saved recognition upload should satisfy citation-or-upload rule."""
+    """Existing saved recognition upload should satisfy the upload-path requirement."""
     data = _valid_form_data(
         has_recognition="yes",
+        recognition_information_method="upload",
         recognition_citation="",
         recognition_upload="",
     )
