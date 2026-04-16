@@ -32,6 +32,9 @@ _Y2_ALLOCATION_FIELDS = [
     "alloc_partnerships_y2",
 ]
 
+_NEXT_FISCAL_YEAR_VALUE, _NEXT_FISCAL_YEAR_LABEL = FISCAL_YEAR_CHOICES[1]
+_FOLLOWING_FISCAL_YEAR_VALUE, _FOLLOWING_FISCAL_YEAR_LABEL = FISCAL_YEAR_CHOICES[2]
+
 
 class TribalPlanFormFields(BaseFields):
 
@@ -40,20 +43,51 @@ class TribalPlanFormFields(BaseFields):
     # 1.1 Plan Coverage
     plan_coverage = acf_fields.ChoiceField(
         title="Plan Coverage",
-        choices=[("one_year", "One year"), ("two_year", "Two year")],
+        choices=[("one_year", "One year plan"), ("two_year", "Two year plan")],
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
     )
 
     # 1.1a Fiscal Years
     fiscal_year_y1 = acf_fields.ChoiceField(
         title="Fiscal Year (Year One)",
+        review_title="Year One",
         choices=FISCAL_YEAR_CHOICES,
+        initial=_NEXT_FISCAL_YEAR_VALUE,
+        required=False,
+        widget=forms.HiddenInput,
     )
     fiscal_year_y2 = acf_fields.ChoiceField(
         title="Fiscal Year (Year Two)",
+        review_title="Year Two",
         description="Required only if a two-year plan is selected above.",
         choices=FISCAL_YEAR_CHOICES,
         required=False,
+        widget=forms.HiddenInput(
+            attrs={
+                "x-bind:value": (f"checked === 'two_year' ? '{_FOLLOWING_FISCAL_YEAR_VALUE}' : ''")
+            }
+        ),
+    )
+    fiscal_year_y1_display_one_year = acf_fields.CharField(
+        title="Year One",
+        initial=_NEXT_FISCAL_YEAR_LABEL,
+        required=False,
+        disabled=True,
+        is_presentational_only=True,
+    )
+    fiscal_year_y1_display_two_year = acf_fields.CharField(
+        title="Year One",
+        initial=_NEXT_FISCAL_YEAR_LABEL,
+        required=False,
+        disabled=True,
+        is_presentational_only=True,
+    )
+    fiscal_year_y2_display = acf_fields.CharField(
+        title="Year Two",
+        initial=_FOLLOWING_FISCAL_YEAR_LABEL,
+        required=False,
+        disabled=True,
+        is_presentational_only=True,
     )
 
     # Tribal Organization
@@ -75,7 +109,7 @@ class TribalPlanFormFields(BaseFields):
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
     )
     multi_tribe_names = acf_fields.TextareaField(
-        title="Names of all Tribes/Villages/Communities/Jurisdictions represented",
+        title="List the names of Tribes, Villages, Communities, or Jurisdictions",
         description="Required if representing more than one tribe. Maximum 1,000 characters.",
         max_length=1000,
         required=False,
@@ -84,7 +118,7 @@ class TribalPlanFormFields(BaseFields):
     # from Section 2.1 to be adjacent to the multi-tribe question at 1.2b.
     # TODO: Final allowed file types and max size pending confirmation from ACF.
     tribal_resolution_upload = acf_fields.FileField(
-        title="Tribal Resolution(s)",
+        title="Attach Tribal Resolutions granting authority to receive CSBG funds",
         description=(
             "Upload tribal resolution documentation. Required if representing more than one tribe. "
             "Allowed types: PDF, PNG, JPG, JPEG. Maximum size: 10 MB."

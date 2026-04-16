@@ -3,6 +3,8 @@
 import pytest
 from playwright.sync_api import Page
 
+from form_manager.schema.choices import FISCAL_YEAR_CHOICES
+
 FORM_NAME = "CSBG Model Tribal Plan"
 
 
@@ -107,6 +109,7 @@ def test_tribal_plan_form_section1_fill_and_advance(
     authenticated_page: Page, base_url: str
 ) -> None:
     """Fill Section 1 Plan Coverage and advance to the Tribal Organization page."""
+    next_fiscal_year_label = FISCAL_YEAR_CHOICES[1][1]
     page = authenticated_page
     _start_tribal_plan_form(page, base_url)
     page.get_by_role("heading", name="Plan Coverage").first.wait_for()
@@ -114,12 +117,8 @@ def test_tribal_plan_form_section1_fill_and_advance(
     # Select one-year plan
     _click_radio(page, "one_year")
 
-    # Select fiscal year (pick the first real option in the dropdown)
-    fiscal_year_select = page.locator("select#id_fiscal_year_y1")
-    if not fiscal_year_select.is_visible():
-        # Try by label if the id differs
-        fiscal_year_select = page.get_by_label("Fiscal Year (Year One)")
-    fiscal_year_select.select_option(index=1)  # Skip the blank placeholder
+    year_one_input = page.locator(f'input[disabled][value="{next_fiscal_year_label}"]')
+    year_one_input.wait_for()
 
     _click_next(page)
 

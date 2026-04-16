@@ -48,11 +48,29 @@ class TribalPlanForm(BaseFormSchema):
                         children=[
                             SectionBlock(
                                 title="Plan Coverage",
+                                alpine_controller_field="plan_coverage",
                                 children=[
                                     ReviewSubheadingBlock(title="Plan Coverage"),
                                     FieldBlock(field_name="plan_coverage"),
                                     FieldBlock(field_name="fiscal_year_y1"),
                                     FieldBlock(field_name="fiscal_year_y2"),
+                                    ConditionalBlock(
+                                        show_when="one_year",
+                                        children=[
+                                            FieldBlock(
+                                                field_name="fiscal_year_y1_display_one_year"
+                                            ),
+                                        ],
+                                    ),
+                                    ConditionalBlock(
+                                        show_when="two_year",
+                                        children=[
+                                            FieldBlock(
+                                                field_name="fiscal_year_y1_display_two_year"
+                                            ),
+                                            FieldBlock(field_name="fiscal_year_y2_display"),
+                                        ],
+                                    ),
                                 ],
                             ),
                         ],

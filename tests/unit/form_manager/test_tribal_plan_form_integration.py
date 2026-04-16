@@ -1,13 +1,15 @@
 """Integration and unit tests for TribalPlanForm."""
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pytest
+from django import forms
 from django.core.management import call_command
 from django.urls import reverse
 
 from form_manager.constants import CSBGTribalPlanApplicationForms
 from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
+from form_manager.schema.choices import FISCAL_YEAR_CHOICES
 from form_manager.schema.forms.tribal_plan import TribalPlanFormFields
 from form_manager.schema.navigation import build_form_edit_url
 
@@ -193,7 +195,45 @@ def test_tribal_plan_form_section1_plan_coverage_page(
     assert response.status_code == 200
     content = response.content.decode()
     assert "plan_coverage" in content or "Plan Coverage" in content
+    assert "One year plan" in content
+    assert "Two year plan" in content
     assert "fiscal_year_y1" in content or "Fiscal Year" in content
+
+
+def test_plan_coverage_field_uses_expected_radio_labels():
+    """Plan coverage radios use the one-year/two-year plan labels shown in the UI."""
+    plan_coverage_field = TribalPlanFormFields.base_fields["plan_coverage"]
+    assert isinstance(plan_coverage_field, forms.ChoiceField)
+    plan_coverage_choices = list(cast(list[tuple[str, str]], plan_coverage_field.choices))
+
+    assert plan_coverage_choices == [
+        ("one_year", "One year plan"),
+        ("two_year", "Two year plan"),
+    ]
+
+
+def test_plan_coverage_uses_hidden_fiscal_year_fields_and_disabled_display_fields():
+    """Plan coverage uses hidden saved values plus disabled display-only year inputs."""
+    next_fiscal_year_value, next_fiscal_year_label = FISCAL_YEAR_CHOICES[1]
+    following_fiscal_year_value, following_fiscal_year_label = FISCAL_YEAR_CHOICES[2]
+    fiscal_year_y1 = TribalPlanFormFields.base_fields["fiscal_year_y1"]
+    fiscal_year_y2 = TribalPlanFormFields.base_fields["fiscal_year_y2"]
+    fiscal_year_y1_display = TribalPlanFormFields.base_fields["fiscal_year_y1_display_one_year"]
+    fiscal_year_y2_display = TribalPlanFormFields.base_fields["fiscal_year_y2_display"]
+
+    assert isinstance(fiscal_year_y1.widget, forms.HiddenInput)
+    assert fiscal_year_y1.initial == next_fiscal_year_value
+
+    assert isinstance(fiscal_year_y2.widget, forms.HiddenInput)
+    assert (
+        fiscal_year_y2.widget.attrs["x-bind:value"]
+        == f"checked === 'two_year' ? '{following_fiscal_year_value}' : ''"
+    )
+
+    assert fiscal_year_y1_display.disabled is True
+    assert fiscal_year_y1_display.initial == next_fiscal_year_label
+    assert fiscal_year_y2_display.disabled is True
+    assert fiscal_year_y2_display.initial == following_fiscal_year_label
 
 
 @pytest.mark.django_db
