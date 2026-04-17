@@ -39,17 +39,6 @@ _RECOGNITION_METHOD_UPLOAD = "upload"
 
 
 class TribalPlanFormFields(BaseFields):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        has_completed_single_audit = self.data.get("has_completed_single_audit")
-        if has_completed_single_audit is None:
-            has_completed_single_audit = self.initial.get("has_completed_single_audit")
-
-        single_audit_dates_required = has_completed_single_audit == "yes"
-        for field_name in ("audit_date", "audit_period_start", "audit_period_end"):
-            self.fields[field_name].required = single_audit_dates_required
-
     # region Section 1 — CSBG Tribal Administrative Information
 
     # 1.1 Plan Coverage
@@ -495,18 +484,15 @@ class TribalPlanFormFields(BaseFields):
     )
     audit_date = acf_fields.DateField(
         title="Date of audit",
-        error_messages={"required": "Date of audit is required when a Single Audit was completed."},
-        required=False,
+        required=True,
     )
     audit_period_start = acf_fields.DateField(
         title="Period start",
-        error_messages={"required": "Period start is required when a Single Audit was completed."},
-        required=False,
+        required=True,
     )
     audit_period_end = acf_fields.DateField(
         title="Period end",
-        error_messages={"required": "Period end is required when a Single Audit was completed."},
-        required=False,
+        required=True,
     )
 
     # endregion

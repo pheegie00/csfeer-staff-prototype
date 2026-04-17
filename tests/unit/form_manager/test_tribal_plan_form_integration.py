@@ -709,22 +709,13 @@ def test_single_audit_date_fields_use_date_picker_widget():
     assert 'type="date"' in audit_period_end_markup
 
 
-def test_single_audit_date_fields_become_required_when_yes_selected():
-    """Single Audit date fields are marked required when the user selects yes."""
-    form = TribalPlanFormFields(data=_valid_form_data(has_completed_single_audit="yes"))
+def test_single_audit_date_fields_are_required():
+    """Single Audit date fields are marked required by the field definitions."""
+    form = TribalPlanFormFields(data=_valid_form_data(has_completed_single_audit="no"))
 
     assert form.fields["audit_date"].required is True
     assert form.fields["audit_period_start"].required is True
     assert form.fields["audit_period_end"].required is True
-
-
-def test_single_audit_date_fields_remain_optional_when_no_selected():
-    """Single Audit date fields stay optional when the user selects no."""
-    form = TribalPlanFormFields(data=_valid_form_data(has_completed_single_audit="no"))
-
-    assert form.fields["audit_date"].required is False
-    assert form.fields["audit_period_start"].required is False
-    assert form.fields["audit_period_end"].required is False
 
 
 def test_two_year_plan_requires_fiscal_year_y2():
