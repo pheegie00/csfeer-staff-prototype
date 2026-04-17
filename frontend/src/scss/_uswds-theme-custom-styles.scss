@@ -161,6 +161,62 @@ textarea.usa-textarea {
   }
 }
 
+.planned-allocation-card-group {
+  margin-bottom: 0;
+}
+
+.planned-allocation-card {
+  display: flex;
+  margin-top: 0;
+  margin-bottom: 0;
+  height: 100%;
+}
+
+.planned-allocation-card__container {
+  border-color: color("blue-5");
+  border-radius: 0.5rem;
+  box-shadow: none;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.planned-allocation-card__header {
+  background-color: color("blue-5");
+  border-bottom: 1px solid color("blue-5");
+  padding: 1.25rem;
+}
+
+.planned-allocation-card__body {
+  flex: 1 1 auto;
+  padding: 1.25rem;
+  padding-top: 1rem;
+}
+
+.planned-allocation-card__date-range {
+  color: color("base-dark");
+}
+
+.use-of-funds-notice {
+  border: 1px solid color("base-lighter");
+  border-radius: radius("md");
+  margin: units(2) 0;
+  padding: units(3);
+}
+
+.use-of-funds-acknowledgment {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.use-of-funds-acknowledgment .usa-checkbox,
+.use-of-funds-acknowledgment .usa-checkbox__label {
+  border: 0;
+  box-shadow: none;
+}
+
 /* ========================================
    User Nav (Header) Overrides
    ======================================== */

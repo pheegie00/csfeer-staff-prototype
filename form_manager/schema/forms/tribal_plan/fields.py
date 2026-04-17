@@ -39,6 +39,17 @@ _RECOGNITION_METHOD_UPLOAD = "upload"
 
 
 class TribalPlanFormFields(BaseFields):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        has_completed_single_audit = self.data.get("has_completed_single_audit")
+        if has_completed_single_audit is None:
+            has_completed_single_audit = self.initial.get("has_completed_single_audit")
+
+        single_audit_dates_required = has_completed_single_audit == "yes"
+        for field_name in ("audit_date", "audit_period_start", "audit_period_end"):
+            self.fields[field_name].required = single_audit_dates_required
+
     # region Section 1 — CSBG Tribal Administrative Information
 
     # 1.1 Plan Coverage
@@ -299,8 +310,8 @@ class TribalPlanFormFields(BaseFields):
 
     # 5.1 Year 1 Allocations (must total 100%)
     alloc_admin_y1 = acf_fields.DecimalField(
-        title="Administrative Funds",
-        review_title="Administrative Funds (Year 1 %)",
+        title="Administrative Cost",
+        review_title="Administrative Cost (Year 1 %)",
         max_digits=5,
         decimal_places=2,
         min_value=0,
@@ -323,8 +334,8 @@ class TribalPlanFormFields(BaseFields):
         max_value=100,
     )
     alloc_income_y1 = acf_fields.DecimalField(
-        title="Income and Asset Building",
-        review_title="Income and Asset Building (Year 1 %)",
+        title="Income & Asset Building",
+        review_title="Income & Asset Building (Year 1 %)",
         max_digits=5,
         decimal_places=2,
         min_value=0,
@@ -339,16 +350,16 @@ class TribalPlanFormFields(BaseFields):
         max_value=100,
     )
     alloc_health_y1 = acf_fields.DecimalField(
-        title="Health and Nutrition",
-        review_title="Health and Nutrition (Year 1 %)",
+        title="Health & Nutrition",
+        review_title="Health & Nutrition (Year 1 %)",
         max_digits=5,
         decimal_places=2,
         min_value=0,
         max_value=100,
     )
     alloc_civic_y1 = acf_fields.DecimalField(
-        title="Civic Engagement and Community Involvement",
-        review_title="Civic Engagement and Community Involvement (Year 1 %)",
+        title="Civic Engagement & Community Involvement",
+        review_title="Civic Engagement & Community Involvement (Year 1 %)",
         max_digits=5,
         decimal_places=2,
         min_value=0,
@@ -371,8 +382,8 @@ class TribalPlanFormFields(BaseFields):
         max_value=100,
     )
     alloc_total_y1 = acf_fields.CalculatedDecimalField(
-        title="Year 1 Total",
-        review_title="Year 1 Total (%)",
+        title="Total (auto-calculated)",
+        review_title="Total (auto-calculated) (%)",
         fields=_Y1_ALLOCATION_FIELDS,
         max_digits=5,
         decimal_places=2,
@@ -380,8 +391,8 @@ class TribalPlanFormFields(BaseFields):
 
     # 5.1 Year 2 Allocations (conditional on two-year plan; must total 100%)
     alloc_admin_y2 = acf_fields.DecimalField(
-        title="Administrative Funds",
-        review_title="Administrative Funds (Year 2 %)",
+        title="Administrative Cost",
+        review_title="Administrative Cost (Year 2 %)",
         max_digits=5,
         decimal_places=2,
         min_value=0,
@@ -407,8 +418,8 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_income_y2 = acf_fields.DecimalField(
-        title="Income and Asset Building",
-        review_title="Income and Asset Building (Year 2 %)",
+        title="Income & Asset Building",
+        review_title="Income & Asset Building (Year 2 %)",
         max_digits=5,
         decimal_places=2,
         min_value=0,
@@ -425,8 +436,8 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_health_y2 = acf_fields.DecimalField(
-        title="Health and Nutrition",
-        review_title="Health and Nutrition (Year 2 %)",
+        title="Health & Nutrition",
+        review_title="Health & Nutrition (Year 2 %)",
         max_digits=5,
         decimal_places=2,
         min_value=0,
@@ -434,8 +445,8 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_civic_y2 = acf_fields.DecimalField(
-        title="Civic Engagement and Community Involvement",
-        review_title="Civic Engagement and Community Involvement (Year 2 %)",
+        title="Civic Engagement & Community Involvement",
+        review_title="Civic Engagement & Community Involvement (Year 2 %)",
         max_digits=5,
         decimal_places=2,
         min_value=0,
@@ -461,8 +472,8 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_total_y2 = acf_fields.CalculatedDecimalField(
-        title="Year 2 Total",
-        review_title="Year 2 Total (%)",
+        title="Total (auto-calculated)",
+        review_title="Total (auto-calculated) (%)",
         fields=_Y2_ALLOCATION_FIELDS,
         max_digits=5,
         decimal_places=2,
@@ -470,25 +481,32 @@ class TribalPlanFormFields(BaseFields):
 
     # 5.2 Limitation on Use of Funds - Acknowledgment
     use_of_funds_acknowledgment = acf_fields.BooleanField(
-        title="I acknowledge the limitation on use of CSBG funds as described above.",
+        title=(
+            "The Tribe or Tribal Organization acknowledges and assures compliance "
+            "with Section 678F of the CSBG Act"
+        ),
     )
 
     # 5.3 Single Audit Review
+    has_completed_single_audit = acf_fields.ChoiceField(
+        title="Has your Tribe or Tribal Organization completed a Single Audit?",
+        choices=[("yes", "Yes"), ("no", "No")],
+        widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
+    )
     audit_date = acf_fields.DateField(
-        title="Date of most recent audit",
-        description="Enter as mm/dd/yyyy.",
+        title="Date of audit",
+        error_messages={"required": "Date of audit is required when a Single Audit was completed."},
         required=False,
     )
-    # NOTE: Fiscal year covered is implemented as free text per 3/24 PO Notes.
-    # PDE/PS teams will provide guidance on final instruction language.
-    audit_fiscal_period = acf_fields.CharField(
-        title="Fiscal year covered by most recent audit",
-        description=(
-            "Enter the fiscal period as mm/dd/yyyy – mm/dd/yyyy. "
-            "If you received less than $750,000 in total federal funds, this question is optional."
-        ),
+    audit_period_start = acf_fields.DateField(
+        title="Period start",
+        error_messages={"required": "Period start is required when a Single Audit was completed."},
         required=False,
-        max_length=50,
+    )
+    audit_period_end = acf_fields.DateField(
+        title="Period end",
+        error_messages={"required": "Period end is required when a Single Audit was completed."},
+        required=False,
     )
 
     # endregion
@@ -644,7 +662,6 @@ class TribalPlanFormFields(BaseFields):
         has_delegation = cleaned_data.get("has_delegation")
         has_recognition = cleaned_data.get("has_recognition")
         recognition_information_method = cleaned_data.get("recognition_information_method")
-
         # 1.2b: Multi-tribe names and tribal resolution upload are required when
         # representing more than one tribe.
         if is_multi_tribe == "yes":

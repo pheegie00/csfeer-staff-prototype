@@ -4,6 +4,7 @@ from pydantic import ConfigDict, Field
 from pydantic_extra_types.semantic_version import SemanticVersion
 
 from form_manager.constants import AllFormNames, CSBGTribalPlanApplicationForms, FormFamilies
+from form_manager.schema.choices import FISCAL_YEAR_CHOICES
 from form_manager.schema.forms.base import BaseFormSchema, UIDefinition
 from form_manager.schema.forms.tribal_plan.fields import TribalPlanFormFields
 from form_manager.schema.forms.tribal_plan.texts import (
@@ -14,7 +15,10 @@ from form_manager.schema.forms.tribal_plan.texts import (
     _DEBARMENT_PRIMARY_INSTRUCTIONS_TEXT,
     _DRUG_FREE_WORKPLACE_CERTIFICATION_TEXT,
     _GOALS_AND_OBJECTIVES_GUIDANCE_TEXT,
+    _LIMITATION_ON_USE_OF_FUNDS_SUBTITLE,
+    _LIMITATION_ON_USE_OF_FUNDS_TEXT,
     _LOBBYING_CERTIFICATION_TEXT,
+    _SINGLE_AUDIT_REQUIREMENTS_TEXT,
     _TOBACCO_SMOKE_CERTIFICATION_TEXT,
 )
 from form_manager.schema.layout import (
@@ -32,10 +36,24 @@ from form_manager.schema.layout import (
 )
 
 
+def _fiscal_year_date_range(choice_index: int) -> str:
+    """Return only the fiscal year date range text for the allocation card header."""
+
+    return (
+        FISCAL_YEAR_CHOICES[choice_index][1]
+        .removeprefix(f"FY {FISCAL_YEAR_CHOICES[choice_index][0].removeprefix('fy_')} (")
+        .removesuffix(")")
+    )
+
+
+_YEAR_ONE_DATE_RANGE = _fiscal_year_date_range(1)
+_YEAR_TWO_DATE_RANGE = _fiscal_year_date_range(2)
+
+
 class TribalPlanForm(BaseFormSchema):
     family: FormFamilies = Field(FormFamilies.CSBG_TRIBAL_PLAN_APPLICATION, frozen=True)
     name: AllFormNames = Field(CSBGTribalPlanApplicationForms.CSBG_TRIBAL_PLAN, frozen=True)
-    variant: SemanticVersion = Field(SemanticVersion(1, 0, 0), frozen=True)
+    variant: SemanticVersion = Field(SemanticVersion(1, 0, 2), frozen=True)
     form_fields: TribalPlanFormFields  # type: ignore
     ui: UIDefinition = Field(
         frozen=True,
@@ -279,25 +297,21 @@ class TribalPlanForm(BaseFormSchema):
                 children=[
                     PermanentPageBlock(
                         title="Planned Allocation of Funds",
-                        subtitle=(
-                            "For program funds, enter the percentage allocated to each CSBG"
-                            " service area. The total must equal 100%."
-                        ),
+                        template_name="form_manager/planned_allocation_page.html",
                         children=[
                             AlertBoxBlock(
                                 alert_type="info",
                                 heading="Allocation requirements for CSBG funds",
                                 message=(
-                                    "According to the CSBG Act: no more than 5% of funds"
-                                    " may be used for administrative costs, and at least"
-                                    " 95% must be allocated to program services."
+                                    "According to the CSBG Act, no more than 5% of funds may "
+                                    "be used for administrative costs and at least 95% must be "
+                                    "allocated to program services."
                                 ),
                             ),
                             FieldGroupBlock(
-                                description=(
-                                    "Year One allocations: enter percentages (0–100). "
-                                    "The total must equal 100%."
-                                ),
+                                title="Year one",
+                                description=_YEAR_ONE_DATE_RANGE,
+                                template_name="form_manager/planned_allocation_field_group.html",
                                 children=[
                                     ReviewSubheadingBlock(title="Year One"),
                                     FieldBlock(field_name="alloc_admin_y1"),
@@ -312,19 +326,10 @@ class TribalPlanForm(BaseFormSchema):
                                     FieldBlock(field_name="alloc_total_y1"),
                                 ],
                             ),
-                            AlertBoxBlock(
-                                alert_type="info",
-                                heading="Two-Year Plan Only",
-                                message=(
-                                    "Complete Year Two allocations only if you selected a two-year "
-                                    "plan in Section 1 (Plan Coverage)."
-                                ),
-                            ),
                             FieldGroupBlock(
-                                description=(
-                                    "Year Two allocations: enter percentages (0–100). "
-                                    "The total must equal 100%."
-                                ),
+                                title="Year two",
+                                description=_YEAR_TWO_DATE_RANGE,
+                                template_name="form_manager/planned_allocation_field_group.html",
                                 children=[
                                     ReviewSubheadingBlock(title="Year Two"),
                                     FieldBlock(field_name="alloc_admin_y2"),
@@ -343,20 +348,52 @@ class TribalPlanForm(BaseFormSchema):
                     ),
                     PermanentPageBlock(
                         title="Limitation on Use of Funds",
+                        subtitle=_LIMITATION_ON_USE_OF_FUNDS_SUBTITLE,
                         children=[
-                            SectionBlock(
-                                title="Limitation on Use of Funds",
-                                children=[
-                                    ReviewSubheadingBlock(title="Limitation on Use of Funds"),
-                                    FieldBlock(field_name="use_of_funds_acknowledgment"),
-                                ],
+                            TextBlock(
+                                heading="Limitation on the Use of Funds",
+                                text=_LIMITATION_ON_USE_OF_FUNDS_TEXT,
+                                template_name="form_manager/use_of_funds_notice.html",
                             ),
                             SectionBlock(
-                                title="Single Audit Review",
+                                children=[
+                                    ReviewSubheadingBlock(title="Limitation on Use of Funds"),
+                                    FieldBlock(
+                                        field_name="use_of_funds_acknowledgment",
+                                        template_name=(
+                                            "form_manager/forms/"
+                                            "use_of_funds_acknowledgment_field.html"
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    PermanentPageBlock(
+                        title="Single Audit Review",
+                        subtitle=(
+                            "Provide the date and time period covered by your most recent "
+                            "audit, if applicable."
+                        ),
+                        children=[
+                            AlertBoxBlock(
+                                alert_type="info",
+                                heading="Single Audit requirements",
+                                message=_SINGLE_AUDIT_REQUIREMENTS_TEXT,
+                            ),
+                            SectionBlock(
+                                alpine_controller_field="has_completed_single_audit",
                                 children=[
                                     ReviewSubheadingBlock(title="Single Audit Review"),
-                                    FieldBlock(field_name="audit_date"),
-                                    FieldBlock(field_name="audit_fiscal_period"),
+                                    FieldBlock(field_name="has_completed_single_audit"),
+                                    ConditionalBlock(
+                                        show_when="yes",
+                                        children=[
+                                            FieldBlock(field_name="audit_date"),
+                                            FieldBlock(field_name="audit_period_start"),
+                                            FieldBlock(field_name="audit_period_end"),
+                                        ],
+                                    ),
                                 ],
                             ),
                         ],
@@ -539,8 +576,7 @@ class TribalPlanForm(BaseFormSchema):
                                 children=[
                                     ReviewSubheadingBlock(
                                         title=(
-                                            "Debarment, Suspension and Other"
-                                            " Responsibility Matters"
+                                            "Debarment, Suspension and Other Responsibility Matters"
                                         )
                                     ),
                                     FieldBlock(field_name="debarment_attestation"),

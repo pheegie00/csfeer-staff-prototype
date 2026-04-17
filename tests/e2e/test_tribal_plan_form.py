@@ -136,7 +136,7 @@ def test_tribal_plan_form_section1_fill_and_advance(
 def test_tribal_plan_form_section5_y1_allocations_page(
     authenticated_page: Page, base_url: str
 ) -> None:
-    """Year 1 Allocations page is reachable via direct URL and shows all 9 categories."""
+    """Year 1 Allocations page defaults to the single-year layout."""
     page = authenticated_page
 
     # Start the form to get the entry PK from the URL redirect
@@ -162,6 +162,10 @@ def test_tribal_plan_form_section5_y1_allocations_page(
 
     body = page.evaluate("() => document.body.innerText")
 
+    assert "Allocation requirements for CSBG funds" in body
+    assert "Year one" in body
+    assert "Year two" not in body
+
     # All 9 categories should be present
     expected_categories = [
         "Administrative Funds",
@@ -174,6 +178,28 @@ def test_tribal_plan_form_section5_y1_allocations_page(
     ]
     for category in expected_categories:
         assert category in body, f"Expected allocation category '{category}' on the page"
+
+
+@pytest.mark.e2e
+@pytest.mark.auth
+def test_tribal_plan_form_section5_two_year_allocations_page(
+    authenticated_page: Page, base_url: str
+) -> None:
+    """Saving a two-year plan makes the allocations page render both years."""
+    page = authenticated_page
+    _start_tribal_plan_form(page, base_url)
+    page.get_by_role("heading", name="Plan Coverage").first.wait_for()
+
+    _click_radio(page, "two_year")
+    _click_next(page)
+
+    base_entry_url = page.url.split("?")[0]
+    page.goto(f"{base_entry_url}?step=4&page=0")
+    page.wait_for_load_state("networkidle")
+
+    body = page.evaluate("() => document.body.innerText")
+    assert "Year one" in body
+    assert "Year two" in body
 
 
 # ---------------------------------------------------------------------------

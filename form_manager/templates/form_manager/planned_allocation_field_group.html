@@ -1,0 +1,24 @@
+<c-card
+    grid_layout="{% if plan_coverage_value == 'two_year' %}grid-col-12 desktop:grid-col-6{% else %}grid-col-12{% endif %}"
+    container_class="planned-allocation-card__container height-full"
+    extra_classes="planned-allocation-card"
+>
+    {% if title or description %}
+    <c-card.header extra_classes="planned-allocation-card__header">
+        {% if title %}
+        <h2 class="usa-card__heading font-family-sans margin-0">{{ title }}</h2>
+        {% endif %}
+        {% if description %}
+        <p class="planned-allocation-card__date-range margin-top-05 margin-bottom-0 font-body-2xs">
+            {{ description }}
+        </p>
+        {% endif %}
+    </c-card.header>
+    {% endif %}
+
+    <c-card.body extra_classes="planned-allocation-card__body">
+        {% for child in children %}
+            {{ child.render }}
+        {% endfor %}
+    </c-card.body>
+</c-card>

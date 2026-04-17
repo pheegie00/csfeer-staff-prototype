@@ -99,7 +99,6 @@ def get_next_step_and_page(
 def get_previous_step_and_page(
     components, current_step: int, current_page: int
 ) -> tuple[None, None] | tuple[int, int]:
-
     # if we're on the first step and page, you can't go back so
     # just return None
     if current_step == 0 and current_page == 0:
@@ -130,11 +129,9 @@ def remove_nodes_with_excluded_fields(
     """
 
     def remove_excluded_nodes(component):
-
         children_to_keep = []
 
         for child in component.children:
-
             if isinstance(child, FieldBlock) and child.field_name in fields_to_exclude:
                 logger.info("Removing field %s", child.field_name)
                 continue
@@ -196,7 +193,6 @@ def form_edit(request, pk):
     ui_components = [step.model_copy(deep=True) for step in schema.ui]
 
     def has_permission():
-
         return not (
             entry.locked
             or not user_can_edit(request.user, entry.organization)
@@ -204,7 +200,6 @@ def form_edit(request, pk):
         )
 
     if request.method == "POST":
-
         if not has_permission():
             messages.error(request, "Permission denied.")
             return redirect("form_list")  # Assuming a form list URL
@@ -272,6 +267,9 @@ def form_edit(request, pk):
         is_last_page=next_step_number is None,
         current_step_number=current_step_number,
         current_page_number=current_page_number,
+        plan_coverage_value=(
+            form["plan_coverage"].value() if "plan_coverage" in form.fields else None
+        ),
     )
 
     context = {

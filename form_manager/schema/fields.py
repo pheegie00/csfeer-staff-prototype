@@ -18,6 +18,7 @@ from pydantic_core import core_schema
 
 from form_manager.schema.widgets import (
     ACFCheckboxInput,
+    ACFDatePickerInput,
     CheckboxSelectMultiple,
     CurrencyInput,
     YesNoDisplayWidget,
@@ -268,6 +269,12 @@ class ACFTextareaField(ACFFieldMixin, forms.CharField):
     widget = forms.Textarea(attrs={"rows": 10, "cols": 49})
 
 
+class ACFDateField(ACFFieldMixin, forms.DateField):
+    """A date field rendered with the shared date picker component."""
+
+    widget = ACFDatePickerInput
+
+
 class StorageFilePath:
     """Wraps a storage path string to provide .url and a clean display name."""
 
@@ -484,6 +491,7 @@ class ACFFieldsMeta(type):
         dct.update(
             {
                 "BooleanField": ACFBooleanField,
+                "DateField": ACFDateField,
                 "IntegerField": ACFIntegerField,
                 "CurrencyField": ACFCurrencyField,
                 "TextareaField": ACFTextareaField,

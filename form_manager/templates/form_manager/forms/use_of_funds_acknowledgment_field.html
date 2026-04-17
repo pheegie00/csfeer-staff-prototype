@@ -1,0 +1,11 @@
+<c-form-group
+    error="{% if field.errors %}{{ field.errors.0 }}{% endif %}"
+    extra_classes="use-of-funds-acknowledgment"
+>
+    <c-error-message
+        id="{{ field.id_for_label }}"
+        error="{% if field.errors %}{{ field.errors.0 }}{% endif %}"
+    />
+
+    {{ field.as_widget|safe }}
+</c-form-group>

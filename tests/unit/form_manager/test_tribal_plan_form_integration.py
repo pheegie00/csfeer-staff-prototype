@@ -11,7 +11,15 @@ from form_manager.constants import CSBGTribalPlanApplicationForms
 from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
 from form_manager.schema.choices import FISCAL_YEAR_CHOICES
 from form_manager.schema.forms.tribal_plan import TribalPlanForm, TribalPlanFormFields
-from form_manager.schema.layout import AlertBoxBlock
+from form_manager.schema.layout import (
+    AbstractPageBlock,
+    AlertBoxBlock,
+    ConditionalBlock,
+    FieldBlock,
+    FieldGroupBlock,
+    SectionBlock,
+    TextBlock,
+)
 from form_manager.schema.navigation import build_form_edit_url
 
 if TYPE_CHECKING:
@@ -116,8 +124,10 @@ def _valid_form_data(**overrides) -> dict:
         "alloc_partnerships_y1": "20.00",
         # Section 5 — Fiscal Controls
         "use_of_funds_acknowledgment": True,
+        "has_completed_single_audit": "no",
         "audit_date": "",
-        "audit_fiscal_period": "",
+        "audit_period_start": "",
+        "audit_period_end": "",
         # Section 6
         "individual_eligibility": "Eligibility is determined by income guidelines.",
         "targeted_community_eligibility": "Services target low-income tribal members.",
@@ -331,14 +341,175 @@ def test_community_feedback_field_uses_section4_prompt():
 def test_tribal_plan_form_section5_y1_allocations_page(
     django_db_setup, tribal_plan_form_entry: FormEntry, authenticated_client
 ):
-    """Step 4, page 0 renders Year 1 allocation fields."""
+    """Step 4, page 0 defaults to the single-column Year 1 allocation layout."""
     url = reverse("form_edit", args=[tribal_plan_form_entry.pk])
     response = authenticated_client.get(url, query_params={"step": 4, "page": 0})
 
     assert response.status_code == 200
     content = response.content.decode()
+    assert "Allocation requirements for CSBG funds" in content
+    assert "Year one" in content
     assert "alloc_admin_y1" in content or "Administrative Funds" in content
     assert "alloc_total_y1" in content or "Year 1 Total" in content
+    assert "alloc_admin_y2" not in content
+    assert "Year two" not in content
+
+
+@pytest.mark.django_db
+def test_tribal_plan_form_section5_two_year_plan_shows_year_two_allocations(
+    django_db_setup, tribal_plan_form_entry: FormEntry, authenticated_client
+):
+    """Step 4, page 0 renders both year allocation columns for a saved two-year plan."""
+    tribal_plan_form_entry.data = {"plan_coverage": "two_year"}
+    tribal_plan_form_entry.save(update_fields=["data"])
+
+    url = reverse("form_edit", args=[tribal_plan_form_entry.pk])
+    response = authenticated_client.get(url, query_params={"step": 4, "page": 0})
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert "Year one" in content
+    assert "Year two" in content
+    assert "alloc_admin_y1" in content or "Administrative Funds" in content
+    assert "alloc_admin_y2" in content or "Administrative Funds" in content
+
+
+@pytest.mark.django_db
+def test_tribal_plan_form_section5_single_audit_review_page(
+    django_db_setup, tribal_plan_form_entry: FormEntry, authenticated_client
+):
+    """Step 4, page 2 renders the dedicated Single Audit Review page."""
+    url = reverse("form_edit", args=[tribal_plan_form_entry.pk])
+    response = authenticated_client.get(url, query_params={"step": 4, "page": 2})
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert "Single Audit Review" in content
+    assert "Single Audit requirements" in content
+    assert "Has your Tribe or Tribal Organization completed a Single Audit?" in content
+    assert "Date of audit" in content
+    assert "Period start" in content
+    assert "Period end" in content
+
+
+def test_tribal_plan_form_section5_uses_card_field_groups():
+    """The planned allocation page uses card field groups for each year."""
+    schema = TribalPlanForm.model_construct()
+
+    allocations_step = schema.ui[4]
+    assert allocations_step.children is not None
+    allocations_page = allocations_step.children[0]
+
+    assert allocations_page.template_name == "form_manager/planned_allocation_page.html"
+    assert allocations_page.children is not None
+    page_children = allocations_page.children
+    assert isinstance(page_children[0], AlertBoxBlock)
+    assert isinstance(page_children[1], FieldGroupBlock)
+    assert isinstance(page_children[2], FieldGroupBlock)
+
+    year_one_group = cast(FieldGroupBlock, page_children[1])
+    year_two_group = cast(FieldGroupBlock, page_children[2])
+
+    assert year_one_group.template_name == "form_manager/planned_allocation_field_group.html"
+    assert year_two_group.template_name == "form_manager/planned_allocation_field_group.html"
+    assert year_one_group.title == "Year one"
+    assert year_two_group.title == "Year two"
+
+
+def test_tribal_plan_form_section5_single_audit_review_page_uses_alert_and_conditional_fields():
+    """Section 5 includes a dedicated Single Audit Review page with an info alert."""
+    schema = TribalPlanForm.model_construct()
+
+    fiscal_controls_step = schema.ui[4]
+    assert fiscal_controls_step.children is not None
+    single_audit_page = fiscal_controls_step.children[2]
+    assert isinstance(single_audit_page, AbstractPageBlock)
+
+    assert single_audit_page.title == "Single Audit Review"
+    assert single_audit_page.subtitle == (
+        "Provide the date and time period covered by your most recent audit, if applicable."
+    )
+    assert single_audit_page.children is not None
+    page_children = single_audit_page.children
+    assert isinstance(page_children[0], AlertBoxBlock)
+
+    alert = page_children[0]
+    assert alert.heading == "Single Audit requirements"
+    assert "expended less than $750,000 in total federal funds" in alert.message
+
+    assert isinstance(page_children[1], SectionBlock)
+    single_audit_section = page_children[1]
+    assert single_audit_section.alpine_controller_field == "has_completed_single_audit"
+    assert single_audit_section.children is not None
+    section_children = single_audit_section.children
+    assert isinstance(section_children[1], FieldBlock)
+    assert section_children[1].field_name == "has_completed_single_audit"
+    assert isinstance(section_children[2], ConditionalBlock)
+
+
+def test_tribal_plan_form_section5_limitation_page_only_contains_acknowledgment():
+    """The limitation page renders the notice card and acknowledgment only."""
+    schema = TribalPlanForm.model_construct()
+
+    fiscal_controls_step = schema.ui[4]
+    assert fiscal_controls_step.children is not None
+    limitation_page = fiscal_controls_step.children[1]
+    assert isinstance(limitation_page, AbstractPageBlock)
+
+    assert limitation_page.title == "Limitation on Use of Funds"
+    assert (
+        limitation_page.subtitle
+        == "Review the requirement below and select the checkbox to confirm compliance."
+    )
+    assert limitation_page.children is not None
+    page_children = limitation_page.children
+    assert isinstance(page_children[0], TextBlock)
+    notice_block = page_children[0]
+    assert notice_block.heading == "Limitation on the Use of Funds"
+    assert notice_block.template_name == "form_manager/use_of_funds_notice.html"
+
+    assert isinstance(page_children[1], SectionBlock)
+    acknowledgment_section = page_children[1]
+    assert acknowledgment_section.children is not None
+    section_children = acknowledgment_section.children
+    assert isinstance(section_children[1], FieldBlock)
+    assert (
+        section_children[1].template_name
+        == "form_manager/forms/use_of_funds_acknowledgment_field.html"
+    )
+
+    field_names = [
+        child.field_name
+        for section in page_children
+        if isinstance(section, SectionBlock)
+        for child in section.children or []
+        if isinstance(child, FieldBlock)
+    ]
+    assert field_names == ["use_of_funds_acknowledgment"]
+    assert (
+        getattr(TribalPlanFormFields.base_fields["use_of_funds_acknowledgment"], "title", None)
+        == "The Tribe or Tribal Organization acknowledges and assures compliance "
+        "with Section 678F of the CSBG Act"
+    )
+
+
+def test_tribal_plan_form_section5_limitation_notice_renders_inert_link():
+    """The limitation notice card renders the guidance link without navigation."""
+    schema = TribalPlanForm.model_construct()
+
+    fiscal_controls_step = schema.ui[4]
+    assert fiscal_controls_step.children is not None
+    limitation_page = fiscal_controls_step.children[1]
+    assert limitation_page.children is not None
+    assert isinstance(limitation_page.children[0], TextBlock)
+    notice_block = limitation_page.children[0]
+
+    content = notice_block.render()
+
+    assert "Limitation on the Use of Funds" in content
+    assert "Section 678F of the CSBG Act" in content
+    assert 'href="#"' in content
+    assert "x-on:click.prevent" in content
 
 
 @pytest.mark.django_db
@@ -505,6 +676,55 @@ def test_recognition_upload_can_use_existing_saved_file():
         data=data, initial={"recognition_upload": "form_uploads/entry/recognition.pdf"}
     )
     assert form.is_valid(), form.errors
+
+
+def test_single_audit_details_required_when_yes():
+    """Single Audit detail fields are required when the user reports completing one."""
+    data = _valid_form_data(
+        has_completed_single_audit="yes",
+        audit_date="",
+        audit_period_start="",
+        audit_period_end="",
+    )
+    form = TribalPlanFormFields(data=data)
+    assert not form.is_valid()
+    assert "audit_date" in form.errors
+    assert "audit_period_start" in form.errors
+    assert "audit_period_end" in form.errors
+
+
+def test_single_audit_date_fields_use_date_picker_widget():
+    """Single Audit date fields use the shared date picker component."""
+    form = TribalPlanFormFields(data=_valid_form_data(has_completed_single_audit="yes"))
+
+    audit_date_markup = form["audit_date"].as_widget()
+    audit_period_start_markup = form["audit_period_start"].as_widget()
+    audit_period_end_markup = form["audit_period_end"].as_widget()
+
+    assert 'class="usa-date-picker"' in audit_date_markup
+    assert 'type="date"' in audit_date_markup
+    assert 'class="usa-date-picker"' in audit_period_start_markup
+    assert 'type="date"' in audit_period_start_markup
+    assert 'class="usa-date-picker"' in audit_period_end_markup
+    assert 'type="date"' in audit_period_end_markup
+
+
+def test_single_audit_date_fields_become_required_when_yes_selected():
+    """Single Audit date fields are marked required when the user selects yes."""
+    form = TribalPlanFormFields(data=_valid_form_data(has_completed_single_audit="yes"))
+
+    assert form.fields["audit_date"].required is True
+    assert form.fields["audit_period_start"].required is True
+    assert form.fields["audit_period_end"].required is True
+
+
+def test_single_audit_date_fields_remain_optional_when_no_selected():
+    """Single Audit date fields stay optional when the user selects no."""
+    form = TribalPlanFormFields(data=_valid_form_data(has_completed_single_audit="no"))
+
+    assert form.fields["audit_date"].required is False
+    assert form.fields["audit_period_start"].required is False
+    assert form.fields["audit_period_end"].required is False
 
 
 def test_two_year_plan_requires_fiscal_year_y2():

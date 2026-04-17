@@ -7,6 +7,16 @@ class CurrencyInput(forms.NumberInput):
     template_name = "form_manager/widgets/currency.html"
 
 
+class ACFDatePickerInput(forms.DateInput):
+    """Date input rendered with the USWDS/Cotton date picker component."""
+
+    input_type = "date"
+    template_name = "form_manager/widgets/date_picker.html"
+
+    def __init__(self, attrs=None, format=None):
+        super().__init__(attrs=attrs, format=format or "%Y-%m-%d")
+
+
 class ACFCheckboxInput(forms.CheckboxInput):
     """A single checkbox rendered via the c-checkbox design system component."""
 

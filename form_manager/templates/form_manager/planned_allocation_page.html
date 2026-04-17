@@ -1,0 +1,52 @@
+{% if title %}
+<h1 class="font-heading-2xl semibold font-family-sans font-weight-semibold">{{ title }}</h1>
+
+{% if subtitle %}
+<p class="font-body-sm">{{ subtitle }}</p>
+{% endif %}
+{% endif %}
+
+{% with allocation_alert=children.0 year_one_group=children.1 year_two_group=children.2 %}
+    {{ allocation_alert.render }}
+
+    {% if plan_coverage_value == "two_year" %}
+    <c-card.group extra_classes="planned-allocation-card-group margin-top-2">
+        {{ year_one_group.render }}
+        {{ year_two_group.render }}
+    </c-card.group>
+    {% else %}
+    <c-card.group extra_classes="planned-allocation-card-group planned-allocation-card-group--single margin-top-2 maxw-tablet-lg">
+        {{ year_one_group.render }}
+    </c-card.group>
+    {% endif %}
+{% endwith %}
+
+<div class="margin-top-4 padding-top-2 border-top-1px border-base-lighter">
+    <div class="display-flex flex-justify flex-wrap flex-gap-1 flex-align-end">
+
+        {% if current_step_number != 0 or current_page_number != 0 %}
+        <a href="{{ prev_url }}" class="usa-button usa-button--outline" type="submit" name="page-action" value="previous">
+        ← Back
+        </a>
+        {% endif %}
+
+        <div class="margin-left-auto display-flex flex-gap-1">
+            {% if current_step_number != 0 or current_page_number != 0 %}
+            <c-button
+                text="Save & Exit"
+                variant="outline"
+                state="active"
+                type="submit"
+                name="page-action"
+                value="save-exit"
+            />
+            {% endif %}
+            <c-button
+                text="Next →"
+                variant="base"
+                state="active"
+                type="submit"
+            />
+        </div>
+    </div>
+</div>

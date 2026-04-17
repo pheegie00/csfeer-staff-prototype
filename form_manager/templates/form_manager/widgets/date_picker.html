@@ -1,0 +1,10 @@
+<div class="usa-date-picker">
+    <c-date-picker
+        id="{{ widget.attrs.id }}"
+        name="{{ widget.name }}"
+        value="{% if widget.value != None %}{{ widget.value|stringformat:'s' }}{% endif %}"
+        :disabled="{{ widget.attrs.disabled }}"
+        required="{% if widget.attrs.required %}required{% endif %}"
+        :attrs=widget.attrs
+    />
+</div>

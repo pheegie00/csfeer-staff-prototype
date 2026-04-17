@@ -49,7 +49,6 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
         return context
 
     def as_review_block(self, template_name: str | None = None):
-
         if template_name:
             return self.render(template_name)
 
@@ -67,7 +66,6 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
     def has_field_blocks(cls, node) -> bool:
         """Return True if the node has any descendant FieldBlocks. Otherwise, False."""
         for child in node.children or []:
-
             if isinstance(child, FieldBlock):
                 return True
 
@@ -142,6 +140,7 @@ class FieldGroupBlock(RenderableBaseModel):
     with an explanatory note."""
 
     type: str = "field-group"
+    title: str | None = None
     description: str | None = None
     children: list[Self | "FieldBlock" | "ReviewSubheadingBlock"] | None = None
     template_name: str = "form_manager/field_group.html"
@@ -183,9 +182,7 @@ class FieldBlock(RenderableBaseModel):
         and use that template to render it, if it exists."""
 
         def find_template():
-
             if hasattr(self, "field") and self.field:
-
                 field_class = self.field.field.__class__.__name__
 
                 field_class = field_class.replace("ACF", "").replace("Field", "")

@@ -1,0 +1,16 @@
+<div class="use-of-funds-notice">
+    {% if heading %}
+    <h2 class="font-heading-lg font-family-sans text-normal margin-top-0 margin-bottom-2">
+        {{ heading }}
+    </h2>
+    {% endif %}
+
+    <div class="usa-prose">
+        <p class="margin-top-0 margin-bottom-2">{{ text }}</p>
+        <p class="margin-top-0 margin-bottom-0">
+            View instructions in
+            <a href="#" class="usa-link" x-on:click.prevent>Section 678F of the CSBG Act</a>
+            for information on waivers.
+        </p>
+    </div>
+</div>

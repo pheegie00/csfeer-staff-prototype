@@ -52,6 +52,18 @@ _GOALS_AND_OBJECTIVES_GUIDANCE_TEXT = """
 Consider how your Tribe or Tribal Organization's goals and objectives align with the purposes of the CSBG program, including removing obstacles that block the achievement of self-sufficiency, securing and retaining meaningful employment, attaining adequate literacy and education, making better use of available income, obtaining and maintaining adequate housing, obtaining emergency assistance, achieving greater participation in community affairs, supporting youth development in low-income communities, coordinating with other programs related to the purposes of the CSBG Act, and developing linkages to fill service gaps.
 """.strip()
 
+_SINGLE_AUDIT_REQUIREMENTS_TEXT = """
+If your Tribe or Tribal Organization expended less than $750,000 in total federal funds during the fiscal year (not limited to CSBG funds), a Single Audit is not required.
+""".strip()
+
+_LIMITATION_ON_USE_OF_FUNDS_SUBTITLE = """
+Review the requirement below and select the checkbox to confirm compliance.
+""".strip()
+
+_LIMITATION_ON_USE_OF_FUNDS_TEXT = """
+Funds will not be used for the purchase or improvement of land, or the purchase, construction, or permanent improvement (other than low-cost residential weatherization or other energy-related home repairs) of any building or other facility without an approved federal waiver.
+""".strip()
+
 _LOBBYING_CERTIFICATION_TEXT = """
 Certification for Contracts, Grants, Loans, and Cooperative Agreements
 The undersigned certifies, to the best of his or her knowledge and belief, that:
