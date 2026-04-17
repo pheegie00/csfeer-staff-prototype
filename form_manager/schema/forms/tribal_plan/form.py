@@ -15,6 +15,7 @@ from form_manager.schema.forms.tribal_plan.texts import (
     _DRUG_FREE_WORKPLACE_CERTIFICATION_TEXT,
     _GOALS_AND_OBJECTIVES_GUIDANCE_TEXT,
     _LOBBYING_CERTIFICATION_TEXT,
+    _PLAN_COVERAGE_GUIDANCE_TEXT,
     _TOBACCO_SMOKE_CERTIFICATION_TEXT,
 )
 from form_manager.schema.layout import (
@@ -47,6 +48,12 @@ class TribalPlanForm(BaseFormSchema):
                     PermanentPageBlock(
                         title="Plan Coverage",
                         children=[
+                            AlertBoxBlock(
+                                alert_type="info",
+                                heading="",
+                                message=_PLAN_COVERAGE_GUIDANCE_TEXT,
+                                slim=True,
+                            ),
                             SectionBlock(
                                 title="Plan Coverage",
                                 alpine_controller_field="plan_coverage",
@@ -55,20 +62,10 @@ class TribalPlanForm(BaseFormSchema):
                                     FieldBlock(field_name="plan_coverage"),
                                     FieldBlock(field_name="fiscal_year_y1"),
                                     FieldBlock(field_name="fiscal_year_y2"),
-                                    ConditionalBlock(
-                                        show_when="one_year",
-                                        children=[
-                                            FieldBlock(
-                                                field_name="fiscal_year_y1_display_one_year"
-                                            ),
-                                        ],
-                                    ),
+                                    FieldBlock(field_name="fiscal_year_y1_display"),
                                     ConditionalBlock(
                                         show_when="two_year",
                                         children=[
-                                            FieldBlock(
-                                                field_name="fiscal_year_y1_display_two_year"
-                                            ),
                                             FieldBlock(field_name="fiscal_year_y2_display"),
                                         ],
                                     ),

@@ -11,7 +11,7 @@ from form_manager.constants import CSBGTribalPlanApplicationForms
 from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
 from form_manager.schema.choices import FISCAL_YEAR_CHOICES
 from form_manager.schema.forms.tribal_plan import TribalPlanForm, TribalPlanFormFields
-from form_manager.schema.layout import AlertBoxBlock
+from form_manager.schema.layout import AlertBoxBlock, PermanentPageBlock
 from form_manager.schema.navigation import build_form_edit_url
 
 if TYPE_CHECKING:
@@ -197,6 +197,11 @@ def test_tribal_plan_form_section1_plan_coverage_page(
     assert response.status_code == 200
     content = response.content.decode()
     assert "plan_coverage" in content or "Plan Coverage" in content
+    assert (
+        "Tribal Plans covering a two-year period are strongly recommended"
+        " to minimize administrative burden for grant recipients."
+    ) in content
+    assert "usa-alert--slim" in content
     assert "One year plan" in content
     assert "Two year plan" in content
     assert "fiscal_year_y1" in content or "Fiscal Year" in content
@@ -220,11 +225,12 @@ def test_plan_coverage_uses_hidden_fiscal_year_fields_and_disabled_display_field
     following_fiscal_year_value, following_fiscal_year_label = FISCAL_YEAR_CHOICES[2]
     fiscal_year_y1 = TribalPlanFormFields.base_fields["fiscal_year_y1"]
     fiscal_year_y2 = TribalPlanFormFields.base_fields["fiscal_year_y2"]
-    fiscal_year_y1_display = TribalPlanFormFields.base_fields["fiscal_year_y1_display_one_year"]
+    fiscal_year_y1_display = TribalPlanFormFields.base_fields["fiscal_year_y1_display"]
     fiscal_year_y2_display = TribalPlanFormFields.base_fields["fiscal_year_y2_display"]
 
     assert isinstance(fiscal_year_y1.widget, forms.HiddenInput)
     assert fiscal_year_y1.initial == next_fiscal_year_value
+    assert fiscal_year_y1.required is True
 
     assert isinstance(fiscal_year_y2.widget, forms.HiddenInput)
     assert (
@@ -236,6 +242,43 @@ def test_plan_coverage_uses_hidden_fiscal_year_fields_and_disabled_display_field
     assert fiscal_year_y1_display.initial == next_fiscal_year_label
     assert fiscal_year_y2_display.disabled is True
     assert fiscal_year_y2_display.initial == following_fiscal_year_label
+
+
+def test_plan_coverage_page_has_guidance_alert():
+    """The plan coverage page includes the recommended two-year plan guidance alert."""
+    schema = TribalPlanForm.model_construct()
+
+    plan_coverage_step = schema.ui[0]
+    assert plan_coverage_step.title == "Tribal Administrative Information"
+    assert plan_coverage_step.children is not None
+
+    plan_coverage_page = plan_coverage_step.children[0]
+    assert isinstance(plan_coverage_page, PermanentPageBlock)
+    assert plan_coverage_page.title == "Plan Coverage"
+    assert plan_coverage_page.children is not None
+    assert len(plan_coverage_page.children) > 1
+
+    assert isinstance(plan_coverage_page.children[0], AlertBoxBlock)
+    alert = plan_coverage_page.children[0]
+    assert alert.alert_type == "info"
+    assert alert.slim is True
+    assert "two-year period" in alert.message
+    assert "minimize administrative burden" in alert.message
+    assert "grant recipients" in alert.message
+
+
+def test_plan_coverage_alert_renders_slim_variant():
+    """The plan coverage alert renders the slim USWDS alert variant."""
+    alert = AlertBoxBlock(
+        alert_type="info",
+        message="Tribal Plans covering a two-year period are strongly recommended.",
+        slim=True,
+    )
+
+    content = alert.render()
+
+    assert "usa-alert--slim" in content
+    assert "two-year period" in content
 
 
 def test_recognition_information_method_uses_expected_radio_labels():
@@ -365,6 +408,15 @@ def test_valid_form_passes():
     """A fully filled one-year plan form passes validation."""
     form = TribalPlanFormFields(data=_valid_form_data())
     assert form.is_valid(), form.errors
+
+
+def test_fiscal_year_y1_is_required():
+    """fiscal_year_y1 is required for tribal plan submissions."""
+    data = _valid_form_data(fiscal_year_y1="")
+    form = TribalPlanFormFields(data=data)
+
+    assert not form.is_valid()
+    assert "fiscal_year_y1" in form.errors
 
 
 def test_y1_allocation_total_must_equal_100():

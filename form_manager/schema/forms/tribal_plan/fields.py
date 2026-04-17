@@ -54,7 +54,6 @@ class TribalPlanFormFields(BaseFields):
         review_title="Year One",
         choices=FISCAL_YEAR_CHOICES,
         initial=_NEXT_FISCAL_YEAR_VALUE,
-        required=False,
         widget=forms.HiddenInput,
     )
     fiscal_year_y2 = acf_fields.ChoiceField(
@@ -69,14 +68,7 @@ class TribalPlanFormFields(BaseFields):
             }
         ),
     )
-    fiscal_year_y1_display_one_year = acf_fields.CharField(
-        title="Year One",
-        initial=_NEXT_FISCAL_YEAR_LABEL,
-        required=False,
-        disabled=True,
-        is_presentational_only=True,
-    )
-    fiscal_year_y1_display_two_year = acf_fields.CharField(
+    fiscal_year_y1_display = acf_fields.CharField(
         title="Year One",
         initial=_NEXT_FISCAL_YEAR_LABEL,
         required=False,

@@ -48,6 +48,10 @@ _ASSURANCES_NARRATIVE_TOPICS = """
 As applicable, include the following topics in your description: CSBG service delivery system; geographical areas and categories of individuals to be served; criteria and method used for distribution of CSBG funds; purpose of funds, including activities to be supported; linkages to fill identified gaps in services; coordination with other public and private resources; and innovative community and neighborhood-based initiatives.
 """.strip()
 
+_PLAN_COVERAGE_GUIDANCE_TEXT = """
+Tribal Plans covering a two-year period are strongly recommended to minimize administrative burden for grant recipients.
+""".strip()
+
 _GOALS_AND_OBJECTIVES_GUIDANCE_TEXT = """
 Consider how your Tribe or Tribal Organization's goals and objectives align with the purposes of the CSBG program, including removing obstacles that block the achievement of self-sufficiency, securing and retaining meaningful employment, attaining adequate literacy and education, making better use of available income, obtaining and maintaining adequate housing, obtaining emergency assistance, achieving greater participation in community affairs, supporting youth development in low-income communities, coordinating with other programs related to the purposes of the CSBG Act, and developing linkages to fill service gaps.
 """.strip()
