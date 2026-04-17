@@ -317,6 +317,16 @@ def test_tribal_plan_form_section3_goals_page_has_guidance_alert():
     assert "developing linkages to fill service gaps" in alert.message
 
 
+def test_community_feedback_field_uses_section4_prompt():
+    """Section 4 uses the updated community feedback question text."""
+    community_feedback_field = TribalPlanFormFields.base_fields["community_feedback"]
+
+    assert getattr(community_feedback_field, "title", None) == (
+        "Did the Tribe or Tribal Organization solicit feedback from Tribal members "
+        "that demonstrates evidence of public participation?"
+    )
+
+
 @pytest.mark.django_db
 def test_tribal_plan_form_section5_y1_allocations_page(
     django_db_setup, tribal_plan_form_entry: FormEntry, authenticated_client
