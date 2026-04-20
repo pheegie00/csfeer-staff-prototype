@@ -59,6 +59,11 @@ def get_step_pages(step: StepBlock) -> list[AbstractPageBlock]:
     return [child for child in (step.children or []) if isinstance(child, AbstractPageBlock)]
 
 
+def prune_steps_without_pages(steps: list[StepBlock]) -> list[StepBlock]:
+    """Remove steps that contain no pages (e.g. every page was dropped by field exclusion)."""
+    return [step for step in steps if get_step_pages(step)]
+
+
 def _collect_review_blocks(node) -> list[FieldBlock | ReviewSubheadingBlock]:
     blocks: list[FieldBlock | ReviewSubheadingBlock] = []
 

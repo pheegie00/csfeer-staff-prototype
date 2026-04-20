@@ -4,12 +4,28 @@ import pytest
 from django.urls import reverse
 
 from form_manager.schema.layout import PageBlock, PageTitleBlock, StepBlock
-from form_manager.schema.navigation import build_form_edit_url, build_side_nav_items
+from form_manager.schema.navigation import (
+    build_form_edit_url,
+    build_side_nav_items,
+    prune_steps_without_pages,
+)
 
 
 @pytest.fixture
 def entry_pk():
     return uuid.uuid4()
+
+
+def test_prune_steps_without_pages_removes_steps_with_no_pages():
+    steps = [
+        StepBlock(title="Kept", children=[PageBlock(title="Only page")]),
+        StepBlock(title="Dropped", children=[]),
+        StepBlock(title="Also kept", children=[PageBlock(title="Another")]),
+    ]
+    pruned = prune_steps_without_pages(steps)
+    assert len(pruned) == 2
+    assert pruned[0].title == "Kept"
+    assert pruned[1].title == "Also kept"
 
 
 @pytest.fixture

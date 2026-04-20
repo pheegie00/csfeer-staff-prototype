@@ -9,7 +9,12 @@ from django.urls import Resolver404, resolve, reverse
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.schema.layout import AbstractPageBlock, FieldBlock, PageBlock, StepBlock
-from form_manager.schema.navigation import build_form_edit_url, build_side_nav_items, get_step_pages
+from form_manager.schema.navigation import (
+    build_form_edit_url,
+    build_side_nav_items,
+    get_step_pages,
+    prune_steps_without_pages,
+)
 from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
 
 logger = logging.getLogger(__name__)
@@ -121,12 +126,8 @@ def remove_nodes_with_excluded_fields(
     components whose names are listed in `fields_to_exclude`, and removes any PageBlock nodes that
     lack descendant FieldBlock nodes.
 
-    TODO: prune StepBlocks that become empty after filtering so navigation/review helpers
-    can safely skip fully excluded sections instead of assuming every visible section
-    still has at least one page.
-
-    Current navigation assumes each visible section still has at least one page after filtering.
-    Empty sections are not removed in this pass.
+    After this runs, `form_edit` calls `prune_steps_without_pages` so steps with no
+    remaining pages are dropped before navigation normalization.
     """
 
     def remove_excluded_nodes(component):
@@ -235,6 +236,10 @@ def form_edit(request, pk):
     if form.fields_to_exclude:
         logger.info("Excluding the following fields: %s", form.fields_to_exclude)
         ui_components = remove_nodes_with_excluded_fields(ui_components, form.fields_to_exclude)
+
+    ui_components = prune_steps_without_pages(ui_components)
+    if not ui_components:
+        raise Http404("No form sections remain visible for this entry.")
 
     current_step_number, current_page_number = normalize_step_and_page(
         ui_components, current_step_number, current_page_number
