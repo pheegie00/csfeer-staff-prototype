@@ -555,6 +555,7 @@ deploy:dev:
     - Run e2e tests
   variables:
     DEV_IMAGE: $CI_REGISTRY/$CI_PROJECT_PATH:$VERSION-dev
+    GIT_TAG: v$VERSION-dev
     IMAGE_VERSION: dev-$CI_COMMIT_SHORT_SHA
   script:
     - yum update -y && yum install git -y
@@ -563,6 +564,13 @@ deploy:dev:
     - buildah pull $FULL_IMAGE_NAME
     - buildah tag $FULL_IMAGE_NAME $DEV_IMAGE
     - buildah push $DEV_IMAGE
+    - git tag $GIT_TAG
+    - git fetch origin
+    - git pull origin main
+    - git remote add remote-push https://oauth:$CI_TOKEN_WITH_PUSH@gitlab.management.acf.gov/systems/csfeer/app.git 
+    - git remote -v
+    - git tag -l
+    - git push remote-push tag $GIT_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
 
