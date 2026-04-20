@@ -563,8 +563,6 @@ deploy:dev:
     - buildah pull $FULL_IMAGE_NAME
     - buildah tag $FULL_IMAGE_NAME $DEV_IMAGE
     - buildah push $DEV_IMAGE
-    - git tag "v$VERSION-dev"
-    - git push origin main --tags
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
 
