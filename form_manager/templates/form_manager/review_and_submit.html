@@ -15,9 +15,13 @@
     <div class="grid-col-12 desktop:grid-col-9">
       <h1 class="font-heading-2xl semibold font-family-sans font-weight-semibold">Review and Submit</h1>
 
-      <div class="margin-bottom-5">
+      <div
+        id="form-validation-summary"
+        class="margin-bottom-5"
+        {% if form.errors %}role="alert" aria-live="polite" tabindex="-1"{% endif %}
+      >
       {% if form.errors %}
-        <c-alert 
+        <c-alert
             type="error"
             slim="True"
         >
@@ -25,6 +29,23 @@
         </c-alert>
       {% endif %}
       </div>
+      {% if form.errors %}
+      <script>
+        (function () {
+          if (location.hash !== "#form-validation-summary") return;
+          var el = document.getElementById("form-validation-summary");
+          if (!el || el.getAttribute("tabindex") !== "-1") return;
+          // Drop the fragment so the browser does not jump instantly; then animate.
+          history.replaceState(null, "", location.pathname + location.search);
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              el.scrollIntoView({ behavior: "smooth", block: "start" });
+              el.focus({ preventScroll: true });
+            });
+          });
+        })();
+      </script>
+      {% endif %}
 
         <c-accordion type="multiselectable">
         {% for step in review_sections %}

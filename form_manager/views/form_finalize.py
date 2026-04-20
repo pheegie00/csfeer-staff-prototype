@@ -1,5 +1,3 @@
-import logging
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
@@ -10,9 +8,6 @@ from django.views.decorators.http import require_http_methods
 
 from form_manager.models import FormAuditTrail, FormEntry
 from form_manager.schema.forms.utils import import_form_schema
-from form_manager.schema.navigation import build_form_edit_url
-
-logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -38,15 +33,13 @@ def form_finalize(request, pk):
     except (ImportError, AttributeError) as exc:
         raise Http404(f"Unable to import schema class {schema_class_ref!r}: {exc}") from exc
 
-    # Instantiate the schema if possible; fall back to using the class object
-    schema = schema_cls.model_construct()
-
-    # The django form is expected to be available on schema.form_fields
     django_form_class = schema_cls.get_form_fields_class()
 
-    form = django_form_class(entry.data)  # noqa: F841
+    form = django_form_class(entry.data, initial=entry.data)
+    if not form.is_valid(use_default_if_excluded=True):
+        review_path = reverse("form_review", kwargs={"pk": entry.pk})
+        return redirect(f"{review_path}#form-validation-summary")
 
-    # if form.is_valid():
     entry.status = "submitted"
     entry.submitted_at = timezone.now()
     entry.save()
@@ -63,16 +56,5 @@ def form_finalize(request, pk):
             kwargs={
                 "pk": entry.pk,
             },
-        )
-    )
-
-    messages.error(
-        request, "There were errors in your form. Please correct them before submitting."
-    )
-    return redirect(
-        build_form_edit_url(
-            entry.pk,
-            step_number=len(schema.ui) - 1,
-            page_number=len(schema.ui[-1].children) - 1,
         )
     )

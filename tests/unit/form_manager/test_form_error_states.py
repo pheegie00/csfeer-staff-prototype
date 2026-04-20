@@ -98,6 +98,26 @@ def test_form_edit_no_errors_before_review_visit(
 
 
 @pytest.mark.django_db
+def test_form_finalize_rejects_invalid_data_and_redirects_to_review(
+    django_db_setup, form_entry: FormEntry, authenticated_client: "Client"
+):
+    """Invalid entries must not be marked submitted; user returns to review with hash."""
+    form_entry.data = {"first_name": "", "last_name": "Doe"}
+    form_entry.save()
+
+    url = reverse("form_finalize", args=[form_entry.pk])
+    response = authenticated_client.post(url)
+
+    assert response.status_code == 302
+    review_url = reverse("form_review", args=[form_entry.pk])
+    assert response["Location"] == f"{review_url}#form-validation-summary"
+
+    form_entry.refresh_from_db()
+    assert form_entry.status != "submitted"
+    assert FormAuditTrail.objects.filter(form_entry=form_entry, action="submit").count() == 0
+
+
+@pytest.mark.django_db
 def test_form_finalize_clears_show_errors_flag(
     django_db_setup, form_entry: FormEntry, authenticated_client: "Client"
 ):
