@@ -546,7 +546,7 @@ gemnasium-python-dependency_scanning:
 
 deploy:dev:
   image:
-    name: registry.access.redhat.com/ubi9-minimal:latest
+    name: registry.management.acf.gov/ngsc-oci/security/cosign-vault:0.1.5
   stage: deploy:dev
   needs:
     - prepare
@@ -557,6 +557,7 @@ deploy:dev:
     DEV_IMAGE: $CI_REGISTRY/$CI_PROJECT_PATH:$VERSION-dev
     IMAGE_VERSION: dev-$CI_COMMIT_SHORT_SHA
   script:
+    - yum update -y && yum install git -y
     - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - export STORAGE_DRIVER=vfs
     - buildah pull $FULL_IMAGE_NAME
