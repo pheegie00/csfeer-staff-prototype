@@ -1,6 +1,7 @@
 {% with id=widget.attrs.id %}
 <div{% if id %} id="{{ id }}"{% endif %}{% if widget.attrs.class %} class="{{ widget.attrs.class }}"{% endif %}>
     <p>Select all that apply: {% if widget.attrs.required %}<c-label.required-marker />{% endif %}</p>
+    <input type="hidden" name="{{ widget.name }}_submitted" value="1">
     {% for group, options, index in widget.optgroups %}
         {% if group %}
             <div>

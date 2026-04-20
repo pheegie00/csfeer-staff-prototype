@@ -538,6 +538,7 @@ requires-dist = [
     { name = "boto3", specifier = ">=1.42.89" },
     { name = "django", specifier = ">=6.0.4" },
     { name = "django-cotton", specifier = ">=2.6.2" },
+    { name = "django-cotton-uswds", specifier = ">=1.1.2" },
     { name = "django-crispy-forms", specifier = ">=2.6" },
     { name = "django-json-widget", specifier = ">=2.1.1" },
     { name = "django-ninja", specifier = ">=1.6.2" },
