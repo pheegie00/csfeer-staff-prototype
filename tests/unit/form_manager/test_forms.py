@@ -2,6 +2,7 @@ from unittest.mock import Mock
 
 import pytest
 from django.core.files.storage import default_storage
+from django.http import QueryDict
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from form_manager.models import FormAuditDetail, FormAuditTrail, FormEntry
@@ -185,27 +186,47 @@ def test_save_form_entry_creates_save_audit_trail(form_entry: FormEntry, create_
 
 
 @pytest.mark.django_db
-def test_save_form_entry_handles_multiple_choice(form_entry: FormEntry, create_user):
-    """Test that MultipleChoiceField values are properly saved."""
+@pytest.mark.parametrize(
+    ("initial_topics", "post_data", "expected_topics"),
+    [
+        (
+            [],
+            {"applicable_topics": ["item1_cost", "item2_cost"]},
+            ["item1_cost", "item2_cost"],
+        ),
+        (
+            ["item1_cost"],
+            QueryDict("applicable_topics_submitted=1"),
+            [],
+        ),
+    ],
+    ids=["saves-selected-multiple-choice-values", "clears-multiple-choice-when-all-deselected"],
+)
+def test_save_form_entry_handles_multiple_choice(
+    form_entry: FormEntry,
+    create_user,
+    initial_topics: list[str],
+    post_data: dict[str, list[str]] | QueryDict,
+    expected_topics: list[str],
+):
+    """Multiple-choice fields should save selected values and clear when intentionally emptied."""
     user, _ = create_user
 
-    # Create mock request with multiple selections
-    request_mock = Mock()
-    request_mock.user = user
-    request_mock.POST = {
-        "applicable_topics": ["item1_cost", "item2_cost"],  # Multiple values
-    }
-    request_mock.FILES = {}
-
     form_schema = import_form_schema(form_entry.form_definition.schema_class)
-
     form_class = form_schema.get_form_fields_class()
 
-    # Save the form entry
+    if initial_topics:
+        form_entry.data = {"applicable_topics": initial_topics}
+        form_entry.save()
+
+    request_mock = Mock()
+    request_mock.user = user
+    request_mock.POST = post_data
+    request_mock.FILES = {}
+
     save_form_entry(form_class, form_entry, request_mock)
 
-    # Verify list was saved correctly
-    assert form_entry.data["applicable_topics"] == ["item1_cost", "item2_cost"]
+    assert form_entry.data["applicable_topics"] == expected_topics
 
 
 @pytest.mark.django_db

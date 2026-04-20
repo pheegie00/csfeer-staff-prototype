@@ -171,7 +171,8 @@ def get_fields_to_save(form, request):
         elif value is not None:
 
             if isinstance(value, list):
-                if any(value):
+                sentinel_key = f"{form.add_prefix(field_name)}_submitted"
+                if any(value) or sentinel_key in request.POST:
                     logger.info("Adding %s to fields_to_save", field_name)
                     fields_to_save.append(field_name)
             else:
