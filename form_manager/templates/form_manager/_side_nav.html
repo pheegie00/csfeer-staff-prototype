@@ -4,6 +4,8 @@
       text="{{ item.label }}"
       href="{{ item.href }}"
       is_current="{{ item.is_current|default:'' }}"
+      disabled="{{ item.disabled_reason|default:'' }}"
+      title="{{ item.disabled_reason }}"
     >
       {% if item.is_expanded %}
         {% for page in item.pages %}

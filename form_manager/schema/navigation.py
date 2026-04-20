@@ -27,6 +27,7 @@ class SideNavSection(TypedDict):
     href: str
     is_current: bool
     is_expanded: bool
+    disabled_reason: str
     pages: list[SideNavPage]
 
 
@@ -110,6 +111,7 @@ def build_side_nav_items(
                 "href": build_form_edit_url(entry_pk, step_number=step_index, page_number=0),
                 "is_current": not is_review and step_index == current_step_number,
                 "is_expanded": not is_review and step_index == current_step_number,
+                "disabled_reason": (step.disabled_reason or "") if not step_pages else "",
                 "pages": children,
             }
         )
@@ -121,6 +123,7 @@ def build_side_nav_items(
             "href": reverse("form_review", kwargs={"pk": entry_pk}),
             "is_current": is_review,
             "is_expanded": False,
+            "disabled_reason": "",
             "pages": [],
         }
     )

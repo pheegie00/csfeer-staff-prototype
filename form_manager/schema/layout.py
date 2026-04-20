@@ -82,6 +82,7 @@ class StepBlock(RenderableBaseModel):
 
     type: str = "step"
     title: str | None = None
+    disabled_reason: str | None = None
     children: list["AbstractPageBlock"] | None = None
 
 
