@@ -264,3 +264,7 @@ USE_THOUSAND_SEPARATOR = True
 
 _version_file = BASE_DIR / ".version"
 APP_VERSION = _version_file.read_text().strip() if _version_file.exists() else "unknown"
+
+CSRF_TRUSTED_ORIGINS = settings.csrf_trusted_origins
+
+AWS_S3_SIGNATURE_VERSION = "s3v4"
