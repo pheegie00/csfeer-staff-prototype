@@ -546,7 +546,7 @@ gemnasium-python-dependency_scanning:
 
 deploy:dev:
   image:
-    name: registry.management.acf.gov/ngsc-oci/security/cosign-vault:0.1.5
+    name: registry.access.redhat.com/ubi9-minimal:latest
   stage: deploy:dev
   needs:
     - prepare
