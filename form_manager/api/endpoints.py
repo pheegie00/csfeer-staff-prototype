@@ -148,7 +148,7 @@ def get_audit_trail(request, entry_id: int):
     entry = get_object_or_404(FormEntry, pk=entry_id)
     check_view_permission(request, entry)
 
-    audits = FormAuditTrail.objects.filter(form_entry=entry).order_by("-timestamp")
+    audits = FormAuditTrail.objects.filter(form_entry=entry).order_by("-created_at")
 
     return audits
 
@@ -163,7 +163,7 @@ def get_audit_details(request, entry_id: int):
     entry = get_object_or_404(FormEntry, pk=entry_id)
     check_view_permission(request, entry)
 
-    details = FormAuditDetail.objects.filter(form_entry=entry).order_by("-timestamp")
+    details = FormAuditDetail.objects.filter(form_entry=entry).order_by("-created_at")
 
     return details
 

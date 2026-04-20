@@ -73,7 +73,7 @@ class AuditTrailSchema(Schema):
     id: int
     user_id: int | None = None
     action: str
-    timestamp: datetime
+    created_at: datetime
     notes: str
 
 
@@ -83,7 +83,4 @@ class AuditDetailSchema(Schema):
     field_name: str
     old_value: str
     new_value: str
-    timestamp: datetime
-    timestamp: datetime
-    timestamp: datetime
-    timestamp: datetime
+    created_at: datetime

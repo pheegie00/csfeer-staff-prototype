@@ -71,11 +71,11 @@ def form_history(request, pk: UUID):
 
     submission_events = (
         FormAuditTrail.objects.filter(form_entry=entry, action__in=["submit", "amend"])  # type: ignore[arg-type]
-        .order_by("-timestamp")
+        .order_by("-created_at")
         .all()
     )
 
-    all_events = FormAuditTrail.objects.filter(form_entry=entry).order_by("-timestamp").all()
+    all_events = FormAuditTrail.objects.filter(form_entry=entry).order_by("-created_at").all()
 
     return render(
         request,
