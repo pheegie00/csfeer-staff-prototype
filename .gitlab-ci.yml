@@ -81,7 +81,7 @@ prepare:
         echo "Automatically bumping version to $NEXT_VERSION";
       fi
     - echo VERSION=${NEXT_VERSION} >> build.env
-    - echo BUILD_VERSION_STRING="v$NEXT_VERSION ($CI_COMMIT_SHORT_SHA)" >> build.env
+    - echo BUILD_VERSION_STRING="\"v$NEXT_VERSION ($CI_COMMIT_SHORT_SHA)\"" >> build.env
     - cat build.env
   artifacts:
     reports:
