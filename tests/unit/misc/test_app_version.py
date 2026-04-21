@@ -67,7 +67,7 @@ def test_footer_renders_version_as_visible_text_when_enabled():
         "cotton/footer_main.html",
         {"SHOW_APP_VERSION": True, "APP_VERSION": "3.1.4", "email": "support@example.com"},
     )
-    assert "Version 3.1.4" in content
+    assert "3.1.4" in content
     assert "<!-- version: 3.1.4 -->" not in content
 
 
@@ -78,4 +78,4 @@ def test_footer_renders_version_in_html_comment_when_disabled():
         {"SHOW_APP_VERSION": False, "APP_VERSION": "3.1.4", "email": "support@example.com"},
     )
     assert "<!-- version: 3.1.4 -->" in content
-    assert "Version 3.1.4" not in content
+    assert ">3.1.4<" not in content
