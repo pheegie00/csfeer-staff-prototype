@@ -5,7 +5,7 @@ from form_manager.schema.layout import (
     SectionBlock,
     StepBlock,
 )
-from form_manager.views.form_edit import remove_nodes_with_excluded_fields
+from form_manager.schema.navigation import remove_nodes_with_excluded_fields
 
 
 def test_has_field_blocks():

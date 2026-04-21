@@ -9,12 +9,15 @@ from django.urls import Resolver404, resolve, reverse
 
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
-from form_manager.schema.layout import AbstractPageBlock, FieldBlock, PageBlock, StepBlock
+from form_manager.schema.layout import AbstractPageBlock, StepBlock
 from form_manager.schema.navigation import (
     build_form_edit_url,
     build_side_nav_items,
     find_nearest_navigable_step_page,
+    get_next_step_and_page,
+    get_previous_step_and_page,
     get_step_pages,
+    remove_nodes_with_excluded_fields,
 )
 from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
 
@@ -123,77 +126,6 @@ def _build_post_save_redirect(
     if next_step is None or next_page is None:
         return reverse("form_review", kwargs={"pk": entry_pk})
     return build_form_edit_url(entry_pk, step_number=next_step, page_number=next_page)
-
-
-def get_next_step_and_page(
-    components, current_step: int, current_page: int
-) -> tuple[int | None, int | None]:
-    current_step_pages = get_step_pages(components[current_step])
-
-    if not current_step_pages or current_page == len(current_step_pages) - 1:
-        # Advance to the next step that has pages, skipping empty ones
-        next_step = current_step + 1
-        while next_step < len(components):
-            if get_step_pages(components[next_step]):
-                return next_step, 0
-            next_step += 1
-        return None, None
-
-    return current_step, current_page + 1
-
-
-def get_previous_step_and_page(
-    components, current_step: int, current_page: int
-) -> tuple[None, None] | tuple[int, int]:
-    if current_step == 0 and current_page == 0:
-        return None, None
-
-    if current_page == 0:
-        # Go back to the last page of the nearest previous step that has pages
-        prev_step = current_step - 1
-        while prev_step >= 0:
-            prev_pages = get_step_pages(components[prev_step])
-            if prev_pages:
-                return prev_step, len(prev_pages) - 1
-            prev_step -= 1
-        return None, None
-
-    return current_step, current_page - 1
-
-
-def remove_nodes_with_excluded_fields(
-    components: list[StepBlock], fields_to_exclude: list[str]
-) -> list[StepBlock]:
-    """This function takes a list of UI components (steps), removes any descendant FieldBlock
-    components whose names are listed in `fields_to_exclude`, and removes any PageBlock nodes that
-    lack descendant FieldBlock nodes. StepBlocks are preserved so the side nav can keep showing
-    disabled sections for orientation.
-    """
-
-    def remove_excluded_nodes(component):
-
-        children_to_keep = []
-
-        for child in component.children:
-
-            if isinstance(child, FieldBlock) and child.field_name in fields_to_exclude:
-                logger.info("Removing field %s", child.field_name)
-                continue
-
-            if hasattr(child, "children") and child.children:
-                child = remove_excluded_nodes(child)
-
-            if isinstance(child, PageBlock) and not child.has_field_blocks(child):
-                # If the page has no remaining FieldBlock children, skip it
-                logger.info("Removing empty page %s", child.title)
-                continue
-
-            children_to_keep.append(child)
-
-        component.children = children_to_keep
-        return component
-
-    return [remove_excluded_nodes(comp) for comp in components]
 
 
 @login_required

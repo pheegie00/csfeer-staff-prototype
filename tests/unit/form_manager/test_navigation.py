@@ -8,12 +8,10 @@ from form_manager.schema.navigation import (
     build_form_edit_url,
     build_side_nav_items,
     find_nearest_navigable_step_page,
-)
-from form_manager.views.form_edit import (
     get_next_step_and_page,
     get_previous_step_and_page,
-    normalize_step_and_page,
 )
+from form_manager.views.form_edit import normalize_step_and_page
 
 
 @pytest.fixture
