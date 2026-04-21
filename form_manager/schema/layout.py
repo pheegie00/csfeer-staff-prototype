@@ -217,6 +217,12 @@ class ConditionalBlock(RenderableBaseModel):
         Field(description="Django template used to render this conditional block"),
     ] = "form_manager/conditional_block.html"
 
+    @property
+    def show_when_expression(self) -> str:
+        values = [self.show_when] if isinstance(self.show_when, str) else self.show_when
+        quoted = ", ".join(f"'{v}'" for v in values)
+        return f"[{quoted}].includes(checked)"
+
 
 class FieldBlock(RenderableBaseModel):
     """Represents the rendering of a specific form field"""

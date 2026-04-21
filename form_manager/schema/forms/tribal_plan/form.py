@@ -46,13 +46,28 @@ class TribalPlanForm(BaseFormSchema):
                     PermanentPageBlock(
                         title="Plan Coverage",
                         children=[
+                            AlertBoxBlock(
+                                alert_type="info",
+                                heading="Plan Coverage",
+                                message=(
+                                    "Tribal Plans covering a two-year period are strongly"
+                                    " recommended to minimize administrative burden for"
+                                    " grant recipients."
+                                ),
+                            ),
                             SectionBlock(
-                                title="Plan Coverage",
+                                alpine_controller_field="plan_coverage",
                                 children=[
                                     ReviewSubheadingBlock(title="Plan Coverage"),
                                     FieldBlock(field_name="plan_coverage"),
-                                    FieldBlock(field_name="fiscal_year_y1"),
-                                    FieldBlock(field_name="fiscal_year_y2"),
+                                    ConditionalBlock(
+                                        show_when=["one_year", "two_year"],
+                                        children=[FieldBlock(field_name="fiscal_year_y1")],
+                                    ),
+                                    ConditionalBlock(
+                                        show_when="two_year",
+                                        children=[FieldBlock(field_name="fiscal_year_y2")],
+                                    ),
                                 ],
                             ),
                         ],
@@ -130,14 +145,19 @@ class TribalPlanForm(BaseFormSchema):
                     ),
                     PermanentPageBlock(
                         title="Delegation of Authority",
+                        subtitle=(
+                            "Delegation of authority may include granting signature authority"
+                            " for assurances, certifications, and other required CSBG documents"
+                            " on behalf of the Authorized Tribal Official."
+                        ),
                         children=[
                             SectionBlock(
-                                title="Delegation of Authority",
                                 alpine_controller_field="has_delegation",
                                 children=[
                                     ReviewSubheadingBlock(title="Delegation of Authority"),
                                     FieldBlock(field_name="has_delegation"),
                                     ConditionalBlock(
+                                        title="Additional Authorized Official",
                                         show_when="yes",
                                         children=[
                                             ReviewSubheadingBlock(

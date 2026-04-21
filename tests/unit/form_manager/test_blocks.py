@@ -1,4 +1,5 @@
 from form_manager.schema.layout import (
+    ConditionalBlock,
     FieldBlock,
     PageBlock,
     PermanentPageBlock,
@@ -126,3 +127,64 @@ def test_conditional_filter_keeps_empty_steps_for_side_nav():
     assert len(result) == 2
     assert result[0].children and len(result[0].children) == 1
     assert result[1].children == []
+
+
+def test_conditional_block_title_defaults_to_none():
+    """ConditionalBlock should not require a title."""
+    block = ConditionalBlock(
+        show_when="yes",
+        children=[FieldBlock(field_name="field1")],
+    )
+
+    assert block.title is None
+
+
+def test_conditional_block_accepts_title():
+    """ConditionalBlock should accept an optional title for inline rendering."""
+    block = ConditionalBlock(
+        title="Additional Authorized Official",
+        show_when="yes",
+        children=[FieldBlock(field_name="field1")],
+    )
+
+    assert block.title == "Additional Authorized Official"
+
+
+def test_conditional_block_renders_title_when_present():
+    """When a title is set the rendered template should include an h2 heading."""
+    block = ConditionalBlock(
+        title="Additional Authorized Official",
+        show_when="yes",
+        children=[],
+    )
+
+    rendered = str(block.render())
+
+    assert "Additional Authorized Official" in rendered
+    assert "<h2" in rendered
+
+
+def test_conditional_block_omits_heading_when_no_title():
+    """Without a title the rendered template should not include an h2 heading."""
+    block = ConditionalBlock(
+        show_when="yes",
+        children=[],
+    )
+
+    rendered = str(block.render())
+
+    assert "<h2" not in rendered
+
+
+def test_conditional_block_show_when_expression_single_value():
+    """show_when_expression should render a single string as a one-element list."""
+    block = ConditionalBlock(show_when="yes", children=[])
+
+    assert block.show_when_expression == "['yes'].includes(checked)"
+
+
+def test_conditional_block_show_when_expression_list_values():
+    """show_when_expression should render a list of strings as a multi-element list."""
+    block = ConditionalBlock(show_when=["one_year", "two_year"], children=[])
+
+    assert block.show_when_expression == "['one_year', 'two_year'].includes(checked)"
