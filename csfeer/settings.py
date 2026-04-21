@@ -268,3 +268,5 @@ APP_VERSION = _version_file.read_text().strip() if _version_file.exists() else "
 CSRF_TRUSTED_ORIGINS = settings.csrf_trusted_origins
 
 AWS_S3_SIGNATURE_VERSION = "s3v4"
+
+SHOW_APP_VERSION = settings.show_app_version
