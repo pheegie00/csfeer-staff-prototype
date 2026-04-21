@@ -200,19 +200,26 @@ class TribalPlanFormFields(BaseFields):
     # 2.2a
     has_recognition = acf_fields.ChoiceField(
         title=(
-            "Do all Tribes/Villages/Communities/Jurisdictions served"
-            " have state or federal recognition?"
+            "Do all Tribes, Villages, Communities, and Jurisdictions have state"
+            " or federal recognition?"
         ),
         choices=[("yes", "Yes"), ("no", "No")],
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
     )
-    # 2.2b Recognition citation and upload (conditional on has_recognition = yes)
-    recognition_citation = acf_fields.CharField(
-        title="State or federal recognition citation",
-        description="Required if recognition exists. Provide the citation for the recognition.",
-        max_length=500,
+    # 2.2b Method for providing recognition (conditional on has_recognition = yes)
+    recognition_provision_method = acf_fields.ChoiceField(
+        title="How would you like to provide this information?",
+        choices=[("manual", "Enter it manually"), ("upload", "Upload a file")],
+        widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
         required=False,
     )
+    # 2.2b Recognition citation (conditional on recognition_provision_method = manual)
+    recognition_citation = acf_fields.TextareaField(
+        title="Provide a citation to the State statute or code acknowledging State recognition",
+        max_length=1000,
+        required=False,
+    )
+    # 2.2b Recognition upload (conditional on recognition_provision_method = upload)
     recognition_upload = acf_fields.FileField(
         title="Recognition documentation",
         description=(
@@ -635,16 +642,26 @@ class TribalPlanFormFields(BaseFields):
                         f"{label} is required when delegating signature authority.",
                     )
 
-        # 2.2b: At least one of citation or upload is required when tribes have recognition.
-        if (
-            has_recognition == "yes"
-            and not cleaned_data.get("recognition_citation")
-            and not cleaned_data.get("recognition_upload")
-        ):
-            self.add_error(
-                "recognition_citation",
-                "Provide a recognition citation or upload supporting documentation.",
-            )
+        # 2.2b: When tribes have recognition, the user must pick a provision method and
+        # provide the corresponding citation or upload.
+        if has_recognition == "yes":
+            provision_method = cleaned_data.get("recognition_provision_method")
+            if not provision_method:
+                self.add_error(
+                    "recognition_provision_method",
+                    "Select how you would like to provide recognition information.",
+                )
+            elif provision_method == "manual" and not cleaned_data.get("recognition_citation"):
+                self.add_error(
+                    "recognition_citation",
+                    "Provide a citation to the State statute or code acknowledging"
+                    " State recognition.",
+                )
+            elif provision_method == "upload" and not cleaned_data.get("recognition_upload"):
+                self.add_error(
+                    "recognition_upload",
+                    "Upload supporting recognition documentation.",
+                )
 
         # Year 2 allocations: required when a two-year plan is selected.
         if plan_coverage == "two_year":
