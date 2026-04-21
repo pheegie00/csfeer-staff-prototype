@@ -66,7 +66,7 @@
                           <span class="text-bold">{{ event.action|title }}</span>
                         </td>
                         <td data-label="Timestamp">
-                          {{ event.timestamp|date:"M d, Y g:i A" }}
+                          {{ event.created_at|date:"M d, Y g:i A" }}
                         </td>
                         <td data-label="User">
                           {{ event.user.email|default:"System" }}
@@ -75,7 +75,7 @@
                           <a 
                             href="{% url 'form_snapshot' current.pk event.pk %}" 
                             class="usa-button usa-button--outline usa-button--unstyled"
-                            aria-label="Preview snapshot from {{ event.timestamp }}"
+                            aria-label="Preview snapshot from {{ event.created_at }}"
                           >
                             Preview Snapshot
                           </a>
@@ -122,7 +122,7 @@
                           <span class="usa-tag bg-base-lighter text-ink">{{ event.action|upper }}</span>
                         </td>
                         <td data-label="Timestamp">
-                          {{ event.timestamp|date:"M d, Y g:i A" }}
+                          {{ event.created_at|date:"M d, Y g:i A" }}
                         </td>
                         <td data-label="User">
                           {{ event.user.email|default:"System" }}

@@ -49,7 +49,7 @@ def try_parse_json(value: str):
 
 
 def reconstruct_state(entry, upto=None):
-    """Reconstruct form entry state from audit details up to a given timestamp."""
+    """Reconstruct form entry state from audit details up to a given moment (created_at cutoff)."""
     qs = FormAuditDetail.objects.filter(form_entry=entry)
     if upto is not None:
         qs = qs.filter(created_at__lte=upto)
