@@ -1,4 +1,5 @@
 import logging
+from urllib.parse import parse_qs, urlsplit
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -9,7 +10,12 @@ from django.urls import Resolver404, resolve, reverse
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.schema.layout import AbstractPageBlock, FieldBlock, PageBlock, StepBlock
-from form_manager.schema.navigation import build_form_edit_url, build_side_nav_items, get_step_pages
+from form_manager.schema.navigation import (
+    build_form_edit_url,
+    build_side_nav_items,
+    find_nearest_navigable_step_page,
+    get_step_pages,
+)
 from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
 
 logger = logging.getLogger(__name__)
@@ -28,14 +34,16 @@ def normalize_step_and_page(
     if not components:
         raise Http404("Form has no steps defined")
 
-    normalized_step = min(max(current_step, 0), len(components) - 1)
-    step_pages = get_step_pages(components[normalized_step])
+    resolved_step_and_page = find_nearest_navigable_step_page(
+        components,
+        requested_step=current_step,
+        requested_page=current_page,
+    )
 
-    if not step_pages:
-        raise Http404("Form section has no pages defined")
+    if resolved_step_and_page is None:
+        raise Http404("Form has no visible pages defined")
 
-    normalized_page = min(max(current_page, 0), len(step_pages) - 1)
-    return normalized_step, normalized_page
+    return resolved_step_and_page
 
 
 def get_step_page(components: list[StepBlock], step: int, page: int) -> AbstractPageBlock:
@@ -72,6 +80,49 @@ def _get_safe_nav_redirect(redirect_to: str, *, entry_pk: str) -> str | None:
         return None
 
     return redirect_to
+
+
+def _build_post_save_redirect(
+    safe_redirect_to: str,
+    *,
+    entry_pk: str,
+    components: list[StepBlock],
+) -> str:
+    """Resolve side-nav targets against the filtered post-save UI.
+
+    If the target step still has pages, go there. If it became empty after
+    saving, go forward from the clicked step (same direction as the Next button).
+    """
+    parsed_redirect = urlsplit(safe_redirect_to)
+    match = resolve(parsed_redirect.path)
+
+    if match.view_name == "form_review":
+        return safe_redirect_to
+
+    query_params = parse_qs(parsed_redirect.query)
+    requested_step = _parse_step_or_page_param(query_params.get("step", [None])[0])
+    requested_page = _parse_step_or_page_param(query_params.get("page", [None])[0])
+
+    # Clamp to valid range — guards against a tampered step param
+    requested_step = min(requested_step, len(components) - 1)
+
+    if get_step_pages(components[requested_step]):
+        resolved_step_and_page = find_nearest_navigable_step_page(
+            components,
+            requested_step=requested_step,
+            requested_page=requested_page,
+        )
+        if resolved_step_and_page is not None:
+            resolved_step, resolved_page = resolved_step_and_page
+            return build_form_edit_url(
+                entry_pk, step_number=resolved_step, page_number=resolved_page
+            )
+
+    # Target step is empty — go forward from the clicked step
+    next_step, next_page = get_next_step_and_page(components, requested_step, requested_page)
+    if next_step is None or next_page is None:
+        return reverse("form_review", kwargs={"pk": entry_pk})
+    return build_form_edit_url(entry_pk, step_number=next_step, page_number=next_page)
 
 
 def get_next_step_and_page(
@@ -115,14 +166,8 @@ def remove_nodes_with_excluded_fields(
 ) -> list[StepBlock]:
     """This function takes a list of UI components (steps), removes any descendant FieldBlock
     components whose names are listed in `fields_to_exclude`, and removes any PageBlock nodes that
-    lack descendant FieldBlock nodes.
-
-    TODO: prune StepBlocks that become empty after filtering so navigation/review helpers
-    can safely skip fully excluded sections instead of assuming every visible section
-    still has at least one page.
-
-    Current navigation assumes each visible section still has at least one page after filtering.
-    Empty sections are not removed in this pass.
+    lack descendant FieldBlock nodes. StepBlocks are preserved so the side nav can keep showing
+    disabled sections for orientation.
     """
 
     def remove_excluded_nodes(component):
@@ -190,6 +235,7 @@ def form_edit(request, pk):
     django_form_class = schema_cls.get_form_fields_class()
 
     ui_components = [step.model_copy(deep=True) for step in schema.ui]
+    safe_redirect_to: str | None = None
 
     def has_permission():
 
@@ -215,8 +261,6 @@ def form_edit(request, pk):
         # Side nav navigation: save and redirect to the clicked page
         redirect_to = request.POST.get("redirect_to", "")
         safe_redirect_to = _get_safe_nav_redirect(redirect_to, entry_pk=str(entry.pk))
-        if safe_redirect_to:
-            return redirect(safe_redirect_to)
 
         messages.success(request, "Draft saved.")
 
@@ -231,6 +275,15 @@ def form_edit(request, pk):
     if form.fields_to_exclude:
         logger.info("Excluding the following fields: %s", form.fields_to_exclude)
         ui_components = remove_nodes_with_excluded_fields(ui_components, form.fields_to_exclude)
+
+    if request.method == "POST" and safe_redirect_to:
+        return redirect(
+            _build_post_save_redirect(
+                safe_redirect_to,
+                entry_pk=str(entry.pk),
+                components=ui_components,
+            )
+        )
 
     current_step_number, current_page_number = normalize_step_and_page(
         ui_components, current_step_number, current_page_number

@@ -60,6 +60,36 @@ def get_step_pages(step: StepBlock) -> list[AbstractPageBlock]:
     return [child for child in (step.children or []) if isinstance(child, AbstractPageBlock)]
 
 
+def find_nearest_navigable_step_page(
+    steps: list[StepBlock], *, requested_step: int, requested_page: int
+) -> tuple[int, int] | None:
+    """Return the closest visible edit destination while preserving empty steps for the rail."""
+    if not steps:
+        return None
+
+    normalized_step = min(max(requested_step, 0), len(steps) - 1)
+    step_pages = get_step_pages(steps[normalized_step])
+    if step_pages:
+        normalized_page = min(max(requested_page, 0), len(step_pages) - 1)
+        return normalized_step, normalized_page
+
+    previous_step = normalized_step - 1
+    while previous_step >= 0:
+        previous_pages = get_step_pages(steps[previous_step])
+        if previous_pages:
+            return previous_step, 0
+        previous_step -= 1
+
+    next_step = normalized_step + 1
+    while next_step < len(steps):
+        next_pages = get_step_pages(steps[next_step])
+        if next_pages:
+            return next_step, 0
+        next_step += 1
+
+    return None
+
+
 def _collect_review_blocks(node) -> list[FieldBlock | ReviewSubheadingBlock]:
     blocks: list[FieldBlock | ReviewSubheadingBlock] = []
 
