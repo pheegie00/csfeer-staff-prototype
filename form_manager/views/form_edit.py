@@ -79,38 +79,34 @@ def get_next_step_and_page(
 ) -> tuple[int | None, int | None]:
     current_step_pages = get_step_pages(components[current_step])
 
-    # If we're on the last step and page, move on to the review page
-    if current_step == len(components) - 1 and current_page == len(current_step_pages) - 1:
+    if not current_step_pages or current_page == len(current_step_pages) - 1:
+        # Advance to the next step that has pages, skipping empty ones
+        next_step = current_step + 1
+        while next_step < len(components):
+            if get_step_pages(components[next_step]):
+                return next_step, 0
+            next_step += 1
         return None, None
 
-    # If there's no children in the current step, move to the next step and first page
-    if not current_step_pages:
-        return current_step + 1, 0
-
-    # Check if we're on the last page, and if so, move to the next step
-    # and first page
-    if current_page == len(current_step_pages) - 1:
-        return current_step + 1, 0
-
-    # Otherwise, stay on the current step but advance the next page
     return current_step, current_page + 1
 
 
 def get_previous_step_and_page(
     components, current_step: int, current_page: int
 ) -> tuple[None, None] | tuple[int, int]:
-
-    # if we're on the first step and page, you can't go back so
-    # just return None
     if current_step == 0 and current_page == 0:
         return None, None
 
-    # if we're on the first page of a step, decrement the current step and
-    # return the last page of the previous step.
     if current_page == 0:
-        return current_step - 1, len(get_step_pages(components[current_step - 1])) - 1
+        # Go back to the last page of the nearest previous step that has pages
+        prev_step = current_step - 1
+        while prev_step >= 0:
+            prev_pages = get_step_pages(components[prev_step])
+            if prev_pages:
+                return prev_step, len(prev_pages) - 1
+            prev_step -= 1
+        return None, None
 
-    # Otherwise, stay on the current step but decrement the next page
     return current_step, current_page - 1
 
 
