@@ -249,7 +249,10 @@ class TribalPlanFormFields(BaseFields):
 
     # 4.1a/b
     community_feedback = acf_fields.YesNoDisplayField(
-        title="Did the Tribe solicit feedback from Tribal members served?",
+        title=(
+            "Did the Tribe or Tribal Organization solicit feedback from Tribal members "
+            "that demonstrates evidence of public participation?"
+        ),
         fields=[
             acf_fields.TextareaField(
                 title="Describe how feedback was solicited",
