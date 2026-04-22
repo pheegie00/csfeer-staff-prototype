@@ -237,6 +237,23 @@ class TribalPlanForm(BaseFormSchema):
                             " Community Services Block Grant funding, as applicable."
                         ),
                         children=[
+                            AlertBoxBlock(
+                                alert_type="info",
+                                message=(
+                                    "Consider how your Tribe or Tribal Organization's goals"
+                                    " and objectives align with the purposes of the CSBG"
+                                    " program, including: removing obstacles that block the"
+                                    " achievement of self-sufficiency; securing and retaining"
+                                    " meaningful employment; attaining adequate literacy and"
+                                    " education; making better use of available income;"
+                                    " obtaining and maintaining adequate housing; obtaining"
+                                    " emergency assistance; achieving greater participation in"
+                                    " the affairs of the communities; supporting youth"
+                                    " development in low-income communities; coordinating with"
+                                    " other programs related to the purposes of the CSBG Act;"
+                                    " and linkages to fill service gaps."
+                                ),
+                            ),
                             SectionBlock(
                                 children=[
                                     ReviewSubheadingBlock(title="Goals and Objectives"),
