@@ -71,6 +71,9 @@ jobs:
       #     path: test-results/
       #     retention-days: 7
 
-      - name: Docker logs on failure
+      - name: Docker logs and cleanup on failure
         if: failure()
-        run: IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml logs
+        run: |
+          IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml logs
+          IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml down -v
+          
