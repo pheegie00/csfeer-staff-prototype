@@ -25,7 +25,6 @@ jobs:
 
       - name: Run unit tests
         run: |
-          export KC_SETUP_DELAY=120
           sudo bash -c "echo '127.0.0.1   oauth.csfeer' >> /etc/hosts"
           sudo bash -c "echo '127.0.0.1   ui.csfeer' >> /etc/hosts"
           mkdir -p tests/videos && chmod 777 tests/videos
@@ -38,7 +37,6 @@ jobs:
 
       - name: Run e2e tests
         run: |
-          export KC_SETUP_DELAY=120
           sudo bash -c "echo '127.0.0.1   oauth.csfeer' >> /etc/hosts"
           sudo bash -c "echo '127.0.0.1   ui.csfeer' >> /etc/hosts"
           mkdir -p tests/videos && chmod 777 tests/videos

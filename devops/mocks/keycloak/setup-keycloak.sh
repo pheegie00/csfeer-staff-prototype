@@ -7,7 +7,7 @@ REALM=${REALM:-csfeer}
 KC_BOOT_USER=${KEYCLOAK_ADMIN:-admin}
 KC_BOOT_PASS=${KEYCLOAK_ADMIN_PASSWORD:-admin}
 USERS_CSV=${USERS_CSV:-}
-SETUP_DELAY=${SETUP_DELAY:-10} # seconds to wait for Keycloak to be ready before running setup
+KC_TIMEOUT=${KC_TIMEOUT:-60} # seconds to keep retrying until Keycloak is ready
 
 # CSV-only user seeding; no env-based fallback
 
@@ -17,21 +17,27 @@ OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET:-shhhhhhhh}
 
 SETUP_COMPLETE_FILE_PATH="/opt/keycloak/setup-complete"
 
-echo "[keycloak-setup] Waiting for Keycloak at ${KC_URL}..."
-sleep $SETUP_DELAY
-
 if [ -f "$SETUP_COMPLETE_FILE_PATH" ]; then
     echo "Setup previously completed, so skipping..."
     exit 0
 fi
 
-
-echo "[keycloak-setup] Authenticating admin user..."
-/opt/keycloak/bin/kcadm.sh config credentials \
-  --server "${KC_URL}" \
-  --realm master \
-  --user "${KC_BOOT_USER}" \
-  --password "${KC_BOOT_PASS}"
+echo "[keycloak-setup] Waiting for Keycloak at ${KC_URL} (timeout: ${KC_TIMEOUT}s)..."
+elapsed=0
+until /opt/keycloak/bin/kcadm.sh config credentials \
+    --server "${KC_URL}" \
+    --realm master \
+    --user "${KC_BOOT_USER}" \
+    --password "${KC_BOOT_PASS}" 2>/dev/null; do
+  if (( elapsed >= KC_TIMEOUT )); then
+    echo "[keycloak-setup] ERROR: Timed out after ${KC_TIMEOUT}s waiting for Keycloak."
+    exit 1
+  fi
+  echo "[keycloak-setup] Keycloak not ready, retrying in 1s... (${elapsed}s elapsed)"
+  sleep 1
+  elapsed=$(( elapsed + 1 ))
+done
+echo "[keycloak-setup] Authenticated admin user."
 
 ensure_user() {
   local USERNAME="$1" PASSWORD="$2" EMAIL="$3" FIRST="$4" LAST="$5"

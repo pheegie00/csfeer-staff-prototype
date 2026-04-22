@@ -35,7 +35,7 @@ services:
       PLAYWRIGHT_TIMEOUT: 60000
       PLAYWRIGHT_NAVIGATION_TIMEOUT: 60000
     post_start:
-      - command: "uv run manage.py migrate zero && uv run python manage.py migrate"
+      - command: "uv run manage.py showmigrations"
     image: "${IMAGE_NAME}"
     extends:
       file: ./docker-compose-base.yml
