@@ -21,6 +21,8 @@ services:
     extends:
       file: ./docker-compose-base.yml
       service: app
+    environment:
+      - SHOW_APP_VERSION=True
     volumes:
       - ../../csfeer/:/app/csfeer/
       - ../../form_manager/:/app/form_manager/

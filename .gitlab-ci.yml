@@ -81,7 +81,8 @@ prepare:
         echo "Automatically bumping version to $NEXT_VERSION";
       fi
     - echo VERSION=${NEXT_VERSION} >> build.env
-    - echo "Next release version - $NEXT_VERSION"
+    - echo BUILD_VERSION_STRING="\"v$NEXT_VERSION ($CI_COMMIT_SHORT_SHA)\"" >> build.env
+    - cat build.env
   artifacts:
     reports:
       dotenv: build.env
@@ -97,7 +98,7 @@ Build image and push to registry:
   script:
     - echo $VERSION
     - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - buildah build --build-arg VERSION=$CI_COMMIT_SHORT_SHA  --target prod -f $DOCKERFILE -t $FULL_IMAGE_NAME .
+    - buildah build --build-arg VERSION="$BUILD_VERSION_STRING" --target prod -f $DOCKERFILE -t $FULL_IMAGE_NAME .
     - buildah push $FULL_IMAGE_NAME
 
 
@@ -110,7 +111,7 @@ Build e2e image and push to registry:
   script:
     - echo $VERSION
     - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - buildah build --build-arg VERSION=$CI_COMMIT_SHORT_SHA  --target prod-e2e -f $DOCKERFILE -t $FULL_IMAGE_NAME-e2e .
+    - buildah build --build-arg VERSION="$BUILD_VERSION_STRING"  --target prod-e2e -f $DOCKERFILE -t $FULL_IMAGE_NAME-e2e .
     - buildah push $FULL_IMAGE_NAME-e2e
 
 Run unit tests:

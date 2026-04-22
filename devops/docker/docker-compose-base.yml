@@ -16,7 +16,9 @@ services:
       USERS_CSV: /opt/keycloak/users.csv
     command: start-dev --import-realm
     healthcheck:
-      test: /bin/setup-complete
+      test: ["CMD-SHELL", "cat /opt/keycloak/setup-complete"]
+      interval: 1s
+      retries: 100
     volumes:
       - ../../devops/mocks/keycloak:/opt/keycloak/data/import
       - ../../devops/mocks/keycloak/users.csv:/opt/keycloak/users.csv:ro
@@ -110,9 +112,10 @@ services:
     healthcheck:
       test: "/bin/true"
     depends_on:
-      - db
-      - mock-oauth
-      - storage
+      db:
+        condition: service_healthy
+      mock-oauth:
+        condition: service_healthy
     cap_drop:
       - all
     hostname: ui.csfeer

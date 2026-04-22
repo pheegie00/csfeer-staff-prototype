@@ -1,0 +1,9 @@
+services:
+  runner:
+    build: .
+    platform: linux/amd64
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${RUNNER_WORK_DIR}:${RUNNER_WORK_DIR}

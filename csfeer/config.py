@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -49,6 +49,9 @@ class AppConfig(BaseSettings):
     aws_storage_bucket_name: str = "core-local"
     aws_s3_endpoint_url: str | None = None
     csrf_trusted_origins: list[str] = ["https://*.acf.gov"]
+    show_app_version: bool = Field(
+        default=False, description="Whether to display the app version in the footer or not."
+    )
 
     @property
     def is_local(self) -> bool:

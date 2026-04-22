@@ -43,7 +43,8 @@ test-unit: ## Run unit tests (TEST=path optional)
 
 setup-tests-ci: ## Set up CI services and seed data
 	@echo "Starting services..."
-	$(CI_COMPOSE) up -d --remove-orphans
+	$(CI_COMPOSE) down -v
+	$(CI_COMPOSE) up -d
 	$(CI_COMPOSE) exec app uv run manage.py migrate --noinput
 	@echo "Loading seed data..."
 	$(CI_COMPOSE) exec app uv run manage.py seed_e2e_users

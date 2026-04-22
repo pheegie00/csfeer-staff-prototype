@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   e2e-tests:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 30
 
     steps:
@@ -23,28 +23,23 @@ jobs:
       - name: Build Docker image
         run: docker build --target prod-e2e -t csfeer:ci .
 
-      - name: Run unit tests
+      - name: Set up tests
         run: |
-          export KC_SETUP_DELAY=60
           sudo bash -c "echo '127.0.0.1   oauth.csfeer' >> /etc/hosts"
           sudo bash -c "echo '127.0.0.1   ui.csfeer' >> /etc/hosts"
           mkdir -p tests/videos && chmod 777 tests/videos
           mkdir -p tests/traces && chmod 777 tests/traces
           mkdir -p tests/screenshots && chmod 777 tests/screenshots
           make setup-tests-ci IMAGE_NAME=csfeer:ci
+
+      - name: Run unit tests
+        run: |
           make test-unit-ci IMAGE_NAME=csfeer:ci
         env:
           IMAGE_NAME: csfeer:ci
 
       - name: Run e2e tests
         run: |
-          export KC_SETUP_DELAY=60
-          sudo bash -c "echo '127.0.0.1   oauth.csfeer' >> /etc/hosts"
-          sudo bash -c "echo '127.0.0.1   ui.csfeer' >> /etc/hosts"
-          mkdir -p tests/videos && chmod 777 tests/videos
-          mkdir -p tests/traces && chmod 777 tests/traces
-          mkdir -p tests/screenshots && chmod 777 tests/screenshots
-          make setup-tests-ci IMAGE_NAME=csfeer:ci
           make test-e2e-ci IMAGE_NAME=csfeer:ci
         env:
           IMAGE_NAME: csfeer:ci
@@ -71,6 +66,9 @@ jobs:
       #     path: test-results/
       #     retention-days: 7
 
-      - name: Docker logs on failure
+      - name: Docker logs and cleanup on failure
         if: failure()
-        run: IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml logs
+        run: |
+          IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml logs
+          IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml down -v
+          
