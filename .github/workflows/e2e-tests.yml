@@ -23,7 +23,7 @@ jobs:
       - name: Build Docker image
         run: docker build --target prod-e2e -t csfeer:ci .
 
-      - name: Run unit tests
+      - name: Set up tests
         run: |
           sudo bash -c "echo '127.0.0.1   oauth.csfeer' >> /etc/hosts"
           sudo bash -c "echo '127.0.0.1   ui.csfeer' >> /etc/hosts"
@@ -31,18 +31,15 @@ jobs:
           mkdir -p tests/traces && chmod 777 tests/traces
           mkdir -p tests/screenshots && chmod 777 tests/screenshots
           make setup-tests-ci IMAGE_NAME=csfeer:ci
+
+      - name: Run unit tests
+        run: |
           make test-unit-ci IMAGE_NAME=csfeer:ci
         env:
           IMAGE_NAME: csfeer:ci
 
       - name: Run e2e tests
         run: |
-          sudo bash -c "echo '127.0.0.1   oauth.csfeer' >> /etc/hosts"
-          sudo bash -c "echo '127.0.0.1   ui.csfeer' >> /etc/hosts"
-          mkdir -p tests/videos && chmod 777 tests/videos
-          mkdir -p tests/traces && chmod 777 tests/traces
-          mkdir -p tests/screenshots && chmod 777 tests/screenshots
-          make setup-tests-ci IMAGE_NAME=csfeer:ci
           make test-e2e-ci IMAGE_NAME=csfeer:ci
         env:
           IMAGE_NAME: csfeer:ci
