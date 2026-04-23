@@ -270,7 +270,7 @@ class TribalPlanFormFields(BaseFields):
 
     # 5.1 Year 1 Allocations (must total 100%)
     alloc_admin_y1 = acf_fields.DecimalField(
-        title="Administrative Funds",
+        title="Administrative cost",
         review_title="Administrative Funds (Year 1 %)",
         max_digits=5,
         decimal_places=2,
@@ -286,7 +286,7 @@ class TribalPlanFormFields(BaseFields):
         max_value=100,
     )
     alloc_education_y1 = acf_fields.DecimalField(
-        title="Childcare, Early Childhood, Youth Development, and Adult Education",
+        title="Childcare, Early Childhood, Youth Development & Adult Education",
         review_title="Education and Youth Development (Year 1 %)",
         max_digits=5,
         decimal_places=2,
@@ -294,7 +294,7 @@ class TribalPlanFormFields(BaseFields):
         max_value=100,
     )
     alloc_income_y1 = acf_fields.DecimalField(
-        title="Income and Asset Building",
+        title="Income & Asset Building",
         review_title="Income and Asset Building (Year 1 %)",
         max_digits=5,
         decimal_places=2,
@@ -310,7 +310,7 @@ class TribalPlanFormFields(BaseFields):
         max_value=100,
     )
     alloc_health_y1 = acf_fields.DecimalField(
-        title="Health and Nutrition",
+        title="Health & Nutrition",
         review_title="Health and Nutrition (Year 1 %)",
         max_digits=5,
         decimal_places=2,
@@ -318,7 +318,7 @@ class TribalPlanFormFields(BaseFields):
         max_value=100,
     )
     alloc_civic_y1 = acf_fields.DecimalField(
-        title="Civic Engagement and Community Involvement",
+        title="Civic Engagement & Community Involvement",
         review_title="Civic Engagement and Community Involvement (Year 1 %)",
         max_digits=5,
         decimal_places=2,
@@ -334,7 +334,7 @@ class TribalPlanFormFields(BaseFields):
         max_value=100,
     )
     alloc_partnerships_y1 = acf_fields.DecimalField(
-        title="Partnerships, Linkages, and Service Coordination",
+        title="Partnerships, Linkages & Coordination",
         review_title="Partnerships, Linkages, and Service Coordination (Year 1 %)",
         max_digits=5,
         decimal_places=2,
@@ -342,7 +342,7 @@ class TribalPlanFormFields(BaseFields):
         max_value=100,
     )
     alloc_total_y1 = acf_fields.CalculatedDecimalField(
-        title="Year 1 Total",
+        title="Total (auto-calculated)",
         review_title="Year 1 Total (%)",
         fields=_Y1_ALLOCATION_FIELDS,
         max_digits=5,
@@ -351,7 +351,7 @@ class TribalPlanFormFields(BaseFields):
 
     # 5.1 Year 2 Allocations (conditional on two-year plan; must total 100%)
     alloc_admin_y2 = acf_fields.DecimalField(
-        title="Administrative Funds",
+        title="Administrative cost",
         review_title="Administrative Funds (Year 2 %)",
         max_digits=5,
         decimal_places=2,
@@ -369,7 +369,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_education_y2 = acf_fields.DecimalField(
-        title="Childcare, Early Childhood, Youth Development, and Adult Education",
+        title="Childcare, Early Childhood, Youth Development & Adult Education",
         review_title="Education and Youth Development (Year 2 %)",
         max_digits=5,
         decimal_places=2,
@@ -378,7 +378,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_income_y2 = acf_fields.DecimalField(
-        title="Income and Asset Building",
+        title="Income & Asset Building",
         review_title="Income and Asset Building (Year 2 %)",
         max_digits=5,
         decimal_places=2,
@@ -396,7 +396,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_health_y2 = acf_fields.DecimalField(
-        title="Health and Nutrition",
+        title="Health & Nutrition",
         review_title="Health and Nutrition (Year 2 %)",
         max_digits=5,
         decimal_places=2,
@@ -405,7 +405,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_civic_y2 = acf_fields.DecimalField(
-        title="Civic Engagement and Community Involvement",
+        title="Civic Engagement & Community Involvement",
         review_title="Civic Engagement and Community Involvement (Year 2 %)",
         max_digits=5,
         decimal_places=2,
@@ -423,7 +423,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_partnerships_y2 = acf_fields.DecimalField(
-        title="Partnerships, Linkages, and Service Coordination",
+        title="Partnerships, Linkages & Coordination",
         review_title="Partnerships, Linkages, and Service Coordination (Year 2 %)",
         max_digits=5,
         decimal_places=2,
@@ -432,7 +432,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_total_y2 = acf_fields.CalculatedDecimalField(
-        title="Year 2 Total",
+        title="Total (auto-calculated)",
         review_title="Year 2 Total (%)",
         fields=_Y2_ALLOCATION_FIELDS,
         max_digits=5,

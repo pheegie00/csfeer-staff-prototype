@@ -1,4 +1,5 @@
 from form_manager.schema.layout import (
+    CardBlock,
     ConditionalBlock,
     FieldBlock,
     PageBlock,
@@ -7,6 +8,26 @@ from form_manager.schema.layout import (
     StepBlock,
 )
 from form_manager.schema.navigation import remove_nodes_with_excluded_fields
+
+
+class _StubBoundField:
+    def __init__(self, value):
+        self._value = value
+
+    def value(self):
+        return self._value
+
+
+class _StubForm:
+    """Minimal stand-in for a Django form — only indexes fields by name."""
+
+    def __init__(self, values: dict):
+        self._values = values
+
+    def __getitem__(self, name):
+        if name not in self._values:
+            raise KeyError(name)
+        return _StubBoundField(self._values[name])
 
 
 def test_has_field_blocks():
@@ -188,3 +209,81 @@ def test_conditional_block_show_when_expression_list_values():
     block = ConditionalBlock(show_when=["one_year", "two_year"], children=[])
 
     assert block.show_when_expression == "['one_year', 'two_year'].includes(checked)"
+
+
+def test_card_block_should_render_without_show_when_field():
+    """A CardBlock with no show_when_field renders unconditionally."""
+    block = CardBlock(title="Year one", children=[])
+
+    assert block.should_render is True
+
+
+def test_card_block_should_render_when_form_missing():
+    """Without an attached form (e.g. raw schema rendering) the card renders."""
+    block = CardBlock(show_when_field="plan_coverage", show_when_value="one_year", children=[])
+
+    assert block.should_render is True
+
+
+def test_card_block_should_render_when_field_missing_from_form():
+    """If the controlling field isn't on the form, fall back to rendering."""
+    block = CardBlock(show_when_field="missing_field", show_when_value="x", children=[])
+    block.set_extra_context(form=_StubForm({}))
+
+    assert block.should_render is True
+
+
+def test_card_block_should_render_when_value_matches_string():
+    """Card renders when the form value equals the single show_when_value."""
+    block = CardBlock(show_when_field="plan_coverage", show_when_value="two_year", children=[])
+    block.set_extra_context(form=_StubForm({"plan_coverage": "two_year"}))
+
+    assert block.should_render is True
+
+
+def test_card_block_should_not_render_when_value_does_not_match_string():
+    """Card is hidden when the form value doesn't match show_when_value."""
+    block = CardBlock(show_when_field="plan_coverage", show_when_value="two_year", children=[])
+    block.set_extra_context(form=_StubForm({"plan_coverage": "one_year"}))
+
+    assert block.should_render is False
+
+
+def test_card_block_should_render_when_value_matches_any_in_list():
+    """Card renders when the form value matches any entry in a list show_when_value."""
+    block = CardBlock(
+        show_when_field="plan_coverage",
+        show_when_value=["one_year", "two_year"],
+        children=[],
+    )
+    block.set_extra_context(form=_StubForm({"plan_coverage": "one_year"}))
+
+    assert block.should_render is True
+
+
+def test_card_block_should_not_render_when_value_missing_from_list():
+    """Card is hidden when the form value isn't in the list of allowed values."""
+    block = CardBlock(
+        show_when_field="plan_coverage",
+        show_when_value=["one_year", "two_year"],
+        children=[],
+    )
+    block.set_extra_context(form=_StubForm({"plan_coverage": None}))
+
+    assert block.should_render is False
+
+
+def test_card_block_should_render_on_truthy_value_without_show_when_value():
+    """When show_when_value is None, the card uses truthiness of the form value."""
+    block = CardBlock(show_when_field="plan_coverage", children=[])
+    block.set_extra_context(form=_StubForm({"plan_coverage": "one_year"}))
+
+    assert block.should_render is True
+
+
+def test_card_block_should_not_render_on_falsy_value_without_show_when_value():
+    """When show_when_value is None and the form value is falsy, the card is hidden."""
+    block = CardBlock(show_when_field="plan_coverage", children=[])
+    block.set_extra_context(form=_StubForm({"plan_coverage": ""}))
+
+    assert block.should_render is False
