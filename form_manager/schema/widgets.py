@@ -7,6 +7,18 @@ class CurrencyInput(forms.NumberInput):
     template_name = "form_manager/widgets/currency.html"
 
 
+class DatePickerInput(forms.DateInput):
+    """A USWDS-enhanced date picker. Renders a text input wrapped in a
+    `.usa-date-picker` div; the bundled USWDS JS progressively enhances it
+    with the mm/dd/yyyy placeholder, calendar icon, and date-picking calendar."""
+
+    template_name = "form_manager/widgets/date_picker.html"
+    input_type = "text"
+
+    def __init__(self, attrs=None, format="%Y-%m-%d"):
+        super().__init__(attrs=attrs, format=format)
+
+
 class ACFCheckboxInput(forms.CheckboxInput):
     """A single checkbox rendered via the c-checkbox design system component."""
 

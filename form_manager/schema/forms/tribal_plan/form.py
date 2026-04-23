@@ -15,7 +15,9 @@ from form_manager.schema.forms.tribal_plan.texts import (
     _DEBARMENT_LOWER_TIER_INSTRUCTIONS_TEXT,
     _DEBARMENT_PRIMARY_INSTRUCTIONS_TEXT,
     _DRUG_FREE_WORKPLACE_CERTIFICATION_TEXT,
+    _LIMITATION_ON_USE_OF_FUNDS_TEXT,
     _LOBBYING_CERTIFICATION_TEXT,
+    _SINGLE_AUDIT_REQUIREMENTS_TEXT,
     _TOBACCO_SMOKE_CERTIFICATION_TEXT,
 )
 from form_manager.schema.layout import (
@@ -25,6 +27,7 @@ from form_manager.schema.layout import (
     CardBlock,
     CardGroupBlock,
     ConditionalBlock,
+    DateRangePickerBlock,
     FieldBlock,
     PermanentPageBlock,
     ReviewSubheadingBlock,
@@ -358,20 +361,53 @@ class TribalPlanForm(BaseFormSchema):
                     ),
                     PermanentPageBlock(
                         title="Limitation on Use of Funds",
+                        subtitle=(
+                            "Review the requirement below and select the checkbox"
+                            " to confirm compliance."
+                        ),
                         children=[
+                            TextBlock(
+                                heading="Limitation on the Use of Funds",
+                                text=_LIMITATION_ON_USE_OF_FUNDS_TEXT,
+                                template_name="form_manager/use_of_funds_notice.html",
+                            ),
                             SectionBlock(
-                                title="Limitation on Use of Funds",
                                 children=[
                                     ReviewSubheadingBlock(title="Limitation on Use of Funds"),
                                     FieldBlock(field_name="use_of_funds_acknowledgment"),
                                 ],
                             ),
+                        ],
+                    ),
+                    PermanentPageBlock(
+                        title="Single Audit Review",
+                        subtitle=(
+                            "Provide the date and time period covered by your most recent audit,"
+                            " if applicable."
+                        ),
+                        children=[
+                            AlertBoxBlock(
+                                alert_type="info",
+                                heading="Single Audit requirements",
+                                message=_SINGLE_AUDIT_REQUIREMENTS_TEXT,
+                            ),
                             SectionBlock(
-                                title="Single Audit Review",
+                                alpine_controller_field="has_completed_single_audit",
                                 children=[
                                     ReviewSubheadingBlock(title="Single Audit Review"),
-                                    FieldBlock(field_name="audit_date"),
-                                    FieldBlock(field_name="audit_fiscal_period"),
+                                    FieldBlock(field_name="has_completed_single_audit"),
+                                    ConditionalBlock(
+                                        show_when="yes",
+                                        children=[
+                                            FieldBlock(field_name="audit_date"),
+                                            DateRangePickerBlock(
+                                                children=[
+                                                    FieldBlock(field_name="audit_period_start"),
+                                                    FieldBlock(field_name="audit_period_end"),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
                                 ],
                             ),
                         ],

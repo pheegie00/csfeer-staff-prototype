@@ -44,6 +44,14 @@ The Tribe also certifies:
 1. Cost and accounting standards of the Office of Management and Budget apply to recipients of Community Services Block Grant funds [678D(a)(1)(B), 2 CFR 200, and 45 CFR 75].
 """.strip()
 
+_LIMITATION_ON_USE_OF_FUNDS_TEXT = """
+Funds will not be used for the purchase or improvement of land, or the purchase, construction, or permanent improvement (other than low-cost residential weatherization or other energy-related home repairs) of any building or other facility without an approved federal waiver.
+""".strip()
+
+_SINGLE_AUDIT_REQUIREMENTS_TEXT = """
+If your Tribe or Tribal Organization expended less than $750,000 in total federal funds during the fiscal year (not limited to CSBG funds), a Single Audit is not required.
+""".strip()
+
 _ASSURANCES_NARRATIVE_TOPICS = """
 As applicable, include the following topics in your description: CSBG service delivery system; geographical areas and categories of individuals to be served; criteria and method used for distribution of CSBG funds; purpose of funds, including activities to be supported; linkages to fill identified gaps in services; coordination with other public and private resources; and innovative community and neighborhood-based initiatives.
 """.strip()

@@ -177,6 +177,14 @@ textarea.usa-textarea {
   border-color: color("blue-5");
 }
 
+.use-of-funds-notice {
+  border: 1px solid color("base-lighter");
+  border-radius: radius("md");
+  padding: units(3);
+  margin-top: units(2);
+  margin-bottom: units(3);
+}
+
 .planned-allocation-card__header {
   background-color: color("blue-5");
   border-bottom: 1px solid color("blue-5");

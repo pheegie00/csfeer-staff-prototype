@@ -114,8 +114,10 @@ def _valid_form_data(**overrides) -> dict:
         "alloc_partnerships_y1": "20.00",
         # Section 5 — Fiscal Controls
         "use_of_funds_acknowledgment": True,
+        "has_completed_single_audit": "no",
         "audit_date": "",
-        "audit_fiscal_period": "",
+        "audit_period_start": "",
+        "audit_period_end": "",
         # Section 6
         "individual_eligibility": "Eligibility is determined by income guidelines.",
         "targeted_community_eligibility": "Services target low-income tribal members.",

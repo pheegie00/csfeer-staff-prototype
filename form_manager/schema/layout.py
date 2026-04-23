@@ -258,7 +258,7 @@ class ConditionalBlock(RenderableBaseModel):
         Field(description="The field value(s) that trigger showing this block's children"),
     ] = "yes"
     children: Annotated[
-        list["FieldBlock | ReviewSubheadingBlock | SectionBlock"] | None,
+        list["FieldBlock | ReviewSubheadingBlock | SectionBlock | DateRangePickerBlock"] | None,
         Field(description="Content blocks shown when the condition is met"),
     ] = None
     template_name: Annotated[
@@ -370,6 +370,16 @@ class FieldBlock(RenderableBaseModel):
     def display_title(self) -> str | None:
         """Returns review_title if available, otherwise falls back to title"""
         return self.review_title or self.title
+
+
+class DateRangePickerBlock(RenderableBaseModel):
+    """Renders two DateField children as a USWDS date range picker — the two
+    pickers are linked so that selecting a start date constrains the end date's
+    minimum, and vice versa."""
+
+    type: str = "date-range-picker"
+    children: list["FieldBlock"] | None = None
+    template_name: str = "form_manager/date_range_picker.html"
 
 
 class ReviewSubheadingBlock(RenderableBaseModel):
