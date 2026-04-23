@@ -208,7 +208,8 @@ def test_session_flag_isolated_per_entry(
     Each form entry should have its own session flag, ensuring that visiting
     the review page for one form doesn't affect error display for other forms.
     """
-    from form_manager.models import FormDefinition, OrganizationProfile
+    from organizations.models import OrganizationProfile
+    from form_manager.models import FormDefinition
 
     user, _ = seed_data
 

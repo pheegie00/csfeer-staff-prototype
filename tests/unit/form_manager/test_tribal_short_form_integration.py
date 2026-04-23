@@ -7,7 +7,8 @@ from django.core.management import call_command
 from django.urls import reverse
 
 from form_manager.constants import CSBGAnnualReportForms
-from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
+from organizations.models import OrganizationProfile
+from form_manager.models import FormDefinition, FormEntry
 from form_manager.schema.navigation import build_form_edit_url
 
 if TYPE_CHECKING:

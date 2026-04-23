@@ -3,6 +3,8 @@ REST API endpoints for form_manager using Django Ninja.
 Read-only (GET) endpoints only.
 """
 
+from typing import TYPE_CHECKING
+
 from django.shortcuts import get_object_or_404
 from ninja import NinjaAPI
 from ninja.errors import HttpError
@@ -22,9 +24,11 @@ from form_manager.models import (
     FormAuditTrail,
     FormDefinition,
     FormEntry,
-    OrganizationProfile,
 )
 from form_manager.utils import user_can_view
+
+if TYPE_CHECKING:
+    from organizations.models import OrganizationProfile
 
 # Initialize API with Django session authentication
 api = NinjaAPI(
@@ -38,8 +42,10 @@ api = NinjaAPI(
 # ==================== Helper Functions ====================
 
 
-def get_user_organization(request) -> OrganizationProfile:
+def get_user_organization(request) -> "OrganizationProfile":
     """Get the user's organization or raise 404."""
+    from organizations.models import OrganizationProfile
+
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=request.user).first()
     if not org:
         raise HttpError(404, "No organization found for user")

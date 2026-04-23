@@ -5,11 +5,10 @@ from django.core.management.base import BaseCommand
 
 from form_manager.models import (
     FormDefinition,
-    OrganizationProfile,
-    UserOrganizationMembership,
 )
 from form_manager.schema.forms.base import BaseFormSchema, SchemaValidationError
 from form_manager.utils import get_form_definitions
+from organizations.models import OrganizationProfile, UserOrganizationMembership
 from users.models import CoreUser
 
 

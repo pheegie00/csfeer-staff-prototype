@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, cast
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 
-from form_manager.models import OrganizationProfile, UserOrganizationMembership
+from organizations.models import OrganizationProfile, UserOrganizationMembership
 
 if TYPE_CHECKING:
     from users.models import CoreUser

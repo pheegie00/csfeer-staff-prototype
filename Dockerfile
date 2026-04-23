@@ -37,6 +37,7 @@ COPY --chown=python:python ./csfeer /app/csfeer
 COPY --chown=python:python ./core /app/core
 COPY --chown=python:python ./form_manager /app/form_manager
 COPY --chown=python:python ./users /app/users
+COPY --chown=python:python ./organizations /app/organizations
 COPY --chown=python:python ./pyproject.toml .
 COPY --chown=python:python ./uv.lock .
 COPY --chown=python:python ./manage.py .

@@ -14,7 +14,6 @@ from form_manager.models import (
     FormAuditDetail,
     FormAuditTrail,
     FormEntry,
-    UserOrganizationMembership,
 )
 from form_manager.schema import forms as form_schemas
 from form_manager.schema.fields import (
@@ -61,6 +60,8 @@ def reconstruct_state(entry, upto=None):
 
 
 def get_user_role(user, organization):
+    from organizations.models import UserOrganizationMembership
+
     m = UserOrganizationMembership.objects.filter(user=user, organization=organization).first()
     return m.role if m else None
 
