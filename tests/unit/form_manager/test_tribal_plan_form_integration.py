@@ -373,27 +373,6 @@ def test_recognition_upload_can_use_existing_saved_file():
     assert form.is_valid(), form.errors
 
 
-def test_two_year_plan_requires_fiscal_year_y2():
-    """fiscal_year_y2 is required when plan_coverage = two_year."""
-    data = _valid_form_data(
-        plan_coverage="two_year",
-        fiscal_year_y2="",
-        # Provide Y2 allocations to isolate just the fiscal year check
-        alloc_admin_y2="10.00",
-        alloc_employment_y2="10.00",
-        alloc_education_y2="10.00",
-        alloc_income_y2="10.00",
-        alloc_housing_y2="10.00",
-        alloc_health_y2="10.00",
-        alloc_civic_y2="10.00",
-        alloc_transportation_y2="10.00",
-        alloc_partnerships_y2="20.00",
-    )
-    form = TribalPlanFormFields(data=data)
-    assert not form.is_valid()
-    assert "fiscal_year_y2" in form.errors
-
-
 def test_two_year_plan_y2_total_must_equal_100():
     """Year 2 allocation total must be 100% when plan_coverage = two_year."""
     data = _valid_form_data(

@@ -646,13 +646,8 @@ class TribalPlanFormFields(BaseFields):
                 "Provide a recognition citation or upload supporting documentation.",
             )
 
-        # 1.1a-Y2 and Year 2 allocations: required when a two-year plan is selected.
+        # Year 2 allocations: required when a two-year plan is selected.
         if plan_coverage == "two_year":
-            if not cleaned_data.get("fiscal_year_y2"):
-                self.add_error(
-                    "fiscal_year_y2",
-                    "Fiscal year for Year Two is required for a two-year plan.",
-                )
             for field_name in _Y2_ALLOCATION_FIELDS:
                 if cleaned_data.get(field_name) is None:
                     self.add_error(field_name, "This allocation is required for a two-year plan.")
