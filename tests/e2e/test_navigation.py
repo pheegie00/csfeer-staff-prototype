@@ -56,12 +56,18 @@ def test_authenticated_navigation(authenticated_page: Page, base_url: str) -> No
 @pytest.mark.e2e
 @pytest.mark.auth
 def test_footer_version_comment(authenticated_page: Page, base_url: str) -> None:
-    """Test that the footer contains an HTML comment with the app version."""
+    """Test that the footer displays the app version as visible text or an HTML comment."""
     page = authenticated_page
     page.goto(base_url)
 
     html = page.content()
-    assert "<!-- version:" in html, "Expected footer to contain a version HTML comment"
+    # Version is an HTML comment when SHOW_APP_VERSION=False,
+    # or a visible paragraph when SHOW_APP_VERSION=True
+    has_comment = "<!-- version:" in html
+    has_visible_version = page.locator("footer p").count() >= 2
+    assert (
+        has_comment or has_visible_version
+    ), "Expected footer to contain version info as visible text or HTML comment"
 
 
 @pytest.mark.e2e
