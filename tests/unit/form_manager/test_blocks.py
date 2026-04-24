@@ -5,7 +5,7 @@ from form_manager.schema.layout import (
     SectionBlock,
     StepBlock,
 )
-from form_manager.views.form_edit import remove_nodes_with_excluded_fields
+from form_manager.schema.navigation import remove_nodes_with_excluded_fields
 
 
 def test_has_field_blocks():
@@ -39,7 +39,7 @@ def test_has_field_blocks():
 
 
 def test_conditional_filter():
-    """Ensure that fieldblocks and pageblocks are removed when fieldsblocks are children of pageblocks."""
+    """Ensure page blocks are removed when excluded field blocks are their children."""
     components = [
         StepBlock(
             children=[
@@ -62,7 +62,7 @@ def test_conditional_filter():
 
 
 def test_conditional_filter_nested_fieldblock():
-    """Ensure that fieldblocks and pages are removed when the fieldblock is nested inside a component that's not a pageblock."""
+    """Ensure nested excluded field blocks still cause empty pages to be removed."""
     components = [
         StepBlock(
             children=[
@@ -112,3 +112,17 @@ def test_conditional_filter_permanent_pageblock():
     assert len(result) == 2
     assert result[0].children and result[0].children.__len__() == 2
     assert result[1].children and result[1].children.__len__() == 2
+
+
+def test_conditional_filter_keeps_empty_steps_for_side_nav():
+    """Ensure fully excluded steps remain present so the side nav can disable them."""
+    components = [
+        StepBlock(children=[PageBlock(children=[FieldBlock(field_name="field1")])]),
+        StepBlock(children=[PageBlock(children=[FieldBlock(field_name="field2")])]),
+    ]
+
+    result = remove_nodes_with_excluded_fields(components, ["field2"])
+
+    assert len(result) == 2
+    assert result[0].children and len(result[0].children) == 1
+    assert result[1].children == []

@@ -4,7 +4,14 @@ import pytest
 from django.urls import reverse
 
 from form_manager.schema.layout import PageBlock, PageTitleBlock, StepBlock
-from form_manager.schema.navigation import build_form_edit_url, build_side_nav_items
+from form_manager.schema.navigation import (
+    build_form_edit_url,
+    build_side_nav_items,
+    find_nearest_navigable_step_page,
+    get_next_step_and_page,
+    get_previous_step_and_page,
+)
+from form_manager.views.form_edit import normalize_step_and_page
 
 
 @pytest.fixture
@@ -107,3 +114,77 @@ def test_build_side_nav_items_review_state_has_real_urls(steps, entry_pk):
     assert side_nav_items[0]["href"] == build_form_edit_url(entry_pk, step_number=0, page_number=0)
     assert side_nav_items[1]["href"] == build_form_edit_url(entry_pk, step_number=1, page_number=0)
     assert side_nav_items[-1]["href"] == review_url
+
+
+@pytest.fixture
+def steps_with_empty_middle():
+    return [
+        StepBlock(
+            title="Section 1",
+            children=[PageBlock(title="Page 1")],
+        ),
+        StepBlock(
+            title="Section 2 (empty)",
+            children=[],
+        ),
+        StepBlock(
+            title="Section 3",
+            children=[PageBlock(title="Page 3")],
+        ),
+    ]
+
+
+def test_get_next_step_skips_empty_steps(steps_with_empty_middle):
+    # From section 1 last page, should skip empty section 2 and land on section 3
+    assert get_next_step_and_page(steps_with_empty_middle, 0, 0) == (2, 0)
+
+
+def test_get_next_step_goes_to_review_when_all_remaining_empty():
+    steps = [
+        StepBlock(title="S1", children=[PageBlock(title="P1")]),
+        StepBlock(title="S2 empty", children=[]),
+    ]
+    assert get_next_step_and_page(steps, 0, 0) == (None, None)
+
+
+def test_get_previous_step_skips_empty_steps(steps_with_empty_middle):
+    # From section 3 first page, should skip empty section 2 and land on section 1 last page
+    assert get_previous_step_and_page(steps_with_empty_middle, 2, 0) == (0, 0)
+
+
+def test_get_previous_step_returns_none_when_all_previous_empty():
+    steps = [
+        StepBlock(title="S1 empty", children=[]),
+        StepBlock(title="S2", children=[PageBlock(title="P1")]),
+    ]
+    assert get_previous_step_and_page(steps, 1, 0) == (None, None)
+
+
+def test_normalize_step_and_page_skips_empty_requested_step(steps_with_empty_middle):
+    assert normalize_step_and_page(steps_with_empty_middle, 1, 0) == (0, 0)
+
+
+def test_find_nearest_navigable_step_page_skips_empty_requested_step(steps_with_empty_middle):
+    assert find_nearest_navigable_step_page(
+        steps_with_empty_middle,
+        requested_step=1,
+        requested_page=0,
+    ) == (0, 0)
+
+
+def test_build_side_nav_items_marks_empty_steps_disabled(entry_pk):
+    steps = [
+        StepBlock(title="Section 1", children=[PageBlock(title="Page 1")]),
+        StepBlock(title="Section 2", disabled_reason="Select earlier answers first.", children=[]),
+    ]
+
+    side_nav_items = build_side_nav_items(
+        steps,
+        current_step_number=0,
+        current_page_number=0,
+        entry_pk=entry_pk,
+    )
+
+    assert side_nav_items[1]["label"] == "Section 2: Section 2"
+    assert side_nav_items[1]["pages"] == []
+    assert side_nav_items[1]["disabled_reason"] == "Select earlier answers first."

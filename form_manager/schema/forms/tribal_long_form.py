@@ -329,6 +329,9 @@ class TribalLongForm(BaseFormSchema):
             ),
             StepBlock(
                 title="Expenditure details",
+                disabled_reason=(
+                    "Select applicable topics in Section 2 before completing this section."
+                ),
                 children=[
                     PageBlock(
                         title="Details on employment services",

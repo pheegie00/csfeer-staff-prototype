@@ -1,10 +1,13 @@
+import uuid
 from typing import TYPE_CHECKING
 
 import pytest
 from django.urls import reverse
 
 from form_manager.models import FormDefinition, FormEntry
+from form_manager.schema.layout import PageBlock, StepBlock
 from form_manager.schema.navigation import build_form_edit_url
+from form_manager.views.form_edit import _build_post_save_redirect
 
 if TYPE_CHECKING:
     from django.test.client import Client
@@ -278,7 +281,7 @@ def test_save_and_exit_redirects_to_form_list(
 def test_side_nav_redirect_accepts_valid_same_entry_url(
     django_db_setup, form_entry: "FormEntry", authenticated_client
 ):
-    target = reverse("form_edit", args=[form_entry.pk]) + "?step=2&page=0"
+    target = reverse("form_edit", args=[form_entry.pk]) + "?step=0&page=0"
     url = reverse("form_edit", args=[form_entry.pk])
 
     response = authenticated_client.post(
@@ -319,3 +322,43 @@ def test_side_nav_redirect_rejects_external_urls(
     form_entry.refresh_from_db()
     assert form_entry.data.get("first_name") == "John"
     assert form_entry.data.get("last_name") == "Doe"
+
+
+@pytest.mark.django_db
+def test_build_post_save_redirect_to_valid_step():
+    """Side-nav click on a step that still has pages after save goes directly there."""
+    entry_pk = str(uuid.uuid4())
+    components = [
+        StepBlock(title="S1", children=[PageBlock(title="P1")]),
+        StepBlock(title="S2", children=[PageBlock(title="P2")]),
+    ]
+    target_url = build_form_edit_url(entry_pk, step_number=1, page_number=0)
+    result = _build_post_save_redirect(target_url, entry_pk=entry_pk, components=components)
+    assert result == build_form_edit_url(entry_pk, step_number=1, page_number=0)
+
+
+@pytest.mark.django_db
+def test_build_post_save_redirect_to_empty_step_goes_forward():
+    """Side-nav click on a step that became empty after save skips forward to the next valid step."""
+    entry_pk = str(uuid.uuid4())
+    components = [
+        StepBlock(title="S1", children=[PageBlock(title="P1")]),
+        StepBlock(title="S2 empty", children=[]),
+        StepBlock(title="S3", children=[PageBlock(title="P3")]),
+    ]
+    target_url = build_form_edit_url(entry_pk, step_number=1, page_number=0)
+    result = _build_post_save_redirect(target_url, entry_pk=entry_pk, components=components)
+    assert result == build_form_edit_url(entry_pk, step_number=2, page_number=0)
+
+
+@pytest.mark.django_db
+def test_build_post_save_redirect_to_empty_step_no_forward_steps_goes_to_review():
+    """Side-nav click on a step that became empty with no further steps redirects to review."""
+    entry_pk = str(uuid.uuid4())
+    components = [
+        StepBlock(title="S1", children=[PageBlock(title="P1")]),
+        StepBlock(title="S2 empty", children=[]),
+    ]
+    target_url = build_form_edit_url(entry_pk, step_number=1, page_number=0)
+    result = _build_post_save_redirect(target_url, entry_pk=entry_pk, components=components)
+    assert result == reverse("form_review", kwargs={"pk": entry_pk})
