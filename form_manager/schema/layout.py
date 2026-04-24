@@ -204,9 +204,13 @@ class ConditionalBlock(RenderableBaseModel):
     controlling radio field name."""
 
     type: str = "conditional"
+    title: Annotated[
+        str | None,
+        Field(description="Optional inline heading rendered above the block's children"),
+    ] = None
     show_when: Annotated[
-        str,
-        Field(description="The field value that triggers showing this block's children"),
+        str | list[str],
+        Field(description="The field value(s) that trigger showing this block's children"),
     ] = "yes"
     children: Annotated[
         list["FieldBlock | ReviewSubheadingBlock"] | None,
