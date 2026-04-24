@@ -2,10 +2,9 @@
   class="bg-primary-darker text-white text-center padding-y-5 border-top-05 border-secondary-vivid"
 >
   <div class="grid-container">
+    <!-- version: {{ APP_VERSION }} -->
     {% if SHOW_APP_VERSION %}
     <p class="margin-0">{{ APP_VERSION }}</p>
-    {% else %}
-    <!-- version: {{ APP_VERSION }} -->
     {% endif %}
     <p class="margin-0">This is a pilot. For technical support or feedback, email {{ email }}</p>
   </div>

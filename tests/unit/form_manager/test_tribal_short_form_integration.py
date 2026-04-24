@@ -136,6 +136,40 @@ def test_tribal_short_form_filter_page_renders(
 
 
 @pytest.mark.django_db
+def test_side_nav_redirect_falls_back_when_saved_selection_removes_target_step(
+    django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
+):
+    """
+    When the user clears all expenditure selections in Section 2 and simultaneously
+    clicks Section 3 via the side nav, the save removes all Section 3 pages. The view
+    should redirect forward to review rather than following the now-invalid Section 3 URL.
+    The checkbox widget always sends a `_submitted` sentinel so the server knows an empty
+    selection is intentional (not a missing field).
+    """
+    url = reverse("form_edit", args=[tribal_short_form_entry.pk])
+    stale_target = build_form_edit_url(tribal_short_form_entry.pk, step_number=2, page_number=0)
+    review_url = reverse("form_review", kwargs={"pk": tribal_short_form_entry.pk})
+
+    response = authenticated_client.post(
+        url,
+        data={
+            "applicable_topics_submitted": "1",
+            "redirect_to": stale_target,
+        },
+        query_params={"step": 1, "page": 0},
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"] == review_url
+
+    tribal_short_form_entry.refresh_from_db()
+    assert tribal_short_form_entry.data["applicable_topics"] == []
+
+    redirected_response = authenticated_client.get(review_url)
+    assert redirected_response.status_code == 200
+
+
+@pytest.mark.django_db
 def test_tribal_short_form_expenditure_page_renders(
     django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
 ):

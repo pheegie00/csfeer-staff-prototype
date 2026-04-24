@@ -1,0 +1,19 @@
+<c-vars
+    text=""
+    href=""
+    is_current=""
+    disabled=""
+    title=""
+    extra_classes=""
+/>
+
+<li class="usa-sidenav__item{% if disabled %} usa-sidenav__item--disabled{% endif %} {{ extra_classes }}">
+    <a href="{% if not disabled %}{{ href }}{% else %}#{% endif %}"
+       class="{% if is_current %}usa-current {% endif %}{% if disabled %}usa-tooltip{% endif %}"
+       {% if disabled %} aria-disabled="true" tabindex="-1" onclick="event.preventDefault()" data-position="right"{% if title %} title="{{ title }}"{% endif %}{% endif %}>{{ text }}</a>
+    {% if slot %}
+    <ul class="usa-sidenav__sublist">
+        {{ slot }}
+    </ul>
+    {% endif %}
+</li>

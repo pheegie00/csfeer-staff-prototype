@@ -162,6 +162,15 @@ textarea.usa-textarea {
 }
 
 /* ========================================
+   Side Nav Disabled State
+   ======================================== */
+
+.usa-sidenav .usa-sidenav__item--disabled a:not(.usa-button) {
+  color: color("gray-30");
+  cursor: not-allowed;
+}
+
+/* ========================================
    User Nav (Header) Overrides
    ======================================== */
 .user-nav .usa-accordion__button.usa-nav__link {
