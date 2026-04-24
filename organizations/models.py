@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth.models import Group, Permission
 from django.db import models
 
 from core.models import BaseModel
@@ -16,18 +17,27 @@ class OrganizationProfile(BaseModel):
 
 
 class UserOrganizationMembership(BaseModel):
-    ROLE_CHOICES = [
-        ("admin", "Administrator"),
-        ("editor", "Editor"),
-        ("viewer", "Viewer"),
-    ]
-
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     organization = models.ForeignKey(OrganizationProfile, on_delete=models.CASCADE)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="editor")
+    groups = models.ManyToManyField(
+        Group,
+        blank=True,
+        related_name="org_memberships",
+        help_text="The permission group that the user belongs to for this organization",
+    )
+    permissions = models.ManyToManyField(
+        Permission,
+        blank=True,
+        related_name="org_memberships",
+        help_text=(
+            "Specific permissions individually assigned to this user "
+            "for this organization in addition to those assiged by any "
+            "permission groups"
+        ),
+    )
 
     class Meta(BaseModel.Meta):
         unique_together = ("user", "organization")
 
     def __str__(self) -> str:  # pragma: no cover - trivial
-        return f"{self.user} → {self.organization} ({self.role})"
+        return f"{self.user} → {self.organization}"

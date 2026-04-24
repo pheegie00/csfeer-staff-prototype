@@ -32,6 +32,11 @@ class FormDefinition(BaseModel):
     class Meta(BaseModel.Meta):
         unique_together = ("name", "variant")
 
+    permissions = [
+        ("form_list", "Can see this form in the forms list page"),
+        ("form_start", "Can start a form instance"),
+    ]
+
     def __str__(self) -> str:  # pragma: no cover - trivial
         return f"{self.name} (v{self.variant})"
 
@@ -57,6 +62,15 @@ class FormEntry(BaseModel):
     class Meta(BaseModel.Meta):
         unique_together = ("organization", "form_definition", "version_number")
         ordering = ["-updated_at"]
+        permissions = [
+            ("form_view", "Can view a form instance"),
+            ("form_edit", "Can edit a form instance"),
+            ("form_submit", "Can submit a form instance"),
+            (
+                "form_tribal_plan_can_sign_authorized_official",
+                "Can sign the Authorized Official page of the tribal plan form",
+            ),
+        ]
 
     def __str__(self) -> str:  # pragma: no cover - trivial
         return f"{self.organization.name} - {self.form_definition.name} (v{self.version_number})"
