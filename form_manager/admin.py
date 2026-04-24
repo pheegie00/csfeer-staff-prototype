@@ -14,25 +14,9 @@ from form_manager.models import (
     FormAuditTrail,
     FormDefinition,
     FormEntry,
-    OrganizationProfile,
-    UserOrganizationMembership,
 )
 
 # TODO: Review permission and remove any unnecessary admin actions like delete, save etc.
-
-
-@admin.register(OrganizationProfile)
-class OrganizationProfileAdmin(admin.ModelAdmin):
-    list_display = ("name", "contact_email", "contact_phone", "created_at")
-    search_fields = ("name", "contact_email")
-
-
-@admin.register(UserOrganizationMembership)
-class UserOrganizationMembershipAdmin(admin.ModelAdmin):
-    list_display = ("user", "user__email", "organization", "role")
-    list_filter = ("role",)
-    search_fields = ("user__username", "organization__name")
-
 
 _ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 

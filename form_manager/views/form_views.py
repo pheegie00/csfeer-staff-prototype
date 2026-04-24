@@ -10,7 +10,6 @@ from form_manager.models import (
     FormAuditTrail,
     FormDefinition,
     FormEntry,
-    OrganizationProfile,
 )
 from form_manager.utils import (
     reconstruct_state,
@@ -22,6 +21,8 @@ from form_manager.views.base import BaseSingleFormView, FormPermissionMixin
 
 @login_required
 def form_list(request):
+    from organizations.models import OrganizationProfile
+
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=request.user).first()
     entries = FormEntry.objects.filter(organization=org, is_archived=False) if org else []
     definitions = FormDefinition.objects.filter(is_active=True)
@@ -30,6 +31,8 @@ def form_list(request):
 
 @login_required
 def form_start(request, form_id: UUID):
+    from organizations.models import OrganizationProfile
+
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=request.user).first()
     if not org or not user_can_edit(request.user, org):
         messages.error(request, "No permission to create forms.")

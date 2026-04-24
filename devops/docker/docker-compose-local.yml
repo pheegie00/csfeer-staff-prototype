@@ -28,6 +28,9 @@ services:
       - ../../form_manager/:/app/form_manager/
       - ../../frontend/built/:/app/csfeer/static/frontend/
       - ../../tests:/app/tests/
+      - ../../core:/app/core/
+      - ../../users:/app/users/
+      - ../../organizations:/app/organizations/
       - ../../logs/:/app/logs/
 
 volumes:

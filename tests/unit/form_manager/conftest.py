@@ -1,6 +1,7 @@
 import pytest
 from django.core.management import call_command
-from form_manager.models import FormDefinition, FormEntry, OrganizationProfile
+from organizations.models import OrganizationProfile
+from form_manager.models import FormDefinition, FormEntry
 from tests.unit.form_manager.fixtures.use_test_schema import use_test_schema
 
 
