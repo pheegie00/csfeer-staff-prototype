@@ -25,6 +25,8 @@ from form_manager.schema.widgets import (
 )
 
 if TYPE_CHECKING:
+    from django.http import QueryDict
+
     from form_manager.schema.forms.base import BaseFields
 
 
@@ -328,7 +330,7 @@ class ACFMultiFileWidget(forms.FileInput):
         Plain dicts fall back to .get() wrapped in a list.
         """
         if hasattr(files, "getlist"):
-            new_files = files.getlist(name)
+            new_files = cast("QueryDict", files).getlist(name)
         else:
             f = files.get(name)
             new_files = [f] if f is not None else []
@@ -420,7 +422,7 @@ class ACFBooleanField(ACFFieldMixin, forms.BooleanField):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.widget.label = self.title or ""
+        cast(ACFCheckboxInput, self.widget).label = self.title or ""
 
 
 class ACFFieldFilterField(ACFFieldMixin, forms.MultipleChoiceField):
@@ -464,7 +466,7 @@ class ACFYesNoDisplayField(ACFFieldMixin, forms.MultiValueField):
             )
             subwidgets.append(field.widget)
 
-        widget = self.widget(widgets=subwidgets)
+        widget = cast(type[YesNoDisplayWidget], self.widget)(widgets=subwidgets)
 
         super().__init__(
             fields, *args, widget=widget, require_all_fields=require_all_fields, **kwargs

@@ -8,7 +8,7 @@ from users.managers import CoreUserManager
 
 class CoreUser(AbstractUser, BaseModel):
 
-    class Meta(AbstractUser.Meta, BaseModel.Meta):
+    class Meta(AbstractUser.Meta, BaseModel.Meta):  # type: ignore
         abstract = False
 
     username = None
