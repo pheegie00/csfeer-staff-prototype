@@ -1,4 +1,7 @@
-<div x-show="checked === '{{ show_when }}'" x-transition>
+<div x-show="{{ component.show_when_expression }}" x-transition>
+    {% if title %}
+        <h2 class="font-alt-lg font-family-sans text-normal">{{ title }}</h2>
+    {% endif %}
     {% for child in children %}
         {{ child.render }}
     {% endfor %}

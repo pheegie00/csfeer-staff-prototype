@@ -1,12 +1,18 @@
 """Field definitions for the CSBG Tribal Plan form."""
 
+from datetime import date
 from decimal import Decimal
 
 from django import forms
 
-from form_manager.schema.choices import FISCAL_YEAR_CHOICES, US_STATES
+from form_manager.schema.choices import US_STATES
 from form_manager.schema.fields import acf_fields
 from form_manager.schema.forms.base import BaseFields
+
+_TODAY = date.today()
+_NEXT_FY = (_TODAY.year + 1 if _TODAY.month >= 10 else _TODAY.year) + 1
+_FY_Y1_LABEL = f"FY {_NEXT_FY} (October 1, {_NEXT_FY - 1} - Sept 30, {_NEXT_FY})"
+_FY_Y2_LABEL = f"FY {_NEXT_FY + 1} (October 1, {_NEXT_FY} - Sept 30, {_NEXT_FY + 1})"
 
 _Y1_ALLOCATION_FIELDS = [
     "alloc_admin_y1",
@@ -39,21 +45,21 @@ class TribalPlanFormFields(BaseFields):
 
     # 1.1 Plan Coverage
     plan_coverage = acf_fields.ChoiceField(
-        title="Plan Coverage",
-        choices=[("one_year", "One year"), ("two_year", "Two year")],
+        title="Select a plan",
+        choices=[("one_year", "One year plan"), ("two_year", "Two year plan")],
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
     )
 
     # 1.1a Fiscal Years
-    fiscal_year_y1 = acf_fields.ChoiceField(
-        title="Fiscal Year (Year One)",
-        choices=FISCAL_YEAR_CHOICES,
+    fiscal_year_y1 = acf_fields.CharField(
+        title="Year One",
+        initial=_FY_Y1_LABEL,
+        disabled=True,
     )
-    fiscal_year_y2 = acf_fields.ChoiceField(
-        title="Fiscal Year (Year Two)",
-        description="Required only if a two-year plan is selected above.",
-        choices=FISCAL_YEAR_CHOICES,
-        required=False,
+    fiscal_year_y2 = acf_fields.CharField(
+        title="Year Two",
+        initial=_FY_Y2_LABEL,
+        disabled=True,
     )
 
     # Tribal Organization
@@ -75,7 +81,7 @@ class TribalPlanFormFields(BaseFields):
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
     )
     multi_tribe_names = acf_fields.TextareaField(
-        title="Names of all Tribes/Villages/Communities/Jurisdictions represented",
+        title="List the names of Tribes, Villages, Communities, or Jurisdiction",
         description="Required if representing more than one tribe. Maximum 1,000 characters.",
         max_length=1000,
         required=False,
@@ -84,7 +90,7 @@ class TribalPlanFormFields(BaseFields):
     # from Section 2.1 to be adjacent to the multi-tribe question at 1.2b.
     # TODO: Final allowed file types and max size pending confirmation from ACF.
     tribal_resolution_upload = acf_fields.FileField(
-        title="Tribal Resolution(s)",
+        title="Attach Tribal Resolutions granting authority to receive CSBG funds",
         description=(
             "Upload tribal resolution documentation. Required if representing more than one tribe. "
             "Allowed types: PDF, PNG, JPG, JPEG. Maximum size: 10 MB."
@@ -156,7 +162,10 @@ class TribalPlanFormFields(BaseFields):
 
     # 1.5 Delegation of Authority
     has_delegation = acf_fields.ChoiceField(
-        title="Is signature authority being delegated?",
+        title=(
+            "Is the Authorized Tribal Official delegating signature authority"
+            " to another individual?"
+        ),
         description="If No, proceed to Section 2.",
         choices=[("yes", "Yes"), ("no", "No")],
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
@@ -637,13 +646,8 @@ class TribalPlanFormFields(BaseFields):
                 "Provide a recognition citation or upload supporting documentation.",
             )
 
-        # 1.1a-Y2 and Year 2 allocations: required when a two-year plan is selected.
+        # Year 2 allocations: required when a two-year plan is selected.
         if plan_coverage == "two_year":
-            if not cleaned_data.get("fiscal_year_y2"):
-                self.add_error(
-                    "fiscal_year_y2",
-                    "Fiscal year for Year Two is required for a two-year plan.",
-                )
             for field_name in _Y2_ALLOCATION_FIELDS:
                 if cleaned_data.get(field_name) is None:
                     self.add_error(field_name, "This allocation is required for a two-year plan.")

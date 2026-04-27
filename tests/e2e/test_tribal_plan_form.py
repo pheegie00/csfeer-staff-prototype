@@ -1,7 +1,7 @@
 """End-to-end tests for TribalPlanForm."""
 
 import pytest
-from playwright.sync_api import Page
+from playwright.sync_api import Page, expect
 
 FORM_NAME = "CSBG Model Tribal Plan"
 
@@ -114,12 +114,8 @@ def test_tribal_plan_form_section1_fill_and_advance(
     # Select one-year plan
     _click_radio(page, "one_year")
 
-    # Select fiscal year (pick the first real option in the dropdown)
-    fiscal_year_select = page.locator("select#id_fiscal_year_y1")
-    if not fiscal_year_select.is_visible():
-        # Try by label if the id differs
-        fiscal_year_select = page.get_by_label("Fiscal Year (Year One)")
-    fiscal_year_select.select_option(index=1)  # Skip the blank placeholder
+    # fiscal_year_y1 is a disabled, auto-populated field — just confirm it's shown.
+    expect(page.locator("#id_fiscal_year_y1")).to_be_visible()
 
     _click_next(page)
 

@@ -204,9 +204,13 @@ class ConditionalBlock(RenderableBaseModel):
     controlling radio field name."""
 
     type: str = "conditional"
+    title: Annotated[
+        str | None,
+        Field(description="Optional inline heading rendered above the block's children"),
+    ] = None
     show_when: Annotated[
-        str,
-        Field(description="The field value that triggers showing this block's children"),
+        str | list[str],
+        Field(description="The field value(s) that trigger showing this block's children"),
     ] = "yes"
     children: Annotated[
         list["FieldBlock | ReviewSubheadingBlock"] | None,
@@ -216,6 +220,12 @@ class ConditionalBlock(RenderableBaseModel):
         str,
         Field(description="Django template used to render this conditional block"),
     ] = "form_manager/conditional_block.html"
+
+    @property
+    def show_when_expression(self) -> str:
+        values = [self.show_when] if isinstance(self.show_when, str) else self.show_when
+        quoted = ", ".join(f"'{v}'" for v in values)
+        return f"[{quoted}].includes(checked)"
 
 
 class FieldBlock(RenderableBaseModel):
