@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, cast
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand, CommandError
 
 from organizations.models import OrganizationProfile, UserOrganizationMembership
@@ -73,17 +74,12 @@ class Command(BaseCommand):
         membership, m_created = UserOrganizationMembership.objects.get_or_create(
             user=user,
             organization=org,
-            defaults={"role": "editor"},
         )
-        if not m_created and membership.role != "editor":
-            membership.role = "editor"
-            membership.save(update_fields=["role"])
-            self.stdout.write(self.style.SUCCESS(f"Updated role for '{user.username}' to editor."))
+
+        membership.groups.add(Group.objects.get(name="Recipient Authorized Official"))
 
         # mypy/pyright: user is asserted above
         action = "Created" if m_created else "Ensured"
         self.stdout.write(
-            self.style.SUCCESS(
-                f"{action} membership: user='{user.username}' ↔ org='{org.name}' (role=editor)"
-            )
+            self.style.SUCCESS(f"{action} membership: user='{user.username}' ↔ org='{org.name}'")
         )

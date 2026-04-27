@@ -84,7 +84,7 @@ testpaths = ["tests"]
 addopts = [
     "--strict-markers",
     "--tb=short",
-    "--nomigrations",
+    "--migrations",
     "--reuse-db",  # Reuse test database between runs (faster)
     "-p no:warnings",
 ]

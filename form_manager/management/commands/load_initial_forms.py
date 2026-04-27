@@ -87,5 +87,5 @@ class Command(BaseCommand):
             if not UserOrganizationMembership.objects.filter(user=user).exists():
                 org_name = f"{user.email}'s Organization"
                 org = OrganizationProfile.objects.create(name=org_name, contact_email=user.email)
-                UserOrganizationMembership.objects.create(user=user, organization=org, role="admin")
+                UserOrganizationMembership.objects.create(user=user, organization=org)
                 self.stdout.write(self.style.SUCCESS(f"Created organization for user {user.email}"))
