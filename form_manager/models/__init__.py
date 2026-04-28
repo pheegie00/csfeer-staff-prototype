@@ -32,10 +32,10 @@ class FormDefinition(BaseModel):
     class Meta(BaseModel.Meta):
         unique_together = ("name", "variant")
 
-    permissions = [
-        ("form_list", "Can see this form in the forms list page"),
-        ("form_start", "Can start a form instance"),
-    ]
+        permissions = [
+            ("form_list", "Can see this form in the forms list page"),
+            ("form_start", "Can start a form instance"),
+        ]
 
     def __str__(self) -> str:  # pragma: no cover - trivial
         return f"{self.name} (v{self.variant})"

@@ -18,8 +18,6 @@ class Command(BaseCommand):
 
         for user_info in TEST_USERS.values():
             email: str | None = user_info.get("email")
-            if user_info["username"] == "admin":
-                continue
 
             if UserModel.objects.filter(email=email).exists():
                 self.stdout.write(self.style.NOTICE(f"User with email '{email}' already exists."))
