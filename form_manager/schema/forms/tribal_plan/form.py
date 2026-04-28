@@ -184,7 +184,6 @@ class TribalPlanForm(BaseFormSchema):
                         title="Tribal Recognition",
                         children=[
                             SectionBlock(
-                                title="Tribal Recognition",
                                 alpine_controller_field="has_recognition",
                                 children=[
                                     ReviewSubheadingBlock(title="Tribal Recognition"),
@@ -192,8 +191,32 @@ class TribalPlanForm(BaseFormSchema):
                                     ConditionalBlock(
                                         show_when="yes",
                                         children=[
-                                            FieldBlock(field_name="recognition_citation"),
-                                            FieldBlock(field_name="recognition_upload"),
+                                            SectionBlock(
+                                                alpine_controller_field=(
+                                                    "recognition_provision_method"
+                                                ),
+                                                children=[
+                                                    FieldBlock(
+                                                        field_name="recognition_provision_method"
+                                                    ),
+                                                    ConditionalBlock(
+                                                        show_when="manual",
+                                                        children=[
+                                                            FieldBlock(
+                                                                field_name="recognition_citation"
+                                                            ),
+                                                        ],
+                                                    ),
+                                                    ConditionalBlock(
+                                                        show_when="upload",
+                                                        children=[
+                                                            FieldBlock(
+                                                                field_name="recognition_upload"
+                                                            ),
+                                                        ],
+                                                    ),
+                                                ],
+                                            ),
                                         ],
                                     ),
                                 ],
