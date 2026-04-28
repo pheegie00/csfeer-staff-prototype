@@ -6,4 +6,4 @@ class UsersConfig(AppConfig):
 
     def ready(self):
 
-        pass
+        from users.signals import create_permission_groups  # noqa
