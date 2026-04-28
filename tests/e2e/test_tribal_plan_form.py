@@ -130,44 +130,34 @@ def test_tribal_plan_form_section1_fill_and_advance(
 
 @pytest.mark.e2e
 @pytest.mark.auth
-@pytest.mark.skip
 def test_tribal_plan_form_section5_y1_allocations_page(
     authenticated_page: Page, base_url: str
 ) -> None:
-    """Year 1 Allocations page is reachable via direct URL and shows all 9 categories."""
+    """Year 1 Allocations page renders all 9 categories once a plan is selected."""
     page = authenticated_page
 
-    # Start the form to get the entry PK from the URL redirect
-    page.goto(f"{base_url}/forms/")
-    page.wait_for_load_state("networkidle")
+    _start_tribal_plan_form(page, base_url)
+    page.get_by_role("heading", name="Plan Coverage").first.wait_for()
 
-    form_cards = page.locator(".grid-col-12.tablet\\:grid-col-6")
-    entry_url = None
-    for i in range(form_cards.count()):
-        card = form_cards.nth(i)
-        if FORM_NAME in card.inner_text():
-            with page.expect_navigation():
-                card.get_by_role("link", name="Start New Form").click()
-            entry_url = page.url
-            break
+    # The Y1 allocation card is gated on plan_coverage — pick a plan so the card renders.
+    _click_radio(page, "one_year")
+    _click_next(page)
 
-    assert entry_url, "Could not start the form"
-
-    # Navigate directly to step 4 (Section 5), page 0 (Year 1 Allocations)
-    base_entry_url = entry_url.split("?")[0]
+    base_entry_url = page.url.split("?")[0]
     page.goto(f"{base_entry_url}?step=4&page=0")
     page.wait_for_load_state("networkidle")
 
     body = page.evaluate("() => document.body.innerText")
 
-    # All 9 categories should be present
     expected_categories = [
-        "Administrative Funds",
+        "Administrative cost",
         "Employment",
-        "Transportation",
+        "Adult Education",
+        "Income & Asset Building",
         "Housing",
-        "Health and Nutrition",
+        "Health & Nutrition",
         "Civic Engagement",
+        "Transportation",
         "Partnerships",
     ]
     for category in expected_categories:
