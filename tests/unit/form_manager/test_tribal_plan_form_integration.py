@@ -95,6 +95,7 @@ def _valid_form_data(**overrides) -> dict:
         "delegation_email": "",
         # Section 2 — Recognition
         "has_recognition": "yes",
+        "recognition_provision_method": "manual",
         "recognition_citation": "Federal Recognition, 25 U.S.C. § 450",
         # Section 3
         "goals_and_objectives": "Improve community well-being through targeted CSBG programs.",
@@ -113,8 +114,10 @@ def _valid_form_data(**overrides) -> dict:
         "alloc_partnerships_y1": "20.00",
         # Section 5 — Fiscal Controls
         "use_of_funds_acknowledgment": True,
+        "has_completed_single_audit": "no",
         "audit_date": "",
-        "audit_fiscal_period": "",
+        "audit_period_start": "",
+        "audit_period_end": "",
         # Section 6
         "individual_eligibility": "Eligibility is determined by income guidelines.",
         "targeted_community_eligibility": "Services target low-income tribal members.",
@@ -230,14 +233,69 @@ def test_tribal_plan_form_section1_authorized_official_page(
 def test_tribal_plan_form_section5_y1_allocations_page(
     django_db_setup, tribal_plan_form_entry: FormEntry, authenticated_client
 ):
-    """Step 4, page 0 renders Year 1 allocation fields."""
+    """Step 4, page 0 renders Year 1 allocation fields when a plan is selected.
+
+    The Y1 card uses server-side conditional rendering on `plan_coverage`, so the
+    entry must have a plan selected for the card (and its fields) to render.
+    """
+    tribal_plan_form_entry.data = {"plan_coverage": "one_year"}
+    tribal_plan_form_entry.save(update_fields=["data"])
+
     url = reverse("form_edit", args=[tribal_plan_form_entry.pk])
     response = authenticated_client.get(url, query_params={"step": 4, "page": 0})
 
     assert response.status_code == 200
     content = response.content.decode()
-    assert "alloc_admin_y1" in content or "Administrative Funds" in content
-    assert "alloc_total_y1" in content or "Year 1 Total" in content
+    assert "alloc_admin_y1" in content
+    assert "alloc_total_y1" in content
+
+
+@pytest.mark.django_db
+def test_tribal_plan_form_section5_hides_y1_card_without_plan_coverage(
+    django_db_setup, tribal_plan_form_entry: FormEntry, authenticated_client
+):
+    """When no plan has been selected, neither allocation card renders."""
+    url = reverse("form_edit", args=[tribal_plan_form_entry.pk])
+    response = authenticated_client.get(url, query_params={"step": 4, "page": 0})
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert "alloc_admin_y1" not in content
+    assert "alloc_admin_y2" not in content
+
+
+@pytest.mark.django_db
+def test_tribal_plan_form_section5_two_year_renders_both_cards(
+    django_db_setup, tribal_plan_form_entry: FormEntry, authenticated_client
+):
+    """A two-year plan renders both the Y1 and Y2 allocation cards."""
+    tribal_plan_form_entry.data = {"plan_coverage": "two_year"}
+    tribal_plan_form_entry.save(update_fields=["data"])
+
+    url = reverse("form_edit", args=[tribal_plan_form_entry.pk])
+    response = authenticated_client.get(url, query_params={"step": 4, "page": 0})
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert "alloc_admin_y1" in content
+    assert "alloc_admin_y2" in content
+
+
+@pytest.mark.django_db
+def test_tribal_plan_form_section5_one_year_hides_y2_card(
+    django_db_setup, tribal_plan_form_entry: FormEntry, authenticated_client
+):
+    """A one-year plan renders the Y1 card but not the Y2 card."""
+    tribal_plan_form_entry.data = {"plan_coverage": "one_year"}
+    tribal_plan_form_entry.save(update_fields=["data"])
+
+    url = reverse("form_edit", args=[tribal_plan_form_entry.pk])
+    response = authenticated_client.get(url, query_params={"step": 4, "page": 0})
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert "alloc_admin_y1" in content
+    assert "alloc_admin_y2" not in content
 
 
 @pytest.mark.django_db
@@ -344,26 +402,58 @@ def test_delegation_fields_not_required_when_no():
     assert form.is_valid(), form.errors
 
 
-def test_recognition_requires_citation_or_upload_when_yes():
-    """At least one of citation or upload is required when has_recognition = yes."""
-    data = _valid_form_data(has_recognition="yes", recognition_citation="")
-    # No upload provided (file fields are excluded from plain POST data)
+def test_recognition_provision_method_required_when_yes():
+    """A provision method is required when has_recognition = yes."""
+    data = _valid_form_data(
+        has_recognition="yes",
+        recognition_provision_method="",
+        recognition_citation="",
+    )
+    form = TribalPlanFormFields(data=data)
+    assert not form.is_valid()
+    assert "recognition_provision_method" in form.errors
+
+
+def test_recognition_citation_required_when_manual():
+    """Citation is required when provision method = manual."""
+    data = _valid_form_data(
+        has_recognition="yes",
+        recognition_provision_method="manual",
+        recognition_citation="",
+    )
     form = TribalPlanFormFields(data=data)
     assert not form.is_valid()
     assert "recognition_citation" in form.errors
 
 
+def test_recognition_upload_required_when_upload():
+    """Upload is required when provision method = upload."""
+    data = _valid_form_data(
+        has_recognition="yes",
+        recognition_provision_method="upload",
+        recognition_citation="",
+    )
+    form = TribalPlanFormFields(data=data)
+    assert not form.is_valid()
+    assert "recognition_upload" in form.errors
+
+
 def test_recognition_not_required_when_no():
     """No recognition fields are required when has_recognition = no."""
-    data = _valid_form_data(has_recognition="no", recognition_citation="")
+    data = _valid_form_data(
+        has_recognition="no",
+        recognition_provision_method="",
+        recognition_citation="",
+    )
     form = TribalPlanFormFields(data=data)
     assert form.is_valid(), form.errors
 
 
 def test_recognition_upload_can_use_existing_saved_file():
-    """Existing saved recognition upload should satisfy citation-or-upload rule."""
+    """Existing saved recognition upload satisfies the upload provision method."""
     data = _valid_form_data(
         has_recognition="yes",
+        recognition_provision_method="upload",
         recognition_citation="",
         recognition_upload="",
     )

@@ -1,0 +1,17 @@
+{% if component.should_render %}
+<c-card grid_layout="{{ grid_layout }}" container_class="border-blue-5">
+    {% if title %}
+    <c-card.header extra_classes="planned-allocation-card__header">
+        <h3 class="usa-card__heading font-family-sans margin-bottom-0">{{ title }}</h3>
+        {% if subtitle %}
+            <p class="margin-top-05 margin-bottom-0 text-base-dark">{{ subtitle }}</p>
+        {% endif %}
+    </c-card.header>
+    {% endif %}
+    <c-card.body>
+        {% for child in children %}
+            {{ child.render }}
+        {% endfor %}
+    </c-card.body>
+</c-card>
+{% endif %}

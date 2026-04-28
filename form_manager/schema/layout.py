@@ -123,6 +123,7 @@ class AbstractPageBlock(RenderableBaseModel, abc.ABC):
             | "FieldBlock"
             | "SectionBlock"
             | "FieldGroupBlock"
+            | "CardGroupBlock"
             | "PageTitleBlock"
             | "PageSubtitleBlock"
             | "AlertBoxBlock"
@@ -198,6 +199,50 @@ class FieldGroupBlock(RenderableBaseModel):
     ] = "form_manager/field_group.html"
 
 
+class CardBlock(RenderableBaseModel):
+    """Represents a USWDS card. Renders a title/subtitle header and its children
+    in the card body. When `show_when_field` is set, the card only renders if the
+    form's value for that field matches `show_when_value` — evaluated server-side,
+    so it works across steps (unlike ConditionalBlock, which is Alpine-scoped)."""
+
+    type: str = "card"
+    title: str | None = None
+    subtitle: str | None = None
+    grid_layout: str = "tablet:grid-col-6"
+    show_when_field: str | None = None
+    show_when_value: str | list[str] | None = None
+    children: list["FieldBlock | ReviewSubheadingBlock"] | None = None
+    template_name: str = "form_manager/card.html"
+
+    @property
+    def should_render(self) -> bool:
+        if not self.show_when_field:
+            return True
+        form = self._global_context.get("form")
+        if form is None:
+            return True
+        try:
+            value = form[self.show_when_field].value()
+        except KeyError:
+            return True
+        if self.show_when_value is None:
+            return bool(value)
+        values = (
+            [self.show_when_value]
+            if isinstance(self.show_when_value, str)
+            else self.show_when_value
+        )
+        return value in values
+
+
+class CardGroupBlock(RenderableBaseModel):
+    """Represents a USWDS card group — a horizontal row of CardBlocks."""
+
+    type: str = "card-group"
+    children: list[CardBlock] | None = None
+    template_name: str = "form_manager/card_group.html"
+
+
 class ConditionalBlock(RenderableBaseModel):
     """A block whose children are conditionally shown based on a sibling field's value.
     Requires the parent SectionBlock to have alpine_controller_field set to the
@@ -213,7 +258,7 @@ class ConditionalBlock(RenderableBaseModel):
         Field(description="The field value(s) that trigger showing this block's children"),
     ] = "yes"
     children: Annotated[
-        list["FieldBlock | ReviewSubheadingBlock"] | None,
+        list["FieldBlock | ReviewSubheadingBlock | SectionBlock | DateRangePickerBlock"] | None,
         Field(description="Content blocks shown when the condition is met"),
     ] = None
     template_name: Annotated[
@@ -325,6 +370,16 @@ class FieldBlock(RenderableBaseModel):
     def display_title(self) -> str | None:
         """Returns review_title if available, otherwise falls back to title"""
         return self.review_title or self.title
+
+
+class DateRangePickerBlock(RenderableBaseModel):
+    """Renders two DateField children as a USWDS date range picker — the two
+    pickers are linked so that selecting a start date constrains the end date's
+    minimum, and vice versa."""
+
+    type: str = "date-range-picker"
+    children: list["FieldBlock"] | None = None
+    template_name: str = "form_manager/date_range_picker.html"
 
 
 class ReviewSubheadingBlock(RenderableBaseModel):
