@@ -8,7 +8,6 @@ from django import forms
 from form_manager.schema.choices import US_STATES
 from form_manager.schema.fields import acf_fields
 from form_manager.schema.forms.base import BaseFields
-from form_manager.schema.widgets import DatePickerInput
 
 _TODAY = date.today()
 _NEXT_FY = (_TODAY.year + 1 if _TODAY.month >= 10 else _TODAY.year) + 1
@@ -271,7 +270,7 @@ class TribalPlanFormFields(BaseFields):
 
     # 5.1 Year 1 Allocations (must total 100%)
     alloc_admin_y1 = acf_fields.DecimalField(
-        title="Administrative cost",
+        title="Administrative Funds",
         review_title="Administrative Funds (Year 1 %)",
         max_digits=5,
         decimal_places=2,
@@ -287,7 +286,7 @@ class TribalPlanFormFields(BaseFields):
         max_value=100,
     )
     alloc_education_y1 = acf_fields.DecimalField(
-        title="Childcare, Early Childhood, Youth Development & Adult Education",
+        title="Childcare, Early Childhood, Youth Development, and Adult Education",
         review_title="Education and Youth Development (Year 1 %)",
         max_digits=5,
         decimal_places=2,
@@ -295,7 +294,7 @@ class TribalPlanFormFields(BaseFields):
         max_value=100,
     )
     alloc_income_y1 = acf_fields.DecimalField(
-        title="Income & Asset Building",
+        title="Income and Asset Building",
         review_title="Income and Asset Building (Year 1 %)",
         max_digits=5,
         decimal_places=2,
@@ -311,7 +310,7 @@ class TribalPlanFormFields(BaseFields):
         max_value=100,
     )
     alloc_health_y1 = acf_fields.DecimalField(
-        title="Health & Nutrition",
+        title="Health and Nutrition",
         review_title="Health and Nutrition (Year 1 %)",
         max_digits=5,
         decimal_places=2,
@@ -319,7 +318,7 @@ class TribalPlanFormFields(BaseFields):
         max_value=100,
     )
     alloc_civic_y1 = acf_fields.DecimalField(
-        title="Civic Engagement & Community Involvement",
+        title="Civic Engagement and Community Involvement",
         review_title="Civic Engagement and Community Involvement (Year 1 %)",
         max_digits=5,
         decimal_places=2,
@@ -335,7 +334,7 @@ class TribalPlanFormFields(BaseFields):
         max_value=100,
     )
     alloc_partnerships_y1 = acf_fields.DecimalField(
-        title="Partnerships, Linkages & Coordination",
+        title="Partnerships, Linkages, and Service Coordination",
         review_title="Partnerships, Linkages, and Service Coordination (Year 1 %)",
         max_digits=5,
         decimal_places=2,
@@ -343,7 +342,7 @@ class TribalPlanFormFields(BaseFields):
         max_value=100,
     )
     alloc_total_y1 = acf_fields.CalculatedDecimalField(
-        title="Total (auto-calculated)",
+        title="Year 1 Total",
         review_title="Year 1 Total (%)",
         fields=_Y1_ALLOCATION_FIELDS,
         max_digits=5,
@@ -352,7 +351,7 @@ class TribalPlanFormFields(BaseFields):
 
     # 5.1 Year 2 Allocations (conditional on two-year plan; must total 100%)
     alloc_admin_y2 = acf_fields.DecimalField(
-        title="Administrative cost",
+        title="Administrative Funds",
         review_title="Administrative Funds (Year 2 %)",
         max_digits=5,
         decimal_places=2,
@@ -370,7 +369,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_education_y2 = acf_fields.DecimalField(
-        title="Childcare, Early Childhood, Youth Development & Adult Education",
+        title="Childcare, Early Childhood, Youth Development, and Adult Education",
         review_title="Education and Youth Development (Year 2 %)",
         max_digits=5,
         decimal_places=2,
@@ -379,7 +378,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_income_y2 = acf_fields.DecimalField(
-        title="Income & Asset Building",
+        title="Income and Asset Building",
         review_title="Income and Asset Building (Year 2 %)",
         max_digits=5,
         decimal_places=2,
@@ -397,7 +396,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_health_y2 = acf_fields.DecimalField(
-        title="Health & Nutrition",
+        title="Health and Nutrition",
         review_title="Health and Nutrition (Year 2 %)",
         max_digits=5,
         decimal_places=2,
@@ -406,7 +405,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_civic_y2 = acf_fields.DecimalField(
-        title="Civic Engagement & Community Involvement",
+        title="Civic Engagement and Community Involvement",
         review_title="Civic Engagement and Community Involvement (Year 2 %)",
         max_digits=5,
         decimal_places=2,
@@ -424,7 +423,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_partnerships_y2 = acf_fields.DecimalField(
-        title="Partnerships, Linkages & Coordination",
+        title="Partnerships, Linkages, and Service Coordination",
         review_title="Partnerships, Linkages, and Service Coordination (Year 2 %)",
         max_digits=5,
         decimal_places=2,
@@ -433,7 +432,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_total_y2 = acf_fields.CalculatedDecimalField(
-        title="Total (auto-calculated)",
+        title="Year 2 Total",
         review_title="Year 2 Total (%)",
         fields=_Y2_ALLOCATION_FIELDS,
         max_digits=5,
@@ -446,26 +445,21 @@ class TribalPlanFormFields(BaseFields):
     )
 
     # 5.3 Single Audit Review
-    has_completed_single_audit = acf_fields.ChoiceField(
-        title="Has your Tribe or Tribal Organization completed a Single Audit?",
-        choices=[("yes", "Yes"), ("no", "No")],
-        widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
-        required=False,
-    )
     audit_date = acf_fields.DateField(
-        title="Date of audit",
+        title="Date of most recent audit",
+        description="Enter as mm/dd/yyyy.",
         required=False,
-        widget=DatePickerInput(),
     )
-    audit_period_start = acf_fields.DateField(
-        title="Period start",
+    # NOTE: Fiscal year covered is implemented as free text per 3/24 PO Notes.
+    # PDE/PS teams will provide guidance on final instruction language.
+    audit_fiscal_period = acf_fields.CharField(
+        title="Fiscal year covered by most recent audit",
+        description=(
+            "Enter the fiscal period as mm/dd/yyyy – mm/dd/yyyy. "
+            "If you received less than $750,000 in total federal funds, this question is optional."
+        ),
         required=False,
-        widget=DatePickerInput(),
-    )
-    audit_period_end = acf_fields.DateField(
-        title="Period end",
-        required=False,
-        widget=DatePickerInput(),
+        max_length=50,
     )
 
     # endregion
@@ -620,7 +614,6 @@ class TribalPlanFormFields(BaseFields):
         is_multi_tribe = cleaned_data.get("is_multi_tribe")
         has_delegation = cleaned_data.get("has_delegation")
         has_recognition = cleaned_data.get("has_recognition")
-        has_completed_single_audit = cleaned_data.get("has_completed_single_audit")
 
         # 1.2b: Multi-tribe names and tribal resolution upload are required when
         # representing more than one tribe.
@@ -672,19 +665,6 @@ class TribalPlanFormFields(BaseFields):
                     "recognition_upload",
                     "Upload supporting recognition documentation.",
                 )
-
-        # 5.3: Audit dates are required when the applicant reports completing a Single Audit.
-        if has_completed_single_audit == "yes":
-            for field_name, label in [
-                ("audit_date", "Date of audit"),
-                ("audit_period_start", "Period start"),
-                ("audit_period_end", "Period end"),
-            ]:
-                if not cleaned_data.get(field_name):
-                    self.add_error(
-                        field_name,
-                        f"{label} is required when a Single Audit has been completed.",
-                    )
 
         # Year 2 allocations: required when a two-year plan is selected.
         if plan_coverage == "two_year":

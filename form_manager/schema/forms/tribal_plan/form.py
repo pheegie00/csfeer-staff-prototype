@@ -1,7 +1,5 @@
 """UI layout definition for the CSBG Tribal Plan form."""
 
-from datetime import date
-
 from pydantic import ConfigDict, Field
 from pydantic_extra_types.semantic_version import SemanticVersion
 
@@ -15,31 +13,22 @@ from form_manager.schema.forms.tribal_plan.texts import (
     _DEBARMENT_LOWER_TIER_INSTRUCTIONS_TEXT,
     _DEBARMENT_PRIMARY_INSTRUCTIONS_TEXT,
     _DRUG_FREE_WORKPLACE_CERTIFICATION_TEXT,
-    _LIMITATION_ON_USE_OF_FUNDS_TEXT,
     _LOBBYING_CERTIFICATION_TEXT,
-    _SINGLE_AUDIT_REQUIREMENTS_TEXT,
     _TOBACCO_SMOKE_CERTIFICATION_TEXT,
 )
 from form_manager.schema.layout import (
     AccordionBlock,
     AccordionItem,
     AlertBoxBlock,
-    CardBlock,
-    CardGroupBlock,
     ConditionalBlock,
-    DateRangePickerBlock,
     FieldBlock,
+    FieldGroupBlock,
     PermanentPageBlock,
     ReviewSubheadingBlock,
     SectionBlock,
     StepBlock,
     TextBlock,
 )
-
-_TODAY = date.today()
-_NEXT_FY = (_TODAY.year + 1 if _TODAY.month >= 10 else _TODAY.year) + 1
-_Y1_DATE_RANGE = f"October 1, {_NEXT_FY - 1} - Sept 30, {_NEXT_FY}"
-_Y2_DATE_RANGE = f"October 1, {_NEXT_FY} - Sept 30, {_NEXT_FY + 1}"
 
 
 class TribalPlanForm(BaseFormSchema):
@@ -303,111 +292,84 @@ class TribalPlanForm(BaseFormSchema):
                 children=[
                     PermanentPageBlock(
                         title="Planned Allocation of Funds",
+                        subtitle=(
+                            "For program funds, enter the percentage allocated to each CSBG"
+                            " service area. The total must equal 100%."
+                        ),
                         children=[
                             AlertBoxBlock(
                                 alert_type="info",
                                 heading="Allocation requirements for CSBG funds",
                                 message=(
-                                    "According to the CSBG Act, no more than 5% of funds"
-                                    " may be used for administrative costs and at least 95%"
-                                    " of funds must be allocated to program services."
-                                    " For program funds, enter the percentage allocated to"
-                                    " each CSBG service area. The total must equal 100%."
+                                    "According to the CSBG Act: no more than 5% of funds"
+                                    " may be used for administrative costs, and at least"
+                                    " 95% must be allocated to program services."
                                 ),
                             ),
-                            CardGroupBlock(
+                            FieldGroupBlock(
+                                description=(
+                                    "Year One allocations: enter percentages (0–100). "
+                                    "The total must equal 100%."
+                                ),
                                 children=[
-                                    CardBlock(
-                                        title="Year one",
-                                        subtitle=_Y1_DATE_RANGE,
-                                        show_when_field="plan_coverage",
-                                        show_when_value=["one_year", "two_year"],
-                                        children=[
-                                            ReviewSubheadingBlock(title="Year One"),
-                                            FieldBlock(field_name="alloc_admin_y1"),
-                                            FieldBlock(field_name="alloc_employment_y1"),
-                                            FieldBlock(field_name="alloc_education_y1"),
-                                            FieldBlock(field_name="alloc_income_y1"),
-                                            FieldBlock(field_name="alloc_housing_y1"),
-                                            FieldBlock(field_name="alloc_health_y1"),
-                                            FieldBlock(field_name="alloc_civic_y1"),
-                                            FieldBlock(field_name="alloc_transportation_y1"),
-                                            FieldBlock(field_name="alloc_partnerships_y1"),
-                                            FieldBlock(field_name="alloc_total_y1"),
-                                        ],
-                                    ),
-                                    CardBlock(
-                                        title="Year two",
-                                        subtitle=_Y2_DATE_RANGE,
-                                        show_when_field="plan_coverage",
-                                        show_when_value="two_year",
-                                        children=[
-                                            ReviewSubheadingBlock(title="Year Two"),
-                                            FieldBlock(field_name="alloc_admin_y2"),
-                                            FieldBlock(field_name="alloc_employment_y2"),
-                                            FieldBlock(field_name="alloc_education_y2"),
-                                            FieldBlock(field_name="alloc_income_y2"),
-                                            FieldBlock(field_name="alloc_housing_y2"),
-                                            FieldBlock(field_name="alloc_health_y2"),
-                                            FieldBlock(field_name="alloc_civic_y2"),
-                                            FieldBlock(field_name="alloc_transportation_y2"),
-                                            FieldBlock(field_name="alloc_partnerships_y2"),
-                                            FieldBlock(field_name="alloc_total_y2"),
-                                        ],
-                                    ),
+                                    ReviewSubheadingBlock(title="Year One"),
+                                    FieldBlock(field_name="alloc_admin_y1"),
+                                    FieldBlock(field_name="alloc_employment_y1"),
+                                    FieldBlock(field_name="alloc_education_y1"),
+                                    FieldBlock(field_name="alloc_income_y1"),
+                                    FieldBlock(field_name="alloc_housing_y1"),
+                                    FieldBlock(field_name="alloc_health_y1"),
+                                    FieldBlock(field_name="alloc_civic_y1"),
+                                    FieldBlock(field_name="alloc_transportation_y1"),
+                                    FieldBlock(field_name="alloc_partnerships_y1"),
+                                    FieldBlock(field_name="alloc_total_y1"),
+                                ],
+                            ),
+                            AlertBoxBlock(
+                                alert_type="info",
+                                heading="Two-Year Plan Only",
+                                message=(
+                                    "Complete Year Two allocations only if you selected a two-year "
+                                    "plan in Section 1 (Plan Coverage)."
+                                ),
+                            ),
+                            FieldGroupBlock(
+                                description=(
+                                    "Year Two allocations: enter percentages (0–100). "
+                                    "The total must equal 100%."
+                                ),
+                                children=[
+                                    ReviewSubheadingBlock(title="Year Two"),
+                                    FieldBlock(field_name="alloc_admin_y2"),
+                                    FieldBlock(field_name="alloc_employment_y2"),
+                                    FieldBlock(field_name="alloc_education_y2"),
+                                    FieldBlock(field_name="alloc_income_y2"),
+                                    FieldBlock(field_name="alloc_housing_y2"),
+                                    FieldBlock(field_name="alloc_health_y2"),
+                                    FieldBlock(field_name="alloc_civic_y2"),
+                                    FieldBlock(field_name="alloc_transportation_y2"),
+                                    FieldBlock(field_name="alloc_partnerships_y2"),
+                                    FieldBlock(field_name="alloc_total_y2"),
                                 ],
                             ),
                         ],
                     ),
                     PermanentPageBlock(
                         title="Limitation on Use of Funds",
-                        subtitle=(
-                            "Review the requirement below and select the checkbox"
-                            " to confirm compliance."
-                        ),
                         children=[
-                            TextBlock(
-                                heading="Limitation on the Use of Funds",
-                                text=_LIMITATION_ON_USE_OF_FUNDS_TEXT,
-                                template_name="form_manager/use_of_funds_notice.html",
-                            ),
                             SectionBlock(
+                                title="Limitation on Use of Funds",
                                 children=[
                                     ReviewSubheadingBlock(title="Limitation on Use of Funds"),
                                     FieldBlock(field_name="use_of_funds_acknowledgment"),
                                 ],
                             ),
-                        ],
-                    ),
-                    PermanentPageBlock(
-                        title="Single Audit Review",
-                        subtitle=(
-                            "Provide the date and time period covered by your most recent audit,"
-                            " if applicable."
-                        ),
-                        children=[
-                            AlertBoxBlock(
-                                alert_type="info",
-                                heading="Single Audit requirements",
-                                message=_SINGLE_AUDIT_REQUIREMENTS_TEXT,
-                            ),
                             SectionBlock(
-                                alpine_controller_field="has_completed_single_audit",
+                                title="Single Audit Review",
                                 children=[
                                     ReviewSubheadingBlock(title="Single Audit Review"),
-                                    FieldBlock(field_name="has_completed_single_audit"),
-                                    ConditionalBlock(
-                                        show_when="yes",
-                                        children=[
-                                            FieldBlock(field_name="audit_date"),
-                                            DateRangePickerBlock(
-                                                children=[
-                                                    FieldBlock(field_name="audit_period_start"),
-                                                    FieldBlock(field_name="audit_period_end"),
-                                                ],
-                                            ),
-                                        ],
-                                    ),
+                                    FieldBlock(field_name="audit_date"),
+                                    FieldBlock(field_name="audit_fiscal_period"),
                                 ],
                             ),
                         ],
