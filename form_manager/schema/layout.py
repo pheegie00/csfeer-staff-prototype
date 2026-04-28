@@ -213,7 +213,7 @@ class ConditionalBlock(RenderableBaseModel):
         Field(description="The field value(s) that trigger showing this block's children"),
     ] = "yes"
     children: Annotated[
-        list["FieldBlock | ReviewSubheadingBlock | SectionBlock"] | None,
+        list["FieldBlock | ReviewSubheadingBlock"] | None,
         Field(description="Content blocks shown when the condition is met"),
     ] = None
     template_name: Annotated[

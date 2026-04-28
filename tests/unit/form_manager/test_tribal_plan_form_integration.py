@@ -95,7 +95,6 @@ def _valid_form_data(**overrides) -> dict:
         "delegation_email": "",
         # Section 2 — Recognition
         "has_recognition": "yes",
-        "recognition_provision_method": "manual",
         "recognition_citation": "Federal Recognition, 25 U.S.C. § 450",
         # Section 3
         "goals_and_objectives": "Improve community well-being through targeted CSBG programs.",
@@ -345,58 +344,26 @@ def test_delegation_fields_not_required_when_no():
     assert form.is_valid(), form.errors
 
 
-def test_recognition_provision_method_required_when_yes():
-    """A provision method is required when has_recognition = yes."""
-    data = _valid_form_data(
-        has_recognition="yes",
-        recognition_provision_method="",
-        recognition_citation="",
-    )
-    form = TribalPlanFormFields(data=data)
-    assert not form.is_valid()
-    assert "recognition_provision_method" in form.errors
-
-
-def test_recognition_citation_required_when_manual():
-    """Citation is required when provision method = manual."""
-    data = _valid_form_data(
-        has_recognition="yes",
-        recognition_provision_method="manual",
-        recognition_citation="",
-    )
+def test_recognition_requires_citation_or_upload_when_yes():
+    """At least one of citation or upload is required when has_recognition = yes."""
+    data = _valid_form_data(has_recognition="yes", recognition_citation="")
+    # No upload provided (file fields are excluded from plain POST data)
     form = TribalPlanFormFields(data=data)
     assert not form.is_valid()
     assert "recognition_citation" in form.errors
 
 
-def test_recognition_upload_required_when_upload():
-    """Upload is required when provision method = upload."""
-    data = _valid_form_data(
-        has_recognition="yes",
-        recognition_provision_method="upload",
-        recognition_citation="",
-    )
-    form = TribalPlanFormFields(data=data)
-    assert not form.is_valid()
-    assert "recognition_upload" in form.errors
-
-
 def test_recognition_not_required_when_no():
     """No recognition fields are required when has_recognition = no."""
-    data = _valid_form_data(
-        has_recognition="no",
-        recognition_provision_method="",
-        recognition_citation="",
-    )
+    data = _valid_form_data(has_recognition="no", recognition_citation="")
     form = TribalPlanFormFields(data=data)
     assert form.is_valid(), form.errors
 
 
 def test_recognition_upload_can_use_existing_saved_file():
-    """Existing saved recognition upload satisfies the upload provision method."""
+    """Existing saved recognition upload should satisfy citation-or-upload rule."""
     data = _valid_form_data(
         has_recognition="yes",
-        recognition_provision_method="upload",
         recognition_citation="",
         recognition_upload="",
     )
