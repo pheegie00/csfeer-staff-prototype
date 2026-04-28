@@ -12,6 +12,7 @@ from django.views.generic.edit import FormMixin, ProcessFormView
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.utils import user_can_edit, user_can_submit, user_can_view
+from users.models import CoreUser
 
 
 class BaseFormUpdateView(
@@ -87,16 +88,16 @@ class BaseFormPermissionMixin(ContextMixin, PermissionRequiredMixin):
         return self.object.locked
 
     def can_edit(self):
-
-        return user_can_edit(self.request.user, self.object.organization) and not self.is_locked()
+        user = cast(CoreUser, self.request.user)
+        return user_can_edit(user, self.object.organization) and not self.is_locked()
 
     def can_submit(self):
-
-        return user_can_submit(self.request.user, self.object.organization) and not self.is_locked()
+        user = cast(CoreUser, self.request.user)
+        return user_can_submit(user, self.object.organization) and not self.is_locked()
 
     def can_view(self):
-
-        return user_can_view(self.request.user, self.object.organization)
+        user = cast(CoreUser, self.request.user)
+        return user_can_view(user, self.object.organization)
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
