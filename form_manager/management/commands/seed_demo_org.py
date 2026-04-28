@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand, CommandError
 
 from organizations.models import OrganizationProfile, UserOrganizationMembership
+from tests.fixtures.users import TEST_USERS
 
 if TYPE_CHECKING:
     from users.models import CoreUser
@@ -44,7 +45,14 @@ class Command(BaseCommand):
 
         if seed_all:
             for user in UserModel.objects.all():
-                self._create_org(user, org_name)
+                if user.email == "admin@example.com":
+                    user.is_staff = True
+                    user.is_superuser = True
+                    user.save()
+
+                roles = TEST_USERS.get(user.email, {}).get("roles", [])
+
+                self._create_org(user, org_name, roles)
         else:
             email: str | None = options.get("username")
 
@@ -58,7 +66,7 @@ class Command(BaseCommand):
 
             self._create_org(user, org_name)
 
-    def _create_org(self, user: "CoreUser", org_name: str):
+    def _create_org(self, user: "CoreUser", org_name: str, roles: list[str] | None = None):
 
         # At this point user must be resolved
         assert user is not None
@@ -76,10 +84,10 @@ class Command(BaseCommand):
             organization=org,
         )
 
-        membership.groups.add(Group.objects.get(name="Recipient Authorized Official"))
+        membership.groups.add(*list(Group.objects.filter(name__in=roles or [])))
 
         # mypy/pyright: user is asserted above
         action = "Created" if m_created else "Ensured"
         self.stdout.write(
-            self.style.SUCCESS(f"{action} membership: user='{user.username}' ↔ org='{org.name}'")
+            self.style.SUCCESS(f"{action} membership: user='{user.email}' ↔ org='{org.name}'")
         )

@@ -14,6 +14,7 @@ TEST_USERS = {
     "admin": {
         "username": "admin",
         "password": "admin",
+        "email": "admin@example.com",
         "roles": ["csfeer_admin", "csfeer_user"],
     },
     "demo": {

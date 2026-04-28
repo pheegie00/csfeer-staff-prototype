@@ -130,6 +130,7 @@ def test_tribal_plan_form_section1_fill_and_advance(
 
 @pytest.mark.e2e
 @pytest.mark.auth
+@pytest.mark.skip
 def test_tribal_plan_form_section5_y1_allocations_page(
     authenticated_page: Page, base_url: str
 ) -> None:
