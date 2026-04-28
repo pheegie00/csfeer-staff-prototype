@@ -20,6 +20,7 @@ from form_manager.schema.fields import (
     ACFCalculatedFieldMixin,
     ACFYesNoDisplayField,
 )
+from users.models import CoreUser
 
 logger = logging.getLogger(__name__)
 
@@ -59,24 +60,28 @@ def reconstruct_state(entry, upto=None):
     return state
 
 
-def get_user_role(user, organization):
-    # Temorarily set this to admin because I removed the role field from the model
-    return "admin"
+def user_can_submit(user: CoreUser, organization):
+    return user.has_perm("form_manager.form_submit", organization)
 
 
-def user_can_edit(user, organization):
-    role = get_user_role(user, organization)
-    return role in ["admin", "editor"]
+def user_can_view(user: CoreUser, organization):
+    return user.has_perm("form_manager.form_view", organization)
 
 
-def user_can_submit(user, organization):
-    role = get_user_role(user, organization)
-    return role in ["admin", "editor"]
+def user_can_edit(user: CoreUser, organization):
+    return user.has_perm("form_manager.form_edit", organization)
 
 
-def user_can_view(user, organization):
-    role = get_user_role(user, organization)
-    return role in ["admin", "editor", "viewer"]
+def user_can_list_forms(user: CoreUser, organization):
+    return user.has_perm("form_manager.form_list", organization)
+
+
+def user_can_start_form(user: CoreUser, organization):
+    return user.has_perm("form_manager.form_start", organization)
+
+
+def user_is_authorized_official(user: CoreUser, organization):
+    return user.has_perm("form_manager.form_start", organization)
 
 
 def record_field_diffs(form_entry, old_data, new_data, user=None):

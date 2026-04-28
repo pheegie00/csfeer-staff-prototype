@@ -3,3 +3,9 @@ admin, csfeer_admin,csfeer_user
 demo, csfeer_user
 demo-1, csfeer_user
 demo-2, csfeer_user
+recipient-viewer, csfeer_user
+recipient-editor, csfeer_user
+recipient-approver, csfeer_user
+recipient-ao, csfeer_user
+
+

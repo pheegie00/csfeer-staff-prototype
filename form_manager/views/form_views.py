@@ -1,3 +1,4 @@
+import logging
 from functools import lru_cache
 from typing import Any
 from uuid import UUID
@@ -11,12 +12,10 @@ from form_manager.models import (
     FormDefinition,
     FormEntry,
 )
-from form_manager.utils import (
-    reconstruct_state,
-    user_can_edit,
-    user_can_view,
-)
+from form_manager.utils import reconstruct_state, user_can_edit, user_can_start_form, user_can_view
 from form_manager.views.base import BaseSingleFormView, FormPermissionMixin
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -34,8 +33,13 @@ def form_start(request, form_id: UUID):
     from organizations.models import OrganizationProfile
 
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=request.user).first()
-    if not org or not user_can_edit(request.user, org):
+    if not org:
+        messages.error(request, "User is not part of an organization.")
+        logger.info("User is not part of an organization")
+        return redirect("form_list")
+    if not user_can_start_form(request.user, org):
         messages.error(request, "No permission to create forms.")
+        logger.info(f"{request.user} does not have permission to start forms for org {org.name}")
         return redirect("form_list")
     form_def = get_object_or_404(FormDefinition, id=form_id, is_active=True)
     last = (

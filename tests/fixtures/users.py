@@ -35,6 +35,30 @@ TEST_USERS = {
         "email": "demo-2@example.com",
         "roles": ["csfeer_user"],
     },
+    "recipient-viewer": {
+        "username": "recipient-viewer",
+        "password": "recipient-viewer",
+        "email": "recipient-viewer@example.com",
+        "roles": ["csfeer_user"],
+    },
+    "recipient-editor": {
+        "username": "recipient-editor",
+        "password": "recipient-editor",
+        "email": "recipient-editor@example.com",
+        "roles": ["csfeer_user"],
+    },
+    "recipient-approver": {
+        "username": "recipient-approver",
+        "password": "recipient-approver",
+        "email": "recipient-approver@example.com",
+        "roles": ["csfeer_user"],
+    },
+    "recipient-ao": {
+        "username": "recipient-ao",
+        "password": "recipient-ao",
+        "email": "recipient-ao@example.com",
+        "roles": ["csfeer_user"],
+    },
 }
 
 
