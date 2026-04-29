@@ -6,9 +6,8 @@ import os
 import uuid
 from inspect import isclass
 
-from django import forms
 from django.core.files.storage import default_storage
-from django.forms import Form
+from django.forms import FileField, Form
 
 from form_manager.models import (
     FormAuditDetail,
@@ -20,7 +19,6 @@ from form_manager.schema.fields import (
     ACFCalculatedFieldMixin,
     ACFYesNoDisplayField,
 )
-from users.models import CoreUser
 
 logger = logging.getLogger(__name__)
 
@@ -58,30 +56,6 @@ def reconstruct_state(entry, upto=None):
     for d in qs:
         state[d.field_name] = try_parse_json(d.new_value)
     return state
-
-
-def user_can_submit(user: CoreUser, organization):
-    return user.has_perm("form_manager.form_submit", organization)
-
-
-def user_can_view(user: CoreUser, organization):
-    return user.has_perm("form_manager.form_view", organization)
-
-
-def user_can_edit(user: CoreUser, organization):
-    return user.has_perm("form_manager.form_edit", organization)
-
-
-def user_can_list_forms(user: CoreUser, organization):
-    return user.has_perm("form_manager.form_list", organization)
-
-
-def user_can_start_form(user: CoreUser, organization):
-    return user.has_perm("form_manager.form_start", organization)
-
-
-def user_is_authorized_official(user: CoreUser, organization):
-    return user.has_perm("form_manager.form_start", organization)
 
 
 def record_field_diffs(form_entry, old_data, new_data, user=None):
@@ -212,7 +186,7 @@ def save_form_entry(form_class: type[Form], form_entry: FormEntry, request):
     for field_name in fields_to_save:
         field = form.fields[field_name]
 
-        if isinstance(field, forms.FileField):
+        if isinstance(field, FileField):
             prefixed_name = form.add_prefix(field_name)
 
             # Normalise existing value to a list (handles legacy single-string format)

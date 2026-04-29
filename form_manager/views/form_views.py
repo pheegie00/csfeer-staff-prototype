@@ -3,7 +3,7 @@ from functools import lru_cache
 from typing import Any
 from uuid import UUID
 
-from django.contrib import messages
+import django.contrib.messages as messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -12,8 +12,9 @@ from form_manager.models import (
     FormDefinition,
     FormEntry,
 )
-from form_manager.utils import reconstruct_state, user_can_edit, user_can_start_form, user_can_view
+from form_manager.utils import reconstruct_state
 from form_manager.views.base import BaseSingleFormView, FormPermissionMixin
+from users.utils import user_can_edit, user_can_start_form, user_can_view
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,11 @@ def form_list(request):
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=request.user).first()
     entries = FormEntry.objects.filter(organization=org, is_archived=False) if org else []
     definitions = FormDefinition.objects.filter(is_active=True)
-    return render(request, "forms/form_list.html", {"entries": entries, "definitions": definitions})
+    return render(
+        request,
+        "forms/form_list.html",
+        {"entries": entries, "definitions": definitions, "organization": org},
+    )
 
 
 @login_required

@@ -79,12 +79,22 @@
                     </a>
                     {% endif %}
 
+                    {% if can_submit %}
                     <c-button
                         text="Submit"
                         variant="base"
                         state="active"
                         type="submit"
                     />
+                    {% else %}
+                    <c-button
+                        text="Submit"
+                        variant="base"
+                        state="active"
+                        type="submit"
+                        disabled="true"
+                    />
+                    {% endif %}
                 </div>
             </div>
 

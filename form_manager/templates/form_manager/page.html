@@ -22,7 +22,6 @@
         {% endif %}
 
         <div class="margin-left-auto display-flex flex-gap-1">
-            {% if current_step_number != 0 or current_page_number != 0 %}
             <c-button
                 text="Save & Exit"
                 variant="outline"
@@ -31,7 +30,6 @@
                 name="page-action"
                 value="save-exit"
             />
-            {% endif %}
             <c-button
                 text="Next →"
                 variant="base"

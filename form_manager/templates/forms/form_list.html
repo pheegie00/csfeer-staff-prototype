@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static user_tags %}
 {% block content %}
 <div class="grid-container">
   <div class="grid-row">
@@ -24,12 +24,16 @@
                   <c-card.header>
                     <h3 class="usa-card__heading">{{ d.name }}</h3>
                   </c-card.header>
+                  {% can_start_form request.user organization as can_start %}
+
+                  {% if can_start %}
                   <c-card.footer>
                     <a href="{% url 'form_start' d.id %}" class="usa-button width-full display-flex flex-align-center flex-justify-center">
                       <img src="{% static 'frontend/uswds/img/usa-icons/add_circle.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="" style="filter: brightness(0) invert(1);">
                       Start New Form
                     </a>
                   </c-card.footer>
+                  {% endif %}
                 </c-card>
               </div>
             {% endfor %}

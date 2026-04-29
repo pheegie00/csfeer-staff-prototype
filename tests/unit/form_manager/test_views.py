@@ -146,10 +146,6 @@ def test_back_button_not_shown_on_first_page(
     # Verify the back button link is not in the response
     assert "← Back" not in content
 
-    # Verify the "Save & Exit" button is not in the response
-    assert "Save &amp; Exit" not in content
-    assert 'value="save-exit"' not in content
-
     # Verify that current_step_number and current_page_number are in the context
     assert response.context["current_step_number"] == 0
     assert response.context["current_page_number"] == 0
