@@ -421,8 +421,9 @@ class TribalPlanForm(BaseFormSchema):
                     PermanentPageBlock(
                         title="Individual Eligibility",
                         subtitle=(
-                            "Describe your tribe's policies and procedures for determining "
-                            "individual eligibility for CSBG services."
+                            "Describe policies and procedures for determining eligibility for "
+                            "individual services, including policies and procedures when "
+                            "individual income verification is not possible or practical."
                         ),
                         children=[
                             SectionBlock(
@@ -434,15 +435,16 @@ class TribalPlanForm(BaseFormSchema):
                         ],
                     ),
                     PermanentPageBlock(
-                        title="Targeted Community",
+                        title="Targeted Community Eligibility",
                         subtitle=(
-                            "Describe how your tribe's services target and benefit "
-                            "low-income communities."
+                            "For those services that provide a community-wide benefit, "
+                            "describe how the tribe or tribal organization ensures that "
+                            "services target and benefit communities with low income."
                         ),
                         children=[
                             SectionBlock(
                                 children=[
-                                    ReviewSubheadingBlock(title="Targeted Community"),
+                                    ReviewSubheadingBlock(title="Targeted Community Eligibility"),
                                     FieldBlock(field_name="targeted_community_eligibility"),
                                 ],
                             ),
