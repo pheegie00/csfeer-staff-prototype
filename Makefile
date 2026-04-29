@@ -39,7 +39,7 @@ reset-db: ## Remove the postgres data volume
 
 # Usage: make test-unit [TEST=tests/unit/form_manager/test_fields.py::test_name]
 test-unit: ## Run unit tests (TEST=path optional)
-	docker compose run --rm app uv run pytest $${TEST:-tests/unit} -v
+	docker compose run --rm app uv run pytest $${TEST:-tests/unit} -v -s
 
 setup-tests-ci: ## Set up CI services and seed data
 	@echo "Starting services..."

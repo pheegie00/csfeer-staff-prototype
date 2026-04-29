@@ -9,11 +9,13 @@ from typing import TYPE_CHECKING
 
 import pytest
 from django.test.client import Client
+from django.core.management import call_command
 from dotenv import load_dotenv
 from playwright.sync_api import Browser, BrowserContext, Page, expect
 
 if TYPE_CHECKING:
     from django.test.client import Client
+    from users.models import CoreUser
 
 from faker import Faker
 
@@ -181,6 +183,32 @@ def authenticated_client(create_user, client: "Client") -> "Client":
     client.force_login(user)
 
     return client
+
+
+@pytest.fixture
+def authenticated_client_with_user(
+    create_user, client: "Client"
+) -> tuple["Client", "CoreUser", dict]:
+
+    user_obj, user_details = create_user
+
+    client.force_login(user_obj)
+
+    return client, user_obj, user_details
+
+
+@pytest.fixture
+def authenticated_client_with_user_and_org(
+    create_user, client: "Client"
+) -> tuple["Client", "CoreUser", dict]:
+
+    user_obj, user_details = create_user
+
+    client.force_login(user_obj)
+
+    call_command("seed_demo_org", email=user_obj.email)
+
+    return client, user_obj, user_details
 
 
 @pytest.fixture(autouse=True)

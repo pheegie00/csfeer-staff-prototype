@@ -57,7 +57,7 @@ def test_can_start_tribal_short_form(
     user, details = create_user
 
     # Seed org
-    call_command("seed_demo_org", email=user.email, all=True)
+    call_command("seed_demo_org", email=user.email)
 
     client.force_login(user)
 
@@ -138,7 +138,7 @@ def test_tribal_short_form_filter_page_renders(
 
 @pytest.mark.django_db
 def test_side_nav_redirect_falls_back_when_saved_selection_removes_target_step(
-    django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client
+    django_db_setup, tribal_short_form_entry: "FormEntry", authenticated_client_with_user
 ):
     """
     When the user clears all expenditure selections in Section 2 and simultaneously
@@ -150,6 +150,10 @@ def test_side_nav_redirect_falls_back_when_saved_selection_removes_target_step(
     url = reverse("form_edit", args=[tribal_short_form_entry.pk])
     stale_target = build_form_edit_url(tribal_short_form_entry.pk, step_number=2, page_number=0)
     review_url = reverse("form_review", kwargs={"pk": tribal_short_form_entry.pk})
+
+    authenticated_client, user, _ = authenticated_client_with_user
+
+    call_command("seed_demo_org", email=user.email)
 
     response = authenticated_client.post(
         url,

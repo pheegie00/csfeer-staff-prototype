@@ -31,6 +31,12 @@ class Command(BaseCommand):
             help="Name of the organization to create or reuse.",
         )
         parser.add_argument(
+            "--role",
+            action="append",
+            default=["Recipient Authorized Official"],
+            help="The role to give to the user. Can be used multiple times",
+        )
+        parser.add_argument(
             "--all",
             action="store_true",
             default=False,
@@ -54,7 +60,7 @@ class Command(BaseCommand):
 
                 self._create_org(user, org_name, roles)
         else:
-            email: str | None = options.get("username")
+            email: str | None = options.get("email")
 
             try:
                 user = UserModel.objects.get(email=email)
@@ -64,7 +70,7 @@ class Command(BaseCommand):
                     "OIDC first to provision the Django user."
                 ) from err
 
-            self._create_org(user, org_name)
+            self._create_org(user, org_name, options.get("role"))
 
     def _create_org(self, user: "CoreUser", org_name: str, roles: list[str] | None = None):
 
