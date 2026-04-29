@@ -27,10 +27,7 @@ def tribal_short_form_schema(django_db_setup):
 @pytest.fixture
 def tribal_short_form_entry(create_user, tribal_short_form_schema) -> FormEntry:
     """Create a TribalShortForm entry for testing"""
-    user, user_details = create_user
-
-    # Seed organization
-    call_command("seed_demo_org", email=user.email, all=True)
+    user = create_user
 
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=user).first()
 
@@ -51,13 +48,10 @@ def tribal_short_form_entry(create_user, tribal_short_form_schema) -> FormEntry:
 
 @pytest.mark.django_db
 def test_can_start_tribal_short_form(
-    django_db_setup, create_user, tribal_short_form_schema, client: "Client"
+    django_db_setup, create_user, tribal_short_form_schema, client
 ):
     """Test starting a new TribalShortForm entry"""
-    user, details = create_user
-
-    # Seed org
-    call_command("seed_demo_org", email=user.email)
+    user = create_user
 
     client.force_login(user)
 
@@ -151,9 +145,7 @@ def test_side_nav_redirect_falls_back_when_saved_selection_removes_target_step(
     stale_target = build_form_edit_url(tribal_short_form_entry.pk, step_number=2, page_number=0)
     review_url = reverse("form_review", kwargs={"pk": tribal_short_form_entry.pk})
 
-    authenticated_client, user, _ = authenticated_client_with_user
-
-    call_command("seed_demo_org", email=user.email)
+    authenticated_client, user = authenticated_client_with_user
 
     response = authenticated_client.post(
         url,

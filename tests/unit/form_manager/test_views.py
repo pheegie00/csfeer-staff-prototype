@@ -15,14 +15,10 @@ if TYPE_CHECKING:
 
 
 @pytest.mark.django_db
-def test_can_start_new_form(
-    django_db_setup,
-    seed_data,
-    authenticated_client_with_user_and_org: tuple["Client", "CoreUser", dict],
-):
+def test_can_start_new_form(django_db_setup, seed_data, authenticated_client_with_user):
     """Ensure the load_initial_forms command loads successfully."""
 
-    client, user, _ = authenticated_client_with_user_and_org
+    client, user = authenticated_client_with_user
 
     form = FormDefinition.objects.all().first()
 
@@ -70,13 +66,13 @@ def test_form_edit_redirects_to_canonical_first_page_when_query_params_missing(
 
 @pytest.mark.django_db
 def test_can_correctly_filter_fields(
-    django_db_setup, form_entry: "FormEntry", authenticated_client_with_user_and_org
+    django_db_setup, form_entry: "FormEntry", authenticated_client_with_user
 ):
     """Ensure the load_initial_forms command loads successfully and test Next button behavior."""
 
     url = build_form_edit_url(form_entry.pk, step_number=0, page_number=0)
 
-    client, user, _ = authenticated_client_with_user_and_org
+    client, user = authenticated_client_with_user
 
     # Make a GET request to the form's first page
     response = client.get(url)
@@ -285,12 +281,12 @@ def test_save_and_exit_redirects_to_form_list(
 
 @pytest.mark.django_db
 def test_side_nav_redirect_accepts_valid_same_entry_url(
-    django_db_setup, form_entry: "FormEntry", authenticated_client_with_user_and_org
+    django_db_setup, form_entry: "FormEntry", authenticated_client_with_user
 ):
     target = reverse("form_edit", args=[form_entry.pk]) + "?step=0&page=0"
     url = reverse("form_edit", args=[form_entry.pk])
 
-    client, user, _ = authenticated_client_with_user_and_org
+    client, user = authenticated_client_with_user
 
     response = client.post(
         url,
@@ -308,11 +304,11 @@ def test_side_nav_redirect_accepts_valid_same_entry_url(
 
 @pytest.mark.django_db
 def test_side_nav_redirect_rejects_external_urls(
-    django_db_setup, form_entry: "FormEntry", authenticated_client_with_user_and_org
+    django_db_setup, form_entry: "FormEntry", authenticated_client_with_user
 ):
     url = reverse("form_edit", args=[form_entry.pk])
 
-    client, user, _ = authenticated_client_with_user_and_org
+    client, user = authenticated_client_with_user
 
     response = client.post(
         url,

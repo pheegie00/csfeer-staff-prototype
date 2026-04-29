@@ -14,11 +14,12 @@ from form_manager.models import FormAuditTrail, FormEntry
 
 if TYPE_CHECKING:
     from django.test.client import Client
+    from django.http import HttpResponse
 
 
 @pytest.mark.django_db
 def test_review_page_sets_show_errors_flag(
-    django_db_setup, form_entry: FormEntry, authenticated_client: "Client"
+    django_db_setup, form_entry: FormEntry, authenticated_client
 ):
     """
     Test that visiting the review page sets the show_errors session flag.
@@ -29,7 +30,7 @@ def test_review_page_sets_show_errors_flag(
     """
     url = reverse("form_review", args=[form_entry.pk])
 
-    response = authenticated_client.get(url)
+    response: HttpResponse = authenticated_client.get(url)
 
     assert response.status_code == 200
     # Check that the session flag is set
@@ -38,7 +39,7 @@ def test_review_page_sets_show_errors_flag(
 
 @pytest.mark.django_db
 def test_form_edit_shows_errors_after_review_visit(
-    django_db_setup, form_entry: FormEntry, authenticated_client: "Client"
+    django_db_setup, form_entry: FormEntry, authenticated_client
 ):
     """
     Test that form_edit displays validation errors after user visits review page.
@@ -71,7 +72,7 @@ def test_form_edit_shows_errors_after_review_visit(
 
 @pytest.mark.django_db
 def test_form_edit_no_errors_before_review_visit(
-    django_db_setup, form_entry: FormEntry, authenticated_client: "Client"
+    django_db_setup, form_entry: FormEntry, authenticated_client
 ):
     """
     Test that form_edit does NOT display validation errors before review page visit.
@@ -99,7 +100,7 @@ def test_form_edit_no_errors_before_review_visit(
 
 @pytest.mark.django_db
 def test_form_finalize_clears_show_errors_flag(
-    django_db_setup, form_entry: FormEntry, authenticated_client: "Client"
+    django_db_setup, form_entry: FormEntry, authenticated_client
 ):
     """
     Test that finalizing/submitting the form clears the show_errors session flag.
@@ -136,7 +137,7 @@ def test_form_finalize_clears_show_errors_flag(
 
 @pytest.mark.django_db
 def test_show_errors_persists_across_pages(
-    django_db_setup, form_entry: FormEntry, authenticated_client: "Client"
+    django_db_setup, form_entry: FormEntry, authenticated_client
 ):
     """
     Test that the show_errors flag persists when navigating between form pages.
@@ -168,9 +169,7 @@ def test_show_errors_persists_across_pages(
 
 
 @pytest.mark.django_db
-def test_show_errors_with_empty_data(
-    django_db_setup, form_entry: FormEntry, authenticated_client: "Client"
-):
+def test_show_errors_with_empty_data(django_db_setup, form_entry: FormEntry, authenticated_client):
     """
     Test that error display handles entries with no data gracefully.
 
@@ -200,7 +199,7 @@ def test_show_errors_with_empty_data(
 
 @pytest.mark.django_db
 def test_session_flag_isolated_per_entry(
-    django_db_setup, form_entry: FormEntry, authenticated_client: "Client", seed_data
+    django_db_setup, form_entry: FormEntry, authenticated_client, create_user
 ):
     """
     Test that the show_errors flag is isolated per form entry.
@@ -211,7 +210,7 @@ def test_session_flag_isolated_per_entry(
     from organizations.models import OrganizationProfile
     from form_manager.models import FormDefinition
 
-    user, _ = seed_data
+    user = create_user
 
     # Create a second form entry
     org = OrganizationProfile.objects.create(
