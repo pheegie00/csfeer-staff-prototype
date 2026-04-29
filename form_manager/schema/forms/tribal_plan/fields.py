@@ -500,13 +500,13 @@ class TribalPlanFormFields(BaseFields):
     # 7.2 Attestation and typed signature
     assurance_attestation = acf_fields.BooleanField(
         title=(
-            "By checking this box, the Tribal CSBG authorized official is certifying "
-            "the assurances set out above."
+            "I have reviewed the CSBG Assurances above and affirm that the Tribe or "
+            "Tribal Organization will ensure compliance with these assurances"
         ),
     )
     assurance_signature = acf_fields.CharField(
         title="Authorized Tribal Official Signature",
-        description="Type your full name to sign.",
+        description="Type in your full name as part of this signature",
         max_length=200,
     )
 
