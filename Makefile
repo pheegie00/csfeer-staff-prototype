@@ -47,8 +47,7 @@ setup-tests-ci: ## Set up CI services and seed data
 	$(CI_COMPOSE) up -d
 	$(CI_COMPOSE) exec app uv run manage.py migrate --noinput
 	@echo "Loading seed data..."
-	$(CI_COMPOSE) exec app uv run manage.py seed_e2e_users
-	$(CI_COMPOSE) exec app uv run manage.py seed_demo_org --all
+	$(CI_COMPOSE) exec app uv run manage.py seed_test_users
 	$(CI_COMPOSE) exec app uv run manage.py load_initial_forms
 
 test-unit-ci: ## Run unit tests in CI (TEST=path optional)
