@@ -550,7 +550,7 @@ class TribalPlanFormFields(BaseFields):
                 title="List additional workplace location(s)",
                 description="500 characters allowed.",
                 max_length=500,
-                required=True,
+                required=False,
             )
         ],
         validators=[],
