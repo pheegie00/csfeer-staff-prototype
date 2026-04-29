@@ -68,7 +68,7 @@ def form_review(request, pk):
         "form": form,
         "entry": entry,
         "steps": ui_components,
-        "review_sections": build_review_sections(ui_components, entry_pk=entry.pk),
+        "review_sections": build_review_sections(ui_components, entry_pk=entry.pk, form=form),
         "prev_url": build_form_edit_url(
             entry.pk,
             step_number=len(ui_components) - 1,
