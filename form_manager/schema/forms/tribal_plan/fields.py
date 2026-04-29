@@ -474,21 +474,15 @@ class TribalPlanFormFields(BaseFields):
 
     # 6.1
     individual_eligibility = acf_fields.TextareaField(
-        title="Individual Eligibility",
-        description=(
-            "Describe your policies and procedures for determining individual eligibility. "
-            "Maximum 5,000 characters."
-        ),
+        title="Description",
+        description="5000 characters allowed.",
         max_length=5000,
     )
 
     # 6.2
     targeted_community_eligibility = acf_fields.TextareaField(
-        title="Targeted Community Eligibility",
-        description=(
-            "Describe how your services target and benefit low-income communities. "
-            "Maximum 5,000 characters."
-        ),
+        title="Description",
+        description="5000 characters allowed.",
         max_length=5000,
     )
 
