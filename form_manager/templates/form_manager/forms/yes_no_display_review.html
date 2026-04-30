@@ -1,28 +1,12 @@
-{% for subfield in component.field.field.fields %}
+<div class="font-family-body text-semibold margin-bottom-05">{{ component.display_title }}</div>
+<div class="{% if component.errors %}text-error{% endif %} font-family-body margin-bottom-3">
+    {% for choice in component.field.field.fields.0.choices %}
+        {% if component.value.0 == choice.0 %}{{ choice.1 }}{% endif %}
+    {% endfor %}
+</div>
 
-    {% if forloop.counter0 == 0 %}
-        <div class="font-family-body text-semibold margin-bottom-05">{{ component.display_title }}</div>
-        <div class="{% if component.errors %}text-error{% endif %} font-family-body margin-bottom-3">
-
-            {% for choice in component.field.field.fields.0.choices %}
-                {% if component.value.0 == choice.0 %}
-                    {{ choice.1 }}
-                {% endif %}
-            {% endfor %}
-        </div>
-
-    {% elif component.value.0 == "yes" %}
-        <div class="font-family-body text-semibold margin-bottom-05">
-            {{ subfield.review_title }}
-        </div>
-        <div class="{% if component.errors %}text-error{% endif %} font-family-body">
-            {% for value in component.value %}
-                {% if forloop.parentloop.counter0 == forloop.counter0 %}
-                    ${{ value|cut:","|floatformat:"2g" }}
-                {% endif %}
-            {% endfor %}
-        </div>
-
-    {% endif %}
-
-{% endfor %}
+{% if component.value.0 == "yes" %}
+    {% for sub_block in component.sub_review_blocks %}
+        {{ sub_block }}
+    {% endfor %}
+{% endif %}
