@@ -259,13 +259,13 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
     body_text = page.evaluate("() => document.body.innerText.toLowerCase()")
     assert "employment" in body_text or "employed" in body_text
 
-    # Employment breakdown for 125 individuals (total matches sex breakdown)
-    # Note: employment__retired field exists in schema but is NOT rendered on form
+    # Employment breakdown
     page.locator('input[name="employment__full_time"]').fill("50")
     page.locator('input[name="employment__part_time"]').fill("25")
     page.locator('input[name="employment__migrant_seasonal"]').fill("0")
     page.locator('input[name="employment__unemployed_short_term"]').fill("18")
     page.locator('input[name="employment__unemployed_long_term"]').fill("15")
+    page.locator('input[name="employment__retired"]').fill("0")
     page.locator('input[name="employment__permanently_unemployed"]').fill("10")
     page.locator('input[name="employment__unknown"]').fill("7")
 
