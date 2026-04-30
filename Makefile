@@ -59,7 +59,7 @@ test-e2e: ## Run e2e tests (TEST=path optional)
 	@docker compose up -d app
 	@echo "Waiting for app to be ready..."
 	@sleep 5
-	docker compose exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e
+	docker compose exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e -s
 
 test-e2e-ci: ## Run e2e tests in CI (TEST=path optional)
 	$(CI_COMPOSE) exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e -s --screenshot=off --video=off

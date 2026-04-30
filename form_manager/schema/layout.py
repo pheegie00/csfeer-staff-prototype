@@ -39,7 +39,7 @@ class _SubFieldBlock:
             get_template(template_path)
         except TemplateDoesNotExist:
             template_path = "form_manager/forms/field_review.html"
-        return mark_safe(
+        return mark_safe(  # type: ignore
             get_template(template_path).render({"component": _SubFieldBlock(title, value)})
         )
 
@@ -409,7 +409,7 @@ class FieldBlock(RenderableBaseModel):
 
         value = self.field.value()
         if not isinstance(value, (list, tuple)):
-            value = self.field.field.widget.decompress(value) if value else []
+            value = self.field.field.widget.decompress(value) if value else []  # type: ignore
 
         return [
             _SubFieldBlock.render_for(subfield, value[i] if i < len(value) else None)
