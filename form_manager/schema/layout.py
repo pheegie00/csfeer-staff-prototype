@@ -4,16 +4,44 @@ import abc
 import logging
 from typing import Annotated, Any, ClassVar, Literal, Self, cast
 
+from django.forms import MultiValueField
 from django.forms.boundfield import BoundField
 from django.forms.renderers import TemplatesSetting
 from django.forms.utils import RenderableMixin
 from django.template.exceptions import TemplateDoesNotExist
 from django.template.loader import get_template
+from django.utils.safestring import SafeString, mark_safe
 from pydantic import BaseModel, Field, PrivateAttr
 
 from form_manager.schema.fields import ACFField
 
 logger = logging.getLogger(__name__)
+
+
+class _SubFieldBlock:
+    """Minimal object satisfying the interface review templates expect from a FieldBlock.
+
+    Used to render individual sub-fields of a MultiValueField (e.g. YesNoDisplayField)
+    through the same per-field review templates as top-level fields.
+    """
+
+    def __init__(self, display_title: str | None, value: Any) -> None:
+        self.display_title = display_title
+        self.value = value
+        self.errors: list = []
+
+    @staticmethod
+    def render_for(subfield: Any, value: Any) -> SafeString:
+        title = getattr(subfield, "review_title", None) or getattr(subfield, "title", None)
+        field_class = subfield.__class__.__name__.replace("ACF", "").replace("Field", "").lower()
+        template_path = f"form_manager/forms/{field_class}_review.html"
+        try:
+            get_template(template_path)
+        except TemplateDoesNotExist:
+            template_path = "form_manager/forms/field_review.html"
+        return mark_safe(
+            get_template(template_path).render({"component": _SubFieldBlock(title, value)})
+        )
 
 
 class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
@@ -371,6 +399,23 @@ class FieldBlock(RenderableBaseModel):
         """Returns review_title if available, otherwise falls back to title"""
         return self.review_title or self.title
 
+    @property
+    def sub_review_blocks(self) -> list[SafeString]:
+        """For MultiValueFields (e.g. YesNoDisplayField), returns rendered review HTML for
+        each sub-field after the radio button, delegating to the sub-field's own review
+        template so that new sub-field types are handled automatically."""
+        if not self.field or not isinstance(self.field.field, MultiValueField):
+            return []
+
+        value = self.field.value()
+        if not isinstance(value, (list, tuple)):
+            value = self.field.field.widget.decompress(value) if value else []
+
+        return [
+            _SubFieldBlock.render_for(subfield, value[i] if i < len(value) else None)
+            for i, subfield in enumerate(self.field.field.fields[1:], 1)
+        ]
+
 
 class DateRangePickerBlock(RenderableBaseModel):
     """Renders two DateField children as a USWDS date range picker — the two
@@ -510,6 +555,10 @@ class AccordionBlock(RenderableBaseModel):
         bool,
         Field(description="Whether multiple items can be open simultaneously"),
     ] = True
+    bordered: Annotated[
+        bool,
+        Field(description="Whether to render the accordion with a surrounding border"),
+    ] = False
     template_name: Annotated[
         str,
         Field(description="Django template used to render this accordion"),

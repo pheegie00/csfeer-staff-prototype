@@ -67,8 +67,7 @@ Statement for Loan Guarantees and Loan Insurance
 The undersigned states, to the best of his or her knowledge and belief, that if any funds have been paid or will be paid to any person for influencing or attempting to influence an officer or employee of any agency, a Member of Congress, an officer or employee of Congress, or an employee of a Member of Congress in connection with this commitment providing for the United States to insure or guarantee a loan, the undersigned shall complete and submit Standard Form-LLL, "Disclosure Form to Report Lobbying," in accordance with its instructions. Submission of this statement is a prerequisite for making or entering into this transaction imposed by section 1352, title 31, U.S. Code. Any person who fails to file the required statement shall be subject to a civil penalty of not less than $10,000 and not more than $100,000 for each such failure.
 """.strip()
 
-_DRUG_FREE_WORKPLACE_CERTIFICATION_TEXT = """
-Instructions for Certifications
+_DRUG_FREE_WORKPLACE_INSTRUCTIONS_TEXT = """
 1. By signing and/or submitting this application or grant agreement, the grant recipient is providing the certification set out below.
 2. The certification set out below is a material representation of fact upon which reliance is placed when the agency awards the grant. If it is later determined that the grant recipient knowingly rendered a false certification, or otherwise violates the requirements of the Drug-Free Workplace Act, the agency, in addition to any other remedies available to the Federal Government, may take action authorized under the Drug-Free Workplace Act.
 3. For grant recipients other than individuals, Alternate I applies.
@@ -77,7 +76,9 @@ Instructions for Certifications
 6. Workplace identifications must include the actual address of buildings (or parts of buildings) or other sites where work under the grant takes place. Categorical descriptions may be used (for example, all vehicles of a transit authority while in operation).
 7. If the workplace identified to the agency changes during the performance of the grant, the grant recipient shall inform the agency of the change(s), if it previously identified the workplaces in question.
 8. Definitions of terms in the Nonprocurement Suspension and Debarment common rule and Drug-Free Workplace common rule apply to this certification.
+""".strip()
 
+_DRUG_FREE_WORKPLACE_CERTIFICATION_TEXT = """
 Alternate I. (Grant Recipients Other Than Individuals)
 The grant recipient certifies that it will or will continue to provide a drug-free workplace by:
 (a) Publishing a statement notifying employees that the unlawful manufacture, distribution, dispensing, possession, or use of a controlled substance is prohibited in the grant recipient's workplace and specifying the actions that will be taken against employees for violation of such prohibition.

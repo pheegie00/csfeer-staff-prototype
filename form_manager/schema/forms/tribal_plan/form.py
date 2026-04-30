@@ -15,6 +15,7 @@ from form_manager.schema.forms.tribal_plan.texts import (
     _DEBARMENT_LOWER_TIER_INSTRUCTIONS_TEXT,
     _DEBARMENT_PRIMARY_INSTRUCTIONS_TEXT,
     _DRUG_FREE_WORKPLACE_CERTIFICATION_TEXT,
+    _DRUG_FREE_WORKPLACE_INSTRUCTIONS_TEXT,
     _LIMITATION_ON_USE_OF_FUNDS_TEXT,
     _LOBBYING_CERTIFICATION_TEXT,
     _SINGLE_AUDIT_REQUIREMENTS_TEXT,
@@ -421,8 +422,9 @@ class TribalPlanForm(BaseFormSchema):
                     PermanentPageBlock(
                         title="Individual Eligibility",
                         subtitle=(
-                            "Describe your tribe's policies and procedures for determining "
-                            "individual eligibility for CSBG services."
+                            "Describe policies and procedures for determining eligibility for "
+                            "individual services, including policies and procedures when "
+                            "individual income verification is not possible or practical."
                         ),
                         children=[
                             SectionBlock(
@@ -434,15 +436,16 @@ class TribalPlanForm(BaseFormSchema):
                         ],
                     ),
                     PermanentPageBlock(
-                        title="Targeted Community",
+                        title="Targeted Community Eligibility",
                         subtitle=(
-                            "Describe how your tribe's services target and benefit "
-                            "low-income communities."
+                            "For those services that provide a community-wide benefit, "
+                            "describe how the tribe or tribal organization ensures that "
+                            "services target and benefit communities with low income."
                         ),
                         children=[
                             SectionBlock(
                                 children=[
-                                    ReviewSubheadingBlock(title="Targeted Community"),
+                                    ReviewSubheadingBlock(title="Targeted Community Eligibility"),
                                     FieldBlock(field_name="targeted_community_eligibility"),
                                 ],
                             ),
@@ -477,11 +480,14 @@ class TribalPlanForm(BaseFormSchema):
                     PermanentPageBlock(
                         title="Statement of Assurances",
                         subtitle=(
-                            "Review the certification below and sign at the bottom of this page to "
-                            "affirm compliance. Full legislation: Community Services Block Grant "
-                            "Reauthorization Act of 1998 (P.L. 105-285)."
+                            "Review the certification below and sign at the bottom of this page"
+                            " to affirm compliance."
                         ),
                         children=[
+                            TextBlock(
+                                text="",
+                                template_name="form_manager/legislation_link.html",
+                            ),
                             TextBlock(
                                 bordered=True,
                                 heading="Statement of CSBG Assurances",
@@ -531,18 +537,34 @@ class TribalPlanForm(BaseFormSchema):
                         ),
                         children=[
                             AccordionBlock(
+                                bordered=True,
                                 items=[
                                     AccordionItem(
                                         heading="Instructions for Certifications",
-                                        text=_DRUG_FREE_WORKPLACE_CERTIFICATION_TEXT,
+                                        text=_DRUG_FREE_WORKPLACE_INSTRUCTIONS_TEXT,
                                         is_expanded=False,
                                     )
-                                ]
+                                ],
+                            ),
+                            TextBlock(
+                                bordered=True,
+                                heading="Drug-Free Workplace Certification",
+                                text=_DRUG_FREE_WORKPLACE_CERTIFICATION_TEXT,
                             ),
                             SectionBlock(
                                 children=[
                                     ReviewSubheadingBlock(title="Drug-Free Workplace Requirements"),
                                     FieldBlock(field_name="drug_free_attestation"),
+                                ],
+                            ),
+                            SectionBlock(
+                                title="Place of performance",
+                                description=(
+                                    "The grant recipient may insert in the space provided"
+                                    " below the site for the performance of work done in"
+                                    " connection with the specific grant."
+                                ),
+                                children=[
                                     FieldBlock(field_name="drug_free_place_of_performance"),
                                     FieldBlock(
                                         field_name="drug_free_unidentified_workplaces",
@@ -550,6 +572,10 @@ class TribalPlanForm(BaseFormSchema):
                                             "form_manager/forms/yes_no_display_review.html"
                                         ),
                                     ),
+                                ],
+                            ),
+                            SectionBlock(
+                                children=[
                                     FieldBlock(field_name="drug_free_signature"),
                                 ],
                             ),
@@ -563,6 +589,7 @@ class TribalPlanForm(BaseFormSchema):
                         ),
                         children=[
                             AccordionBlock(
+                                bordered=True,
                                 items=[
                                     AccordionItem(
                                         heading=(
@@ -580,7 +607,7 @@ class TribalPlanForm(BaseFormSchema):
                                         text=_DEBARMENT_LOWER_TIER_INSTRUCTIONS_TEXT,
                                         is_expanded=False,
                                     ),
-                                ]
+                                ],
                             ),
                             TextBlock(
                                 bordered=False,

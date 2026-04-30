@@ -9,7 +9,6 @@ from form_manager.schema.layout import (
     FieldBlock,
     PageBlock,
     PageTitleBlock,
-    ReviewSubheadingBlock,
     StepBlock,
 )
 
@@ -33,12 +32,6 @@ class SideNavSection(TypedDict):
     is_expanded: bool
     disabled_reason: str
     pages: list[SideNavPage]
-
-
-class ReviewSection(TypedDict):
-    title: str | None
-    edit_url: str
-    blocks: list[FieldBlock | ReviewSubheadingBlock]
 
 
 def build_form_edit_url(entry_pk: EntryPk, *, step_number: int, page_number: int) -> str:
@@ -92,18 +85,6 @@ def find_nearest_navigable_step_page(
         next_step += 1
 
     return None
-
-
-def _collect_review_blocks(node) -> list[FieldBlock | ReviewSubheadingBlock]:
-    blocks: list[FieldBlock | ReviewSubheadingBlock] = []
-
-    for child in node.children or []:
-        if isinstance(child, (ReviewSubheadingBlock, FieldBlock)):
-            blocks.append(child)
-        elif child.children:
-            blocks.extend(_collect_review_blocks(child))
-
-    return blocks
 
 
 def build_side_nav_items(
@@ -223,17 +204,3 @@ def remove_nodes_with_excluded_fields(
         return component.model_copy(update={"children": children_to_keep})
 
     return [remove_excluded_nodes(comp) for comp in components]
-
-
-def build_review_sections(steps: list[StepBlock], *, entry_pk: EntryPk) -> list[ReviewSection]:
-    final: list[ReviewSection] = []
-
-    for step_index, step in enumerate(steps):
-        section: ReviewSection = {
-            "title": step.title,
-            "edit_url": build_form_edit_url(entry_pk, step_number=step_index, page_number=0),
-            "blocks": _collect_review_blocks(step),
-        }
-        final.append(section)
-
-    return final
