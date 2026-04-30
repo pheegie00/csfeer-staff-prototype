@@ -479,11 +479,14 @@ class TribalPlanForm(BaseFormSchema):
                     PermanentPageBlock(
                         title="Statement of Assurances",
                         subtitle=(
-                            "Review the certification below and sign at the bottom of this page to "
-                            "affirm compliance. Full legislation: Community Services Block Grant "
-                            "Reauthorization Act of 1998 (P.L. 105-285)."
+                            "Review the certification below and sign at the bottom of this page"
+                            " to affirm compliance."
                         ),
                         children=[
+                            TextBlock(
+                                text="",
+                                template_name="form_manager/legislation_link.html",
+                            ),
                             TextBlock(
                                 bordered=True,
                                 heading="Statement of CSBG Assurances",
