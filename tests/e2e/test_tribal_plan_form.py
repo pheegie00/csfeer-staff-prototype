@@ -1,9 +1,17 @@
 """End-to-end tests for TribalPlanForm."""
 
+import re
+
 import pytest
 from playwright.sync_api import Page, expect
 
+from tests.fixtures.users import login_as
+
 FORM_NAME = "CSBG Model Tribal Plan"
+
+# Statement of Assurances signature page — restricted to Authorized Official.
+AO_RESTRICTED_STEP = 6
+AO_RESTRICTED_PAGE = 1
 
 
 def _start_tribal_plan_form(page: Page, base_url: str) -> None:
@@ -19,6 +27,24 @@ def _start_tribal_plan_form(page: Page, base_url: str) -> None:
             return
 
     raise AssertionError(f"Could not find a form card containing '{FORM_NAME}'")
+
+
+def _start_and_get_entry_base_url(page: Page, base_url: str) -> str:
+    """Start a new Tribal Plan form and return the base entry URL (no query string)."""
+    page.goto(f"{base_url}/forms/")
+    page.wait_for_load_state("networkidle")
+
+    form_cards = page.locator(".grid-col-12.tablet\\:grid-col-6")
+    for i in range(form_cards.count()):
+        card = form_cards.nth(i)
+        if FORM_NAME in card.inner_text():
+            with page.expect_navigation():
+                card.get_by_role("link", name="Start New Form").click()
+            break
+
+    match = re.search(r"/forms/entry/[^/?]+/", page.url)
+    assert match, f"Could not extract entry path from URL: {page.url}"
+    return f"{base_url}{match.group(0)}edit/"
 
 
 def _click_radio(page: Page, value: str) -> None:
@@ -199,3 +225,59 @@ def test_tribal_plan_form_lobbying_certification_page(
     body = page.evaluate("() => document.body.innerText")
     assert "Lobbying" in body
     assert "Signature" in body or "signature" in body
+
+
+# ---------------------------------------------------------------------------
+# AO-only page submission constraint
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.e2e
+@pytest.mark.auth
+def test_ao_user_can_submit_statement_of_assurances(page: Page, base_url: str) -> None:
+    """An Authorized Official can fill and advance past the AO-restricted signature page."""
+    login_as(page, base_url, "recipient-ao")
+
+    entry_base = _start_and_get_entry_base_url(page, base_url)
+    page.goto(f"{entry_base}?step={AO_RESTRICTED_STEP}&page={AO_RESTRICTED_PAGE}")
+    page.wait_for_load_state("networkidle")
+
+    # The permission warning must NOT be present for an AO user.
+    assert (
+        "do not have the required permissions" not in page.content()
+    ), "AO user should not see a permissions warning on the AO-restricted page"
+
+    # The Next button must be enabled.
+    next_btn = page.get_by_role("button", name="Next →")
+    expect(next_btn).to_be_enabled()
+
+    # Fill the required signature fields and advance.
+    page.get_by_label("Signature").fill("Test AO Signature")
+    page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
+    page.wait_for_timeout(300)
+
+    with page.expect_navigation(timeout=10000):
+        next_btn.click()
+
+    # After a successful submit the user moves to the next page — not redirected back.
+    assert (
+        f"step={AO_RESTRICTED_STEP}&page={AO_RESTRICTED_PAGE}" not in page.url
+    ), "AO user should advance past the restricted page after submitting"
+
+
+@pytest.mark.e2e
+@pytest.mark.auth
+def test_non_ao_user_blocked_on_statement_of_assurances(page: Page, base_url: str) -> None:
+    """A non-AO user sees a permission warning and cannot submit the AO-restricted page."""
+    login_as(page, base_url, "recipient-approver")
+
+    entry_base = _start_and_get_entry_base_url(page, base_url)
+    page.goto(f"{entry_base}?step={AO_RESTRICTED_STEP}&page={AO_RESTRICTED_PAGE}")
+    page.wait_for_load_state("networkidle")
+
+    # The permission warning must be visible.
+    expect(page.get_by_text("do not have the required permissions")).to_be_visible()
+
+    # The Next button must be disabled.
+    next_btn = page.get_by_role("button", name="Next →")
+    expect(next_btn).to_be_disabled()
