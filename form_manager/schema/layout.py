@@ -555,6 +555,10 @@ class AccordionBlock(RenderableBaseModel):
         bool,
         Field(description="Whether multiple items can be open simultaneously"),
     ] = True
+    bordered: Annotated[
+        bool,
+        Field(description="Whether to render the accordion with a surrounding border"),
+    ] = False
     template_name: Annotated[
         str,
         Field(description="Django template used to render this accordion"),
