@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="grid-container">
+<div class="grid-container padding-0">
   <div class="grid-row">
     <div class="grid-col-12">
       {% include "form_manager/_form_header.html" %}
     </div>
   </div>
-  <div class="grid-row grid-gap-4">
+  <div class="grid-row">
     <div class="grid-col-12 desktop:grid-col-3">
       {% include "form_manager/_side_nav.html" %}
     </div>
-    <div class="grid-col-12 desktop:grid-col-9">
+    <div class="grid-col-12 desktop:grid-col-9 padding-left-6">
       <c-form id="csf-form" class="" method="post" action="{{ next_url }}" enctype="multipart/form-data" x-data="" novalidate @change="updateCalculatedFields">
         {% csrf_token %}
         <input type="hidden" name="redirect_to" id="nav-redirect-to" value="">
