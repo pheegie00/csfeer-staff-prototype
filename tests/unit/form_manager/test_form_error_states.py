@@ -207,18 +207,21 @@ def test_session_flag_isolated_per_entry(
     Each form entry should have its own session flag, ensuring that visiting
     the review page for one form doesn't affect error display for other forms.
     """
-    from organizations.models import OrganizationProfile
+    from django.contrib.auth.models import Group
+    from organizations.models import OrganizationProfile, UserOrganizationMembership
     from form_manager.models import FormDefinition
 
     user = create_user
 
-    # Create a second form entry
+    # Create a second org and make the demo user a member with edit permissions
     org = OrganizationProfile.objects.create(
         name="test org 2",
         address="123 Main Street, Washington, DC",
         contact_email="info@myorg.org",
         contact_phone="123=456-7890",
     )
+    membership = UserOrganizationMembership.objects.create(user=user, organization=org)
+    membership.groups.set(Group.objects.filter(name__in=["Recipient Authorized Official"]))
 
     form_def = FormDefinition.objects.first()
 
