@@ -95,12 +95,12 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
 
     # Scroll to bottom to show footer
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
 
     # Continue to expenditure amounts
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Verify we're on the expenditure amounts page
     body_text = page.evaluate("() => document.body.innerText")
@@ -119,7 +119,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
     # Continue to administration costs
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
     assert "Administration costs" in page.evaluate("() => document.body.innerText")
 
     # Select "No" for administration costs
@@ -149,7 +149,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
     # Continue to Step 3: Expenditure details
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
     body_text = page.evaluate("() => document.body.innerText")
     assert "Expenditure details" in body_text
 
@@ -169,7 +169,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
     # Continue to housing services description
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
     body_text = page.evaluate("() => document.body.innerText.toLowerCase()")
     assert "housing" in body_text
 
@@ -186,7 +186,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
     # Continue to health & nutrition services description
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
     body_text = page.evaluate("() => document.body.innerText.toLowerCase()")
     assert "health" in body_text or "nutrition" in body_text
 
@@ -203,7 +203,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
     # Continue to Step 4: Demographic information
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
     body_text = page.evaluate("() => document.body.innerText")
     assert "Demographic information" in body_text
 
@@ -229,7 +229,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
     # Continue to sex breakdown
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # ==========================================
     # STEP 4: Demographic information
@@ -250,7 +250,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
     # Continue to employment status
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # ==========================================
     # STEP 4: Demographic information
@@ -279,7 +279,7 @@ def test_tribal_long_form_complete_workflow(authenticated_page: Page, base_url: 
     # Continue to Step 5: Review and Submit
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
     body_text = page.evaluate("() => document.body.innerText")
     assert "Review and Submit" in body_text
     assert page.locator('nav[aria-label="Form sections"]').is_visible()

@@ -22,7 +22,7 @@ def fill_and_verify_total(page: Page, field_label: str, amount: str, expected_to
     field = page.get_by_label(field_label)
     field.fill(amount)
     field.blur()
-    page.wait_for_timeout(500)  # Allow JavaScript to process change event
+    page.wait_for_timeout(300)  # Allow JavaScript to process change event
 
     total_field = page.locator('input[name="total_expenditures"]')
     actual_total = total_field.input_value()
@@ -107,7 +107,7 @@ def test_calculated_currency_field_auto_updates(authenticated_page: Page, base_u
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Verify we're on the expenditure amounts page
     body_text = page.evaluate("() => document.body.innerText")
@@ -142,7 +142,7 @@ def test_calculated_currency_field_auto_updates(authenticated_page: Page, base_u
     employment_field.clear()
     employment_field.fill("60000")
     employment_field.blur()
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     assert (
         total_field.input_value() == "100,000.00"
     ), "Total should update to 100,000.00 after changing Employment"
@@ -151,7 +151,7 @@ def test_calculated_currency_field_auto_updates(authenticated_page: Page, base_u
     housing_field = page.get_by_label("Housing *")
     housing_field.clear()
     housing_field.blur()
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     assert (
         total_field.input_value() == "75,000.00"
     ), "Total should be 75,000.00 after clearing Housing field"
@@ -159,7 +159,7 @@ def test_calculated_currency_field_auto_updates(authenticated_page: Page, base_u
     # Test 7: Edge case - entering zero
     housing_field.fill("0")
     housing_field.blur()
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     assert (
         total_field.input_value() == "75,000.00"
     ), "Total should remain 75,000.00 when Housing is 0"
@@ -168,7 +168,7 @@ def test_calculated_currency_field_auto_updates(authenticated_page: Page, base_u
     housing_field.clear()
     housing_field.fill("999999.99")
     housing_field.blur()
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     # 60000 + 999999.99 + 15000 = 1074999.99
     assert (
         total_field.input_value() == "1,074,999.99"

@@ -43,7 +43,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
 
     # Continue to Step 2: Expenditure categories
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     page.get_by_role("button", name="Next →").click()
     page.get_by_text("Select all that apply:").wait_for()
 
@@ -59,24 +59,24 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
         }
     """
     )
-    page.wait_for_timeout(1000)
+    page.wait_for_timeout(500)
 
     # Continue through expenditure amounts page
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Fill expenditure amount to proceed
     page.get_by_label("Employment *").fill("50000.00")
 
     # Continue through administration costs page
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Select "No" for administration costs
     page.evaluate(
@@ -94,24 +94,24 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
         }
     """
     )
-    page.wait_for_timeout(1000)
+    page.wait_for_timeout(500)
 
     # Continue through expenditure details
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Fill employment description
     page.get_by_label("Description *").fill("E2E test: employment services")
 
     # Continue to Step 4: Demographic information
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     assert page.get_by_role("heading", name="Let's collect demographic details").is_visible()
 
@@ -121,7 +121,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
     total_individuals = page.get_by_label("Total number of people").first
     total_individuals.fill("12345")
     total_individuals.blur()
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
 
     # The Alpine.js mask should format it with commas
     assert (
@@ -134,7 +134,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
     total_households = page.get_by_label("Total number of people").nth(1)
     total_households.fill("1234567")
     total_households.blur()
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
 
     assert (
         total_households.input_value() == "1,234,567"
@@ -146,7 +146,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
     total_individuals.clear()
     total_individuals.fill("999")
     total_individuals.blur()
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
 
     assert (
         total_individuals.input_value() == "999"
@@ -159,19 +159,19 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
     total_individuals.clear()
     total_individuals.fill("15000")
     total_individuals.blur()
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
 
     total_households.clear()
     total_households.fill("8500")
     total_households.blur()
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
 
     # Save and continue to sex breakdown page
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Fill sex breakdown with large numbers
     male_field = page.locator('input[name="male_individuals_served"]')
@@ -179,7 +179,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
 
     male_field.fill("8000")
     male_field.blur()
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
 
     assert (
         male_field.input_value() == "8,000"
@@ -187,7 +187,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
 
     female_field.fill("7000")
     female_field.blur()
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
 
     assert (
         female_field.input_value() == "7,000"
@@ -205,10 +205,10 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
 
     # Save and continue to employment page
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # ==========================================
     # Test 6: Employment fields with comma formatting
@@ -218,13 +218,13 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
 
     full_time.fill("5000")
     full_time.blur()
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
 
     assert full_time.input_value() == "5,000", f"Expected '5,000', got '{full_time.input_value()}'"
 
     part_time.fill("3500")
     part_time.blur()
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
 
     assert part_time.input_value() == "3,500", f"Expected '3,500', got '{part_time.input_value()}'"
 
@@ -237,7 +237,7 @@ def test_integer_field_comma_formatting_on_input(authenticated_page: Page, base_
 
     # Blur last field and wait for calculation
     page.locator('input[name="employment__unknown"]').blur()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # ==========================================
     # Test 7: Employment total calculated field (integer, no decimals)

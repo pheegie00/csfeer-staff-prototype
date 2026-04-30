@@ -68,14 +68,14 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
     # Clear the field
     tribe_name_field.clear()
     tribe_name_field.blur()
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
 
     # Verify field is empty
     assert tribe_name_field.input_value() == ""
 
     # Next
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     page.get_by_role("button", name="Next →").click()
 
     page.get_by_text("Select all that apply:").wait_for()
@@ -90,14 +90,14 @@ def test_clearing_field_value_persists(authenticated_page: Page, base_url: str) 
 
     # Now go forward to Step 2 and test Save & Exit button
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     page.get_by_role("button", name="Next →").click()
 
     page.get_by_text("Select all that apply:").wait_for()
 
     # Scroll to bottom and click "Save & Exit" button
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     page.get_by_role("button", name="Save & Exit").click()
 
     # Should return to the form list page

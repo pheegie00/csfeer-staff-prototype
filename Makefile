@@ -39,7 +39,7 @@ reset-db: ## Remove the postgres data volume
 
 # Usage: make test-unit [TEST=tests/unit/form_manager/test_fields.py::test_name]
 test-unit: ## Run unit tests (TEST=path optional)
-	docker compose run --rm app uv run pytest $${TEST:-tests/unit} -v
+	docker compose run --rm app uv run pytest $${TEST:-tests/unit} -v -s --durations=15
 
 setup-tests-ci: ## Set up CI services and seed data
 	@echo "Starting services..."
@@ -52,7 +52,7 @@ setup-tests-ci: ## Set up CI services and seed data
 	$(CI_COMPOSE) exec app uv run manage.py load_initial_forms
 
 test-unit-ci: ## Run unit tests in CI (TEST=path optional)
-	$(CI_COMPOSE) exec app uv run pytest $${TEST:-tests/unit} -v
+	$(CI_COMPOSE) exec app uv run pytest $${TEST:-tests/unit} -v --durations=15
 
 # Usage: make test-e2e [TEST=tests/e2e/test_form_manager.py::test_name]
 test-e2e: ## Run e2e tests (TEST=path optional)
@@ -60,10 +60,10 @@ test-e2e: ## Run e2e tests (TEST=path optional)
 	@docker compose up -d app
 	@echo "Waiting for app to be ready..."
 	@sleep 5
-	docker compose exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e
+	docker compose exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e -s --durations=15
 
 test-e2e-ci: ## Run e2e tests in CI (TEST=path optional)
-	$(CI_COMPOSE) exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e -s --screenshot=off --video=off
+	$(CI_COMPOSE) exec app uv run pytest $${TEST:-tests/e2e/} -v -m e2e -s --screenshot=off --video=off --durations=15
 
 # ── Native (host) ─────────────────────────────────────────────────────────────
 

@@ -48,7 +48,7 @@ def test_error_states_display_after_review_visit(authenticated_page: Page, base_
 
     # Scroll and continue
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     page.get_by_role("button", name="Next →").click()
 
     page.get_by_text("Select all that apply:").wait_for()
@@ -75,17 +75,17 @@ def test_error_states_display_after_review_visit(authenticated_page: Page, base_
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Fill expenditure amount
     page.get_by_label("Employment *").fill("50000.00")
 
     # Continue through remaining required steps to reach review
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Select "No" for administration costs
     page.evaluate(
@@ -107,10 +107,10 @@ def test_error_states_display_after_review_visit(authenticated_page: Page, base_
 
     # Continue to Step 3
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Fill employment description (required)
     description_field = page.get_by_label("Description")
@@ -118,21 +118,21 @@ def test_error_states_display_after_review_visit(authenticated_page: Page, base_
 
     # Continue to Step 4
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Fill individuals served (required)
     page.locator("input[name='total_individuals_served']").fill("100")
 
     # Continue to review page
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     page.get_by_role("button", name="Next →").click()
 
     # Wait for review page to load
-    page.wait_for_timeout(2000)
+    page.wait_for_load_state("networkidle")
     body_text = page.evaluate("() => document.body.innerText")
 
     # Should be on review page
@@ -196,7 +196,7 @@ def test_errors_cleared_after_form_submission(authenticated_page: Page, base_url
 
     # Continue through all steps with valid data
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     page.get_by_role("button", name="Next →").click()
 
     # Step 2: Select category
@@ -220,16 +220,16 @@ def test_errors_cleared_after_form_submission(authenticated_page: Page, base_url
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Fill expenditure amount
     page.get_by_label("Employment *").fill("75000.00")
 
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Select "No" for admin costs
     page.evaluate(
@@ -251,20 +251,20 @@ def test_errors_cleared_after_form_submission(authenticated_page: Page, base_url
 
     # Step 3
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     description_field = page.get_by_label("Description")
     description_field.fill("Complete employment services description for e2e test")
 
     # Step 4
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Fill individuals served (required)
     page.locator("input[name='total_individuals_served']").fill("100")
@@ -282,7 +282,7 @@ def test_errors_cleared_after_form_submission(authenticated_page: Page, base_url
         page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
         page.wait_for_timeout(500)
         submit_button.click()
-        page.wait_for_timeout(2000)
+        page.wait_for_load_state("networkidle")
 
         # After submission, the error flag should be cleared
         # We can verify this by checking that we're on a success/confirmation page
@@ -330,7 +330,7 @@ def test_errors_persist_across_page_navigation(authenticated_page: Page, base_ur
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
     page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Step 2: Select a category
     page.evaluate(
@@ -352,7 +352,7 @@ def test_errors_persist_across_page_navigation(authenticated_page: Page, base_ur
     page.wait_for_timeout(500)
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Leave employment amount empty, continue
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
@@ -371,18 +371,18 @@ def test_errors_persist_across_page_navigation(authenticated_page: Page, base_ur
                 break
             elif buttons.count() > 0 and buttons.first.is_visible():
                 buttons.first.click()
-                page.wait_for_timeout(1000)
+                page.wait_for_load_state("networkidle")
             else:
                 break
 
-        page.wait_for_timeout(2000)
+        page.wait_for_load_state("networkidle")
 
         # If we made it to review, go back to edit
         edit_links = page.get_by_role("link", name="Edit section")
         if edit_links.count() > 0:
             # Click first edit link
             edit_links.first.click()
-            page.wait_for_timeout(1000)
+            page.wait_for_load_state("networkidle")
 
             # Errors should be visible
             error_count_page1 = (
@@ -392,12 +392,12 @@ def test_errors_persist_across_page_navigation(authenticated_page: Page, base_ur
 
             # Navigate to another page using the sidebar or next button
             page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-            page.wait_for_timeout(500)
+            page.wait_for_timeout(300)
 
             next_buttons = page.get_by_role("button", name="Next →")
             if next_buttons.count() > 0 and next_buttons.first.is_visible():
                 next_buttons.first.click()
-                page.wait_for_timeout(1000)
+                page.wait_for_load_state("networkidle")
 
                 # Errors should still be visible on the new page (if there are validation issues)
                 error_count_page2 = (

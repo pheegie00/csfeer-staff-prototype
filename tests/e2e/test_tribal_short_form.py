@@ -91,7 +91,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     # Continue to expenditure amounts
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
 
     # Verify we're on the expenditure amounts page
     body_text = page.evaluate("() => document.body.innerText")
@@ -108,7 +108,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     # Continue to administration costs
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
     assert "Administration costs" in page.evaluate("() => document.body.innerText")
 
     # Select "No" for administration costs (click the label)
@@ -138,7 +138,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     # Continue to Step 3: Expenditure details
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
     body_text = page.evaluate("() => document.body.innerText")
     assert "Expenditure details" in body_text
 
@@ -154,7 +154,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     # Continue to housing services description
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
     body_text = page.evaluate("() => document.body.innerText.toLowerCase()")
     assert "housing" in body_text
 
@@ -170,7 +170,7 @@ def test_tribal_short_form_complete_workflow(authenticated_page: Page, base_url:
     # Continue to Step 4: Review and Submit
     with page.expect_navigation(timeout=5000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(1000)
+    page.wait_for_load_state("networkidle")
     body_text = page.evaluate("() => document.body.innerText")
     assert "Review and Submit" in body_text
     assert page.locator('nav[aria-label="Form sections"]').is_visible()

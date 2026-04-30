@@ -42,7 +42,7 @@ def _click_next(page: Page) -> None:
     page.wait_for_timeout(300)
     with page.expect_navigation(timeout=10000):
         page.get_by_role("button", name="Next →").click()
-    page.wait_for_timeout(800)
+    page.wait_for_load_state("networkidle")
 
 
 # ---------------------------------------------------------------------------
