@@ -1,4 +1,5 @@
 import logging
+from typing import TypedDict
 
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
@@ -7,13 +8,82 @@ from django.views.decorators.http import require_http_methods
 
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
+from form_manager.schema.layout import (
+    ConditionalBlock,
+    FieldBlock,
+    ReviewSubheadingBlock,
+    StepBlock,
+)
 from form_manager.schema.navigation import (
+    EntryPk,
     build_form_edit_url,
-    build_review_sections,
     build_side_nav_items,
 )
 from form_manager.utils import save_form_entry
 from form_manager.views.form_edit import remove_nodes_with_excluded_fields
+
+
+class ReviewSection(TypedDict):
+    title: str | None
+    edit_url: str
+    blocks: list[FieldBlock | ReviewSubheadingBlock]
+
+
+def _condition_met(form, controller_field: str, show_when: str | list[str]) -> bool:
+    """Return True if the form's current value for controller_field matches show_when."""
+    try:
+        value = form[controller_field].value()
+    except (KeyError, TypeError):
+        return True
+    if isinstance(value, (list, tuple)):
+        value = value[0] if value else None
+    conditions = [show_when] if isinstance(show_when, str) else show_when
+    return value in conditions
+
+
+def _collect_review_blocks(
+    node, *, form=None, controller_field: str | None = None
+) -> list[FieldBlock | ReviewSubheadingBlock]:
+    blocks: list[FieldBlock | ReviewSubheadingBlock] = []
+
+    active_controller = getattr(node, "alpine_controller_field", None) or controller_field
+
+    for child in node.children or []:
+        if isinstance(child, ConditionalBlock):
+            if (
+                form
+                and active_controller
+                and not _condition_met(form, active_controller, child.show_when)
+            ):
+                continue
+            blocks.extend(
+                _collect_review_blocks(child, form=form, controller_field=active_controller)
+            )
+        elif isinstance(child, (ReviewSubheadingBlock, FieldBlock)):
+            blocks.append(child)
+        elif child.children:
+            blocks.extend(
+                _collect_review_blocks(child, form=form, controller_field=active_controller)
+            )
+
+    return blocks
+
+
+def build_review_sections(
+    steps: list[StepBlock], *, entry_pk: EntryPk, form=None
+) -> list[ReviewSection]:
+    final: list[ReviewSection] = []
+
+    for step_index, step in enumerate(steps):
+        section: ReviewSection = {
+            "title": step.title,
+            "edit_url": build_form_edit_url(entry_pk, step_number=step_index, page_number=0),
+            "blocks": _collect_review_blocks(step, form=form),
+        }
+        final.append(section)
+
+    return final
+
 
 logger = logging.getLogger(__name__)
 
