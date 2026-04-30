@@ -14,17 +14,17 @@ services:
       KC_BOOTSTRAP_ADMIN_CLIENT_ID: csfeer-auth
       KC_BOOTSTRAP_ADMIN_CLIENT_SECRET: shhhhhhhh
       USERS_CSV: /opt/keycloak/users.csv
-    command: start-dev --import-realm
-    healthcheck:
-      test: ["CMD-SHELL", "cat /opt/keycloak/setup-complete"]
-      interval: 1s
-      retries: 100
+    command: start-dev
+    # healthcheck:
+    #   test: ["CMD-SHELL", "cat /opt/keycloak/setup-complete"]
+    #   interval: 1s
+    #   retries: 100
     volumes:
       - ../../devops/mocks/keycloak:/opt/keycloak/data/import
       - ../../devops/mocks/keycloak/users.csv:/opt/keycloak/users.csv:ro
       - ../../devops/mocks/keycloak/setup-keycloak.sh:/opt/keycloak/setup-keycloak.sh:ro
-    post_start:
-      - command: bash -c "bash /opt/keycloak/setup-keycloak.sh"
+    # post_start:
+    #   - command: bash -c "bash /opt/keycloak/setup-keycloak.sh"
     depends_on:
       - db
     ports:
@@ -113,7 +113,7 @@ services:
       db:
         condition: service_healthy
       mock-oauth:
-        condition: service_healthy
+        condition: service_started
     cap_drop:
       - all
     hostname: ui.csfeer
