@@ -8,6 +8,12 @@ import pytest
 from playwright.sync_api import Page
 
 from tests.e2e.pages.login_page import LoginPage
+from users.permissions import (
+    RECIPIENT_AUTHORIZED_OFFICIAL,
+    RECIPIENT_FORM_VIEWER,
+    RECIPIENT_FORM_EDITOR,
+    RECIPIENT_FORM_APPROVER,
+)
 
 # Test users from devops/mocks/keycloak/users.csv
 TEST_USERS = {
@@ -15,49 +21,49 @@ TEST_USERS = {
         "username": "admin",
         "password": "admin",
         "email": "admin@example.com",
-        "roles": ["csfeer_admin", "csfeer_user", "Recipient Authorized Official"],
+        "roles": ["csfeer_admin", "csfeer_user", RECIPIENT_AUTHORIZED_OFFICIAL],
     },
     "demo": {
         "username": "demo",
         "password": "demo",
         "email": "demo@example.com",
-        "roles": ["csfeer_user", "Recipient Authorized Official"],
+        "roles": ["csfeer_user", RECIPIENT_AUTHORIZED_OFFICIAL],
     },
     "demo-1": {
         "username": "demo-1",
         "password": "demo-1",
         "email": "demo-1@example.com",
-        "roles": ["csfeer_user", "Recipient Authorized Official"],
+        "roles": ["csfeer_user", RECIPIENT_AUTHORIZED_OFFICIAL],
     },
     "demo-2": {
         "username": "demo-2",
         "password": "demo-2",
         "email": "demo-2@example.com",
-        "roles": ["csfeer_user", "Recipient Authorized Official"],
+        "roles": ["csfeer_user", RECIPIENT_AUTHORIZED_OFFICIAL],
     },
     "recipient-viewer": {
         "username": "recipient-viewer",
         "password": "recipient-viewer",
         "email": "recipient-viewer@example.com",
-        "roles": ["csfeer_user", "Recipient Form Viewer"],
+        "roles": ["csfeer_user", RECIPIENT_FORM_VIEWER],
     },
     "recipient-editor": {
         "username": "recipient-editor",
         "password": "recipient-editor",
         "email": "recipient-editor@example.com",
-        "roles": ["csfeer_user", "Recipient Form Editor"],
+        "roles": ["csfeer_user", RECIPIENT_FORM_EDITOR],
     },
     "recipient-approver": {
         "username": "recipient-approver",
         "password": "recipient-approver",
         "email": "recipient-approver@example.com",
-        "roles": ["csfeer_user", "Recipient Form Approver"],
+        "roles": ["csfeer_user", RECIPIENT_FORM_APPROVER],
     },
     "recipient-ao": {
         "username": "recipient-ao",
         "password": "recipient-ao",
         "email": "recipient-ao@example.com",
-        "roles": ["csfeer_user", "Recipient Authorized Official"],
+        "roles": ["csfeer_user", RECIPIENT_AUTHORIZED_OFFICIAL],
     },
 }
 

@@ -12,8 +12,8 @@ from form_manager.models import FormDefinition, FormEntry
 from form_manager.schema.layout import PageBlock, StepBlock
 from form_manager.schema.navigation import build_form_edit_url
 from form_manager.views.form_edit import _build_post_save_redirect
-from users.permissions import ORG_PERMISSION_GROUPS
 from users.signals import create_permission_groups
+from users.permissions import RECIPIENT_AUTHORIZED_OFFICIAL
 
 if TYPE_CHECKING:
     from django.test.client import Client
@@ -512,7 +512,7 @@ def test_ao_page_allows_ao_user_post(
     membership = UserOrganizationMembership.objects.get(
         user=user, organization=ao_form_entry.organization
     )
-    ao_group = Group.objects.get(name="Recipient Authorized Official")
+    ao_group = Group.objects.get(name=RECIPIENT_AUTHORIZED_OFFICIAL)
     membership.groups.add(ao_group)
 
     url = reverse("form_edit", args=[ao_form_entry.pk])

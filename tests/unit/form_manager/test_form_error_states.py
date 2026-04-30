@@ -11,6 +11,7 @@ import pytest
 from django.urls import reverse
 
 from form_manager.models import FormAuditTrail, FormEntry
+from users.permissions import RECIPIENT_AUTHORIZED_OFFICIAL
 
 if TYPE_CHECKING:
     from django.test.client import Client
@@ -221,7 +222,7 @@ def test_session_flag_isolated_per_entry(
         contact_phone="123=456-7890",
     )
     membership = UserOrganizationMembership.objects.create(user=user, organization=org)
-    membership.groups.set(Group.objects.filter(name__in=["Recipient Authorized Official"]))
+    membership.groups.set(Group.objects.filter(name__in=[RECIPIENT_AUTHORIZED_OFFICIAL]))
 
     form_def = FormDefinition.objects.first()
 
