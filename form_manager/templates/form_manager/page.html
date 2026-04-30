@@ -25,7 +25,8 @@
             <c-button
                 text="Save & Exit"
                 variant="outline"
-                state="active"
+                disabled="{% if not page_permissions_met %}disabled{% endif %}"
+                aria_disabled="{% if not page_permissions_met %}true{% endif %}"
                 type="submit"
                 name="page-action"
                 value="save-exit"
@@ -33,7 +34,8 @@
             <c-button
                 text="Next →"
                 variant="base"
-                state="active"
+                disabled="{% if not page_permissions_met %}disabled{% endif %}"
+                aria_disabled="{% if not page_permissions_met %}true{% endif %}"
                 type="submit"
             />
         </div>

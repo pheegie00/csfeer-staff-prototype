@@ -11,10 +11,10 @@
       {% include "form_manager/_side_nav.html" %}
     </div>
     <div class="grid-col-12 desktop:grid-col-9 padding-left-6">
-      <p class="margin-top-0 margin-bottom-1 font-body-sm text-gray-cool-70">Section {{ current_step_number|add:1 }}: {{ current_step.title }}</p>
-      <c-form id="csf-form" class="" method="post" action="{{ next_url }}" enctype="multipart/form-data" x-data="" novalidate @change="updateCalculatedFields">
+      <p class="margin-top-0 margin-bottom-1 font-body-sm">Section {{ current_step_number|add:1 }}: {{ current_step.title }}</p>
+      <c-form id="csf-form" class="" method="post" enctype="multipart/form-data" x-data="" novalidate @change="updateCalculatedFields">
         {% csrf_token %}
-        <input type="hidden" name="redirect_to" id="nav-redirect-to" value="">
+        <input type="hidden" name="redirect_to" id="nav-redirect-to" value="{{ next_url }}">
         {{ current_page }}
       </c-form>
 

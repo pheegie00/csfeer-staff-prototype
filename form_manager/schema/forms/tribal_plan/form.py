@@ -478,6 +478,9 @@ class TribalPlanForm(BaseFormSchema):
                         ],
                     ),
                     PermanentPageBlock(
+                        submit_permissions=[
+                            "form_manager.form_tribal_plan_can_sign_authorized_official"
+                        ],
                         title="Statement of Assurances",
                         subtitle=(
                             "Review the certification below and sign at the bottom of this page"
@@ -500,6 +503,15 @@ class TribalPlanForm(BaseFormSchema):
                                     FieldBlock(field_name="assurance_signature"),
                                 ],
                             ),
+                            AlertBoxBlock(
+                                alert_type="warning",
+                                heading="Only an authorized official can complete this section",
+                                message=(
+                                    "Your changes will not be saved. Contact your organization's "
+                                    "Authorized Official to complete and sign this page."
+                                ),
+                                render_when=lambda ctx: not ctx.get("page_permissions_met"),
+                            ),
                         ],
                     ),
                 ],
@@ -514,6 +526,9 @@ class TribalPlanForm(BaseFormSchema):
                             "Review the certification below and sign at the bottom of this page to "
                             "affirm compliance."
                         ),
+                        submit_permissions=[
+                            "form_manager.form_tribal_plan_can_sign_authorized_official"
+                        ],
                         children=[
                             TextBlock(
                                 bordered=True,
@@ -527,6 +542,15 @@ class TribalPlanForm(BaseFormSchema):
                                     FieldBlock(field_name="lobbying_signature"),
                                 ],
                             ),
+                            AlertBoxBlock(
+                                alert_type="warning",
+                                heading="Only an authorized official can complete this section",
+                                message=(
+                                    "Your changes will not be saved. Contact your organization's "
+                                    "Authorized Official to complete and sign this page."
+                                ),
+                                render_when=lambda ctx: not ctx.get("page_permissions_met"),
+                            ),
                         ],
                     ),
                     PermanentPageBlock(
@@ -535,6 +559,9 @@ class TribalPlanForm(BaseFormSchema):
                             "Review the certification below and sign at the bottom of this page to "
                             "affirm compliance."
                         ),
+                        submit_permissions=[
+                            "form_manager.form_tribal_plan_can_sign_authorized_official"
+                        ],
                         children=[
                             AccordionBlock(
                                 bordered=True,
@@ -579,6 +606,15 @@ class TribalPlanForm(BaseFormSchema):
                                     FieldBlock(field_name="drug_free_signature"),
                                 ],
                             ),
+                            AlertBoxBlock(
+                                alert_type="warning",
+                                heading="Only an authorized official can complete this section",
+                                message=(
+                                    "Your changes will not be saved. Contact your organization's "
+                                    "Authorized Official to complete and sign this page."
+                                ),
+                                render_when=lambda ctx: not ctx.get("page_permissions_met"),
+                            ),
                         ],
                     ),
                     PermanentPageBlock(
@@ -587,6 +623,9 @@ class TribalPlanForm(BaseFormSchema):
                             "Review the certification below and sign at the bottom of this page to "
                             "affirm compliance."
                         ),
+                        submit_permissions=[
+                            "form_manager.form_tribal_plan_can_sign_authorized_official"
+                        ],
                         children=[
                             AccordionBlock(
                                 bordered=True,
@@ -625,6 +664,15 @@ class TribalPlanForm(BaseFormSchema):
                                     FieldBlock(field_name="debarment_signature"),
                                 ],
                             ),
+                            AlertBoxBlock(
+                                alert_type="warning",
+                                heading="Only an authorized official can complete this section",
+                                message=(
+                                    "Your changes will not be saved. Contact your organization's "
+                                    "Authorized Official to complete and sign this page."
+                                ),
+                                render_when=lambda ctx: not ctx.get("page_permissions_met"),
+                            ),
                         ],
                     ),
                     PermanentPageBlock(
@@ -633,6 +681,9 @@ class TribalPlanForm(BaseFormSchema):
                             "Review the certification below and sign at the bottom of this page to "
                             "affirm compliance."
                         ),
+                        submit_permissions=[
+                            "form_manager.form_tribal_plan_can_sign_authorized_official"
+                        ],
                         children=[
                             TextBlock(
                                 bordered=True,
@@ -645,6 +696,15 @@ class TribalPlanForm(BaseFormSchema):
                                     FieldBlock(field_name="tobacco_attestation"),
                                     FieldBlock(field_name="tobacco_signature"),
                                 ],
+                            ),
+                            AlertBoxBlock(
+                                alert_type="warning",
+                                heading="Only an authorized official can complete this section",
+                                message=(
+                                    "Your changes will not be saved. Contact your organization's "
+                                    "Authorized Official to complete and sign this page."
+                                ),
+                                render_when=lambda ctx: not ctx.get("page_permissions_met"),
                             ),
                         ],
                     ),

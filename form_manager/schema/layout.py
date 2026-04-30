@@ -2,6 +2,7 @@
 
 import abc
 import logging
+from collections.abc import Callable
 from typing import Annotated, Any, ClassVar, Literal, Self, cast
 
 from django.forms import MultiValueField
@@ -62,6 +63,26 @@ class RenderableBaseModel[T, S](RenderableMixin, BaseModel, abc.ABC):
         str | None,
         Field(description="Django template used when rendering in review mode"),
     ] = None
+
+    render_when: Annotated[
+        Callable | None,
+        Field(
+            description=(
+                "Optional callable to determine if the block should be rendered. Takes one "
+                "argument: the componnt's template context."
+            )
+        ),
+    ] = None
+
+    def render(self, *args, **kwargs):
+        """Overloaded to conditionally render the component based on the
+        render_when variable."""
+        if self.render_when:
+            should_render = self.render_when(self.get_context())
+            if not should_render:
+                return mark_safe("")
+
+        return super().render(*args, **kwargs)
 
     def set_extra_context(self, **kwargs: Any) -> None:
         """Set global context that will also be made available to any descendant nodes."""
@@ -145,6 +166,15 @@ class AbstractPageBlock(RenderableBaseModel, abc.ABC):
         str | None,
         Field(description="Secondary heading displayed below the title"),
     ] = None
+    submit_permissions: Annotated[
+        list[str],
+        Field(
+            description=(
+                "Permission strings (app_label.codename) the user must ALL hold "
+                "to submit this page. Empty list means no restriction."
+            )
+        ),
+    ] = []
     children: Annotated[
         list[
             Self
@@ -323,6 +353,8 @@ class FieldBlock(RenderableBaseModel):
         form = context.get("form")
         if form:
             bound_field = form[self.field_name]
+            if not context.get("page_permissions_met", True):
+                bound_field.field.disabled = True
             context.update(
                 {
                     "field": bound_field,
