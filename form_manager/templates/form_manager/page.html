@@ -12,6 +12,14 @@
     {% endfor %}
 </c-fieldset>
 
+{% if not page_permissions_met %}
+<div class="usa-alert usa-alert--warning margin-top-4" role="alert">
+    <div class="usa-alert__body">
+        <p class="usa-alert__text">You do not have the required permissions to submit this page.</p>
+    </div>
+</div>
+{% endif %}
+
 <div class="margin-top-4 padding-top-2 border-top-1px border-base-lighter">
     <div class="display-flex flex-justify flex-wrap flex-gap-1 flex-align-end">
 
@@ -25,7 +33,7 @@
             <c-button
                 text="Save & Exit"
                 variant="outline"
-                state="active"
+                state="{% if page_permissions_met %}active{% else %}disabled{% endif %}"
                 type="submit"
                 name="page-action"
                 value="save-exit"
@@ -33,7 +41,7 @@
             <c-button
                 text="Next →"
                 variant="base"
-                state="active"
+                state="{% if page_permissions_met %}active{% else %}disabled{% endif %}"
                 type="submit"
             />
         </div>

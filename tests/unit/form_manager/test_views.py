@@ -1,13 +1,19 @@
 import uuid
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 import pytest
+from django.apps import apps
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
 from form_manager.models import FormDefinition, FormEntry
 from form_manager.schema.layout import PageBlock, StepBlock
 from form_manager.schema.navigation import build_form_edit_url
 from form_manager.views.form_edit import _build_post_save_redirect
+from users.permissions import ORG_PERMISSION_GROUPS
+from users.signals import create_permission_groups
 
 if TYPE_CHECKING:
     from django.test.client import Client
@@ -364,3 +370,191 @@ def test_build_post_save_redirect_to_empty_step_no_forward_steps_goes_to_review(
     target_url = build_form_edit_url(entry_pk, step_number=1, page_number=0)
     result = _build_post_save_redirect(target_url, entry_pk=entry_pk, components=components)
     assert result == reverse("form_review", kwargs={"pk": entry_pk})
+
+
+# ---------------------------------------------------------------------------
+# submit_permissions gate
+# ---------------------------------------------------------------------------
+
+AO_PERMISSION = "form_manager.form_tribal_plan_can_sign_authorized_official"
+
+
+def _ensure_custom_permissions_exist():
+    for model in apps.get_models():
+        ct = ContentType.objects.get_for_model(model)
+        for codename, name in model._meta.permissions:
+            Permission.objects.get_or_create(
+                codename=codename,
+                content_type=ct,
+                defaults={"name": name},
+            )
+
+
+@pytest.fixture
+def permission_groups(db):
+    _ensure_custom_permissions_exist()
+    with patch("users.signals.create_permissions"):
+        create_permission_groups(
+            app_config=None,
+            verbosity=0,
+            interactive=False,
+            using="default",
+            plan=[],
+        )
+
+
+@pytest.fixture
+def ao_schema(use_test_schema):
+    """Patch the test schema so step 0 page 0 requires the AO permission."""
+    from pydantic import ConfigDict, Field
+    from pydantic_extra_types.semantic_version import SemanticVersion
+
+    from form_manager.constants import AllFormNames, CSBGAnnualReportForms, FormFamilies
+    from form_manager.schema.fields import acf_fields
+    from form_manager.schema.forms.base import BaseFields, BaseFormSchema, UIDefinition
+    from form_manager.schema.layout import FieldBlock, PageBlock, SectionBlock, StepBlock
+    from tests.unit.form_manager.fixtures.use_test_schema import TestSchemaForm
+
+    class AOSchema(BaseFormSchema):
+        family: FormFamilies = Field(FormFamilies.CSBG_ANNUAL_REPORT, frozen=True)
+        name: AllFormNames = Field(CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0, frozen=True)
+        variant: SemanticVersion = Field(SemanticVersion(3, 0, 4), frozen=True)
+        form_fields: TestSchemaForm  # type: ignore
+        ui: UIDefinition = Field(
+            frozen=True,
+            default=[
+                StepBlock(
+                    title="Restricted Step",
+                    children=[
+                        PageBlock(
+                            title="AO-only page",
+                            submit_permissions=[AO_PERMISSION],
+                            children=[SectionBlock(children=[FieldBlock(field_name="first_name")])],
+                        )
+                    ],
+                ),
+                StepBlock(
+                    title="Open Step",
+                    children=[
+                        PageBlock(
+                            title="Regular page",
+                            children=[SectionBlock(children=[FieldBlock(field_name="last_name")])],
+                        )
+                    ],
+                ),
+            ],
+        )
+        model_config = ConfigDict(use_enum_values=True)
+
+    with patch("form_manager.schema.forms.utils.import_string", return_value=AOSchema):
+        yield AOSchema
+
+
+@pytest.fixture
+def ao_form_entry(seed_data, ao_schema, create_user):
+    from organizations.models import OrganizationProfile
+
+    user = create_user
+    org = OrganizationProfile.objects.filter(userorganizationmembership__user=user).first()
+    form_def = FormDefinition.objects.first()
+    return FormEntry.objects.create(
+        form_definition=form_def, organization=org, created_by=user, version_number="1"
+    )
+
+
+@pytest.fixture
+def non_ao_client(permission_groups, ao_form_entry, django_user_model, client):
+    """An authenticated client whose user has edit rights but NOT the AO permission."""
+    from faker import Faker
+    from organizations.models import UserOrganizationMembership
+
+    fake = Faker()
+    user = django_user_model.objects.create_user(email=fake.email(), password="pw", is_active=True)
+    membership = UserOrganizationMembership.objects.create(
+        user=user, organization=ao_form_entry.organization
+    )
+    editor_group = Group.objects.get(name="Recipient Form Editor")
+    membership.groups.add(editor_group)
+    client.force_login(user)
+    return client, user
+
+
+@pytest.mark.django_db
+def test_ao_page_blocks_non_ao_post(django_db_setup, ao_form_entry, non_ao_client):
+    """A user without the AO permission cannot POST past an AO-restricted page."""
+    client, _ = non_ao_client
+    url = reverse("form_edit", args=[ao_form_entry.pk])
+
+    response = client.post(
+        url,
+        data={"first_name": "Blocked"},
+        query_params={"step": 1, "page": 0},
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"] == build_form_edit_url(
+        ao_form_entry.pk, step_number=0, page_number=0
+    )
+
+    ao_form_entry.refresh_from_db()
+    assert ao_form_entry.data.get("first_name") != "Blocked"
+
+
+@pytest.mark.django_db
+def test_ao_page_allows_ao_user_post(
+    django_db_setup, ao_form_entry, authenticated_client_with_user, permission_groups
+):
+    """A user WITH the AO permission can POST past an AO-restricted page."""
+    client, user = authenticated_client_with_user
+
+    from organizations.models import UserOrganizationMembership
+
+    membership = UserOrganizationMembership.objects.get(
+        user=user, organization=ao_form_entry.organization
+    )
+    ao_group = Group.objects.get(name="Recipient Authorized Official")
+    membership.groups.add(ao_group)
+
+    url = reverse("form_edit", args=[ao_form_entry.pk])
+
+    response = client.post(
+        url,
+        data={"first_name": "Allowed"},
+        query_params={"step": 1, "page": 0},
+    )
+
+    assert response.status_code in (200, 302)
+
+    ao_form_entry.refresh_from_db()
+    assert ao_form_entry.data.get("first_name") == "Allowed"
+
+
+@pytest.mark.django_db
+def test_unrestricted_page_allows_any_user_post(django_db_setup, form_entry, authenticated_client):
+    """Pages without submit_permissions are not affected by the gate."""
+    url = reverse("form_edit", args=[form_entry.pk])
+
+    response = authenticated_client.post(
+        url,
+        data={"first_name": "Open"},
+        query_params={"step": 1, "page": 0},
+    )
+
+    assert response.status_code in (200, 302)
+
+    form_entry.refresh_from_db()
+    assert form_entry.data.get("first_name") == "Open"
+
+
+@pytest.mark.django_db
+def test_ao_page_shows_permission_notice_for_non_ao_user(
+    django_db_setup, ao_form_entry, non_ao_client
+):
+    """GET on an AO-restricted page shows a warning notice for non-AO users."""
+    client, _ = non_ao_client
+    url = reverse("form_edit", args=[ao_form_entry.pk])
+
+    response = client.get(url, {"step": 0, "page": 0})
+
+    assert response.status_code == 200
+    assert "do not have the required permissions" in response.content.decode("utf-8")

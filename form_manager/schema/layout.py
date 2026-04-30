@@ -145,6 +145,15 @@ class AbstractPageBlock(RenderableBaseModel, abc.ABC):
         str | None,
         Field(description="Secondary heading displayed below the title"),
     ] = None
+    submit_permissions: Annotated[
+        list[str],
+        Field(
+            description=(
+                "Permission strings (app_label.codename) the user must ALL hold "
+                "to submit this page. Empty list means no restriction."
+            )
+        ),
+    ] = []
     children: Annotated[
         list[
             Self

@@ -20,7 +20,7 @@ from form_manager.schema.navigation import (
     remove_nodes_with_excluded_fields,
 )
 from form_manager.utils import save_form_entry
-from users.utils import user_can_edit, user_can_submit
+from users.utils import user_can_edit, user_can_submit, user_meets_page_permissions
 
 logger = logging.getLogger(__name__)
 
@@ -180,6 +180,24 @@ def form_edit(request, pk):
 
     if request.method == "POST":
 
+        # The form POSTs to next_url, so the submitted page is one step back.
+        submitted_step, submitted_page = get_previous_step_and_page(
+            ui_components, current_step_number, current_page_number
+        )
+        if submitted_step is not None and submitted_page is not None:
+            submitted_page_block = get_step_page(ui_components, submitted_step, submitted_page)
+            if not user_meets_page_permissions(
+                request.user, entry.organization, submitted_page_block
+            ):
+                messages.error(request, "You do not have permission to submit this page.")
+                return redirect(
+                    build_form_edit_url(
+                        entry.pk,
+                        step_number=submitted_step,
+                        page_number=submitted_page,
+                    )
+                )
+
         save_form_entry(django_form_class, entry, request)
 
         # Check if user clicked "Save & Exit"
@@ -250,6 +268,9 @@ def form_edit(request, pk):
         is_last_page=next_step_number is None,
         current_step_number=current_step_number,
         current_page_number=current_page_number,
+        page_permissions_met=user_meets_page_permissions(
+            request.user, entry.organization, page_to_render
+        ),
     )
 
     context = {
