@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 {% load form_manager_tags %}
-<div class="grid-container padding-0">
+<div class="grid-container padding-0 maxw-none">
   <div class="grid-row">
     <div class="grid-col-12">
       {% include "form_manager/_form_header.html" %}
@@ -13,7 +13,7 @@
       {% include "form_manager/_side_nav.html" %}
     </div>
     <div class="grid-col-12 desktop:grid-col-9 padding-left-6">
-      <h1 class="font-heading-2xl semibold font-family-sans font-weight-semibold">Review and Submit</h1>
+      <h1 class="font-heading-2xl semibold font-family-sans font-weight-semibold margin-top-0">Review and Submit</h1>
 
       <div class="margin-bottom-5">
       {% if form.errors %}
