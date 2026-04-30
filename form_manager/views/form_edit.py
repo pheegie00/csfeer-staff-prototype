@@ -170,14 +170,15 @@ def form_edit(request, pk):
     ui_components = [step.model_copy(deep=True) for step in schema.ui]
     safe_redirect_to: str | None = None
 
-    if request.method == "POST":
+    if not user_can_edit(request.user, entry.organization):
+        messages.error(request, "Permission denied.")
+        return redirect("form_list")
 
-        if not user_can_edit(request.user, entry.organization):
-            messages.error(request, "Permission denied.")
-            return redirect("form_list")
-        if entry.locked and not user_can_submit(request.user, entry.organization):
-            messages.error(request, "Permission denied.")
-            return redirect("form_list")
+    if entry.locked and not user_can_submit(request.user, entry.organization):
+        messages.error(request, "Permission denied.")
+        return redirect("form_list")
+
+    if request.method == "POST":
 
         save_form_entry(django_form_class, entry, request)
 

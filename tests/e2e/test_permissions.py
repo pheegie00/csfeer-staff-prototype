@@ -216,11 +216,7 @@ class TestRecipientViewerPermissions:
     def test_viewer_redirected_from_edit_url(
         self, page: Page, base_url: str, viewer_form_path: str
     ) -> None:
-        """Viewer navigating directly to the edit URL must be redirected away.
-
-        NOTE: This test is EXPECTED TO FAIL until a GET-level permission check is added
-        to form_manager/views/form_edit.py. The POST is already guarded; the GET is not.
-        """
+        """Viewer navigating directly to the edit URL must be redirected away."""
         login_as(page, base_url, "recipient-viewer")
         page.goto(f"{base_url}{viewer_form_path}edit/")
         page.wait_for_load_state("networkidle")

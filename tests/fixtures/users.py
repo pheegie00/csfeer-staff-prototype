@@ -117,8 +117,8 @@ def login_as(page: Page, base_url: str, username: str) -> None:
         raise ValueError(f"Unknown user: {username}. Available: {list(TEST_USERS.keys())}")
 
     user = TEST_USERS[username]
+    page.context.clear_cookies()
     login_page = LoginPage(page, base_url)
-    login_page.navigate_to_login()
     login_page.login(user["username"], user["password"])
 
 
