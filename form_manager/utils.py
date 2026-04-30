@@ -6,9 +6,8 @@ import os
 import uuid
 from inspect import isclass
 
-from django import forms
 from django.core.files.storage import default_storage
-from django.forms import Form
+from django.forms import FileField, Form
 
 from form_manager.models import (
     FormAuditDetail,
@@ -57,26 +56,6 @@ def reconstruct_state(entry, upto=None):
     for d in qs:
         state[d.field_name] = try_parse_json(d.new_value)
     return state
-
-
-def get_user_role(user, organization):
-    # Temorarily set this to admin because I removed the role field from the model
-    return "admin"
-
-
-def user_can_edit(user, organization):
-    role = get_user_role(user, organization)
-    return role in ["admin", "editor"]
-
-
-def user_can_submit(user, organization):
-    role = get_user_role(user, organization)
-    return role in ["admin", "editor"]
-
-
-def user_can_view(user, organization):
-    role = get_user_role(user, organization)
-    return role in ["admin", "editor", "viewer"]
 
 
 def record_field_diffs(form_entry, old_data, new_data, user=None):
@@ -207,7 +186,7 @@ def save_form_entry(form_class: type[Form], form_entry: FormEntry, request):
     for field_name in fields_to_save:
         field = form.fields[field_name]
 
-        if isinstance(field, forms.FileField):
+        if isinstance(field, FileField):
             prefixed_name = form.add_prefix(field_name)
 
             # Normalise existing value to a list (handles legacy single-string format)

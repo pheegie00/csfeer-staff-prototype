@@ -1,7 +1,7 @@
 import logging
 from urllib.parse import parse_qs, urlsplit
 
-from django.contrib import messages
+import django.contrib.messages as messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
@@ -19,7 +19,8 @@ from form_manager.schema.navigation import (
     get_step_pages,
     remove_nodes_with_excluded_fields,
 )
-from form_manager.utils import save_form_entry, user_can_edit, user_can_submit
+from form_manager.utils import save_form_entry
+from users.utils import user_can_edit, user_can_submit
 
 logger = logging.getLogger(__name__)
 
@@ -169,19 +170,15 @@ def form_edit(request, pk):
     ui_components = [step.model_copy(deep=True) for step in schema.ui]
     safe_redirect_to: str | None = None
 
-    def has_permission():
+    if not user_can_edit(request.user, entry.organization):
+        messages.error(request, "Permission denied.")
+        return redirect("form_list")
 
-        return not (
-            entry.locked
-            or not user_can_edit(request.user, entry.organization)
-            or not user_can_submit(request.user, entry.organization)
-        )
+    if entry.locked and not user_can_submit(request.user, entry.organization):
+        messages.error(request, "Permission denied.")
+        return redirect("form_list")
 
     if request.method == "POST":
-
-        if not has_permission():
-            messages.error(request, "Permission denied.")
-            return redirect("form_list")  # Assuming a form list URL
 
         save_form_entry(django_form_class, entry, request)
 

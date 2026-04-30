@@ -7,18 +7,17 @@ from tests.unit.form_manager.fixtures.use_test_schema import use_test_schema
 
 @pytest.fixture
 def seed_data(create_user, use_test_schema):
-    user, details = create_user
+    user = create_user
 
-    call_command("seed_demo_org", email=user.email, all=True)
     call_command("load_initial_forms")
 
-    return user, details
+    return user
 
 
 @pytest.fixture
 def form_entry(seed_data, create_user) -> FormEntry:
 
-    user, user_details = create_user
+    user = create_user
 
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=user).first()
 

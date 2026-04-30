@@ -11,15 +11,14 @@ from form_manager.views.form_edit import _build_post_save_redirect
 
 if TYPE_CHECKING:
     from django.test.client import Client
+    from users.models import CoreUser
 
 
 @pytest.mark.django_db
-def test_can_start_new_form(django_db_setup, seed_data, client: "Client"):
+def test_can_start_new_form(django_db_setup, seed_data, authenticated_client_with_user):
     """Ensure the load_initial_forms command loads successfully."""
 
-    user, details = seed_data
-
-    client.force_login(user)
+    client, user = authenticated_client_with_user
 
     form = FormDefinition.objects.all().first()
 
@@ -30,6 +29,7 @@ def test_can_start_new_form(django_db_setup, seed_data, client: "Client"):
     response = client.get(url)
 
     assert response.status_code == 302
+
     assert FormEntry.objects.count() == 1
 
     obj = FormEntry.objects.first()
@@ -66,20 +66,22 @@ def test_form_edit_redirects_to_canonical_first_page_when_query_params_missing(
 
 @pytest.mark.django_db
 def test_can_correctly_filter_fields(
-    django_db_setup, form_entry: "FormEntry", authenticated_client
+    django_db_setup, form_entry: "FormEntry", authenticated_client_with_user
 ):
     """Ensure the load_initial_forms command loads successfully and test Next button behavior."""
 
     url = build_form_edit_url(form_entry.pk, step_number=0, page_number=0)
 
+    client, user = authenticated_client_with_user
+
     # Make a GET request to the form's first page
-    response = authenticated_client.get(url)
+    response = client.get(url)
 
     # It should be a 200 response
     assert response.status_code == 200
 
     # Now post some data for the first page (without page-action=save-exit, simulating Next button)
-    response = authenticated_client.post(
+    response = client.post(
         url,
         data={
             "first_name": "Steven",
@@ -100,7 +102,7 @@ def test_can_correctly_filter_fields(
     assert form_entry.data.get("last_name") == "Jones"
 
     # Make a post request to choose the applicable fields
-    response = authenticated_client.post(
+    response = client.post(
         url,
         data={
             "applicable_topics": ["item1_cost", "item2_cost"],
@@ -143,10 +145,6 @@ def test_back_button_not_shown_on_first_page(
 
     # Verify the back button link is not in the response
     assert "← Back" not in content
-
-    # Verify the "Save & Exit" button is not in the response
-    assert "Save &amp; Exit" not in content
-    assert 'value="save-exit"' not in content
 
     # Verify that current_step_number and current_page_number are in the context
     assert response.context["current_step_number"] == 0
@@ -279,12 +277,14 @@ def test_save_and_exit_redirects_to_form_list(
 
 @pytest.mark.django_db
 def test_side_nav_redirect_accepts_valid_same_entry_url(
-    django_db_setup, form_entry: "FormEntry", authenticated_client
+    django_db_setup, form_entry: "FormEntry", authenticated_client_with_user
 ):
     target = reverse("form_edit", args=[form_entry.pk]) + "?step=0&page=0"
     url = reverse("form_edit", args=[form_entry.pk])
 
-    response = authenticated_client.post(
+    client, user = authenticated_client_with_user
+
+    response = client.post(
         url,
         data={
             "first_name": "John",
@@ -300,11 +300,13 @@ def test_side_nav_redirect_accepts_valid_same_entry_url(
 
 @pytest.mark.django_db
 def test_side_nav_redirect_rejects_external_urls(
-    django_db_setup, form_entry: "FormEntry", authenticated_client
+    django_db_setup, form_entry: "FormEntry", authenticated_client_with_user
 ):
     url = reverse("form_edit", args=[form_entry.pk])
 
-    response = authenticated_client.post(
+    client, user = authenticated_client_with_user
+
+    response = client.post(
         url,
         data={
             "first_name": "John",

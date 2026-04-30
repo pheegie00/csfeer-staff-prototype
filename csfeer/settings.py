@@ -60,7 +60,10 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-AUTHENTICATION_BACKENDS = ["csfeer.backends.EmailOIDCAuthenticationBackend"]
+AUTHENTICATION_BACKENDS = [
+    "csfeer.auth_backends.EmailOIDCAuthenticationBackend",
+    "csfeer.auth_backends.FormPermissionBackend",
+]
 ROOT_URLCONF = "csfeer.urls"
 APPEND_SLASH = False
 
@@ -167,8 +170,9 @@ OIDC_RP_SCOPES = settings.oidc_config.scopes
 OIDC_RP_USE_PKCE = settings.oidc_config.use_pkce
 OIDC_MIDDLEWARE_NO_AUTH_URL_PATTERNS = settings.oidc_config.no_auth_urls
 OIDC_OP_EXPECTED_EMAIL_CLAIM = "email"
+
 OIDC_EXTEND_USER = (
-    "csfeer.backends.extend_user_with_roles"  # Custom function to extend user with roles
+    "csfeer.auth_backends.extend_user_with_roles"  # Custom function to extend user with roles
 )
 
 PATTERN_LIBRARY = {

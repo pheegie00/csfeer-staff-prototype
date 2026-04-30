@@ -17,7 +17,9 @@ class OrganizationProfile(BaseModel):
 
 
 class UserOrganizationMembership(BaseModel):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="org_memberships"
+    )
     organization = models.ForeignKey(OrganizationProfile, on_delete=models.CASCADE)
     groups = models.ManyToManyField(
         Group,

@@ -67,7 +67,7 @@ def test_fields_to_exclude():
 @pytest.mark.django_db
 def test_save_form_entry_clears_field(form_entry: FormEntry, create_user):
     """Test that clearing a field value saves the empty value."""
-    user, _ = create_user
+    user = create_user
 
     # Get the form class from the schema
     form_schema = import_form_schema(form_entry.form_definition.schema_class)
@@ -107,7 +107,7 @@ def test_save_form_entry_clears_field(form_entry: FormEntry, create_user):
 def test_save_form_entry_excludes_calculated_fields(form_entry: FormEntry, create_user):
     """Test that calculated fields aren't overwritten from POST."""
 
-    user, _ = create_user
+    user = create_user
 
     # Create mock request with calculated field value in POST
     request_mock = Mock()
@@ -138,7 +138,7 @@ def test_save_form_entry_does_not_create_audit_trail_when_nothing_changes(
     form_entry: FormEntry, create_user
 ):
     """No-op saves should not create additional audit rows or field diff details."""
-    user, _ = create_user
+    user = create_user
 
     form_schema = import_form_schema(form_entry.form_definition.schema_class)
     form_class = form_schema.get_form_fields_class()
@@ -166,7 +166,7 @@ def test_save_form_entry_does_not_create_audit_trail_when_nothing_changes(
 @pytest.mark.django_db
 def test_save_form_entry_creates_save_audit_trail(form_entry: FormEntry, create_user):
     """Draft saves should be recorded as save actions, not submit actions."""
-    user, _ = create_user
+    user = create_user
 
     form_schema = import_form_schema(form_entry.form_definition.schema_class)
     form_class = form_schema.get_form_fields_class()
@@ -210,7 +210,7 @@ def test_save_form_entry_handles_multiple_choice(
     expected_topics: list[str],
 ):
     """Multiple-choice fields should save selected values and clear when intentionally emptied."""
-    user, _ = create_user
+    user = create_user
 
     form_schema = import_form_schema(form_entry.form_definition.schema_class)
     form_class = form_schema.get_form_fields_class()
@@ -232,7 +232,7 @@ def test_save_form_entry_handles_multiple_choice(
 @pytest.mark.django_db
 def test_save_form_entry_handles_yesno_display_field(form_entry: FormEntry, create_user):
     """Test that ACFYesNoDisplayField (MultiValueField) is properly saved."""
-    user, _ = create_user
+    user = create_user
 
     # Create mock request with MultiValueField POST data
     # YesNoDisplayField uses widget that creates has_funding_0, has_funding_1, etc.
@@ -262,7 +262,7 @@ def test_save_form_entry_persists_uploaded_file_to_storage(
     form_entry: FormEntry, create_user, settings, tmp_path
 ):
     """Uploaded files are persisted and stored as storage paths in FormEntry.data."""
-    user, _ = create_user
+    user = create_user
 
     settings.STORAGES = {
         "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},

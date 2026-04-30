@@ -71,14 +71,14 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
         user.save()
         return user
 
+    @staticmethod
+    def extend_user_with_roles(user, claims, request=None, access_token=None):
+        user.first_name = user.first_name or claims.get("given_name", "")
+        user.last_name = user.last_name or claims.get("family_name", "")
+        user.save(update_fields=["first_name", "last_name"])
 
-def extend_user_with_roles(user, claims, request=None, access_token=None):
-    user.first_name = user.first_name or claims.get("given_name", "")
-    user.last_name = user.last_name or claims.get("family_name", "")
-    user.save(update_fields=["first_name", "last_name"])
-
-    profile, _ = UserProfile.objects.get_or_create(user=user)
-    phone = claims.get("phone_number", "")
-    if phone:
-        profile.phone_number = phone
-        profile.save(update_fields=["phone_number"])
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+        phone = claims.get("phone_number", "")
+        if phone:
+            profile.phone_number = phone
+            profile.save(update_fields=["phone_number"])

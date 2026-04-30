@@ -14,6 +14,7 @@ from form_manager.schema.navigation import build_form_edit_url
 
 if TYPE_CHECKING:
     from django.test.client import Client
+    from users.models import CoreUser
 
 
 # ---------------------------------------------------------------------------
@@ -31,8 +32,8 @@ def tribal_plan_form_schema(django_db_setup):
 @pytest.fixture
 def tribal_plan_form_entry(create_user, tribal_plan_form_schema) -> FormEntry:
     """Create a TribalPlanForm entry for testing."""
-    user, _ = create_user
-    call_command("seed_demo_org", email=user.email, all=True)
+    user = create_user
+
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=user).first()
     return FormEntry.objects.create(
         form_definition=tribal_plan_form_schema,
@@ -158,12 +159,10 @@ def test_tribal_plan_form_schema_loads(django_db_setup, tribal_plan_form_schema)
 
 @pytest.mark.django_db
 def test_can_start_tribal_plan_form(
-    django_db_setup, create_user, tribal_plan_form_schema, client: "Client"
+    django_db_setup, create_user, tribal_plan_form_schema, authenticated_client_with_user
 ):
     """Starting a new TribalPlanForm creates a FormEntry and redirects to edit."""
-    user, _ = create_user
-    call_command("seed_demo_org", email=user.email, all=True)
-    client.force_login(user)
+    client, user = authenticated_client_with_user
 
     url = reverse("form_start", args=[tribal_plan_form_schema.pk])
     response = client.get(url)

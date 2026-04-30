@@ -15,25 +15,49 @@ TEST_USERS = {
         "username": "admin",
         "password": "admin",
         "email": "admin@example.com",
-        "roles": ["csfeer_admin", "csfeer_user"],
+        "roles": ["csfeer_admin", "csfeer_user", "Recipient Authorized Official"],
     },
     "demo": {
         "username": "demo",
         "password": "demo",
         "email": "demo@example.com",
-        "roles": ["csfeer_user"],
+        "roles": ["csfeer_user", "Recipient Authorized Official"],
     },
     "demo-1": {
         "username": "demo-1",
         "password": "demo-1",
         "email": "demo-1@example.com",
-        "roles": ["csfeer_user"],
+        "roles": ["csfeer_user", "Recipient Authorized Official"],
     },
     "demo-2": {
         "username": "demo-2",
         "password": "demo-2",
         "email": "demo-2@example.com",
-        "roles": ["csfeer_user"],
+        "roles": ["csfeer_user", "Recipient Authorized Official"],
+    },
+    "recipient-viewer": {
+        "username": "recipient-viewer",
+        "password": "recipient-viewer",
+        "email": "recipient-viewer@example.com",
+        "roles": ["csfeer_user", "Recipient Form Viewer"],
+    },
+    "recipient-editor": {
+        "username": "recipient-editor",
+        "password": "recipient-editor",
+        "email": "recipient-editor@example.com",
+        "roles": ["csfeer_user", "Recipient Form Editor"],
+    },
+    "recipient-approver": {
+        "username": "recipient-approver",
+        "password": "recipient-approver",
+        "email": "recipient-approver@example.com",
+        "roles": ["csfeer_user", "Recipient Form Approver"],
+    },
+    "recipient-ao": {
+        "username": "recipient-ao",
+        "password": "recipient-ao",
+        "email": "recipient-ao@example.com",
+        "roles": ["csfeer_user", "Recipient Authorized Official"],
     },
 }
 
@@ -93,8 +117,8 @@ def login_as(page: Page, base_url: str, username: str) -> None:
         raise ValueError(f"Unknown user: {username}. Available: {list(TEST_USERS.keys())}")
 
     user = TEST_USERS[username]
+    page.context.clear_cookies()
     login_page = LoginPage(page, base_url)
-    login_page.navigate_to_login()
     login_page.login(user["username"], user["password"])
 
 

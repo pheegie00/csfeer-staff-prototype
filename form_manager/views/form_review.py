@@ -21,6 +21,7 @@ from form_manager.schema.navigation import (
 )
 from form_manager.utils import save_form_entry
 from form_manager.views.form_edit import remove_nodes_with_excluded_fields
+from users.utils import user_can_submit
 
 
 class ReviewSection(TypedDict):
@@ -145,6 +146,7 @@ def form_review(request, pk):
             page_number=len(ui_components[-1].children or []) - 1,
         ),
         "is_valid": is_valid,
+        "can_submit": user_can_submit(request.user, entry.organization),
         "side_nav_items": build_side_nav_items(ui_components, is_review=True, entry_pk=entry.pk),
     }
 

@@ -36,14 +36,10 @@ dev = [
     "pre-commit>=4.5.1",
     "black>=26.3.1",
     "django-extensions>=4.1",
-    "django-types>=0.23.0",
     "ruff>=0.15.10",
     "pydotplus>=2.0.2",
     "types-requests>=2.33.0.20260408",
     "ipdb",
-    "django-stubs>=6.0.2",
-    "django-stubs-ext>=6.0.2",
-
     # testing dependencies
     "freezegun>=1.5.5",
     "playwright>=1.58.0",
@@ -54,7 +50,8 @@ dev = [
     "pytest>=9.0.3",
     "faker==39.0.0",
     "axe-playwright-python>=0.1.7",
-
+    "django-stubs-ext>=6.0.3",
+    "django-types>=0.24.0",
 ]
 
 [tool.black]

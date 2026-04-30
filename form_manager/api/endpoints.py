@@ -25,7 +25,7 @@ from form_manager.models import (
     FormDefinition,
     FormEntry,
 )
-from form_manager.utils import user_can_view
+from users.utils import user_can_view
 
 if TYPE_CHECKING:
     from organizations.models import OrganizationProfile

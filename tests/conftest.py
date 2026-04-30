@@ -9,11 +9,16 @@ from typing import TYPE_CHECKING
 
 import pytest
 from django.test.client import Client
+from django.core.management import call_command
+from django.contrib.auth import get_user_model
 from dotenv import load_dotenv
 from playwright.sync_api import Browser, BrowserContext, Page, expect
+from tests.fixtures.users import TEST_USERS
+from django.core.exceptions import ObjectDoesNotExist
 
 if TYPE_CHECKING:
     from django.test.client import Client
+    from users.models import CoreUser
 
 from faker import Faker
 
@@ -163,24 +168,29 @@ def create_user(django_user_model):
         user = create_user(username="alice", password="secret", email="a@b.com", is_staff=True)
     """
 
-    details = dict(
-        first_name=fake.first_name(),
-        last_name=fake.last_name(),
-        email=fake.email(),
-        password=fake.password(),
-    )
-
-    return django_user_model.objects.create_user(**details), details
+    try:
+        return get_user_model().objects.get(email=TEST_USERS["demo"]["email"])
+    except ObjectDoesNotExist:
+        call_command("seed_test_users", email=TEST_USERS["demo"]["email"])
+        return get_user_model().objects.get(email=TEST_USERS["demo"]["email"])
 
 
 @pytest.fixture
 def authenticated_client(create_user, client: "Client") -> "Client":
 
-    user, _ = create_user
-
-    client.force_login(user)
+    client.force_login(create_user)
 
     return client
+
+
+@pytest.fixture
+def authenticated_client_with_user(create_user, client: "Client") -> tuple["Client", "CoreUser"]:
+
+    user_obj = create_user
+
+    client.force_login(user_obj)
+
+    return client, user_obj
 
 
 @pytest.fixture(autouse=True)
