@@ -1,4 +1,4 @@
-<c-accordion type="{% if multiselectable %}multiselectable{% endif %}" class="margin-top-2 margin-bottom-3">
+<c-accordion type="{% if bordered %}bordered{% elif multiselectable %}multiselectable{% endif %}" class="margin-top-2 margin-bottom-3">
   {% for item in items %}
     <c-accordion-item
       heading="{{ item.heading }}"

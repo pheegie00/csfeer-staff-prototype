@@ -15,6 +15,7 @@ from form_manager.schema.forms.tribal_plan.texts import (
     _DEBARMENT_LOWER_TIER_INSTRUCTIONS_TEXT,
     _DEBARMENT_PRIMARY_INSTRUCTIONS_TEXT,
     _DRUG_FREE_WORKPLACE_CERTIFICATION_TEXT,
+    _DRUG_FREE_WORKPLACE_INSTRUCTIONS_TEXT,
     _LIMITATION_ON_USE_OF_FUNDS_TEXT,
     _LOBBYING_CERTIFICATION_TEXT,
     _SINGLE_AUDIT_REQUIREMENTS_TEXT,
@@ -536,18 +537,34 @@ class TribalPlanForm(BaseFormSchema):
                         ),
                         children=[
                             AccordionBlock(
+                                bordered=True,
                                 items=[
                                     AccordionItem(
                                         heading="Instructions for Certifications",
-                                        text=_DRUG_FREE_WORKPLACE_CERTIFICATION_TEXT,
+                                        text=_DRUG_FREE_WORKPLACE_INSTRUCTIONS_TEXT,
                                         is_expanded=False,
                                     )
-                                ]
+                                ],
+                            ),
+                            TextBlock(
+                                bordered=True,
+                                heading="Drug-Free Workplace Certification",
+                                text=_DRUG_FREE_WORKPLACE_CERTIFICATION_TEXT,
                             ),
                             SectionBlock(
                                 children=[
                                     ReviewSubheadingBlock(title="Drug-Free Workplace Requirements"),
                                     FieldBlock(field_name="drug_free_attestation"),
+                                ],
+                            ),
+                            SectionBlock(
+                                title="Place of performance",
+                                description=(
+                                    "The grant recipient may insert in the space provided"
+                                    " below the site for the performance of work done in"
+                                    " connection with the specific grant."
+                                ),
+                                children=[
                                     FieldBlock(field_name="drug_free_place_of_performance"),
                                     FieldBlock(
                                         field_name="drug_free_unidentified_workplaces",
@@ -555,6 +572,10 @@ class TribalPlanForm(BaseFormSchema):
                                             "form_manager/forms/yes_no_display_review.html"
                                         ),
                                     ),
+                                ],
+                            ),
+                            SectionBlock(
+                                children=[
                                     FieldBlock(field_name="drug_free_signature"),
                                 ],
                             ),
@@ -568,6 +589,7 @@ class TribalPlanForm(BaseFormSchema):
                         ),
                         children=[
                             AccordionBlock(
+                                bordered=True,
                                 items=[
                                     AccordionItem(
                                         heading=(
@@ -585,7 +607,7 @@ class TribalPlanForm(BaseFormSchema):
                                         text=_DEBARMENT_LOWER_TIER_INSTRUCTIONS_TEXT,
                                         is_expanded=False,
                                     ),
-                                ]
+                                ],
                             ),
                             TextBlock(
                                 bordered=False,

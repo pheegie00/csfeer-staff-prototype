@@ -523,7 +523,7 @@ class TribalPlanFormFields(BaseFields):
     )
     lobbying_signature = acf_fields.CharField(
         title="Authorized Tribal Official Signature",
-        description="Type your full name to sign.",
+        description="Type in your full name as part of this signature",
         max_length=200,
     )
 
@@ -536,9 +536,6 @@ class TribalPlanFormFields(BaseFields):
     )
     drug_free_place_of_performance = acf_fields.CharField(
         title="Place of Performance (street, city, county, state, ZIP code)",
-        description=(
-            "Provide the address or location where CSBG-funded activities will be performed."
-        ),
         max_length=500,
     )
     # TODO: Exact question wording and behavior for "unidentified workplaces" is pending
@@ -557,7 +554,7 @@ class TribalPlanFormFields(BaseFields):
     )
     drug_free_signature = acf_fields.CharField(
         title="Authorized Tribal Official Signature",
-        description="Type your full name to sign.",
+        description="Type in your full name as part of this signature",
         max_length=200,
     )
 
@@ -570,7 +567,7 @@ class TribalPlanFormFields(BaseFields):
     )
     debarment_signature = acf_fields.CharField(
         title="Authorized Tribal Official Signature",
-        description="Type your full name to sign.",
+        description="Type in your full name as part of this signature",
         max_length=200,
     )
 
@@ -583,7 +580,7 @@ class TribalPlanFormFields(BaseFields):
     )
     tobacco_signature = acf_fields.CharField(
         title="Authorized Tribal Official Signature",
-        description="Type your full name to sign.",
+        description="Type in your full name as part of this signature",
         max_length=200,
     )
 

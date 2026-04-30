@@ -9,6 +9,10 @@
         <h2 class="font-alt-lg font-family-sans text-normal">{{ title }}</h2>
     {% endif %}
 
+    {% if description %}
+        <p class="font-body-sm">{{ description }}</p>
+    {% endif %}
+
     {% for child in children %}
         {{ child.render }}
     {% endfor %}
