@@ -183,6 +183,10 @@ textarea.usa-textarea {
   padding: units(3);
   margin-top: units(2);
   margin-bottom: units(3);
+
+  .usa-prose > p {
+    max-width: none;
+  }
 }
 
 .planned-allocation-card__header {

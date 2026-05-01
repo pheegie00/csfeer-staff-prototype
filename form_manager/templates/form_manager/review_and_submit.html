@@ -2,18 +2,18 @@
 {% load static %}
 {% block content %}
 {% load form_manager_tags %}
-<div class="grid-container">
+<div class="grid-container padding-0 maxw-none">
   <div class="grid-row">
     <div class="grid-col-12">
       {% include "form_manager/_form_header.html" %}
     </div>
   </div>
-  <div class="grid-row grid-gap-4">
+  <div class="grid-row">
     <div class="grid-col-12 desktop:grid-col-3">
       {% include "form_manager/_side_nav.html" %}
     </div>
-    <div class="grid-col-12 desktop:grid-col-9">
-      <h1 class="font-heading-2xl semibold font-family-sans font-weight-semibold">Review and Submit</h1>
+    <div class="grid-col-12 desktop:grid-col-9 padding-left-6">
+      <h1 class="font-heading-2xl semibold font-family-sans font-weight-semibold margin-top-0">Review and Submit</h1>
 
       <div class="margin-bottom-5">
       {% if form.errors %}
@@ -40,9 +40,9 @@
                     <div class="grid-row">
                         <div class="grid-col-10">
                             {% for block in step.blocks %}
-                        
+
                                 {% if block.type == "review-subheading" %}
-                                <div class="font-heading-lg font-family-sans">{{ block.title }}</div>
+                                <div class="font-heading-lg font-family-sans {% if not forloop.first %}margin-top-4 padding-top-4 border-top-1px border-base-lighter{% endif %}">{{ block.title }}</div>
                                 {% else %}
                                     {% if not block.unbound_field.is_presentational_only %}
                                     <div class="margin-bottom-3">
@@ -50,7 +50,7 @@
                                     </div>
                                     {% endif %}
                                 {% endif %}
-                    
+
                             {% endfor %}
                         </div>
                         <div class="grid-col-2 display-flex flex-justify-end">
