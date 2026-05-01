@@ -10,7 +10,9 @@
 <c-header-main agent_name="{{ user.get_full_name|default:user.username }}"></c-header>
 
 <main id="main-content" class="layout-content">
-  <div class="grid-container">{{ slot }}</div>
+  <div class="grid-container maxw-desktop-lg padding-x-4 padding-y-10 ">
+    {{ slot }}
+  </div>
 </main>
 
 <c-footer-main email="{{ ui_info.support_email }}"></c-footer-main>

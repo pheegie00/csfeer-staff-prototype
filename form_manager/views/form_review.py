@@ -77,7 +77,7 @@ def build_review_sections(
 
     for step_index, step in enumerate(steps):
         section: ReviewSection = {
-            "title": step.title,
+            "title": f"Section {step_index + 1}: {step.title}",
             "edit_url": build_form_edit_url(entry_pk, step_number=step_index, page_number=0),
             "blocks": _collect_review_blocks(step, form=form),
         }
