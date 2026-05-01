@@ -12,91 +12,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build Docker image
-        run: docker build --target prod-e2e -t csfeer:ci .
-
-      - name: Save Docker image
-        run: docker save csfeer:ci | gzip > csfeer-ci.tar.gz
-
-      - name: Upload image artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-image
-          path: csfeer-ci.tar.gz
-          retention-days: 1
-
-  e2e-tests:
-    needs: build
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: docker-image
-
-      - name: Load Docker image
-        run: docker load < csfeer-ci.tar.gz
-
-      - name: Set up tests
-        run: |
-          sudo bash -c "echo '127.0.0.1   oauth.csfeer' >> /etc/hosts"
-          sudo bash -c "echo '127.0.0.1   ui.csfeer' >> /etc/hosts"
-          mkdir -p tests/videos && chmod 777 tests/videos
-          mkdir -p tests/traces && chmod 777 tests/traces
-          mkdir -p tests/screenshots && chmod 777 tests/screenshots
-          make setup-tests-ci IMAGE_NAME=csfeer:ci
-
-      - name: Run e2e tests
-        run: |
-          make test-e2e-ci IMAGE_NAME=csfeer:ci
-        env:
-          IMAGE_NAME: csfeer:ci
-          PLAYWRIGHT_LOG_BROWSER_CONSOLE: True
-
-      # Uncomment these artifact uploads when our
-      # artifact storage quota resets in the next 24 hours
-      # - name: Upload test artifacts
-      #   if: always()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: playwright-artifacts
-      #     path: |
-      #       tests/screenshots/
-      #       tests/videos/
-      #       tests/traces/
-      #     retention-days: 1
-
-      # - name: Upload test results
-      #   if: always()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: test-results
-      #     path: test-results/
-      #     retention-days: 7
-
-      - name: Docker logs and cleanup on failure
-        if: failure()
-        run: |
-          IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml logs
-          IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml down -v
-
-  unit-tests:
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     permissions:
       pull-requests: write
       contents: write
@@ -105,13 +23,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: docker-image
-
-      - name: Load Docker image
-        run: docker load < csfeer-ci.tar.gz
+      - name: Build Docker image
+        run: docker build --target prod-e2e -t csfeer:ci .
 
       - name: Set up tests
         run: |
@@ -136,6 +49,13 @@ jobs:
         uses: py-cov-action/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Run e2e tests
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: make test-e2e-ci IMAGE_NAME=csfeer:ci
+        env:
+          IMAGE_NAME: csfeer:ci
+          PLAYWRIGHT_LOG_BROWSER_CONSOLE: True
 
       - name: Docker logs and cleanup on failure
         if: failure()
