@@ -93,7 +93,7 @@ jobs:
           IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml logs
           IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml down -v
 
-  coverage:
+  unit-tests:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 20
