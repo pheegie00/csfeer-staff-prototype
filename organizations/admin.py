@@ -2,9 +2,9 @@ from django import forms  # type: ignore
 from django.contrib import admin  # type: ignore
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ValidationError
-from django.db.models import Q
 
 from organizations.models import OrganizationProfile, UserOrganizationMembership
+from organizations.utils import is_ao_permission_assigned
 from users.permissions import (
     FORM_TRIBAL_PLAN_CAN_SIGN_AUTHORIZED_OFFICIAL,
     RECIPIENT_AUTHORIZED_OFFICIAL,
@@ -20,6 +20,13 @@ class UserOrganizationMembershipForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        self.verify_ao_permissions(cleaned_data)
+        return cleaned_data
+
+    def verify_ao_permissions(self, cleaned_data):
+        """Raises an error if we're trying to add an AO permission
+        to the org when a user already has the AO permissions"""
+
         organization = cleaned_data.get("organization")
         if not organization:
             return cleaned_data
@@ -36,7 +43,7 @@ class UserOrganizationMembershipForm(forms.ModelForm):
             if (
                 ao_group
                 and ao_group in groups
-                and self._ao_conflict_exists(organization, exclude_pk)
+                and is_ao_permission_assigned(organization, exclude_pk)
             ):
                 raise ValidationError(error_msg)
 
@@ -48,21 +55,9 @@ class UserOrganizationMembershipForm(forms.ModelForm):
             if (
                 ao_perm
                 and ao_perm in permissions
-                and self._ao_conflict_exists(organization, exclude_pk)
+                and is_ao_permission_assigned(organization, exclude_pk)
             ):
                 raise ValidationError(error_msg)
-
-        return cleaned_data
-
-    def _ao_conflict_exists(self, organization, exclude_pk=None) -> bool:
-        """Return True if any membership in the org already holds the AO permission."""
-        qs = UserOrganizationMembership.objects.filter(organization=organization).filter(
-            Q(groups__name=RECIPIENT_AUTHORIZED_OFFICIAL)
-            | Q(permissions__codename=FORM_TRIBAL_PLAN_CAN_SIGN_AUTHORIZED_OFFICIAL)
-        )
-        if exclude_pk:
-            qs = qs.exclude(pk=exclude_pk)
-        return qs.exists()
 
 
 @admin.register(OrganizationProfile)
