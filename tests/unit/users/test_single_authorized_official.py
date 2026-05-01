@@ -10,6 +10,7 @@ from users.permissions import (
     ORG_PERMISSION_GROUPS,
     RECIPIENT_FORM_EDITOR,
     FORM_TRIBAL_PLAN_CAN_SIGN_AUTHORIZED_OFFICIAL,
+    RECIPIENT_AUTHORIZED_OFFICIAL,
 )
 from users.signals import create_permission_groups
 
@@ -47,7 +48,7 @@ def org(db):
 
 @pytest.fixture
 def ao_group(permission_groups):
-    return Group.objects.get(name="Recipient Authorized Official")
+    return Group.objects.get(name=RECIPIENT_AUTHORIZED_OFFICIAL)
 
 
 @pytest.fixture
@@ -75,7 +76,7 @@ def test_first_authorized_official_is_allowed(org, ao_group, make_user):
 
     membership = UserOrganizationMembership.objects.create(user=make_user(), organization=org)
     membership.groups.add(ao_group)  # must not raise
-    assert membership.groups.filter(name="Recipient Authorized Official").exists()
+    assert membership.groups.filter(name=RECIPIENT_AUTHORIZED_OFFICIAL).exists()
 
 
 @pytest.mark.django_db
@@ -183,3 +184,20 @@ def test_ao_group_blocked_when_another_has_direct_permission(
     m2 = UserOrganizationMembership.objects.create(user=make_user(), organization=org)
     with pytest.raises(ValidationError, match="already has a Recipient Authorized Official"):
         m2.groups.add(ao_group)
+
+
+@pytest.mark.django_db
+def test_non_ao_group_allowed_when_ao_exists(org, ao_group, make_user, permission_groups):
+    """Adding a non-AO group to a member is allowed even when the org already has an AO."""
+    from organizations.models import UserOrganizationMembership
+
+    editor_group = Group.objects.get(name=RECIPIENT_FORM_EDITOR)
+
+    ao_membership = UserOrganizationMembership.objects.create(user=make_user(), organization=org)
+    ao_membership.groups.add(ao_group)
+
+    editor_membership = UserOrganizationMembership.objects.create(
+        user=make_user(),
+        organization=org,
+    )
+    editor_membership.groups.add(editor_group)  # must not raise
