@@ -129,7 +129,7 @@ jobs:
 
       - name: Extract coverage report from container
         if: always()
-        run: IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml cp app:/app/coverage.xml coverage.xml
+        run: IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml cp app:/app/.coverage .coverage
 
       - name: Post coverage comment
         if: always()
