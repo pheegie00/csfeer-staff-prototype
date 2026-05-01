@@ -6,12 +6,6 @@ from collections.abc import Generator
 
 import pytest
 from playwright.sync_api import Page
-from users.permissions import (
-    RECIPIENT_AUTHORIZED_OFFICIAL,
-    RECIPIENT_FORM_APPROVER,
-    RECIPIENT_FORM_EDITOR,
-    RECIPIENT_FORM_VIEWER,
-)
 
 from tests.e2e.pages.login_page import LoginPage
 from users.permissions import (
