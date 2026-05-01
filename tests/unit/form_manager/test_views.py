@@ -393,7 +393,7 @@ def _ensure_custom_permissions_exist():
 @pytest.fixture
 def permission_groups(db):
     _ensure_custom_permissions_exist()
-    with patch("users.signals.create_permissions"):
+    with patch("users.signals.create_permission_groups"):
         create_permission_groups(
             app_config=None,
             verbosity=0,

@@ -41,7 +41,8 @@
             <c-button
                 text="Next →"
                 variant="base"
-                state="{% if page_permissions_met %}active{% else %}disabled{% endif %}"
+                disabled="{% if not page_permissions_met %}disabled{% endif %}"
+                aria_disabled="{% if not page_permissions_met %}true{% endif %}"
                 type="submit"
             />
         </div>
