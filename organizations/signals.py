@@ -31,5 +31,5 @@ def enforce_single_authorized_official(sender, instance, action, pk_set, **kwarg
     if is_ao_permission_assigned(instance.organization):
         raise ValidationError(
             f"Organization '{instance.organization}' already has a "
-            "{RECIPIENT_AUTHORIZED_OFFICIAL}. Only one is permitted per organization."
+            f"{RECIPIENT_AUTHORIZED_OFFICIAL}. Only one is permitted per organization."
         )
