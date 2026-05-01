@@ -113,9 +113,6 @@ jobs:
       - name: Load Docker image
         run: docker load < csfeer-ci.tar.gz
 
-      - name: Create coverage.xml placeholder for volume mount
-        run: touch coverage.xml
-
       - name: Set up tests
         run: |
           sudo bash -c "echo '127.0.0.1   oauth.csfeer' >> /etc/hosts"
@@ -126,6 +123,9 @@ jobs:
         run: make test-unit-ci-coverage IMAGE_NAME=csfeer:ci
         env:
           IMAGE_NAME: csfeer:ci
+
+      - name: Extract coverage report from container
+        run: IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml cp app:/app/coverage.xml coverage.xml
 
       - name: Post coverage comment
         uses: py-cov-action/python-coverage-comment-action@v3
