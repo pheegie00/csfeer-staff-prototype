@@ -78,23 +78,13 @@
                     ← Back
                     </a>
                     {% endif %}
-
-                    {% if can_submit %}
                     <c-button
                         text="Submit"
                         variant="base"
                         state="active"
                         type="submit"
+                        disabled="{% if not can_submit or not is_valid %}true{% endif %}"
                     />
-                    {% else %}
-                    <c-button
-                        text="Submit"
-                        variant="base"
-                        state="active"
-                        type="submit"
-                        disabled="true"
-                    />
-                    {% endif %}
                 </div>
             </div>
 

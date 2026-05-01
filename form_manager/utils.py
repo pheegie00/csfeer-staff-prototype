@@ -153,6 +153,13 @@ def get_fields_to_save(form, request):
                 if any(value) or sentinel_key in request.POST:
                     logger.info("Adding %s to fields_to_save", field_name)
                     fields_to_save.append(field_name)
+            elif value is False:
+                # CheckboxInput returns False for missing fields (unchecked), not None.
+                # Use a sentinel to distinguish "unchecked on this page" from
+                # "field is on a different step and was never submitted".
+                sentinel_key = f"{form.add_prefix(field_name)}_submitted"
+                if sentinel_key in request.POST:
+                    fields_to_save.append(field_name)
             else:
                 fields_to_save.append(field_name)
 

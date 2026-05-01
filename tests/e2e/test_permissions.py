@@ -54,9 +54,12 @@ def _fill_section_1(page: Page) -> None:
     page.get_by_label("Email address *").fill("permtest@example.org")
 
 
-def _complete_and_submit(page: Page, base_url: str) -> None:
-    """Complete the full Tribal Short Form workflow and submit it."""
-    _start_tribal_short_form(page, base_url)
+def _fill_all_sections_to_review(page: Page, base_url: str) -> str:
+    """Fill all sections of the Tribal Short Form and arrive at the Review page.
+
+    Returns the entry path (e.g. /forms/entry/<uuid>/).
+    """
+    entry_path = _start_tribal_short_form(page, base_url)
     _fill_section_1(page)
 
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
@@ -125,8 +128,13 @@ def _complete_and_submit(page: Page, base_url: str) -> None:
         page.get_by_role("button", name="Next →").click()
     page.wait_for_timeout(1000)
 
-    # Review and Submit
     assert "Review and Submit" in page.evaluate("() => document.body.innerText")
+    return entry_path
+
+
+def _complete_and_submit(page: Page, base_url: str) -> None:
+    """Complete the full Tribal Short Form workflow and submit it."""
+    _fill_all_sections_to_review(page, base_url)
     page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
     page.wait_for_timeout(500)
 
@@ -362,19 +370,7 @@ class TestRecipientApproverPermissions:
     def test_approver_submit_button_enabled(self, page: Page, base_url: str) -> None:
         """Submit button is enabled for an approver on the review step."""
         login_as(page, base_url, "recipient-approver")
-        entry_path = _start_tribal_short_form(page, base_url)
-        _fill_section_1(page)
-        page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-        page.wait_for_timeout(500)
-        page.get_by_role("button", name="Save & Exit").click()
-        page.wait_for_load_state("networkidle")
-
-        page.goto(f"{base_url}{entry_path}edit/")
-        page.wait_for_load_state("networkidle")
-        side_nav = page.locator('nav[aria-label="Form sections"]')
-        side_nav.get_by_text("Review and Submit").click()
-        page.wait_for_load_state("networkidle")
-
+        _fill_all_sections_to_review(page, base_url)
         page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
         page.wait_for_timeout(500)
 
@@ -437,19 +433,7 @@ class TestRecipientAOPermissions:
     def test_ao_submit_button_enabled(self, page: Page, base_url: str) -> None:
         """Submit button is enabled for an AO on the review step."""
         login_as(page, base_url, "recipient-ao")
-        entry_path = _start_tribal_short_form(page, base_url)
-        _fill_section_1(page)
-        page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
-        page.wait_for_timeout(500)
-        page.get_by_role("button", name="Save & Exit").click()
-        page.wait_for_load_state("networkidle")
-
-        page.goto(f"{base_url}{entry_path}edit/")
-        page.wait_for_load_state("networkidle")
-        side_nav = page.locator('nav[aria-label="Form sections"]')
-        side_nav.get_by_text("Review and Submit").click()
-        page.wait_for_load_state("networkidle")
-
+        _fill_all_sections_to_review(page, base_url)
         page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
         page.wait_for_timeout(500)
 

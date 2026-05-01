@@ -6,11 +6,13 @@ after users visit the review page and return to edit the form.
 """
 
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 import pytest
 from django.urls import reverse
 
 from form_manager.models import FormAuditTrail, FormEntry
+from tests.unit.form_manager.fixtures.use_test_schema import TestSchemaForm
 
 if TYPE_CHECKING:
     from django.test.client import Client
@@ -120,9 +122,11 @@ def test_form_finalize_clears_show_errors_flag(
     # Verify the flag is set before submission
     assert authenticated_client.session.get(f"show_errors_{form_entry.pk}") is True
 
-    # Submit the form
+    # Submit the form — mock is_valid since this test is about session/audit behaviour,
+    # not form validation logic (incomplete data would otherwise block submission)
     url = reverse("form_finalize", args=[form_entry.pk])
-    response = authenticated_client.post(url)
+    with patch.object(TestSchemaForm, "is_valid", return_value=True):
+        response = authenticated_client.post(url)
 
     # Check that the flag is cleared from session
     assert authenticated_client.session.get(f"show_errors_{form_entry.pk}") is None
@@ -257,3 +261,45 @@ def test_session_flag_isolated_per_entry(
     form2 = response2.context["form"]
     # Second form should be unbound since its flag is not set
     assert not form2.is_bound
+
+
+@pytest.mark.django_db
+def test_form_finalize_rejects_invalid_data(
+    django_db_setup, form_entry: FormEntry, authenticated_client
+):
+    """
+    Test that form_finalize blocks submission when form data is invalid.
+
+    When validation fails, the view redirects back to the review page
+    and leaves the entry status unchanged.
+    """
+    form_entry.data = {"first_name": "", "last_name": ""}
+    form_entry.save()
+
+    url = reverse("form_finalize", args=[form_entry.pk])
+    response = authenticated_client.post(url)
+
+    assert response.status_code == 302
+    assert response.headers["Location"] == reverse("form_review", args=[form_entry.pk])
+
+    form_entry.refresh_from_db()
+    assert form_entry.status != "submitted"
+
+
+@pytest.mark.django_db
+def test_review_page_is_valid_false_in_context_when_form_invalid(
+    django_db_setup, form_entry: FormEntry, authenticated_client
+):
+    """
+    Review page context contains is_valid=False when the form has validation errors.
+
+    The template uses this to disable the Submit button, so this must be accurate.
+    """
+    form_entry.data = {"first_name": "", "last_name": ""}
+    form_entry.save()
+
+    url = reverse("form_review", args=[form_entry.pk])
+    response = authenticated_client.get(url)
+
+    assert response.status_code == 200
+    assert response.context["is_valid"] is False
