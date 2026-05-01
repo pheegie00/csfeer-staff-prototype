@@ -117,6 +117,9 @@ jobs:
         run: |
           sudo bash -c "echo '127.0.0.1   oauth.csfeer' >> /etc/hosts"
           sudo bash -c "echo '127.0.0.1   ui.csfeer' >> /etc/hosts"
+          mkdir -p tests/videos && chmod 777 tests/videos
+          mkdir -p tests/traces && chmod 777 tests/traces
+          mkdir -p tests/screenshots && chmod 777 tests/screenshots
           make setup-tests-ci IMAGE_NAME=csfeer:ci
 
       - name: Run unit tests with coverage
@@ -125,9 +128,11 @@ jobs:
           IMAGE_NAME: csfeer:ci
 
       - name: Extract coverage report from container
+        if: always()
         run: IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml cp app:/app/coverage.xml coverage.xml
 
       - name: Post coverage comment
+        if: always()
         uses: py-cov-action/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ github.token }}
