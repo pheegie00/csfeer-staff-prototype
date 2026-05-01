@@ -1,9 +1,23 @@
 from django.contrib.auth import get_user_model
-from django.db import models
+from django.db import models  # type: ignore
 
 from form_manager.constants import ALL_FORM_NAME_CHOICES, FormFamilies
 from form_manager.models.fields import SemVerField
 from organizations.models import BaseModel
+from users.permissions import (
+    FORM_EDIT,
+    FORM_EDIT_DESCRIPTION,
+    FORM_LIST,
+    FORM_LIST_DESCRIPTION,
+    FORM_START,
+    FORM_START_DESCRIPTION,
+    FORM_SUBMIT,
+    FORM_SUBMIT_DESCRIPTION,
+    FORM_TRIBAL_PLAN_CAN_SIGN_AUTHORIZED_OFFICIAL,
+    FORM_TRIBAL_PLAN_CAN_SIGN_AUTHORIZED_OFFICIAL_DESCRIPTION,
+    FORM_VIEW,
+    FORM_VIEW_DESCRIPTION,
+)
 
 User = get_user_model()
 
@@ -33,8 +47,8 @@ class FormDefinition(BaseModel):
         unique_together = ("name", "variant")
 
         permissions = [
-            ("form_list", "Can see this form in the forms list page"),
-            ("form_start", "Can start a form instance"),
+            (FORM_LIST, FORM_LIST_DESCRIPTION),
+            (FORM_START, FORM_START_DESCRIPTION),
         ]
 
     def __str__(self) -> str:  # pragma: no cover - trivial
@@ -63,12 +77,12 @@ class FormEntry(BaseModel):
         unique_together = ("organization", "form_definition", "version_number")
         ordering = ["-updated_at"]
         permissions = [
-            ("form_view", "Can view a form instance"),
-            ("form_edit", "Can edit a form instance"),
-            ("form_submit", "Can submit a form instance"),
+            (FORM_VIEW, FORM_VIEW_DESCRIPTION),
+            (FORM_EDIT, FORM_EDIT_DESCRIPTION),
+            (FORM_SUBMIT, FORM_SUBMIT_DESCRIPTION),
             (
-                "form_tribal_plan_can_sign_authorized_official",
-                "Can sign the Authorized Official page of the tribal plan form",
+                FORM_TRIBAL_PLAN_CAN_SIGN_AUTHORIZED_OFFICIAL,
+                FORM_TRIBAL_PLAN_CAN_SIGN_AUTHORIZED_OFFICIAL_DESCRIPTION,
             ),
         ]
 

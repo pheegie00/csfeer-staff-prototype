@@ -56,11 +56,10 @@ class Command(BaseCommand):
             self._create_org(user, roles)
 
     def _create_org(self, user: "CoreUser", roles: list[str] | None = None):
-        """Create the Demo Organization and associate the user with the provided roles."""
-        # At this point user must be resolved
+        """Create a per-user demo organization and associate the user with the provided roles."""
         assert user is not None
 
-        org_name = "Demo Organization"
+        org_name = f"Demo Organization ({user.email})"
 
         # Create or get the organization
         org, created = OrganizationProfile.objects.get_or_create(name=org_name)
