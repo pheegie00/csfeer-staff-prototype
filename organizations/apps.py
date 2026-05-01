@@ -9,7 +9,6 @@ class OrganizationsConfig(AppConfig):
 
         from organizations.models import UserOrganizationMembership
         from organizations.signals import (
-            enforce_single_ao_direct_permission,
             enforce_single_authorized_official,
         )
 
@@ -18,6 +17,6 @@ class OrganizationsConfig(AppConfig):
             sender=UserOrganizationMembership.groups.through,
         )
         m2m_changed.connect(
-            enforce_single_ao_direct_permission,
+            enforce_single_authorized_official,
             sender=UserOrganizationMembership.permissions.through,
         )

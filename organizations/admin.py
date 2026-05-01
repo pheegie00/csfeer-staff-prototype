@@ -5,7 +5,10 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 
 from organizations.models import OrganizationProfile, UserOrganizationMembership
-from organizations.signals import AO_PERMISSION_CODENAME, RECIPIENT_AUTHORIZED_OFFICIAL
+from users.permissions import (
+    FORM_TRIBAL_PLAN_CAN_SIGN_AUTHORIZED_OFFICIAL,
+    RECIPIENT_AUTHORIZED_OFFICIAL,
+)
 
 
 class UserOrganizationMembershipForm(forms.ModelForm):
@@ -39,7 +42,9 @@ class UserOrganizationMembershipForm(forms.ModelForm):
 
         permissions = cleaned_data.get("permissions")
         if permissions:
-            ao_perm = Permission.objects.filter(codename=AO_PERMISSION_CODENAME).first()
+            ao_perm = Permission.objects.filter(
+                codename=FORM_TRIBAL_PLAN_CAN_SIGN_AUTHORIZED_OFFICIAL
+            ).first()
             if (
                 ao_perm
                 and ao_perm in permissions
@@ -53,7 +58,7 @@ class UserOrganizationMembershipForm(forms.ModelForm):
         """Return True if any membership in the org already holds the AO permission."""
         qs = UserOrganizationMembership.objects.filter(organization=organization).filter(
             Q(groups__name=RECIPIENT_AUTHORIZED_OFFICIAL)
-            | Q(permissions__codename=AO_PERMISSION_CODENAME)
+            | Q(permissions__codename=FORM_TRIBAL_PLAN_CAN_SIGN_AUTHORIZED_OFFICIAL)
         )
         if exclude_pk:
             qs = qs.exclude(pk=exclude_pk)

@@ -6,9 +6,14 @@ from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
 from csfeer.auth_backends.form_permissions import FormPermissionBackend
-from users.permissions import ORG_PERMISSION_GROUPS
+from users.permissions import (
+    ORG_PERMISSION_GROUPS,
+    RECIPIENT_AUTHORIZED_OFFICIAL,
+    RECIPIENT_FORM_APPROVER,
+    RECIPIENT_FORM_EDITOR,
+    RECIPIENT_FORM_VIEWER,
+)
 from users.signals import create_permission_groups
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -46,7 +51,7 @@ def backend():
 def permission_groups(db):
     """Seed Django groups matching ORG_PERMISSION_GROUPS, as post_migrate would."""
     _ensure_custom_permissions_exist()
-    with patch("users.signals.create_permissions"):
+    with patch("users.signals.create_permission_groups"):
         create_permission_groups(
             app_config=None,
             verbosity=0,
@@ -237,7 +242,7 @@ def test_membership_with_no_permissions_denied(backend, active_user, org, member
 @pytest.mark.django_db
 def test_group_permission_granted(backend, active_user, org, membership, permission_groups):
     """A user in a group that has the permission is granted."""
-    editor_group = Group.objects.get(name="Recipient Form Editor")
+    editor_group = Group.objects.get(name=RECIPIENT_FORM_EDITOR)
     membership.groups.add(editor_group)
     assert backend.has_perm(active_user, "form_manager.form_edit", obj=org) is True
 
@@ -246,7 +251,7 @@ def test_group_permission_granted(backend, active_user, org, membership, permiss
 def test_group_without_permission_denied(backend, active_user, org, membership, permission_groups):
     """A user in a group that lacks the checked permission is denied."""
     # Viewer group only has form_view, not form_edit
-    viewer_group = Group.objects.get(name="Recipient Form Viewer")
+    viewer_group = Group.objects.get(name=RECIPIENT_FORM_VIEWER)
     membership.groups.add(viewer_group)
     assert backend.has_perm(active_user, "form_manager.form_edit", obj=org) is False
 
@@ -254,8 +259,8 @@ def test_group_without_permission_denied(backend, active_user, org, membership, 
 @pytest.mark.django_db
 def test_multiple_groups_one_matches(backend, active_user, org, membership, permission_groups):
     """A user in multiple groups is granted if any group has the permission."""
-    viewer_group = Group.objects.get(name="Recipient Form Viewer")
-    editor_group = Group.objects.get(name="Recipient Form Editor")
+    viewer_group = Group.objects.get(name=RECIPIENT_FORM_VIEWER)
+    editor_group = Group.objects.get(name=RECIPIENT_FORM_EDITOR)
     membership.groups.add(viewer_group, editor_group)
     assert backend.has_perm(active_user, "form_manager.form_edit", obj=org) is True
 
@@ -279,6 +284,6 @@ def test_group_perm_without_direct_still_granted(
     backend, active_user, org, membership, permission_groups
 ):
     """Group permission alone is sufficient — no direct permission needed."""
-    editor_group = Group.objects.get(name="Recipient Form Editor")
+    editor_group = Group.objects.get(name=RECIPIENT_FORM_EDITOR)
     membership.groups.add(editor_group)
     assert backend.has_perm(active_user, "form_manager.form_edit", obj=org) is True

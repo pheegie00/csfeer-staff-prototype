@@ -32,7 +32,7 @@ def permission_groups(db):
     """Set up permission groups as post_migrate would, without depending on migration state."""
     _ensure_custom_permissions_exist()
     # Permissions are now in the DB; mock create_permissions to isolate group-creation logic.
-    with patch("users.signals.create_permissions"):
+    with patch("users.signals.create_permission_groups"):
         create_permission_groups(
             app_config=None,
             verbosity=0,
@@ -68,7 +68,7 @@ def test_create_permission_groups_signal_handler_creates_groups(permission_group
     """The signal handler re-creates groups with correct permissions when they are absent."""
     Group.objects.filter(name__in=ORG_PERMISSION_GROUPS.keys()).delete()
 
-    with patch("users.signals.create_permissions"):
+    with patch("users.signals.create_permission_groups"):
         create_permission_groups(
             app_config=None,
             verbosity=0,

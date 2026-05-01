@@ -6,7 +6,11 @@ from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 
-from users.permissions import ORG_PERMISSION_GROUPS
+from users.permissions import (
+    ORG_PERMISSION_GROUPS,
+    RECIPIENT_FORM_EDITOR,
+    FORM_TRIBAL_PLAN_CAN_SIGN_AUTHORIZED_OFFICIAL,
+)
 from users.signals import create_permission_groups
 
 
@@ -24,7 +28,7 @@ def _ensure_custom_permissions_exist():
 @pytest.fixture
 def permission_groups(db):
     _ensure_custom_permissions_exist()
-    with patch("users.signals.create_permissions"):
+    with patch("users.signals.create_permission_groups"):
         create_permission_groups(
             app_config=None,
             verbosity=0,
@@ -117,7 +121,7 @@ def test_non_ao_groups_are_unaffected(org, make_user, permission_groups):
     """Multiple members can share non-AO groups without triggering the constraint."""
     from organizations.models import UserOrganizationMembership
 
-    editor_group = Group.objects.get(name="Recipient Form Editor")
+    editor_group = Group.objects.get(name=RECIPIENT_FORM_EDITOR)
 
     m1 = UserOrganizationMembership.objects.create(user=make_user(), organization=org)
     m2 = UserOrganizationMembership.objects.create(user=make_user(), organization=org)
@@ -134,9 +138,8 @@ def test_non_ao_groups_are_unaffected(org, make_user, permission_groups):
 @pytest.fixture
 def ao_permission(db):
     from django.contrib.auth.models import Permission
-    from organizations.signals import AO_PERMISSION_CODENAME
 
-    return Permission.objects.get(codename=AO_PERMISSION_CODENAME)
+    return Permission.objects.get(codename=FORM_TRIBAL_PLAN_CAN_SIGN_AUTHORIZED_OFFICIAL)
 
 
 @pytest.mark.django_db
