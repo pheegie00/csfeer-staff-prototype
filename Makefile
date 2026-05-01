@@ -1,5 +1,6 @@
 .PHONY: help build start start-local stop restart reset-all reset-db \
-        test-unit test-unit-ci test-e2e test-e2e-ci \
+        test-unit test-unit-ci test-unit-ci-coverage test-e2e test-e2e-ci \
+        test-coverage test-coverage-report \
         native-migrate native-load-form native-nuke-forms native-create-erds \
         native-test-unit native-test-e2e native-test-e2e-headed native-test-e2e-debug \
         native-test-e2e-webkit native-test-e2e-auth
@@ -41,6 +42,13 @@ reset-db: ## Remove the postgres data volume
 test-unit: ## Run unit tests (TEST=path optional)
 	docker compose run --rm app uv run pytest $${TEST:-tests/unit} -v -s --durations=10
 
+# Usage: make test-coverage [TEST=tests/unit/form_manager/test_fields.py]
+test-coverage: ## Run unit tests with coverage (TEST=path optional)
+	docker compose run --rm app uv run pytest $${TEST:-tests/unit} -v --cov=. --cov-report=term-missing
+
+test-coverage-report: ## Run unit tests and generate HTML coverage report (opens at .coverage_report/index.html)
+	docker compose run --rm app uv run pytest $${TEST:-tests/unit} -v --cov=. --cov-report=html:.coverage_report
+
 setup-tests-ci: ## Set up CI services and seed data
 	@echo "Starting services..."
 	$(CI_COMPOSE) down -v
@@ -52,6 +60,9 @@ setup-tests-ci: ## Set up CI services and seed data
 
 test-unit-ci: ## Run unit tests in CI (TEST=path optional)
 	$(CI_COMPOSE) exec app uv run pytest $${TEST:-tests/unit} -v --durations=10
+
+test-unit-ci-coverage: ## Run unit tests with coverage XML in CI (outputs coverage.xml)
+	$(CI_COMPOSE) exec app uv run pytest $${TEST:-tests/unit} -v --cov=. --cov-report=xml:coverage.xml
 
 # Usage: make test-e2e [TEST=tests/e2e/test_form_manager.py::test_name]
 test-e2e: ## Run e2e tests (TEST=path optional)

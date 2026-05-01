@@ -39,6 +39,7 @@ services:
       - ../../users:/app/users/
       - ../../organizations:/app/organizations/
       - ../../logs/:/app/logs/
+      - ../../.coverage_report/:/app/.coverage_report/
 
 volumes:
   pgdata:

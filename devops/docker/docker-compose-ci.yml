@@ -42,6 +42,7 @@ services:
       service: app
     volumes:
       - ../../tests/:/app/tests/
+      - ../../coverage.xml:/app/coverage.xml
 
 volumes:
   pgdata:
