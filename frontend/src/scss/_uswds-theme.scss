@@ -27,4 +27,8 @@ for a full list of available settings.
   $theme-font-weight-heavy: "800",
   $theme-font-type-sans: "public-sans",
 
+  $theme-generate-all-weights: true,
+
+  // Opt-in palettes for utility class generation
+  $color-palettes: ("palette-color-system-gray-warm", "palette-color-system-gray-cool"),
 );
