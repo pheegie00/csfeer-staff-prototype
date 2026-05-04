@@ -4,17 +4,20 @@ on:
   workflow_dispatch:
   pull_request:
     branches: [main]
-  # push:
-  #   branches: [main]
+  push:
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  e2e-tests:
+  tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
+    permissions:
+      pull-requests: write
+      contents: write
 
     steps:
       - name: Checkout code
@@ -32,43 +35,30 @@ jobs:
           mkdir -p tests/screenshots && chmod 777 tests/screenshots
           make setup-tests-ci IMAGE_NAME=csfeer:ci
 
-      - name: Run unit tests
-        run: |
-          make test-unit-ci IMAGE_NAME=csfeer:ci
+      - name: Run unit tests with coverage
+        run: make test-unit-ci-coverage IMAGE_NAME=csfeer:ci
         env:
           IMAGE_NAME: csfeer:ci
 
+      - name: Extract coverage report from container
+        if: always()
+        run: IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml cp app:/app/.coverage .coverage
+
+      - name: Post coverage comment
+        if: always()
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
+
       - name: Run e2e tests
-        run: |
-          make test-e2e-ci IMAGE_NAME=csfeer:ci
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: make test-e2e-ci IMAGE_NAME=csfeer:ci
         env:
           IMAGE_NAME: csfeer:ci
           PLAYWRIGHT_LOG_BROWSER_CONSOLE: True
-
-      # Uncomment these artifact uploads when our
-      # artifact storage quota resets in the next 24 hours
-      # - name: Upload test artifacts
-      #   if: always()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: playwright-artifacts
-      #     path: |
-      #       tests/screenshots/
-      #       tests/videos/
-      #       tests/traces/
-      #     retention-days: 1
-
-      # - name: Upload test results
-      #   if: always()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: test-results
-      #     path: test-results/
-      #     retention-days: 7
 
       - name: Docker logs and cleanup on failure
         if: failure()
         run: |
           IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml logs
           IMAGE_NAME=csfeer:ci docker compose -f devops/docker/docker-compose-ci.yml down -v
-          

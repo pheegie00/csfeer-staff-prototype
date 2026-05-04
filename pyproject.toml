@@ -45,6 +45,7 @@ dev = [
     "playwright>=1.58.0",
     "pyright[nodejs]>=1.1.408",
     "coverage>=7.13.5",
+    "pytest-cov>=6.0.0",
     "pytest-django>=4.12.0",
     "pytest-playwright>=0.7.2",
     "pytest>=9.0.3",
@@ -91,6 +92,17 @@ markers = [
     "unit: marks tests as unit tests",
     "e2e: marks tests as end-to-end tests",
 ]
+
+[tool.coverage.run]
+relative_files = true
+omit = [
+    "*/tests/*",
+    "*/migrations/*",
+    "manage.py",
+]
+
+[tool.coverage.report]
+show_missing = true
 
 [tool.setuptools]
 py-modules = []
