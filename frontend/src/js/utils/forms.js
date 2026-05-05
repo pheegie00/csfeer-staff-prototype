@@ -15,6 +15,7 @@ export function initSideNavSaveOnNavigate() {
   document.querySelectorAll('.usa-sidenav a').forEach(function(link) {
     link.addEventListener('click', function(e) {
       e.preventDefault();
+      if (this.getAttribute('aria-disabled') === 'true') return;
       redirectInput.value = this.getAttribute('href');
       form.action = window.location.pathname + window.location.search;
       form.submit();
