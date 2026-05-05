@@ -512,6 +512,9 @@ class TribalPlanForm(BaseFormSchema):
                 title="Federal Certifications",
                 children=[
                     PermanentPageBlock(
+                        submit_permissions=[
+                            "form_manager.form_tribal_plan_can_sign_authorized_official"
+                        ],
                         title="Regarding Lobbying",
                         subtitle=(
                             "Review the certification below and sign at the bottom of this page to "

@@ -63,5 +63,8 @@
   "djangoCotton.templatePaths": [
     "templates/cotton",
     "django_cotton_uswds/templates/cotton"
+  ],
+  "cSpell.words": [
+    "CSBG"
   ]
 }

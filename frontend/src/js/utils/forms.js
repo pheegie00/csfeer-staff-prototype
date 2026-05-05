@@ -16,7 +16,6 @@ export function initSideNavSaveOnNavigate() {
     link.addEventListener('click', function(e) {
       e.preventDefault();
       redirectInput.value = this.getAttribute('href');
-      form.action = window.location.pathname + window.location.search;
       form.submit();
     });
   });

@@ -179,37 +179,33 @@ def form_edit(request, pk):
         return redirect("form_list")
 
     if request.method == "POST":
-
-        # The form POSTs to next_url, so the submitted page is one step back.
-        submitted_step, submitted_page = get_previous_step_and_page(
+        # The form always posts to the current URL; the submitted page is
+        # always identified by the current step/page GET params.
+        submitted_page_block = get_step_page(
             ui_components, current_step_number, current_page_number
         )
-        if submitted_step is not None and submitted_page is not None:
-            submitted_page_block = get_step_page(ui_components, submitted_step, submitted_page)
-            if not user_meets_page_permissions(
-                request.user, entry.organization, submitted_page_block
-            ):
-                messages.error(request, "You do not have permission to submit this page.")
-                return redirect(
-                    build_form_edit_url(
-                        entry.pk,
-                        step_number=submitted_step,
-                        page_number=submitted_page,
-                    )
-                )
+        can_submit = user_meets_page_permissions(
+            request.user, entry.organization, submitted_page_block
+        )
 
-        save_form_entry(django_form_class, entry, request)
+        # Only save when the user has permission. Skip silently if not — fields
+        # on restricted pages are disabled so there is nothing meaningful to save,
+        # and we still want to allow navigation away via redirect_to.
+        if can_submit:
+            save_form_entry(django_form_class, entry, request)
 
         # Check if user clicked "Save & Exit"
         page_action = request.POST.get("page-action")
         if page_action == "save-exit":
             return redirect("form_list")
 
-        # Side nav navigation: save and redirect to the clicked page
+        # redirect_to defaults to next_url (set in the hidden input by the template).
+        # Side-nav clicks override it with the clicked link's href via JavaScript.
         redirect_to = request.POST.get("redirect_to", "")
         safe_redirect_to = _get_safe_nav_redirect(redirect_to, entry_pk=str(entry.pk))
 
-        messages.success(request, "Draft saved.")
+        if can_submit:
+            messages.success(request, "Draft saved.")
 
     # If user has visited the review page, create a bound form with validation
     # to show error states. Otherwise, create an unbound form.

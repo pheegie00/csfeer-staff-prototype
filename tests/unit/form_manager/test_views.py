@@ -410,8 +410,7 @@ def ao_schema(use_test_schema):
     from pydantic_extra_types.semantic_version import SemanticVersion
 
     from form_manager.constants import AllFormNames, CSBGAnnualReportForms, FormFamilies
-    from form_manager.schema.fields import acf_fields
-    from form_manager.schema.forms.base import BaseFields, BaseFormSchema, UIDefinition
+    from form_manager.schema.forms.base import BaseFormSchema, UIDefinition
     from form_manager.schema.layout import FieldBlock, PageBlock, SectionBlock, StepBlock
     from tests.unit.form_manager.fixtures.use_test_schema import TestSchemaForm
 
@@ -480,21 +479,19 @@ def non_ao_client(permission_groups, ao_form_entry, django_user_model, client):
 
 
 @pytest.mark.django_db
-def test_ao_page_blocks_non_ao_post(django_db_setup, ao_form_entry, non_ao_client):
-    """A user without the AO permission cannot POST past an AO-restricted page."""
+def test_ao_page_does_not_save_for_non_ao_user(django_db_setup, ao_form_entry, non_ao_client):
+    """A non-AO user on an AO-restricted page cannot save data but can navigate away."""
     client, _ = non_ao_client
-    url = reverse("form_edit", args=[ao_form_entry.pk])
+    target_url = build_form_edit_url(ao_form_entry.pk, step_number=1, page_number=0)
 
     response = client.post(
-        url,
-        data={"first_name": "Blocked"},
-        query_params={"step": 1, "page": 0},
+        reverse("form_edit", args=[ao_form_entry.pk]),
+        data={"first_name": "Blocked", "redirect_to": target_url},
+        query_params={"step": 0, "page": 0},
     )
 
     assert response.status_code == 302
-    assert response.headers["Location"] == build_form_edit_url(
-        ao_form_entry.pk, step_number=0, page_number=0
-    )
+    assert response.headers["Location"] == target_url
 
     ao_form_entry.refresh_from_db()
     assert ao_form_entry.data.get("first_name") != "Blocked"
@@ -517,10 +514,11 @@ def test_ao_page_allows_ao_user_post(
 
     url = reverse("form_edit", args=[ao_form_entry.pk])
 
+    # Post to the AO page's own URL — the form always posts to the current URL.
     response = client.post(
         url,
         data={"first_name": "Allowed"},
-        query_params={"step": 1, "page": 0},
+        query_params={"step": 0, "page": 0},
     )
 
     assert response.status_code in (200, 302)
