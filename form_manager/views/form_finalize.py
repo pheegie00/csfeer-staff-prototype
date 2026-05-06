@@ -1,5 +1,6 @@
 import logging
 
+import django.contrib.messages as messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -7,9 +8,10 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
-from form_manager.locking import release_editing_lock
+from form_manager.locking import get_active_lock, release_editing_lock
 from form_manager.models import FormAuditTrail, FormEntry
 from form_manager.schema.forms.utils import import_form_schema
+from users.utils import user_can_submit
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +28,27 @@ def form_finalize(request, pk):
 
     """
     entry: FormEntry = get_object_or_404(FormEntry, pk=pk)
+
+    if not user_can_submit(request.user, entry.organization):
+        messages.error(request, "Permission denied.")
+        return redirect("form_list")
+
+    active_lock = get_active_lock(entry)
+    if not active_lock or active_lock.locked_by != request.user:
+        messages.error(
+            request,
+            "You do not hold the editing lock for this form. "
+            "It may have expired or been taken by another user.",
+        )
+        return redirect(reverse("form_review", kwargs={"pk": entry.pk}))
+
+    submitted_token = request.POST.get("lock_token")
+    if submitted_token and str(active_lock.lock_token) != submitted_token:
+        messages.error(
+            request,
+            "Your session has changed. Please review the form again before submitting.",
+        )
+        return redirect(reverse("form_review", kwargs={"pk": entry.pk}))
 
     schema_class_ref = entry.form_definition.schema_class
 

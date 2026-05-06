@@ -11,6 +11,7 @@ from unittest.mock import patch
 import pytest
 from django.urls import reverse
 
+from form_manager.locking import acquire_editing_lock
 from form_manager.models import FormAuditTrail, FormEntry
 from tests.unit.form_manager.fixtures.use_test_schema import TestSchemaForm
 from users.permissions import RECIPIENT_AUTHORIZED_OFFICIAL
@@ -103,7 +104,7 @@ def test_form_edit_no_errors_before_review_visit(
 
 @pytest.mark.django_db
 def test_form_finalize_clears_show_errors_flag(
-    django_db_setup, form_entry: FormEntry, authenticated_client
+    django_db_setup, form_entry: FormEntry, authenticated_client, create_user
 ):
     """
     Test that finalizing/submitting the form clears the show_errors session flag.
@@ -122,6 +123,9 @@ def test_form_finalize_clears_show_errors_flag(
 
     # Verify the flag is set before submission
     assert authenticated_client.session.get(f"show_errors_{form_entry.pk}") is True
+
+    # Acquire the editing lock so finalize can verify ownership
+    acquire_editing_lock(form_entry, create_user)
 
     # Submit the form — mock is_valid since this test is about session/audit behaviour,
     # not form validation logic (incomplete data would otherwise block submission)
@@ -266,7 +270,7 @@ def test_session_flag_isolated_per_entry(
 
 @pytest.mark.django_db
 def test_form_finalize_rejects_invalid_data(
-    django_db_setup, form_entry: FormEntry, authenticated_client
+    django_db_setup, form_entry: FormEntry, authenticated_client, create_user
 ):
     """
     Test that form_finalize blocks submission when form data is invalid.
@@ -276,6 +280,8 @@ def test_form_finalize_rejects_invalid_data(
     """
     form_entry.data = {"first_name": "", "last_name": ""}
     form_entry.save()
+
+    acquire_editing_lock(form_entry, create_user)
 
     url = reverse("form_finalize", args=[form_entry.pk])
     response = authenticated_client.post(url)
