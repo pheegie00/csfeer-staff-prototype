@@ -5,8 +5,11 @@ from uuid import UUID
 
 import django.contrib.messages as messages
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
+from form_manager.locking import annotate_active_editors, refresh_editing_lock, release_editing_lock
 from form_manager.models import (
     FormAuditTrail,
     FormDefinition,
@@ -14,6 +17,7 @@ from form_manager.models import (
 )
 from form_manager.utils import reconstruct_state
 from form_manager.views.base import BaseSingleFormView, FormPermissionMixin
+from organizations.models import OrganizationProfile
 from users.utils import user_can_edit, user_can_start_form, user_can_view
 
 logger = logging.getLogger(__name__)
@@ -21,10 +25,13 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def form_list(request):
-    from organizations.models import OrganizationProfile
-
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=request.user).first()
-    entries = FormEntry.objects.filter(organization=org, is_archived=False) if org else []
+    raw_entries = (
+        FormEntry.objects.filter(organization=org, is_archived=False)
+        if org
+        else FormEntry.objects.none()
+    )
+    entries = annotate_active_editors(raw_entries)
     definitions = FormDefinition.objects.filter(is_active=True)
     return render(
         request,
@@ -35,7 +42,6 @@ def form_list(request):
 
 @login_required
 def form_start(request, form_id: UUID):
-    from organizations.models import OrganizationProfile
 
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=request.user).first()
     if not org:
@@ -168,3 +174,22 @@ def form_archive(request, pk: UUID):
     FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="archive")
     messages.info(request, "Entry archived (soft deleted).")
     return redirect("form_list")
+
+
+@login_required
+@require_POST
+def editing_lock_heartbeat(request, pk: UUID):
+    """Refresh the editing lock TTL. Called periodically by JS on the form edit page."""
+    entry = get_object_or_404(FormEntry, pk=pk)
+    refresh_editing_lock(entry, request.user)
+    return JsonResponse({"status": "ok"})
+
+
+@login_required
+@require_POST
+def editing_lock_release(request, pk: UUID):
+    """Explicitly release the editing lock. Called by sendBeacon on page unload."""
+    entry = get_object_or_404(FormEntry, pk=pk)
+    lock_token = request.POST.get("lock_token")
+    release_editing_lock(entry, request.user, lock_token=lock_token)
+    return JsonResponse({"status": "ok"})

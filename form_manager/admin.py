@@ -13,6 +13,7 @@ from form_manager.models import (
     FormAuditDetail,
     FormAuditTrail,
     FormDefinition,
+    FormEditingLock,
     FormEntry,
 )
 
@@ -94,3 +95,10 @@ class FormAuditDetailAdmin(admin.ModelAdmin):
     list_display = ("form_entry", "user", "user__email", "field_name", "created_at")
     search_fields = ("field_name",)
     list_filter = ("form_entry__form_definition__name",)
+
+
+@admin.register(FormEditingLock)
+class FormEditingLockAdmin(admin.ModelAdmin):
+    list_display = ("form_entry", "locked_by", "expires_at", "created_at")
+    list_filter = ("form_entry__form_definition__name",)
+    search_fields = ("form_entry__organization__name", "locked_by__email")

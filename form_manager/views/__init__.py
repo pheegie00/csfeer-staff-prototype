@@ -16,5 +16,7 @@ __ALL__ = [
     "form_lock",
     "form_unlock",
     "form_archive",
+    "editing_lock_heartbeat",
+    "editing_lock_release",
     FormDownloadPDFView.__name__,
 ]

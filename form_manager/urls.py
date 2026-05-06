@@ -17,6 +17,16 @@ urlpatterns = [
     ),
     path("entry/<uuid:pk>/lock/", views.form_lock, name="form_lock"),
     path("entry/<uuid:pk>/unlock/", views.form_unlock, name="form_unlock"),
+    path(
+        "entry/<uuid:pk>/editing-lock/heartbeat/",
+        views.editing_lock_heartbeat,
+        name="editing_lock_heartbeat",
+    ),
+    path(
+        "entry/<uuid:pk>/editing-lock/release/",
+        views.editing_lock_release,
+        name="editing_lock_release",
+    ),
     path("entry/<uuid:pk>/archive/", views.form_archive, name="form_archive"),
     path(
         "entry/<uuid:pk>/download/", views.FormDownloadPDFView.as_view(), name="form_download_pdf"

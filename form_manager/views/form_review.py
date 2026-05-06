@@ -1,11 +1,13 @@
 import logging
 from typing import TypedDict
 
+import django.contrib.messages as messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
+from form_manager.locking import acquire_editing_lock, refresh_editing_lock
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.schema.layout import (
@@ -100,6 +102,17 @@ def form_review(request, pk):
 
     """
     entry: FormEntry = get_object_or_404(FormEntry, pk=pk)
+
+    lock_token = acquire_editing_lock(entry, request.user)
+    if not lock_token:
+        messages.error(
+            request,
+            "This form is currently being edited by someone else. "
+            "Only one person can edit at a time. Please check back later.",
+        )
+        return redirect("form_list")
+
+    refresh_editing_lock(entry, request.user)
 
     schema_class_ref = entry.form_definition.schema_class
 
