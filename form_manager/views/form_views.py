@@ -189,7 +189,9 @@ def editing_lock_heartbeat(request, pk: UUID):
 @require_POST
 def editing_lock_release(request, pk: UUID):
     """Explicitly release the editing lock. Called by sendBeacon on page unload."""
-    entry = get_object_or_404(FormEntry, pk=pk)
     lock_token = request.POST.get("lock_token")
+    if not lock_token:
+        return JsonResponse({"error": "lock_token required"}, status=400)
+    entry = get_object_or_404(FormEntry, pk=pk)
     release_editing_lock(entry, request.user, lock_token=lock_token)
     return JsonResponse({"status": "ok"})

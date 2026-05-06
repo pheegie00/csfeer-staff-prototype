@@ -201,7 +201,7 @@ def form_edit(request, pk):
         # Check if user clicked "Save & Exit"
         page_action = request.POST.get("page-action")
         if page_action == "save-exit":
-            release_editing_lock(entry, request.user)
+            release_editing_lock(entry, request.user, lock_token=lock_token)
             return redirect("form_list")
 
         # Side nav navigation: save and redirect to the clicked page

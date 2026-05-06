@@ -197,12 +197,12 @@ def test_release_endpoint_with_stale_token_keeps_lock(form_entry, get_user, auth
 
 
 @pytest.mark.django_db
-def test_release_endpoint_without_token_deletes_lock(form_entry, get_user, authenticated_client):
+def test_release_endpoint_without_token_returns_400(form_entry, get_user, authenticated_client):
     user = get_user("demo")
     acquire_editing_lock(form_entry, user)
 
     url = reverse("editing_lock_release", args=[form_entry.pk])
     response = authenticated_client.post(url)
 
-    assert response.status_code == 200
-    assert not FormEditingLock.objects.filter(form_entry=form_entry).exists()
+    assert response.status_code == 400
+    assert FormEditingLock.objects.filter(form_entry=form_entry).exists()
