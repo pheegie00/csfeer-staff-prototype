@@ -160,14 +160,39 @@ import pytest
 
 
 @pytest.fixture
-def create_user(django_user_model):
+def get_user():
+    """
+    Factory fixture that returns a seeded test user by TEST_USERS key.
+
+    Usage:
+        user = get_user("demo")
+        user2 = get_user("demo-1")
+
+    Available keys: admin, demo, demo-1, demo-2, recipient-viewer,
+                    recipient-editor, recipient-approver, recipient-ao
+    """
+
+    def _get_user(key: str = "demo"):
+        if key not in TEST_USERS:
+            raise ValueError(f"Unknown user key '{key}'. Available: {list(TEST_USERS.keys())}")
+        email = TEST_USERS[key]["email"]
+        try:
+            return get_user_model().objects.get(email=email)
+        except ObjectDoesNotExist:
+            call_command("seed_test_users", email=email)
+            return get_user_model().objects.get(email=email)
+
+    return _get_user
+
+
+@pytest.fixture
+def create_user():
     """
     Factory fixture to create Django users.
 
     Usage:
         user = create_user(username="alice", password="secret", email="a@b.com", is_staff=True)
     """
-
     try:
         return get_user_model().objects.get(email=TEST_USERS["demo"]["email"])
     except ObjectDoesNotExist:
