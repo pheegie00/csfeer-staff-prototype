@@ -1,7 +1,7 @@
 import uuid
 from datetime import timedelta
 
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from form_manager.models import FormEditingLock
@@ -57,7 +57,11 @@ def acquire_editing_lock(form_entry, user) -> uuid.UUID | None:
     sendBeacon from a previous page load cannot release a lock that was already
     re-acquired by a refresh.
 
-    Uses select_for_update to prevent concurrent acquisition races.
+    Uses select_for_update to prevent concurrent acquisition races. The
+    IntegrityError path handles the narrow window where two concurrent requests
+    both see DoesNotExist before either INSERT completes: the loser re-reads the
+    winner's row under a row lock and applies the normal active/expired/same-user
+    logic from there.
     """
     now = timezone.now()
     expires_at = now + _lock_duration()
@@ -66,10 +70,18 @@ def acquire_editing_lock(form_entry, user) -> uuid.UUID | None:
     try:
         lock = FormEditingLock.objects.select_for_update().get(form_entry=form_entry)
     except FormEditingLock.DoesNotExist:
-        FormEditingLock.objects.create(
-            form_entry=form_entry, locked_by=user, expires_at=expires_at, lock_token=token
-        )
-        return token
+        try:
+            # Inner savepoint: if two requests race here, the loser's IntegrityError
+            # only rolls back this savepoint, not the outer transaction, so the
+            # re-read below can still execute cleanly on PostgreSQL.
+            with transaction.atomic():
+                FormEditingLock.objects.create(
+                    form_entry=form_entry, locked_by=user, expires_at=expires_at, lock_token=token
+                )
+            return token
+        except IntegrityError:
+            # Another concurrent request won the INSERT race; re-read under lock.
+            lock = FormEditingLock.objects.select_for_update().get(form_entry=form_entry)
 
     # Expired lock — anyone can take it
     if lock.expires_at <= now:
