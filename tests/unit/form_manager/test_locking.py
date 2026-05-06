@@ -1,6 +1,8 @@
+import uuid
 from datetime import timedelta
 
 import pytest
+from django.urls import reverse
 from django.utils import timezone
 
 from form_manager.locking import (
@@ -113,8 +115,6 @@ def test_release_with_matching_token_deletes_lock(form_entry, get_user):
 @pytest.mark.django_db
 def test_release_with_stale_token_does_not_delete_lock(form_entry, get_user):
     """A sendBeacon with an old token (from before a refresh) must not release the new lock."""
-    import uuid
-
     user = get_user("demo")
     stale_token = uuid.uuid4()
     acquire_editing_lock(form_entry, user)  # acquires with a new token
@@ -149,3 +149,60 @@ def test_refresh_no_op_for_non_owner(form_entry, get_user):
 
     lock = FormEditingLock.objects.get(form_entry=form_entry)
     assert lock.expires_at == original_expires
+
+
+@pytest.mark.django_db
+def test_heartbeat_endpoint_refreshes_lock(form_entry, get_user, authenticated_client):
+    user = get_user("demo")
+    acquire_editing_lock(form_entry, user)
+    original_expires = FormEditingLock.objects.get(form_entry=form_entry).expires_at
+
+    FormEditingLock.objects.filter(form_entry=form_entry).update(
+        expires_at=timezone.now() + timedelta(minutes=1)
+    )
+
+    url = reverse("editing_lock_heartbeat", args=[form_entry.pk])
+    response = authenticated_client.post(url)
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+    lock = FormEditingLock.objects.get(form_entry=form_entry)
+    assert lock.expires_at >= original_expires
+
+
+@pytest.mark.django_db
+def test_release_endpoint_with_matching_token_deletes_lock(
+    form_entry, get_user, authenticated_client
+):
+    user = get_user("demo")
+    token = acquire_editing_lock(form_entry, user)
+
+    url = reverse("editing_lock_release", args=[form_entry.pk])
+    response = authenticated_client.post(url, {"lock_token": str(token)})
+
+    assert response.status_code == 200
+    assert not FormEditingLock.objects.filter(form_entry=form_entry).exists()
+
+
+@pytest.mark.django_db
+def test_release_endpoint_with_stale_token_keeps_lock(form_entry, get_user, authenticated_client):
+    user = get_user("demo")
+    acquire_editing_lock(form_entry, user)
+
+    url = reverse("editing_lock_release", args=[form_entry.pk])
+    response = authenticated_client.post(url, {"lock_token": str(uuid.uuid4())})
+
+    assert response.status_code == 200
+    assert FormEditingLock.objects.filter(form_entry=form_entry).exists()
+
+
+@pytest.mark.django_db
+def test_release_endpoint_without_token_deletes_lock(form_entry, get_user, authenticated_client):
+    user = get_user("demo")
+    acquire_editing_lock(form_entry, user)
+
+    url = reverse("editing_lock_release", args=[form_entry.pk])
+    response = authenticated_client.post(url)
+
+    assert response.status_code == 200
+    assert not FormEditingLock.objects.filter(form_entry=form_entry).exists()

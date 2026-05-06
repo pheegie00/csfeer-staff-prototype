@@ -12,7 +12,7 @@ class FormEditingLock(BaseModel):
     form_entry = models.OneToOneField(
         "form_manager.FormEntry", on_delete=models.CASCADE, related_name="editing_lock"
     )
-    locked_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    locked_by = models.ForeignKey(User, on_delete=models.CASCADE)
     expires_at = models.DateTimeField()
     lock_token = models.UUIDField(default=uuid.uuid4)
 

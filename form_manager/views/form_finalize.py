@@ -43,7 +43,7 @@ def form_finalize(request, pk):
         return redirect(reverse("form_review", kwargs={"pk": entry.pk}))
 
     submitted_token = request.POST.get("lock_token")
-    if submitted_token and str(active_lock.lock_token) != submitted_token:
+    if not submitted_token or str(active_lock.lock_token) != submitted_token:
         messages.error(
             request,
             "Your session has changed. Please review the form again before submitting.",
@@ -71,7 +71,7 @@ def form_finalize(request, pk):
     entry.submitted_at = timezone.now()
     entry.save()
     FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="submit")
-    release_editing_lock(entry, request.user)
+    release_editing_lock(entry, request.user, lock_token=submitted_token)
 
     request.session.pop(f"show_errors_{entry.pk}", None)
 
