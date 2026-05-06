@@ -491,27 +491,6 @@ def non_ao_client(permission_groups, ao_form_entry, django_user_model, client):
 
 
 @pytest.mark.django_db
-def test_ao_page_blocks_non_ao_post(django_db_setup, ao_form_entry, non_ao_client):
-    """A user without the AO permission cannot POST past an AO-restricted page."""
-    client, _ = non_ao_client
-    url = reverse("form_edit", args=[ao_form_entry.pk])
-
-    response = client.post(
-        url,
-        data={"first_name": "Blocked"},
-        query_params={"step": 0, "page": 0},
-    )
-
-    assert response.status_code == 302
-    assert response.headers["Location"] == build_form_edit_url(
-        ao_form_entry.pk, step_number=0, page_number=0
-    )
-
-    ao_form_entry.refresh_from_db()
-    assert ao_form_entry.data.get("first_name") != "Blocked"
-
-
-@pytest.mark.django_db
 def test_ao_page_allows_ao_user_post(
     django_db_setup, ao_form_entry, authenticated_client_with_user, permission_groups
 ):

@@ -183,17 +183,9 @@ def form_edit(request, pk):
         submitted_page_block = get_step_page(
             ui_components, current_step_number, current_page_number
         )
-        if not user_meets_page_permissions(request.user, entry.organization, submitted_page_block):
-            messages.error(request, "You do not have permission to submit this page.")
-            return redirect(
-                build_form_edit_url(
-                    entry.pk,
-                    step_number=current_step_number,
-                    page_number=current_page_number,
-                )
-            )
 
-        save_form_entry(django_form_class, entry, request)
+        if user_meets_page_permissions(request.user, entry.organization, submitted_page_block):
+            save_form_entry(django_form_class, entry, request)
 
         # Check if user clicked "Save & Exit"
         page_action = request.POST.get("page-action")
