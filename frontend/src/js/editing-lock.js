@@ -25,6 +25,16 @@ export function initEditingLock() {
     post(heartbeatUrl);
   }, HEARTBEAT_INTERVAL_MS);
 
+  // Suppress the unload release when the user is intentionally submitting the
+  // form — the finalize POST requires the lock to still be alive when it arrives.
+  var isSubmitting = false;
+  var submitForm = document.getElementById("csf-form");
+  if (submitForm) {
+    submitForm.addEventListener("submit", function () {
+      isSubmitting = true;
+    });
+  }
+
   // On pagehide (tab close, navigation away, or refresh), stop the heartbeat
   // and attempt an immediate lock release via sendBeacon.
   //
@@ -33,6 +43,7 @@ export function initEditingLock() {
   // reloaded page re-acquires the lock and accidentally release it.
   window.addEventListener("pagehide", function () {
     clearInterval(heartbeatTimer);
+    if (isSubmitting) return;
     var formData = new FormData();
     formData.append("csrfmiddlewaretoken", getCsrfToken());
     formData.append("lock_token", lockToken);
