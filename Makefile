@@ -114,3 +114,6 @@ native-test-e2e-webkit: _start-services ## Run e2e tests natively with WebKit (m
 
 native-test-e2e-auth: _start-services ## Run auth e2e tests natively
 	$(UV) run pytest tests/e2e/ -v -m "e2e and auth"
+
+placeholder:
+	echo "foo"
