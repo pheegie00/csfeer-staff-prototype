@@ -7,7 +7,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import Resolver404, resolve, reverse
 
-from form_manager.locking import acquire_editing_lock, refresh_editing_lock, release_editing_lock
+from form_manager.locking import acquire_editing_lock, release_editing_lock
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.schema.layout import AbstractPageBlock, StepBlock
@@ -189,8 +189,6 @@ def form_edit(request, pk):
         return redirect("form_list")
 
     if request.method == "POST":
-        refresh_editing_lock(entry, request.user)
-
         submitted_page_block = get_step_page(
             ui_components, current_step_number, current_page_number
         )
