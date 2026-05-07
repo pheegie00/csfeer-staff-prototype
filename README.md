@@ -14,7 +14,7 @@
 | csfeer/asgi.py                                            |        4 |        4 |      0% |     10-16 |
 | csfeer/auth\_backends/\_\_init\_\_.py                     |        5 |        1 |     80% |         7 |
 | csfeer/auth\_backends/form\_permissions.py                |       22 |        1 |     95% |        22 |
-| csfeer/auth\_backends/oidc\_backend.py                    |       35 |       25 |     29% |44-72, 76-84 |
+| csfeer/auth\_backends/oidc\_backend.py                    |       53 |       25 |     53% |45-73, 106-114 |
 | csfeer/config.py                                          |       50 |        0 |    100% |           |
 | csfeer/context\_processors.py                             |        3 |        0 |    100% |           |
 | csfeer/postgresql/base.py                                 |       14 |        3 |     79% |     15-21 |
@@ -81,7 +81,7 @@
 | users/tests.py                                            |        0 |        0 |    100% |           |
 | users/utils.py                                            |       17 |        3 |     82% |22, 30, 38 |
 | users/views.py                                            |        0 |        0 |    100% |           |
-| **TOTAL**                                                 | **2268** |  **448** | **80%** |           |
+| **TOTAL**                                                 | **2286** |  **448** | **80%** |           |
 
 
 ## Setup coverage badge
