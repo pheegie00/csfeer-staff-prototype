@@ -26,15 +26,18 @@
 | csfeer/utils/crispy\_components.py                        |       11 |       11 |      0% |      1-31 |
 | csfeer/wsgi.py                                            |        4 |        4 |      0% |     10-16 |
 | form\_manager/\_\_init\_\_.py                             |        1 |        0 |    100% |           |
-| form\_manager/admin.py                                    |       53 |       15 |     72% |42-58, 82-83 |
+| form\_manager/admin.py                                    |       58 |       15 |     74% |43-59, 83-84 |
 | form\_manager/api/\_\_init\_\_.py                         |        2 |        0 |    100% |           |
 | form\_manager/api/endpoints.py                            |       57 |       32 |     44% |47-52, 57-58, 67, 77-78, 101-117, 136-141, 154-159, 169-174, 183-184 |
 | form\_manager/api/schemas.py                              |       19 |        0 |    100% |           |
 | form\_manager/apps.py                                     |        5 |        0 |    100% |           |
 | form\_manager/constants.py                                |       17 |        0 |    100% |           |
+| form\_manager/locking.py                                  |       59 |       13 |     78% |20-21, 37-48, 85-87 |
 | form\_manager/management/commands/load\_initial\_forms.py |       34 |        9 |     74% |34, 38-40, 58-73 |
-| form\_manager/models/\_\_init\_\_.py                      |       44 |        0 |    100% |           |
+| form\_manager/models/\_\_init\_\_.py                      |        3 |        0 |    100% |           |
 | form\_manager/models/fields.py                            |       22 |       13 |     41% |10-14, 18-24, 32 |
+| form\_manager/models/forms.py                             |       44 |        0 |    100% |           |
+| form\_manager/models/locking.py                           |       10 |        0 |    100% |           |
 | form\_manager/schema/\_\_init\_\_.py                      |        0 |        0 |    100% |           |
 | form\_manager/schema/choices.py                           |       11 |        0 |    100% |           |
 | form\_manager/schema/fields.py                            |      232 |       13 |     94% |148-149, 293, 297, 305, 318-322, 347, 390-391 |
@@ -57,10 +60,10 @@
 | form\_manager/views/\_\_init\_\_.py                       |        6 |        0 |    100% |           |
 | form\_manager/views/base.py                               |       56 |       26 |     54% |27-28, 31-32, 46-48, 53-55, 59-61, 65, 68-79, 88, 91-92, 95-96, 99-100, 103-113 |
 | form\_manager/views/form\_download.py                     |       22 |       12 |     45% |16-19, 22-46 |
-| form\_manager/views/form\_edit.py                         |      115 |       14 |     88% |39, 48, 77-78, 81, 84, 104, 157, 161-162, 174-175, 178-179 |
-| form\_manager/views/form\_finalize.py                     |       31 |        3 |     90% | 32, 36-37 |
-| form\_manager/views/form\_review.py                       |       69 |       15 |     78% |35-42, 54-60, 107, 111-112, 121 |
-| form\_manager/views/form\_views.py                        |      108 |       62 |     43% |24-29, 42-44, 46-48, 69-73, 79-92, 105-109, 112-113, 118-119, 122-130, 135-143, 148-156, 161-170 |
+| form\_manager/views/form\_edit.py                         |      121 |       16 |     87% |40, 49, 78-79, 82, 85, 105, 158, 162-163, 175-176, 179-180, 184-189 |
+| form\_manager/views/form\_finalize.py                     |       46 |        7 |     85% |33-34, 38-43, 56, 60-61 |
+| form\_manager/views/form\_review.py                       |       81 |       21 |     74% |37-44, 56-62, 107-108, 111-112, 116-121, 126, 130-131, 140 |
+| form\_manager/views/form\_views.py                        |      126 |       62 |     51% |28-36, 47-49, 51-53, 74-78, 84-97, 110-114, 117-118, 123-124, 127-135, 140-148, 153-161, 166-175 |
 | organizations/\_\_init\_\_.py                             |        0 |        0 |    100% |           |
 | organizations/admin.py                                    |       40 |       18 |     55% |22-24, 30-60 |
 | organizations/apps.py                                     |        9 |        0 |    100% |           |
@@ -81,7 +84,7 @@
 | users/tests.py                                            |        0 |        0 |    100% |           |
 | users/utils.py                                            |       17 |        3 |     82% |22, 30, 38 |
 | users/views.py                                            |        0 |        0 |    100% |           |
-| **TOTAL**                                                 | **2286** |  **448** | **80%** |           |
+| **TOTAL**                                                 | **2414** |  **473** | **80%** |           |
 
 
 ## Setup coverage badge
