@@ -14,12 +14,10 @@ function post(url) {
 }
 
 export function initEditingLock() {
-  const el = document.getElementById("editing-lock-urls");
-  if (!el) return;
+  const config = window.csfEditingLock;
+  if (!config) return;
 
-  const heartbeatUrl = el.dataset.heartbeatUrl;
-  const releaseUrl = el.dataset.releaseUrl;
-  const lockToken = el.dataset.lockToken;
+  const { heartbeatUrl, releaseUrl, lockToken } = config;
 
   const heartbeatTimer = setInterval(function () {
     post(heartbeatUrl);

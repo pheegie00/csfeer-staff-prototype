@@ -95,9 +95,11 @@
     </div>
   </div>
 </div>
-<div id="editing-lock-urls" hidden
-     data-heartbeat-url="{% url 'editing_lock_heartbeat' entry.pk %}"
-     data-release-url="{% url 'editing_lock_release' entry.pk %}"
-     data-lock-token="{{ lock_token }}">
-</div>
+<script>
+  window.csfEditingLock = {
+    heartbeatUrl: "{% url 'editing_lock_heartbeat' entry.pk %}",
+    releaseUrl: "{% url 'editing_lock_release' entry.pk %}",
+    lockToken: "{{ lock_token|escapejs }}",
+  };
+</script>
 {% endblock %}
