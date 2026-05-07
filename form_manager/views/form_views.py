@@ -42,7 +42,6 @@ def form_list(request):
 
 @login_required
 def form_start(request, form_id: UUID):
-
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=request.user).first()
     if not org:
         messages.error(request, "User is not part of an organization.")

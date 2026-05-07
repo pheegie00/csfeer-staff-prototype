@@ -186,13 +186,14 @@ def get_user():
 
 
 @pytest.fixture
-def create_user():
+def create_user(django_user_model):
     """
     Factory fixture to create Django users.
 
     Usage:
         user = create_user(username="alice", password="secret", email="a@b.com", is_staff=True)
     """
+
     try:
         return get_user_model().objects.get(email=TEST_USERS["demo"]["email"])
     except ObjectDoesNotExist:

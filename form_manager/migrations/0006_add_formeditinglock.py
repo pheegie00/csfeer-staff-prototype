@@ -39,8 +39,7 @@ class Migration(migrations.Migration):
                 (
                     "locked_by",
                     models.ForeignKey(
-                        null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
+                        on_delete=django.db.models.deletion.CASCADE,
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
