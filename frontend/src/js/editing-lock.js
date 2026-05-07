@@ -1,7 +1,7 @@
-var HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000;
+const HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000;
 
 function getCsrfToken() {
-  var match = document.cookie.match(/csrftoken=([^;]+)/);
+  const match = document.cookie.match(/csrftoken=([^;]+)/);
   return match ? match[1] : "";
 }
 
@@ -14,21 +14,21 @@ function post(url) {
 }
 
 export function initEditingLock() {
-  var el = document.getElementById("editing-lock-urls");
+  const el = document.getElementById("editing-lock-urls");
   if (!el) return;
 
-  var heartbeatUrl = el.dataset.heartbeatUrl;
-  var releaseUrl = el.dataset.releaseUrl;
-  var lockToken = el.dataset.lockToken;
+  const heartbeatUrl = el.dataset.heartbeatUrl;
+  const releaseUrl = el.dataset.releaseUrl;
+  const lockToken = el.dataset.lockToken;
 
-  var heartbeatTimer = setInterval(function () {
+  const heartbeatTimer = setInterval(function () {
     post(heartbeatUrl);
   }, HEARTBEAT_INTERVAL_MS);
 
   // Suppress the unload release when the user is intentionally submitting the
   // form — the finalize POST requires the lock to still be alive when it arrives.
-  var isSubmitting = false;
-  var submitForm = document.getElementById("csf-form");
+  let isSubmitting = false;
+  const submitForm = document.getElementById("csf-form");
   if (submitForm) {
     submitForm.addEventListener("submit", function () {
       isSubmitting = true;
@@ -44,7 +44,7 @@ export function initEditingLock() {
   window.addEventListener("pagehide", function () {
     clearInterval(heartbeatTimer);
     if (isSubmitting) return;
-    var formData = new FormData();
+    const formData = new FormData();
     formData.append("csrfmiddlewaretoken", getCsrfToken());
     formData.append("lock_token", lockToken);
     navigator.sendBeacon(releaseUrl, formData);
