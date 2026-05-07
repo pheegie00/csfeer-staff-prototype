@@ -1,15 +1,15 @@
 import uuid
 from datetime import timedelta
 
+from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 
-from csfeer.config import get_app_config
 from form_manager.models import FormEditingLock
 
 
 def _lock_duration():
-    return timedelta(minutes=get_app_config().lock_duration_minutes)
+    return timedelta(minutes=settings.LOCK_DURATION_MINUTES)
 
 
 def get_active_lock(form_entry):

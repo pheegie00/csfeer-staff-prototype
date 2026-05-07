@@ -2,10 +2,10 @@ import uuid
 from datetime import timedelta
 
 import pytest
+from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
 
-from csfeer.config import get_app_config
 from form_manager.locking import (
     acquire_editing_lock,
     get_active_lock,
@@ -135,9 +135,7 @@ def test_refresh_extends_expiry(form_entry, get_user):
     refresh_editing_lock(form_entry, user)
 
     lock = FormEditingLock.objects.get(form_entry=form_entry)
-    assert lock.expires_at > timezone.now() + timedelta(
-        minutes=get_app_config().lock_duration_minutes - 1
-    )
+    assert lock.expires_at > timezone.now() + timedelta(minutes=settings.LOCK_DURATION_MINUTES - 1)
 
 
 @pytest.mark.django_db
