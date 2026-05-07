@@ -64,6 +64,7 @@
                   <th scope="col">Version</th>
                   <th scope="col">Status</th>
                   <th scope="col">Active User</th>
+                  <th scope="col">Lock Expires</th>
                   <th scope="col">Actions</th>
                 </tr>
               </thead>
@@ -88,6 +89,12 @@
                         {% else %}
                           {{ e.active_editor.email }}
                         {% endif %}
+                      {% endif %}
+
+                    </td>
+                    <td data-label="Lock Expires">
+                      {% if e.active_lock_expires_at %}
+                        {{ e.active_lock_expires_at|date:"M j, Y g:i a" }}
                       {% endif %}
                     </td>
                     <td data-label="Actions">

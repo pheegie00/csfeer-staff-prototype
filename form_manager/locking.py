@@ -28,10 +28,11 @@ def get_active_lock(form_entry):
 
 def annotate_active_editors(entries):
     """
-    Attach an `active_editor` attribute to each entry in `entries`.
+    Attach `active_editor` and `active_lock_expires_at` attributes to each entry.
 
     `active_editor` is the User who holds a non-expired editing lock, or None.
-    Accepts a queryset or list; returns a list with the attribute set on each item.
+    `active_lock_expires_at` is the expiry timestamp of that lock, or None.
+    Accepts a queryset or list; returns a list with the attributes set on each item.
     """
     entries = list(entries)
     now = timezone.now()
@@ -39,9 +40,11 @@ def annotate_active_editors(entries):
         form_entry__in=[e.pk for e in entries],
         expires_at__gt=now,
     ).select_related("locked_by")
-    active_by_entry = {lock.form_entry_id: lock.locked_by for lock in locks}  # type: ignore[attr-defined]
+    locks_by_entry = {lock.form_entry_id: lock for lock in locks}  # type: ignore[attr-defined]
     for entry in entries:
-        entry.active_editor = active_by_entry.get(entry.pk)
+        lock = locks_by_entry.get(entry.pk)
+        entry.active_editor = lock.locked_by if lock else None
+        entry.active_lock_expires_at = lock.expires_at if lock else None
     return entries
 
 
