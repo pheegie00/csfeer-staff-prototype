@@ -52,6 +52,9 @@ class AppConfig(BaseSettings):
     show_app_version: bool = Field(
         default=False, description="Whether to display the app version in the footer or not."
     )
+    allow_admin_authentication: bool = Field(
+        default=False, description="Whether to enable the Django admin login (model auth backend)"
+    )
 
     @property
     def is_local(self) -> bool:

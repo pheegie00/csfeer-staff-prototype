@@ -23,6 +23,7 @@ services:
       service: app
     environment:
       - SHOW_APP_VERSION=True
+      - ALLOW_ADMIN_AUTHENTICATION=True
     post_start:
       - command: >
           /bin/bash -c "
