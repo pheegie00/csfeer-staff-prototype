@@ -8,6 +8,7 @@ This module contains:
    user roles, groups, and organization membership based on OIDC claims.
 """
 
+from inspect import signature
 from typing import cast
 
 from django.contrib.auth import get_user_model
@@ -70,6 +71,35 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
         self.update_user(user, created, claims, request, access_token)
         user.save()
         return user
+
+    def update_user(
+        self, user: AbstractUser, created: bool, claims: dict, request, access_token: str
+    ) -> None:
+        """Overloaded this method to stop clobbering the first and last name values
+        that have been added to the local app's DB."""
+
+        if not user.first_name:
+            if callable(settings.OIDC_FIRSTNAME_CLAIM):
+                user.first_name = str(settings.OIDC_FIRSTNAME_CLAIM(claims))
+            else:
+                user.first_name = claims.get(settings.OIDC_FIRSTNAME_CLAIM, "")
+
+        if not user.last_name:
+            if callable(settings.OIDC_LASTNAME_CLAIM):
+                user.last_name = str(settings.OIDC_LASTNAME_CLAIM(claims))
+            else:
+                user.last_name = claims.get(settings.OIDC_LASTNAME_CLAIM, "")
+
+        if settings.OIDC_UNUSABLE_PASSWORD or created:
+            user.set_unusable_password()
+
+        if callable(settings.OIDC_EXTEND_USER):
+            extend_user = settings.OIDC_EXTEND_USER
+            if len(signature(extend_user).parameters) > 2:
+                extend_user(user, claims, request, access_token)
+            else:  # backward compatibility
+                extend_user(user, claims)
+        user.is_active = True
 
     @staticmethod
     def extend_user_with_roles(user, claims, request=None, access_token=None):
