@@ -63,6 +63,8 @@
                   <th scope="col">Form Title</th>
                   <th scope="col">Version</th>
                   <th scope="col">Status</th>
+                  <th scope="col">Active User</th>
+                  <th scope="col">Lock Expires</th>
                   <th scope="col">Actions</th>
                 </tr>
               </thead>
@@ -80,12 +82,34 @@
                         {{ e.status|upper }}
                       </span>
                     </td>
+                    <td data-label="Active User">
+                      {% if e.active_editor %}
+                        {% if e.active_editor == request.user %}
+                          You
+                        {% else %}
+                          {{ e.active_editor.email }}
+                        {% endif %}
+                      {% endif %}
+
+                    </td>
+                    <td data-label="Lock Expires">
+                      {% if e.active_lock_expires_at %}
+                        {{ e.active_lock_expires_at|date:"M j, Y g:i a" }}
+                      {% endif %}
+                    </td>
                     <td data-label="Actions">
                       <div class="display-flex flex-wrap gap-1">
+                        {% if not e.active_editor or e.active_editor == request.user %}
                         <a href="{% url 'form_edit' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="Edit {{ e.form_definition.title }}">
                           <img src="{% static 'frontend/uswds/img/usa-icons/edit.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
                           Edit
                         </a>
+                        {% else %}
+                        <span class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center text-base-light" aria-disabled="true" title="Currently being edited by {{ e.active_editor.email }}">
+                          <img src="{% static 'frontend/uswds/img/usa-icons/edit.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
+                          Edit
+                        </span>
+                        {% endif %}
                         <a href="{% url 'form_preview' e.pk %}" class="usa-button usa-button--outline usa-button--unstyled padding-y-05 padding-x-1 display-flex flex-align-center" aria-label="Preview {{ e.form_definition.title }}">
                           <img src="{% static 'frontend/uswds/img/usa-icons/visibility.svg' %}" class="usa-icon usa-icon--size-3 margin-right-05" aria-hidden="true" alt="">
                           Preview

@@ -1,11 +1,13 @@
 import logging
 from typing import TypedDict
 
+import django.contrib.messages as messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
+from form_manager.locking import acquire_editing_lock
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.schema.layout import (
@@ -21,7 +23,7 @@ from form_manager.schema.navigation import (
 )
 from form_manager.utils import save_form_entry
 from form_manager.views.form_edit import remove_nodes_with_excluded_fields
-from users.utils import user_can_submit
+from users.utils import user_can_edit, user_can_submit
 
 
 class ReviewSection(TypedDict):
@@ -101,6 +103,23 @@ def form_review(request, pk):
     """
     entry: FormEntry = get_object_or_404(FormEntry, pk=pk)
 
+    if not user_can_edit(request.user, entry.organization):
+        messages.error(request, "Permission denied.")
+        return redirect("form_list")
+
+    if entry.locked and not user_can_submit(request.user, entry.organization):
+        messages.error(request, "Permission denied.")
+        return redirect("form_list")
+
+    lock_token = acquire_editing_lock(entry, request.user)
+    if not lock_token:
+        messages.error(
+            request,
+            "This form is currently being edited by someone else. "
+            "Only one person can edit at a time. Please check back later.",
+        )
+        return redirect("form_list")
+
     schema_class_ref = entry.form_definition.schema_class
 
     if not schema_class_ref:
@@ -138,6 +157,7 @@ def form_review(request, pk):
     context = {
         "form": form,
         "entry": entry,
+        "lock_token": lock_token,
         "steps": ui_components,
         "review_sections": build_review_sections(ui_components, entry_pk=entry.pk, form=form),
         "prev_url": build_form_edit_url(

@@ -7,6 +7,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import Resolver404, resolve, reverse
 
+from form_manager.locking import acquire_editing_lock, release_editing_lock
 from form_manager.models import FormEntry
 from form_manager.schema.forms.utils import import_form_schema
 from form_manager.schema.layout import AbstractPageBlock, StepBlock
@@ -178,8 +179,16 @@ def form_edit(request, pk):
         messages.error(request, "Permission denied.")
         return redirect("form_list")
 
-    if request.method == "POST":
+    lock_token = acquire_editing_lock(entry, request.user)
+    if not lock_token:
+        messages.error(
+            request,
+            "This form is currently being edited by someone else. "
+            "Only one person can edit at a time. Please check back later.",
+        )
+        return redirect("form_list")
 
+    if request.method == "POST":
         submitted_page_block = get_step_page(
             ui_components, current_step_number, current_page_number
         )
@@ -190,6 +199,7 @@ def form_edit(request, pk):
         # Check if user clicked "Save & Exit"
         page_action = request.POST.get("page-action")
         if page_action == "save-exit":
+            release_editing_lock(entry, request.user, lock_token=lock_token)
             return redirect("form_list")
 
         # Side nav navigation: save and redirect to the clicked page
@@ -263,6 +273,7 @@ def form_edit(request, pk):
     context = {
         "steps": ui_components,
         "entry": entry,
+        "lock_token": lock_token,
         "current_step_number": current_step_number,
         "current_page_number": current_page_number,
         "current_step": ui_components[current_step_number],

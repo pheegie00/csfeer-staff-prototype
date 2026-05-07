@@ -6,7 +6,7 @@ ignore=B6
 line-length=72
 
 [title-match-regex]
-regex=^(feat|fix|chore|docs|style|refactor|test|perf|ci|build)(\([a-z0-9-]+\))?: (\[FE-\d+\] )?[a-z].+[^.]$
+regex=^(feat|fix|chore|docs|style|refactor|test|perf|ci|build)(\([a-z0-9_-]+\))?: (\[FE-\d+\] )?[a-z].+[^.]$
 
 [body-max-line-length]
 line-length=72

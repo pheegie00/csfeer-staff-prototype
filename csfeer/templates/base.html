@@ -9,6 +9,18 @@
     <link rel="stylesheet" href="{% static 'frontend/styles.css' %}" />
   </head>
   <body x-data>
+    {% if DEBUG %}
+      {% if messages %}
+        <div style="position:fixed;top:0;left:0;right:0;z-index:9999;padding:8px;background:#1a1a2e;color:#fff;font-family:monospace;font-size:13px;">
+          <strong>Django Messages (debug only):</strong>
+          <ul style="margin:4px 0 0;padding-left:20px;">
+            {% for message in messages %}
+              <li>[{{ message.tags }}] {{ message }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    {% endif %}
     <div class="layout-wrapper">
       <c-app_shell>
         {% block content %}{% endblock %}

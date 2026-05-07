@@ -2,19 +2,32 @@ from form_manager.views.form_download import FormDownloadPDFView
 from form_manager.views.form_edit import form_edit
 from form_manager.views.form_finalize import form_finalize
 from form_manager.views.form_review import form_review
-from form_manager.views.form_views import *
+from form_manager.views.form_views import (
+    FormPreviewView,
+    FormSnapshotView,
+    editing_lock_heartbeat,
+    editing_lock_release,
+    form_archive,
+    form_history,
+    form_list,
+    form_lock,
+    form_start,
+    form_unlock,
+)
 
-__ALL__ = [
-    "form_list",
-    "form_start",
-    form_edit.__name__,
-    form_finalize.__name__,
-    form_review.__name__,
+__all__ = [
+    "FormDownloadPDFView",
     "FormPreviewView",
-    "form_history",
     "FormSnapshotView",
-    "form_lock",
-    "form_unlock",
+    "editing_lock_heartbeat",
+    "editing_lock_release",
     "form_archive",
-    FormDownloadPDFView.__name__,
+    "form_edit",
+    "form_finalize",
+    "form_history",
+    "form_list",
+    "form_lock",
+    "form_review",
+    "form_start",
+    "form_unlock",
 ]

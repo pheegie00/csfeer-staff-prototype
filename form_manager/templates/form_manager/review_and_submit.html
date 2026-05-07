@@ -70,6 +70,7 @@
 
         <form id="csf-form" method="post" action="{% url 'form_finalize' entry.id %}" novalidate>
             {% csrf_token %}
+            <input type="hidden" name="lock_token" value="{{ lock_token }}">
             <div class="margin-top-4 padding-top-2 border-top-1px border-base-lighter">
                 <div class="display-flex flex-justify flex-wrap flex-gap-1 flex-align-end">
 
@@ -94,6 +95,11 @@
     </div>
   </div>
 </div>
-
-
+<script>
+  window.csfEditingLock = {
+    heartbeatUrl: "{% url 'editing_lock_heartbeat' entry.pk %}",
+    releaseUrl: "{% url 'editing_lock_release' entry.pk %}",
+    lockToken: "{{ lock_token|escapejs }}",
+  };
+</script>
 {% endblock %}

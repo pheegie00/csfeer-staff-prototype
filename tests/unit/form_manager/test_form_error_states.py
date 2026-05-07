@@ -5,12 +5,14 @@ Tests the session-based error display mechanism that shows validation errors
 after users visit the review page and return to edit the form.
 """
 
+import uuid
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
 from django.urls import reverse
 
+from form_manager.locking import acquire_editing_lock
 from form_manager.models import FormAuditTrail, FormEntry
 from tests.unit.form_manager.fixtures.use_test_schema import TestSchemaForm
 from users.permissions import RECIPIENT_AUTHORIZED_OFFICIAL
@@ -103,7 +105,7 @@ def test_form_edit_no_errors_before_review_visit(
 
 @pytest.mark.django_db
 def test_form_finalize_clears_show_errors_flag(
-    django_db_setup, form_entry: FormEntry, authenticated_client
+    django_db_setup, form_entry: FormEntry, authenticated_client, create_user
 ):
     """
     Test that finalizing/submitting the form clears the show_errors session flag.
@@ -123,11 +125,14 @@ def test_form_finalize_clears_show_errors_flag(
     # Verify the flag is set before submission
     assert authenticated_client.session.get(f"show_errors_{form_entry.pk}") is True
 
+    # Acquire the editing lock so finalize can verify ownership
+    lock_token = acquire_editing_lock(form_entry, create_user)
+
     # Submit the form — mock is_valid since this test is about session/audit behaviour,
     # not form validation logic (incomplete data would otherwise block submission)
     url = reverse("form_finalize", args=[form_entry.pk])
     with patch.object(TestSchemaForm, "is_valid", return_value=True):
-        response = authenticated_client.post(url)
+        response = authenticated_client.post(url, {"lock_token": str(lock_token)})
 
     # Check that the flag is cleared from session
     assert authenticated_client.session.get(f"show_errors_{form_entry.pk}") is None
@@ -266,7 +271,7 @@ def test_session_flag_isolated_per_entry(
 
 @pytest.mark.django_db
 def test_form_finalize_rejects_invalid_data(
-    django_db_setup, form_entry: FormEntry, authenticated_client
+    django_db_setup, form_entry: FormEntry, authenticated_client, create_user
 ):
     """
     Test that form_finalize blocks submission when form data is invalid.
@@ -277,8 +282,10 @@ def test_form_finalize_rejects_invalid_data(
     form_entry.data = {"first_name": "", "last_name": ""}
     form_entry.save()
 
+    lock_token = acquire_editing_lock(form_entry, create_user)
+
     url = reverse("form_finalize", args=[form_entry.pk])
-    response = authenticated_client.post(url)
+    response = authenticated_client.post(url, {"lock_token": str(lock_token)})
 
     assert response.status_code == 302
     assert response.headers["Location"] == reverse("form_review", args=[form_entry.pk])
@@ -304,3 +311,33 @@ def test_review_page_is_valid_false_in_context_when_form_invalid(
 
     assert response.status_code == 200
     assert response.context["is_valid"] is False
+
+
+@pytest.mark.django_db
+def test_form_finalize_rejects_missing_lock_token(
+    django_db_setup, form_entry: FormEntry, authenticated_client, create_user
+):
+    acquire_editing_lock(form_entry, create_user)
+
+    url = reverse("form_finalize", args=[form_entry.pk])
+    response = authenticated_client.post(url)
+
+    assert response.status_code == 302
+    assert response.headers["Location"] == reverse("form_review", args=[form_entry.pk])
+    form_entry.refresh_from_db()
+    assert form_entry.status != "submitted"
+
+
+@pytest.mark.django_db
+def test_form_finalize_rejects_stale_lock_token(
+    django_db_setup, form_entry: FormEntry, authenticated_client, create_user
+):
+    acquire_editing_lock(form_entry, create_user)
+
+    url = reverse("form_finalize", args=[form_entry.pk])
+    response = authenticated_client.post(url, {"lock_token": str(uuid.uuid4())})
+
+    assert response.status_code == 302
+    assert response.headers["Location"] == reverse("form_review", args=[form_entry.pk])
+    form_entry.refresh_from_db()
+    assert form_entry.status != "submitted"

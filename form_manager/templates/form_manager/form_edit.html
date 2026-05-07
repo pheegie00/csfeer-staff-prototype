@@ -22,4 +22,11 @@
     </div>
   </div>
 </div>
+<script>
+  window.csfEditingLock = {
+    heartbeatUrl: "{% url 'editing_lock_heartbeat' entry.pk %}",
+    releaseUrl: "{% url 'editing_lock_release' entry.pk %}",
+    lockToken: "{{ lock_token|escapejs }}",
+  };
+</script>
 {% endblock %}
