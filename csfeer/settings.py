@@ -275,3 +275,5 @@ CSRF_TRUSTED_ORIGINS = settings.csrf_trusted_origins
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 
 SHOW_APP_VERSION = settings.show_app_version
+
+LOCK_DURATION_MINUTES = settings.lock_duration_minutes
