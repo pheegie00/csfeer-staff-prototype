@@ -7,6 +7,28 @@ class CurrencyInput(forms.NumberInput):
     template_name = "form_manager/widgets/currency.html"
 
 
+class PhoneInput(forms.TextInput):
+    """Telephone input that restricts UI input to digits and hyphens, and
+    submits digits only to the server."""
+
+    input_type = "tel"
+
+    def __init__(self, attrs=None):
+        default_attrs = {
+            "@input": "$event.target.value = $event.target.value.replace(/[^0-9-]/g, '')",
+            "inputmode": "tel",
+        }
+        if attrs:
+            default_attrs.update(attrs)
+        super().__init__(attrs=default_attrs)
+
+    def value_from_datadict(self, data, files, name):
+        value = super().value_from_datadict(data, files, name)
+        if isinstance(value, str):
+            return value.replace("-", "")
+        return value
+
+
 class DatePickerInput(forms.DateInput):
     """A USWDS-enhanced date picker. Renders a text input wrapped in a
     `.usa-date-picker` div; the bundled USWDS JS progressively enhances it
