@@ -15,10 +15,10 @@
 | csfeer/auth\_backends/\_\_init\_\_.py                     |        5 |        1 |     80% |         7 |
 | csfeer/auth\_backends/form\_permissions.py                |       22 |        1 |     95% |        22 |
 | csfeer/auth\_backends/oidc\_backend.py                    |       53 |       25 |     53% |45-73, 106-114 |
-| csfeer/config.py                                          |       50 |        0 |    100% |           |
+| csfeer/config.py                                          |       51 |        0 |    100% |           |
 | csfeer/context\_processors.py                             |        3 |        0 |    100% |           |
 | csfeer/postgresql/base.py                                 |       14 |        3 |     79% |     15-21 |
-| csfeer/settings.py                                        |       52 |        0 |    100% |           |
+| csfeer/settings.py                                        |       53 |        0 |    100% |           |
 | csfeer/templatetags/\_\_init\_\_.py                       |        0 |        0 |    100% |           |
 | csfeer/templatetags/crispy\_forms\_foundation\_field.py   |       57 |       57 |      0% |     6-129 |
 | csfeer/urls.py                                            |        8 |        0 |    100% |           |
@@ -32,7 +32,7 @@
 | form\_manager/api/schemas.py                              |       19 |        0 |    100% |           |
 | form\_manager/apps.py                                     |        5 |        0 |    100% |           |
 | form\_manager/constants.py                                |       17 |        0 |    100% |           |
-| form\_manager/locking.py                                  |       59 |       13 |     78% |20-21, 37-48, 85-87 |
+| form\_manager/locking.py                                  |       59 |       13 |     78% |19-20, 36-47, 84-86 |
 | form\_manager/management/commands/load\_initial\_forms.py |       34 |        9 |     74% |34, 38-40, 58-73 |
 | form\_manager/models/\_\_init\_\_.py                      |        3 |        0 |    100% |           |
 | form\_manager/models/fields.py                            |       22 |       13 |     41% |10-14, 18-24, 32 |
@@ -84,7 +84,7 @@
 | users/tests.py                                            |        0 |        0 |    100% |           |
 | users/utils.py                                            |       17 |        3 |     82% |22, 30, 38 |
 | users/views.py                                            |        0 |        0 |    100% |           |
-| **TOTAL**                                                 | **2414** |  **473** | **80%** |           |
+| **TOTAL**                                                 | **2416** |  **473** | **80%** |           |
 
 
 ## Setup coverage badge
