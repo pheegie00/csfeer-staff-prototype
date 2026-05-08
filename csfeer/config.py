@@ -52,6 +52,7 @@ class AppConfig(BaseSettings):
     show_app_version: bool = Field(
         default=False, description="Whether to display the app version in the footer or not."
     )
+    lock_duration_minutes: int = 15
 
     @property
     def is_local(self) -> bool:

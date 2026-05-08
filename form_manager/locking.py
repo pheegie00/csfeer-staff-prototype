@@ -1,16 +1,15 @@
 import uuid
 from datetime import timedelta
 
+from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from form_manager.models import FormEditingLock
 
-LOCK_DURATION_MINUTES = 15
-
 
 def _lock_duration():
-    return timedelta(minutes=LOCK_DURATION_MINUTES)
+    return timedelta(minutes=settings.LOCK_DURATION_MINUTES)
 
 
 def get_active_lock(form_entry):
@@ -120,7 +119,7 @@ def release_editing_lock(form_entry, user, lock_token=None) -> None:
 
 
 def refresh_editing_lock(form_entry, user) -> None:
-    """Reset expires_at to now + LOCK_DURATION_MINUTES if the user holds the lock."""
+    """Reset expires_at to now + lock_duration_minutes if the user holds the lock."""
     FormEditingLock.objects.filter(form_entry=form_entry, locked_by=user).update(
         expires_at=timezone.now() + _lock_duration()
     )
