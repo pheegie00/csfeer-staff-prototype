@@ -64,6 +64,13 @@ module.exports = {
           ),
           to: "uswds/img",
         },
+        {
+          from: path.resolve(
+            __dirname,
+            "frontend", "src", "img"
+          ),
+          to: "img",
+        },
       ],
     }),
     new MiniCssExtractPlugin(),
