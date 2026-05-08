@@ -4,11 +4,14 @@ from datetime import date
 from decimal import Decimal
 
 from django import forms
+from django.core.validators import RegexValidator
 
 from form_manager.schema.choices import US_STATES
 from form_manager.schema.fields import acf_fields
 from form_manager.schema.forms.base import BaseFields
 from form_manager.schema.widgets import DatePickerInput, PhoneInput
+
+_PHONE_VALIDATOR = RegexValidator(r"^\d{10}$", "Enter a 10-digit phone number.")
 
 _TODAY = date.today()
 _NEXT_FY = (_TODAY.year + 1 if _TODAY.month >= 10 else _TODAY.year) + 1
@@ -110,7 +113,7 @@ class TribalPlanFormFields(BaseFields):
         title="Phone number",
         description="Enter a 10-digit U.S. phone number (example: 123-456-7890)",
         widget=PhoneInput,
-        max_length=12,
+        validators=[_PHONE_VALIDATOR],
     )
     authorized_official_extension = acf_fields.CharField(
         title="Extension (Optional)",
@@ -121,7 +124,7 @@ class TribalPlanFormFields(BaseFields):
         title="Fax number (Optional)",
         widget=PhoneInput,
         required=False,
-        max_length=12,
+        validators=[_PHONE_VALIDATOR],
     )
     authorized_official_email = acf_fields.CharField(
         title="Email address",
@@ -144,7 +147,7 @@ class TribalPlanFormFields(BaseFields):
         title="Phone number",
         description="Enter a 10-digit U.S. phone number (example: 123-456-7890)",
         widget=PhoneInput,
-        max_length=12,
+        validators=[_PHONE_VALIDATOR],
     )
     contact_extension = acf_fields.CharField(
         title="Extension (Optional)",
@@ -155,7 +158,7 @@ class TribalPlanFormFields(BaseFields):
         title="Fax number (Optional)",
         widget=PhoneInput,
         required=False,
-        max_length=12,
+        validators=[_PHONE_VALIDATOR],
     )
     contact_email = acf_fields.CharField(
         title="Email address",
@@ -173,16 +176,21 @@ class TribalPlanFormFields(BaseFields):
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
     )
     # 1.5b Additional Authorized Official (conditional on has_delegation = yes).
-    # These default to required=True so the "*" marker renders in the DOM and is
-    # immediately visible when Alpine reveals the section. __init__ relaxes them
-    # to required=False when the bound data shows has_delegation == "no".
-    delegation_name = acf_fields.CharField(title="Full name", max_length=200)
-    delegation_title = acf_fields.CharField(title="Title", max_length=200)
+    # label_required=True renders the "*" marker; clean() enforces the requirement
+    # only when has_delegation == "yes".
+    delegation_name = acf_fields.CharField(
+        title="Full name", required=False, label_required=True, max_length=200
+    )
+    delegation_title = acf_fields.CharField(
+        title="Title", required=False, label_required=True, max_length=200
+    )
     delegation_phone = acf_fields.CharField(
         title="Phone number",
         description="Enter a 10-digit U.S. phone number (example: 123-456-7890)",
         widget=PhoneInput,
-        max_length=12,
+        required=False,
+        label_required=True,
+        validators=[_PHONE_VALIDATOR],
     )
     delegation_extension = acf_fields.CharField(
         title="Extension number (Optional)",
@@ -192,6 +200,8 @@ class TribalPlanFormFields(BaseFields):
     delegation_email = acf_fields.CharField(
         title="Email address",
         widget=forms.EmailInput,
+        required=False,
+        label_required=True,
         max_length=100,
     )
 
@@ -212,23 +222,27 @@ class TribalPlanFormFields(BaseFields):
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
     )
     # 2.2b Method for providing recognition (conditional on has_recognition = yes).
-    # Defaults to required=True so the "*" marker renders in the DOM and is
-    # immediately visible when Alpine reveals the section. __init__ relaxes it
-    # to required=False when the bound data shows has_recognition != "yes".
+    # label_required=True renders the "*" marker; clean() enforces the requirement.
     recognition_provision_method = acf_fields.ChoiceField(
         title="How would you like to provide this information?",
         choices=[("manual", "Enter it manually"), ("upload", "Upload a file")],
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
+        required=False,
+        label_required=True,
     )
     # 2.2b Recognition citation (conditional on recognition_provision_method = manual)
     recognition_citation = acf_fields.TextareaField(
         title="Provide a citation to the State statute or code acknowledging State recognition",
         max_length=1000,
+        required=False,
+        label_required=True,
     )
     # 2.2b Recognition upload (conditional on recognition_provision_method = upload)
     recognition_upload = acf_fields.FileField(
         title="Attach a citation to State statute or code acknowledging State Recognition",
         description=("Accepted file types: PDF, PNG, JPG, JPEG. Maximum size: 10 MB"),
+        required=False,
+        label_required=True,
     )
     # NOTE: 2.2b-no (explanation for lack of recognition) has been removed per 3/24 PO Notes.
     # POs confirmed: "Tribes don't need to explain. There does not need to be a pop-up
@@ -602,37 +616,6 @@ class TribalPlanFormFields(BaseFields):
 
     # endregion
 
-    _DELEGATION_REQUIRED_FIELDS = (
-        "delegation_name",
-        "delegation_title",
-        "delegation_phone",
-        "delegation_email",
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Conditionally-required fields default to required=True so their "*"
-        # markers are present in the rendered DOM, ready for Alpine to reveal
-        # along with the section. Only relax to required=False at validation
-        # time, when the bound POST data shows the conditions aren't met.
-        if not self.is_bound:
-            return
-
-        has_delegation = self.data.get("has_delegation")
-        has_recognition = self.data.get("has_recognition")
-        provision_method = self.data.get("recognition_provision_method")
-
-        if has_delegation != "yes":
-            for field_name in self._DELEGATION_REQUIRED_FIELDS:
-                self.fields[field_name].required = False
-
-        if has_recognition != "yes":
-            self.fields["recognition_provision_method"].required = False
-        if has_recognition != "yes" or provision_method != "manual":
-            self.fields["recognition_citation"].required = False
-        if has_recognition != "yes" or provision_method != "upload":
-            self.fields["recognition_upload"].required = False
-
     def clean(self):
         cleaned_data = super().clean()
 
@@ -641,6 +624,8 @@ class TribalPlanFormFields(BaseFields):
 
         plan_coverage = cleaned_data.get("plan_coverage")
         is_multi_tribe = cleaned_data.get("is_multi_tribe")
+        has_delegation = cleaned_data.get("has_delegation")
+        has_recognition = cleaned_data.get("has_recognition")
         has_completed_single_audit = cleaned_data.get("has_completed_single_audit")
 
         # 1.2b: Multi-tribe names and tribal resolution upload are required when
@@ -657,6 +642,41 @@ class TribalPlanFormFields(BaseFields):
                     "tribal_resolution_upload",
                     "Tribal resolution documentation is required"
                     " when representing more than one tribe.",
+                )
+
+        # 1.5: Additional Authorized Official fields are required when delegating authority.
+        if has_delegation == "yes":
+            for field_name, label in [
+                ("delegation_name", "Full name"),
+                ("delegation_title", "Title"),
+                ("delegation_phone", "Phone number"),
+                ("delegation_email", "Email address"),
+            ]:
+                if not cleaned_data.get(field_name):
+                    self.add_error(
+                        field_name,
+                        f"{label} is required when delegating signature authority.",
+                    )
+
+        # 2.2b: When tribes have recognition, the user must pick a provision method and
+        # provide the corresponding citation or upload.
+        if has_recognition == "yes":
+            provision_method = cleaned_data.get("recognition_provision_method")
+            if not provision_method:
+                self.add_error(
+                    "recognition_provision_method",
+                    "Select how you would like to provide recognition information.",
+                )
+            elif provision_method == "manual" and not cleaned_data.get("recognition_citation"):
+                self.add_error(
+                    "recognition_citation",
+                    "Provide a citation to the State statute or code acknowledging"
+                    " State recognition.",
+                )
+            elif provision_method == "upload" and not cleaned_data.get("recognition_upload"):
+                self.add_error(
+                    "recognition_upload",
+                    "Upload supporting recognition documentation.",
                 )
 
         # 5.3: Audit dates are required when the applicant reports completing a Single Audit.

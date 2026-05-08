@@ -17,6 +17,7 @@ class PhoneInput(forms.TextInput):
         default_attrs = {
             "@input": "$event.target.value = $event.target.value.replace(/[^0-9-]/g, '')",
             "inputmode": "tel",
+            "maxlength": "12",
         }
         if attrs:
             default_attrs.update(attrs)
