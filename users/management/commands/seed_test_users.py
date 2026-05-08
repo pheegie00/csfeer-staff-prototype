@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 
-from organizations.models import OrganizationProfile, UserOrganizationMembership
+from organizations.models import OrganizationProfile, State, UserOrganizationMembership
 
 if TYPE_CHECKING:
     from users.models import CoreUser
@@ -62,7 +62,9 @@ class Command(BaseCommand):
         org_name = f"Demo Organization ({user.email})"
 
         # Create or get the organization
-        org, created = OrganizationProfile.objects.get_or_create(name=org_name)
+        org, created = OrganizationProfile.objects.get_or_create(
+            name=org_name, defaults={"state": State.objects.get(code="MA")}
+        )
         if created:
             self.stdout.write(
                 self.style.SUCCESS(f"Created organization '{org_name}'.")  # pyright: ignore

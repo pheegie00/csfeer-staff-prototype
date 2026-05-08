@@ -218,7 +218,7 @@ def test_session_flag_isolated_per_entry(
     the review page for one form doesn't affect error display for other forms.
     """
     from django.contrib.auth.models import Group
-    from organizations.models import OrganizationProfile, UserOrganizationMembership
+    from organizations.models import OrganizationProfile, UserOrganizationMembership, State
     from form_manager.models import FormDefinition
 
     user = create_user
@@ -226,9 +226,10 @@ def test_session_flag_isolated_per_entry(
     # Create a second org and make the demo user a member with edit permissions
     org = OrganizationProfile.objects.create(
         name="test org 2",
-        address="123 Main Street, Washington, DC",
+        address="123 Main Street, Boston, MA",
         contact_email="info@myorg.org",
         contact_phone="123=456-7890",
+        state=State.objects.get(code="MA"),
     )
     membership = UserOrganizationMembership.objects.create(user=user, organization=org)
     membership.groups.set(Group.objects.filter(name__in=[RECIPIENT_AUTHORIZED_OFFICIAL]))

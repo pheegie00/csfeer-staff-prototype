@@ -63,9 +63,9 @@ def permission_groups(db):
 
 @pytest.fixture
 def org(db):
-    from organizations.models import OrganizationProfile
+    from organizations.models import OrganizationProfile, State
 
-    return OrganizationProfile.objects.create(name="Test Org")
+    return OrganizationProfile.objects.create(name="Test Org", state=State.objects.get(code="MA"))
 
 
 @pytest.fixture
@@ -193,9 +193,11 @@ def test_no_membership_denied(backend, active_user, org):
 @pytest.mark.django_db
 def test_membership_for_different_org_denied(backend, active_user, org):
     """Membership for a different org does not grant access to this org."""
-    from organizations.models import OrganizationProfile, UserOrganizationMembership
+    from organizations.models import OrganizationProfile, UserOrganizationMembership, State
 
-    other_org = OrganizationProfile.objects.create(name="Other Org")
+    other_org = OrganizationProfile.objects.create(
+        name="Other Org", state=State.objects.get(code="MA")
+    )
     UserOrganizationMembership.objects.create(user=active_user, organization=other_org)
     assert backend.has_perm(active_user, "form_manager.form_edit", obj=org) is False
 

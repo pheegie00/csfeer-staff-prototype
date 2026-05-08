@@ -62,8 +62,15 @@ class UserOrganizationMembershipForm(forms.ModelForm):
 
 @admin.register(OrganizationProfile)
 class OrganizationProfileAdmin(admin.ModelAdmin):
-    list_display = ("name", "contact_email", "contact_phone", "created_at")
-    search_fields = ("name", "contact_email")
+    list_display = (
+        "name",
+        "state",
+        "state__region",
+        "contact_email",
+        "contact_phone",
+        "created_at",
+    )
+    search_fields = ("name", "contact_email", "state", "state__region")
 
 
 @admin.register(UserOrganizationMembership)

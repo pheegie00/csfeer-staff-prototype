@@ -41,9 +41,9 @@ def permission_groups(db):
 
 @pytest.fixture
 def org(db):
-    from organizations.models import OrganizationProfile
+    from organizations.models import OrganizationProfile, State
 
-    return OrganizationProfile.objects.create(name="Test Org")
+    return OrganizationProfile.objects.create(name="Test Org", state=State.objects.get(code="MA"))
 
 
 @pytest.fixture
@@ -95,10 +95,10 @@ def test_second_authorized_official_is_blocked(org, ao_group, make_user):
 @pytest.mark.django_db
 def test_ao_in_different_orgs_is_allowed(ao_group, make_user, db):
     """Each org may have its own AO — the constraint is per-organization."""
-    from organizations.models import OrganizationProfile, UserOrganizationMembership
+    from organizations.models import OrganizationProfile, UserOrganizationMembership, State
 
-    org_a = OrganizationProfile.objects.create(name="Org A")
-    org_b = OrganizationProfile.objects.create(name="Org B")
+    org_a = OrganizationProfile.objects.create(name="Org A", state=State.objects.get(code="MA"))
+    org_b = OrganizationProfile.objects.create(name="Org B", state=State.objects.get(code="MA"))
 
     m_a = UserOrganizationMembership.objects.create(user=make_user(), organization=org_a)
     m_b = UserOrganizationMembership.objects.create(user=make_user(), organization=org_b)
