@@ -21,6 +21,7 @@ from form_manager.schema.widgets import (
     ACFCheckboxInput,
     CheckboxSelectMultiple,
     CurrencyInput,
+    PercentageInput,
     YesNoDisplayWidget,
 )
 
@@ -78,9 +79,11 @@ class ACFFieldMixin:
             "FloatField": float,
             "JSONField": dict,
             "CurrencyField": float,
+            "PercentageField": float,
             "CalculatedDecimalField": float,
             "CalculatedIntegerField": int,
             "CalculatedCurrencyField": float,
+            "CalculatedPercentageField": float,
         }
 
         _type = field_type_map.get(self.__class__.__name__) or field_type_map.get(
@@ -254,6 +257,28 @@ class ACFCalculatedDecimalField(ACFCalculatedFieldMixin, forms.DecimalField):
     pass
 
 
+class ACFPercentageField(ACFFieldMixin, forms.DecimalField):
+    """A percentage field rendered with a `%` suffix via the input-suffix component."""
+
+    widget = PercentageInput
+
+    def widget_attrs(self, widget: forms.Widget) -> dict[str, Any]:
+        attrs = super().widget_attrs(widget)
+        attrs.update({"class": "usa-input percentage-input"})
+        return attrs
+
+
+class ACFCalculatedPercentageField(ACFCalculatedFieldMixin, forms.DecimalField):
+    """A calculated percentage field rendered with a `%` suffix."""
+
+    widget = PercentageInput
+
+    def widget_attrs(self, widget: forms.Widget) -> dict[str, Any]:
+        attrs = super().widget_attrs(widget)
+        attrs.update({"class": attrs.get("class", "") + " percentage-input"})
+        return attrs
+
+
 class ACFCalculatedCurrencyField(ACFCalculatedDecimalField, ACFCurrencyField):
     """A calculated currency field"""
 
@@ -419,6 +444,7 @@ class ACFBooleanField(ACFFieldMixin, forms.BooleanField):
     """A boolean field rendered via the c-checkbox design system component."""
 
     widget = ACFCheckboxInput
+    default_error_messages = {"required": "This field is required."}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -500,11 +526,13 @@ class ACFFieldsMeta(type):
                 "BooleanField": ACFBooleanField,
                 "IntegerField": ACFIntegerField,
                 "CurrencyField": ACFCurrencyField,
+                "PercentageField": ACFPercentageField,
                 "TextareaField": ACFTextareaField,
                 "FileField": ACFFileField,
                 "CalculatedCurrencyField": ACFCalculatedCurrencyField,
                 "CalculatedIntegerField": ACFCalculatedIntegerField,
                 "CalculatedDecimalField": ACFCalculatedDecimalField,
+                "CalculatedPercentageField": ACFCalculatedPercentageField,
                 "FieldFilterField": ACFFieldFilterField,
                 "YesNoDisplayField": ACFYesNoDisplayField,
             }
@@ -515,3 +543,5 @@ class ACFFieldsMeta(type):
 
 class acf_fields(metaclass=ACFFieldsMeta):
     ChoiceField: type[forms.ChoiceField]
+    PercentageField: type[ACFPercentageField]
+    CalculatedPercentageField: type[ACFCalculatedPercentageField]

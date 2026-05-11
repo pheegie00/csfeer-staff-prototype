@@ -121,7 +121,7 @@ def _valid_form_data(**overrides) -> dict:
         "audit_period_end": "",
         # Section 6
         "individual_eligibility": "Eligibility is determined by income guidelines.",
-        "targeted_community_eligibility": "Services target low-income tribal members.",
+        "community_eligibility": "Services target low-income tribal members.",
         # Section 7
         "assurance_narrative": "This narrative describes how programmatic assurances are met.",
         "assurance_attestation": True,

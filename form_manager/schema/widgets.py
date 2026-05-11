@@ -7,6 +7,12 @@ class CurrencyInput(forms.NumberInput):
     template_name = "form_manager/widgets/currency.html"
 
 
+class PercentageInput(forms.NumberInput):
+    """Displays a percentage input form field with a `%` suffix."""
+
+    template_name = "form_manager/widgets/percentage.html"
+
+
 class PhoneInput(forms.TextInput):
     """Telephone input that renders the USWDS masked input with an Alpine
     ``x-mask`` directive enforcing ``XXX-XXX-XXXX`` typing, and submits digits

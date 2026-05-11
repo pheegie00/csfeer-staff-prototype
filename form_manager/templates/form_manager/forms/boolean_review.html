@@ -1,0 +1,11 @@
+<div class="font-family-body text-semibold margin-bottom-05">
+    {{ component.display_title }}
+</div>
+
+<div class="{% if component.errors %}text-error{% endif %} font-family-body">
+{% if component.errors %}
+    {{ component.errors.0 }}
+{% elif component.value %}
+    Yes
+{% endif %}
+</div>
