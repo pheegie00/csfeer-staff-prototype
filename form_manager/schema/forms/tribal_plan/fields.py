@@ -172,36 +172,29 @@ class TribalPlanFormFields(BaseFields):
             "Is the Authorized Tribal Official delegating signature authority"
             " to another individual?"
         ),
+        description="If No, proceed to Section 2.",
         choices=[("yes", "Yes"), ("no", "No")],
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
     )
-    # 1.5b Additional Authorized Official (conditional on has_delegation = yes).
-    # label_required=True renders the "*" marker; clean() enforces the requirement
-    # only when has_delegation == "yes".
-    delegation_name = acf_fields.CharField(
-        title="Full name", required=False, label_required=True, max_length=200
-    )
-    delegation_title = acf_fields.CharField(
-        title="Title", required=False, label_required=True, max_length=200
-    )
+    # 1.5b Additional Authorized Official (conditional on has_delegation = yes)
+    delegation_name = acf_fields.CharField(title="Full name", required=True, max_length=200)
+    delegation_title = acf_fields.CharField(title="Title", required=True, max_length=200)
     delegation_phone = acf_fields.CharField(
         title="Phone number",
         description="Enter a 10-digit U.S. phone number (example: 123-456-7890)",
         widget=PhoneInput,
-        required=False,
-        label_required=True,
+        required=True,
         validators=[_PHONE_VALIDATOR],
     )
     delegation_extension = acf_fields.CharField(
-        title="Extension number (Optional)",
+        title="Extension Number (Optional)",
         required=False,
         max_length=10,
     )
     delegation_email = acf_fields.CharField(
         title="Email address",
         widget=forms.EmailInput,
-        required=False,
-        label_required=True,
+        required=True,
         max_length=100,
     )
 
