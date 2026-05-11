@@ -57,19 +57,9 @@ class ACFFieldMixin:
         self.is_presentational_only = kwargs.pop("is_presentational_only", False)
         self.review_title = kwargs.pop("review_title", False)
         self.default_if_excluded = kwargs.pop("default_if_excluded", None)
-        # Render the "*" required marker on the label without making the field
-        # required for Django validation. Used for fields that are only
-        # conditionally required and validated in the form's clean() method.
-        self.label_required = kwargs.pop("label_required", False)
 
         kwargs["help_text"] = kwargs.get("help_text", self.description)
         super().__init__(*args, **kwargs)
-
-        # Expose the conditional-required state to assistive tech. The "*" marker
-        # is read via the label's <abbr title="required">; aria-required ensures
-        # the input itself is also announced as required.
-        if self.label_required:
-            self.widget.attrs["aria-required"] = "true"  # type: ignore[attr-defined]
 
     def to_pydantic_schema_type(self):
         """Convert the field to a pydantic schema type when using Pydantic to serialize

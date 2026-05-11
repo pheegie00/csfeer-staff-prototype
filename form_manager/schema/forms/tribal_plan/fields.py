@@ -214,28 +214,24 @@ class TribalPlanFormFields(BaseFields):
         choices=[("yes", "Yes"), ("no", "No")],
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
     )
-    # 2.2b Method for providing recognition (conditional on has_recognition = yes).
-    # label_required=True renders the "*" marker; clean() enforces the requirement.
+    # 2.2b Method for providing recognition (conditional on has_recognition = yes)
     recognition_provision_method = acf_fields.ChoiceField(
         title="How would you like to provide this information?",
         choices=[("manual", "Enter it manually"), ("upload", "Upload a file")],
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
-        required=False,
-        label_required=True,
+        required=True,
     )
     # 2.2b Recognition citation (conditional on recognition_provision_method = manual)
     recognition_citation = acf_fields.TextareaField(
         title="Provide a citation to the State statute or code acknowledging State recognition",
         max_length=1000,
-        required=False,
-        label_required=True,
+        required=True,
     )
     # 2.2b Recognition upload (conditional on recognition_provision_method = upload)
     recognition_upload = acf_fields.FileField(
         title="Attach a citation to State statute or code acknowledging State Recognition",
         description=("Accepted file types: PDF, PNG, JPG, JPEG. Maximum size: 10 MB"),
-        required=False,
-        label_required=True,
+        required=True,
     )
     # NOTE: 2.2b-no (explanation for lack of recognition) has been removed per 3/24 PO Notes.
     # POs confirmed: "Tribes don't need to explain. There does not need to be a pop-up
