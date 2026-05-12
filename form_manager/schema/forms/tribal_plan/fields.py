@@ -177,13 +177,13 @@ class TribalPlanFormFields(BaseFields):
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
     )
     # 1.5b Additional Authorized Official (conditional on has_delegation = yes)
-    delegation_name = acf_fields.CharField(title="Full name", required=True, max_length=200)
-    delegation_title = acf_fields.CharField(title="Title", required=True, max_length=200)
+    delegation_name = acf_fields.CharField(title="Full name", required=False, max_length=200)
+    delegation_title = acf_fields.CharField(title="Title", required=False, max_length=200)
     delegation_phone = acf_fields.CharField(
         title="Phone number",
         description="Enter a 10-digit U.S. phone number (example: 123-456-7890)",
         widget=PhoneInput,
-        required=True,
+        required=False,
         validators=[_PHONE_VALIDATOR],
     )
     delegation_extension = acf_fields.CharField(
@@ -194,7 +194,7 @@ class TribalPlanFormFields(BaseFields):
     delegation_email = acf_fields.CharField(
         title="Email address",
         widget=forms.EmailInput,
-        required=True,
+        required=False,
         max_length=100,
     )
 
@@ -219,19 +219,19 @@ class TribalPlanFormFields(BaseFields):
         title="How would you like to provide this information?",
         choices=[("manual", "Enter it manually"), ("upload", "Upload a file")],
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
-        required=True,
+        required=False,
     )
     # 2.2b Recognition citation (conditional on recognition_provision_method = manual)
     recognition_citation = acf_fields.TextareaField(
         title="Provide a citation to the State statute or code acknowledging State recognition",
         max_length=1000,
-        required=True,
+        required=False,
     )
     # 2.2b Recognition upload (conditional on recognition_provision_method = upload)
     recognition_upload = acf_fields.FileField(
         title="Attach a citation to State statute or code acknowledging State Recognition",
         description=("Accepted file types: PDF, PNG, JPG, JPEG. Maximum size: 10 MB"),
-        required=True,
+        required=False,
     )
     # NOTE: 2.2b-no (explanation for lack of recognition) has been removed per 3/24 PO Notes.
     # POs confirmed: "Tribes don't need to explain. There does not need to be a pop-up
