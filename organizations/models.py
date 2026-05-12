@@ -1,16 +1,20 @@
+from typing import cast
+
 from django.conf import settings
 from django.contrib.auth.models import Group, Permission
 from django.db import models
+from localflavor.us.models import USStateField
 
-from core.models import BaseModel
+from core.models import BaseActivityFields, BaseModel
+from organizations.constants import RegionChoices
 
 
-# Create your models here.
 class OrganizationProfile(BaseModel):
     name = models.CharField(max_length=255)
     address = models.TextField(blank=True)
     contact_email = models.EmailField(blank=True)
     contact_phone = models.CharField(max_length=30, blank=True)
+    state = models.ForeignKey("State", on_delete=models.PROTECT, related_name="organizations")
 
     def __str__(self) -> str:  # pragma: no cover - trivial
         return self.name
@@ -43,3 +47,19 @@ class UserOrganizationMembership(BaseModel):
 
     def __str__(self) -> str:  # pragma: no cover - trivial
         return f"{self.user} → {self.organization}"
+
+
+class State(BaseActivityFields):
+    """Represents a US state and its designated ACF region."""
+
+    code = USStateField(unique=True, primary_key=True)
+    region = models.CharField(choices=RegionChoices)
+
+    class Meta(BaseActivityFields.Meta):
+        indexes = [
+            models.Index(fields=["region"]),
+            models.Index(fields=["region", "code"]),
+        ]
+
+    def __str__(self) -> str:
+        return cast(str, self.code)
