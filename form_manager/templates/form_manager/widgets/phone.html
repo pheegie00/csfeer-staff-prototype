@@ -1,0 +1,12 @@
+<c-input_mask
+    name="{{ widget.name }}"
+    id="{{ widget.attrs.id }}"
+    type="tel"
+    inputmode="tel"
+    placeholder="___-___-____"
+    pattern="\d{3}-\d{3}-\d{4}"
+    value="{{ widget.value|default:'' }}"
+    x-mask="999-999-9999"
+    required="{% if widget.required %}True{% endif %}"
+    disabled="{% if widget.attrs.disabled %}True{% endif %}"
+/>

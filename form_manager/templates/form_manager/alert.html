@@ -1,7 +1,8 @@
 <div class="margin-top-2 margin-bottom-2">
     <c-alert
         type="{{ alert_type }}"
-        heading="{{ heading }}"
+        heading="{{ heading|default_if_none:'' }}"
+        :slim="slim"
     >
         {{ message }}
     </c-alert>
