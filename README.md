@@ -7,7 +7,7 @@
 | core/\_\_init\_\_.py                                      |        0 |        0 |    100% |           |
 | core/admin.py                                             |        0 |        0 |    100% |           |
 | core/apps.py                                              |        3 |        0 |    100% |           |
-| core/models.py                                            |        8 |        0 |    100% |           |
+| core/models.py                                            |       11 |        0 |    100% |           |
 | core/tests.py                                             |        0 |        0 |    100% |           |
 | core/views.py                                             |        0 |        0 |    100% |           |
 | csfeer/\_\_init\_\_.py                                    |        0 |        0 |    100% |           |
@@ -39,7 +39,7 @@
 | form\_manager/models/forms.py                             |       44 |        0 |    100% |           |
 | form\_manager/models/locking.py                           |       10 |        0 |    100% |           |
 | form\_manager/schema/\_\_init\_\_.py                      |        0 |        0 |    100% |           |
-| form\_manager/schema/choices.py                           |       11 |        0 |    100% |           |
+| form\_manager/schema/choices.py                           |       13 |        0 |    100% |           |
 | form\_manager/schema/fields.py                            |      232 |       13 |     94% |148-149, 293, 297, 305, 318-322, 347, 390-391 |
 | form\_manager/schema/forms/\_\_init\_\_.py                |        6 |        0 |    100% |           |
 | form\_manager/schema/forms/base.py                        |       65 |        2 |     97% |   116-117 |
@@ -67,7 +67,8 @@
 | organizations/\_\_init\_\_.py                             |        0 |        0 |    100% |           |
 | organizations/admin.py                                    |       40 |       18 |     55% |22-24, 30-60 |
 | organizations/apps.py                                     |        9 |        0 |    100% |           |
-| organizations/models.py                                   |       16 |        0 |    100% |           |
+| organizations/constants.py                                |       10 |        0 |    100% |           |
+| organizations/models.py                                   |       27 |        1 |     96% |        65 |
 | organizations/signals.py                                  |       14 |        0 |    100% |           |
 | organizations/tests.py                                    |        0 |        0 |    100% |           |
 | organizations/utils.py                                    |        8 |        1 |     88% |        20 |
@@ -84,7 +85,7 @@
 | users/tests.py                                            |        0 |        0 |    100% |           |
 | users/utils.py                                            |       17 |        3 |     82% |22, 30, 38 |
 | users/views.py                                            |        0 |        0 |    100% |           |
-| **TOTAL**                                                 | **2426** |  **474** | **80%** |           |
+| **TOTAL**                                                 | **2452** |  **475** | **81%** |           |
 
 
 ## Setup coverage badge
