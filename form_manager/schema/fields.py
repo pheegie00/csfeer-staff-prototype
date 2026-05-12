@@ -264,7 +264,13 @@ class ACFPercentageField(ACFFieldMixin, forms.DecimalField):
 
     def widget_attrs(self, widget: forms.Widget) -> dict[str, Any]:
         attrs = super().widget_attrs(widget)
-        attrs.update({"class": "usa-input percentage-input"})
+        attrs.update(
+            {
+                "class": "usa-input percentage-input",
+                "inputmode": "numeric",
+                "x-mask:dynamic": "$money($input, '.', ',', 0)",
+            }
+        )
         return attrs
 
 
