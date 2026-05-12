@@ -8,20 +8,12 @@ class CurrencyInput(forms.NumberInput):
 
 
 class PhoneInput(forms.TextInput):
-    """Telephone input that restricts UI input to digits and hyphens, and
-    submits digits only to the server."""
+    """Telephone input that renders the USWDS masked input with an Alpine
+    ``x-mask`` directive enforcing ``XXX-XXX-XXXX`` typing, and submits digits
+    only to the server."""
 
     input_type = "tel"
-
-    def __init__(self, attrs=None):
-        default_attrs = {
-            "@input": "$event.target.value = $event.target.value.replace(/[^0-9-]/g, '')",
-            "inputmode": "tel",
-            "maxlength": "12",
-        }
-        if attrs:
-            default_attrs.update(attrs)
-        super().__init__(attrs=default_attrs)
+    template_name = "form_manager/widgets/phone.html"
 
     def value_from_datadict(self, data, files, name):
         value = super().value_from_datadict(data, files, name)
