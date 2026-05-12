@@ -575,68 +575,92 @@ deploy:dev:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
 
-release:
+deploy:test:
   image:
-    name: registry.management.acf.gov/ngsc-oci/security/cosign-vault:0.1.6
-  stage: release
+    name: registry.management.acf.gov/ngsc-oci/security/cosign-vault:0.1.5
+  stage: deploy:test
   needs:
     - prepare
     - container_scanning
-  variables: 
-    RC_IMAGE: $CI_REGISTRY/$CI_PROJECT_PATH:rc-$VERSION-$CI_PIPELINE_ID
-    VAULT_ADDR: https://vault.security.acf.gov
-    SYSTEM_NAME: rads
-    COSIGN_ANNOTATION_security_passed: "true"
-    COSIGN_ANNOTATION_build_source: "gitlab"
-    COSIGN_ANNOTATION_environment: "production"
-    COSIGN_ANNOTATION_commit_sha: "${CI_COMMIT_SHA}"
-    COSIGN_ANNOTATION_pipeline_id: "${CI_PIPELINE_ID}"
-    MATERIAL_GIT_REPO: "${CI_PROJECT_URL}"
-    MATERIAL_DOCKERFILE: "${CI_PROJECT_URL}/-/blob/${CI_COMMIT_SHA}/$DOCKERFILE"
-    IMAGE_NAME: $CI_REGISTRY/$CI_PROJECT_PATH:$VERSION
-  id_tokens:
-    VAULT_ID_TOKEN:
-      aud: https://vault.security.acf.gov               
-  script: 
+    - Run unit tests
+    - Run e2e tests
+  variables:
+    TEST_IMAGE: $CI_REGISTRY/$CI_PROJECT_PATH:$VERSION-test
+    IMAGE_VERSION: test-$CI_COMMIT_SHORT_SHA
+  script:
+    - yum update -y && yum install git -y
     - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - export STORAGE_DRIVER=vfs
-    - buildah pull $RC_IMAGE
-    - buildah tag $RC_IMAGE $IMAGE_NAME
-    - buildah push $IMAGE_NAME
-    - export CI_JOB_JWT="$VAULT_ID_TOKEN"
-    - echo "$CI_REGISTRY_PASSWORD" | cosign login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
-    - sign-image
-    - create-attestation
-
-
-  artifacts:
-    paths:
-      - attestation-data.json
-      - security-attestation-report.md  
+    - buildah pull $FULL_IMAGE_NAME
+    - buildah tag $FULL_IMAGE_NAME $TEST_IMAGE
+    - buildah push $TEST_IMAGE
   rules:
-    - if: $CI_COMMIT_BRANCH == "main" && $CI_COMMIT_TAG == null
+    - if: $CI_COMMIT_BRANCH == "main"
       when: manual
 
-Package Release:
-  stage: publish
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
-  environment: release
-  needs: 
-    - prepare
-    - release
-  script:
-    - echo "Running the release job."
-  release:
-    tag_name: v$VERSION
-    name: 'Release RADS Estimator Backend $VERSION'
-    description: 'Release for RADS Estimator Backend'
-    assets:
-      links:
-        - name: "rads-estimator-backend-image"
-          url: "https://${CI_REGISTRY_IMAGE}:${VERSION}"
-          link_type: "image"
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main" && $CI_COMMIT_TAG == null
-      when: manual
+
+# release:
+#   image:
+#     name: registry.management.acf.gov/ngsc-oci/security/cosign-vault:0.1.6
+#   stage: release
+#   needs:
+#     - prepare
+#     - container_scanning
+#   variables: 
+#     RC_IMAGE: $CI_REGISTRY/$CI_PROJECT_PATH:rc-$VERSION-$CI_PIPELINE_ID
+#     VAULT_ADDR: https://vault.security.acf.gov
+#     SYSTEM_NAME: rads
+#     COSIGN_ANNOTATION_security_passed: "true"
+#     COSIGN_ANNOTATION_build_source: "gitlab"
+#     COSIGN_ANNOTATION_environment: "production"
+#     COSIGN_ANNOTATION_commit_sha: "${CI_COMMIT_SHA}"
+#     COSIGN_ANNOTATION_pipeline_id: "${CI_PIPELINE_ID}"
+#     MATERIAL_GIT_REPO: "${CI_PROJECT_URL}"
+#     MATERIAL_DOCKERFILE: "${CI_PROJECT_URL}/-/blob/${CI_COMMIT_SHA}/$DOCKERFILE"
+#     IMAGE_NAME: $CI_REGISTRY/$CI_PROJECT_PATH:$VERSION
+#   id_tokens:
+#     VAULT_ID_TOKEN:
+#       aud: https://vault.security.acf.gov               
+#   script: 
+#     - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+#     - export STORAGE_DRIVER=vfs
+#     - buildah pull $RC_IMAGE
+#     - buildah tag $RC_IMAGE $IMAGE_NAME
+#     - buildah push $IMAGE_NAME
+#     - export CI_JOB_JWT="$VAULT_ID_TOKEN"
+#     - echo "$CI_REGISTRY_PASSWORD" | cosign login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+#     - sign-image
+#     - create-attestation
+
+
+#   artifacts:
+#     paths:
+#       - attestation-data.json
+#       - security-attestation-report.md  
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == "main" && $CI_COMMIT_TAG == null
+#       when: manual
+
+# Package Release:
+#   stage: publish
+#   image: registry.gitlab.com/gitlab-org/release-cli:latest
+#   environment: release
+#   needs: 
+#     - prepare
+#     - release
+#   script:
+#     - echo "Running the release job."
+#   release:
+#     tag_name: v$VERSION
+#     name: 'Release RADS Estimator Backend $VERSION'
+#     description: 'Release for RADS Estimator Backend'
+#     assets:
+#       links:
+#         - name: "rads-estimator-backend-image"
+#           url: "https://${CI_REGISTRY_IMAGE}:${VERSION}"
+#           link_type: "image"
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == "main" && $CI_COMMIT_TAG == null
+#       when: manual
 
 

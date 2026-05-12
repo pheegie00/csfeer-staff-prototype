@@ -60,12 +60,12 @@ class TribalPlanForm(BaseFormSchema):
                         children=[
                             AlertBoxBlock(
                                 alert_type="info",
-                                heading="Plan Coverage",
                                 message=(
                                     "Tribal Plans covering a two-year period are strongly"
                                     " recommended to minimize administrative burden for"
                                     " grant recipients."
                                 ),
+                                slim=True,
                             ),
                             SectionBlock(
                                 alpine_controller_field="plan_coverage",

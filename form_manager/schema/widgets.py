@@ -7,6 +7,21 @@ class CurrencyInput(forms.NumberInput):
     template_name = "form_manager/widgets/currency.html"
 
 
+class PhoneInput(forms.TextInput):
+    """Telephone input that renders the USWDS masked input with an Alpine
+    ``x-mask`` directive enforcing ``XXX-XXX-XXXX`` typing, and submits digits
+    only to the server."""
+
+    input_type = "tel"
+    template_name = "form_manager/widgets/phone.html"
+
+    def value_from_datadict(self, data, files, name):
+        value = super().value_from_datadict(data, files, name)
+        if isinstance(value, str):
+            return value.replace("-", "")
+        return value
+
+
 class DatePickerInput(forms.DateInput):
     """A USWDS-enhanced date picker. Renders a text input wrapped in a
     `.usa-date-picker` div; the bundled USWDS JS progressively enhances it

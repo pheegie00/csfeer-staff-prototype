@@ -4,11 +4,14 @@ from datetime import date
 from decimal import Decimal
 
 from django import forms
+from django.core.validators import RegexValidator
 
 from form_manager.schema.choices import US_STATES
 from form_manager.schema.fields import acf_fields
 from form_manager.schema.forms.base import BaseFields
-from form_manager.schema.widgets import DatePickerInput
+from form_manager.schema.widgets import DatePickerInput, PhoneInput
+
+_PHONE_VALIDATOR = RegexValidator(r"^\d{10}$", "Enter a 10-digit phone number.")
 
 _TODAY = date.today()
 _NEXT_FY = (_TODAY.year + 1 if _TODAY.month >= 10 else _TODAY.year) + 1
@@ -82,8 +85,7 @@ class TribalPlanFormFields(BaseFields):
         widget=forms.RadioSelect(attrs={"radio_type": "tile"}),
     )
     multi_tribe_names = acf_fields.TextareaField(
-        title="List the names of Tribes, Villages, Communities, or Jurisdiction",
-        description="Required if representing more than one tribe. Maximum 1,000 characters.",
+        title="List the names of Tribes, Villages, Communities, or Jurisdictions",
         max_length=1000,
         required=False,
     )
@@ -92,10 +94,7 @@ class TribalPlanFormFields(BaseFields):
     # TODO: Final allowed file types and max size pending confirmation from ACF.
     tribal_resolution_upload = acf_fields.FileField(
         title="Attach Tribal Resolutions granting authority to receive CSBG funds",
-        description=(
-            "Upload tribal resolution documentation. Required if representing more than one tribe. "
-            "Allowed types: PDF, PNG, JPG, JPEG. Maximum size: 10 MB."
-        ),
+        description=("Accepted file types: PDF, PNG, JPG, JPEG. Maximum size: 10 MB"),
         required=False,
     )
 
@@ -112,7 +111,9 @@ class TribalPlanFormFields(BaseFields):
     )
     authorized_official_phone = acf_fields.CharField(
         title="Phone number",
-        widget=forms.TelInput,  # type: ignore
+        description="Enter a 10-digit U.S. phone number (example: 123-456-7890)",
+        widget=PhoneInput,
+        validators=[_PHONE_VALIDATOR],
     )
     authorized_official_extension = acf_fields.CharField(
         title="Extension (Optional)",
@@ -121,8 +122,9 @@ class TribalPlanFormFields(BaseFields):
     )
     authorized_official_fax = acf_fields.CharField(
         title="Fax number (Optional)",
-        widget=forms.TelInput,  # type: ignore
+        widget=PhoneInput,
         required=False,
+        validators=[_PHONE_VALIDATOR],
     )
     authorized_official_email = acf_fields.CharField(
         title="Email address",
@@ -143,7 +145,9 @@ class TribalPlanFormFields(BaseFields):
     contact_zip = acf_fields.CharField(title="ZIP code", max_length=5, min_length=5)
     contact_phone = acf_fields.CharField(
         title="Phone number",
-        widget=forms.TelInput,  # type: ignore
+        description="Enter a 10-digit U.S. phone number (example: 123-456-7890)",
+        widget=PhoneInput,
+        validators=[_PHONE_VALIDATOR],
     )
     contact_extension = acf_fields.CharField(
         title="Extension (Optional)",
@@ -152,8 +156,9 @@ class TribalPlanFormFields(BaseFields):
     )
     contact_fax = acf_fields.CharField(
         title="Fax number (Optional)",
-        widget=forms.TelInput,  # type: ignore
+        widget=PhoneInput,
         required=False,
+        validators=[_PHONE_VALIDATOR],
     )
     contact_email = acf_fields.CharField(
         title="Email address",
@@ -176,11 +181,13 @@ class TribalPlanFormFields(BaseFields):
     delegation_title = acf_fields.CharField(title="Title", required=False, max_length=200)
     delegation_phone = acf_fields.CharField(
         title="Phone number",
-        widget=forms.TelInput,  # type: ignore
+        description="Enter a 10-digit U.S. phone number (example: 123-456-7890)",
+        widget=PhoneInput,
         required=False,
+        validators=[_PHONE_VALIDATOR],
     )
     delegation_extension = acf_fields.CharField(
-        title="Extension (Optional)",
+        title="Extension Number (Optional)",
         required=False,
         max_length=10,
     )
@@ -222,11 +229,8 @@ class TribalPlanFormFields(BaseFields):
     )
     # 2.2b Recognition upload (conditional on recognition_provision_method = upload)
     recognition_upload = acf_fields.FileField(
-        title="Recognition documentation",
-        description=(
-            "Upload supporting recognition documentation. Required if recognition exists. "
-            "Allowed types: PDF, PNG, JPG, JPEG. Maximum size: 10 MB."
-        ),
+        title="Attach a citation to State statute or code acknowledging State Recognition",
+        description=("Accepted file types: PDF, PNG, JPG, JPEG. Maximum size: 10 MB"),
         required=False,
     )
     # NOTE: 2.2b-no (explanation for lack of recognition) has been removed per 3/24 PO Notes.
