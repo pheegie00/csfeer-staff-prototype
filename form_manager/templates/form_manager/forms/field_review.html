@@ -4,10 +4,10 @@
 
 <div class="{% if component.errors %}text-error{% endif %} font-family-body">
 
-{% if component.value is None and component.errors %}
+{% if component.errors %}
     {{ component.errors.0 }}
 {% else %}
-    {% block component_value %}{{ component.value }}{% endblock %} {% if component.errors %}{{ component.errors.0 }}{% endif %}
+    {% block component_value %}{{ component.value }}{% endblock %}
 {% endif %}
 
 </div>

@@ -288,7 +288,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
     )
     alloc_education_y1 = acf_fields.PercentageField(
         title="Childcare, Early Childhood, Youth Development & Adult Education",
@@ -296,7 +295,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
     )
     alloc_income_y1 = acf_fields.PercentageField(
         title="Income & Asset Building",
@@ -304,7 +302,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
     )
     alloc_housing_y1 = acf_fields.PercentageField(
         title="Housing",
@@ -312,7 +309,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
     )
     alloc_health_y1 = acf_fields.PercentageField(
         title="Health & Nutrition",
@@ -320,7 +316,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
     )
     alloc_civic_y1 = acf_fields.PercentageField(
         title="Civic Engagement & Community Involvement",
@@ -328,7 +323,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
     )
     alloc_transportation_y1 = acf_fields.PercentageField(
         title="Transportation",
@@ -336,7 +330,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
     )
     alloc_partnerships_y1 = acf_fields.PercentageField(
         title="Partnerships, Linkages & Coordination",
@@ -344,7 +337,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
     )
     alloc_total_y1 = acf_fields.CalculatedPercentageField(
         title="Total (auto-calculated)",
@@ -353,7 +345,7 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         max_value=100,
-        error_messages={"max_value": "Cannot exceed 100%%"},
+        error_messages={"max_value": "Exceeds 100%%. Adjust so it adds up to 100%%."},
     )
 
     # 5.1 Year 2 Allocations (conditional on two-year plan; must total 100%)
@@ -373,7 +365,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
     alloc_education_y2 = acf_fields.PercentageField(
@@ -382,7 +373,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
     alloc_income_y2 = acf_fields.PercentageField(
@@ -391,7 +381,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
     alloc_housing_y2 = acf_fields.PercentageField(
@@ -400,7 +389,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
     alloc_health_y2 = acf_fields.PercentageField(
@@ -409,7 +397,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
     alloc_civic_y2 = acf_fields.PercentageField(
@@ -418,7 +405,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
     alloc_transportation_y2 = acf_fields.PercentageField(
@@ -427,7 +413,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
     alloc_partnerships_y2 = acf_fields.PercentageField(
@@ -436,7 +421,6 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
     alloc_total_y2 = acf_fields.CalculatedPercentageField(
@@ -446,7 +430,7 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         max_value=100,
-        error_messages={"max_value": "Cannot exceed 100%%"},
+        error_messages={"max_value": "Exceeds 100%%. Adjust so it adds up to 100%%."},
     )
 
     # 5.2 Limitation on Use of Funds - Acknowledgment
@@ -676,7 +660,10 @@ class TribalPlanFormFields(BaseFields):
         if all(v is not None for v in y1_values):
             y1_total = sum(Decimal(str(v)) for v in y1_values)
             if y1_total > Decimal("100"):
-                self.add_error("alloc_total_y1", "Total cannot exceed 100%")
+                self.add_error(
+                    "alloc_total_y1",
+                    "Exceeds 100%. Adjust so it adds up to 100%.",
+                )
             elif y1_total < Decimal("100"):
                 self.add_error("alloc_total_y1", "Total must equal 100%")
 
@@ -686,7 +673,10 @@ class TribalPlanFormFields(BaseFields):
             if all(v is not None for v in y2_values):
                 y2_total = sum(Decimal(str(v)) for v in y2_values)
                 if y2_total > Decimal("100"):
-                    self.add_error("alloc_total_y2", "Total cannot exceed 100%")
+                    self.add_error(
+                        "alloc_total_y2",
+                        "Exceeds 100%. Adjust so it adds up to 100%.",
+                    )
                 elif y2_total < Decimal("100"):
                     self.add_error("alloc_total_y2", "Total must equal 100%")
 
