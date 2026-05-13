@@ -72,6 +72,8 @@ class TestSchemaForm(BaseFields):
 
 class TestSchema(BaseFormSchema):
 
+    __test__ = False  # pytest ignores this Pydantic class, not a test case
+
     family: FormFamilies = Field(FormFamilies.CSBG_ANNUAL_REPORT, frozen=True)
     name: AllFormNames = Field(CSBGAnnualReportForms.TRIBAL_ANNUAL_REPORT_3_0, frozen=True)
     variant: SemanticVersion = Field(SemanticVersion(3, 0, 4), frozen=True)
@@ -127,6 +129,15 @@ class TestSchema(BaseFormSchema):
     )
 
     model_config = ConfigDict(use_enum_values=True)
+
+
+class TestSchema_3_1(TestSchema):
+    """Sibling of TestSchema with the same name and a bumped variant — mirrors the
+    real-world pattern of publishing a new version (see TribalShortForm_3_1)."""
+
+    __test__ = False  # pytest ignores this Pydantic class, not a test case
+
+    variant: SemanticVersion = Field(SemanticVersion(3, 1, 0), frozen=True)
 
 
 @pytest.fixture
