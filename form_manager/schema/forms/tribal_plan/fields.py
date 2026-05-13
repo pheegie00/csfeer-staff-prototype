@@ -279,7 +279,8 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
+        max_value=5,
+        error_messages={"max_value": "Cannot exceed 5%%"},
     )
     alloc_employment_y1 = acf_fields.PercentageField(
         title="Employment",
@@ -351,6 +352,8 @@ class TribalPlanFormFields(BaseFields):
         fields=_Y1_ALLOCATION_FIELDS,
         max_digits=5,
         decimal_places=0,
+        max_value=100,
+        error_messages={"max_value": "Cannot exceed 100%%"},
     )
 
     # 5.1 Year 2 Allocations (conditional on two-year plan; must total 100%)
@@ -360,8 +363,9 @@ class TribalPlanFormFields(BaseFields):
         max_digits=5,
         decimal_places=0,
         min_value=0,
-        max_value=100,
+        max_value=5,
         required=False,
+        error_messages={"max_value": "Cannot exceed 5%%"},
     )
     alloc_employment_y2 = acf_fields.PercentageField(
         title="Employment",
@@ -441,6 +445,8 @@ class TribalPlanFormFields(BaseFields):
         fields=_Y2_ALLOCATION_FIELDS,
         max_digits=5,
         decimal_places=0,
+        max_value=100,
+        error_messages={"max_value": "Cannot exceed 100%%"},
     )
 
     # 5.2 Limitation on Use of Funds - Acknowledgment
@@ -669,20 +675,19 @@ class TribalPlanFormFields(BaseFields):
         y1_values = [cleaned_data.get(f) for f in _Y1_ALLOCATION_FIELDS]
         if all(v is not None for v in y1_values):
             y1_total = sum(Decimal(str(v)) for v in y1_values)
-            if y1_total != Decimal("100"):
-                raise forms.ValidationError(
-                    f"Year 1 allocation percentages must total 100%. Current total: {y1_total}%."
-                )
+            if y1_total > Decimal("100"):
+                self.add_error("alloc_total_y1", "Total cannot exceed 100%")
+            elif y1_total < Decimal("100"):
+                self.add_error("alloc_total_y1", "Total must equal 100%")
 
         # 5.1: Year 2 allocation total must equal 100% when a two-year plan is selected.
         if plan_coverage == "two_year":
             y2_values = [cleaned_data.get(f) for f in _Y2_ALLOCATION_FIELDS]
             if all(v is not None for v in y2_values):
                 y2_total = sum(Decimal(str(v)) for v in y2_values)
-                if y2_total != Decimal("100"):
-                    raise forms.ValidationError(
-                        "Year 2 allocation percentages must total 100%."
-                        f" Current total: {y2_total}%."
-                    )
+                if y2_total > Decimal("100"):
+                    self.add_error("alloc_total_y2", "Total cannot exceed 100%")
+                elif y2_total < Decimal("100"):
+                    self.add_error("alloc_total_y2", "Total must equal 100%")
 
         return cleaned_data

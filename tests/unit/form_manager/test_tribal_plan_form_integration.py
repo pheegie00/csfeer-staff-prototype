@@ -104,15 +104,15 @@ def _valid_form_data(**overrides) -> dict:
         "community_feedback_0": "no",
         "community_feedback_1": "",
         # Section 5 — Year 1 Allocations (sum = 100%)
-        "alloc_admin_y1": "10.00",
-        "alloc_employment_y1": "10.00",
-        "alloc_education_y1": "10.00",
-        "alloc_income_y1": "10.00",
-        "alloc_housing_y1": "10.00",
-        "alloc_health_y1": "10.00",
-        "alloc_civic_y1": "10.00",
-        "alloc_transportation_y1": "10.00",
-        "alloc_partnerships_y1": "20.00",
+        "alloc_admin_y1": "5",
+        "alloc_employment_y1": "10",
+        "alloc_education_y1": "10",
+        "alloc_income_y1": "10",
+        "alloc_housing_y1": "10",
+        "alloc_health_y1": "10",
+        "alloc_civic_y1": "10",
+        "alloc_transportation_y1": "10",
+        "alloc_partnerships_y1": "25",
         # Section 5 — Fiscal Controls
         "use_of_funds_acknowledgment": True,
         "has_completed_single_audit": "no",
@@ -335,18 +335,29 @@ def test_valid_form_passes():
 
 def test_y1_allocation_total_must_equal_100():
     """Year 1 allocation fields that sum to less than 100 fail validation."""
-    data = _valid_form_data(alloc_partnerships_y1="10.00")  # total = 90
+    data = _valid_form_data(alloc_partnerships_y1="10")  # total = 85
     form = TribalPlanFormFields(data=data)
     assert not form.is_valid()
-    error_text = str(form.errors)
-    assert "100%" in error_text or "100" in error_text
+    assert "alloc_total_y1" in form.errors
+    assert "Total must equal 100%" in form.errors["alloc_total_y1"]
 
 
 def test_y1_allocation_total_over_100_fails():
     """Year 1 allocation fields that sum to more than 100 fail validation."""
-    data = _valid_form_data(alloc_partnerships_y1="30.00")  # total = 110
+    data = _valid_form_data(alloc_partnerships_y1="30")  # total = 105
     form = TribalPlanFormFields(data=data)
     assert not form.is_valid()
+    assert "alloc_total_y1" in form.errors
+    assert "Total cannot exceed 100%" in form.errors["alloc_total_y1"]
+
+
+def test_alloc_admin_y1_cannot_exceed_5():
+    """Year 1 administrative cost percentage cannot exceed 5%."""
+    data = _valid_form_data(alloc_admin_y1="6", alloc_partnerships_y1="24")
+    form = TribalPlanFormFields(data=data)
+    assert not form.is_valid()
+    assert "alloc_admin_y1" in form.errors
+    assert "Cannot exceed 5%" in form.errors["alloc_admin_y1"]
 
 
 def test_multi_tribe_names_required_when_yes():
@@ -467,20 +478,20 @@ def test_two_year_plan_y2_total_must_equal_100():
     data = _valid_form_data(
         plan_coverage="two_year",
         fiscal_year_y2="fy_2027",
-        alloc_admin_y2="10.00",
-        alloc_employment_y2="10.00",
-        alloc_education_y2="10.00",
-        alloc_income_y2="10.00",
-        alloc_housing_y2="10.00",
-        alloc_health_y2="10.00",
-        alloc_civic_y2="10.00",
-        alloc_transportation_y2="10.00",
-        alloc_partnerships_y2="5.00",  # total = 85, not 100
+        alloc_admin_y2="5",
+        alloc_employment_y2="10",
+        alloc_education_y2="10",
+        alloc_income_y2="10",
+        alloc_housing_y2="10",
+        alloc_health_y2="10",
+        alloc_civic_y2="10",
+        alloc_transportation_y2="10",
+        alloc_partnerships_y2="5",  # total = 80, not 100
     )
     form = TribalPlanFormFields(data=data)
     assert not form.is_valid()
-    error_text = str(form.errors)
-    assert "100%" in error_text or "100" in error_text
+    assert "alloc_total_y2" in form.errors
+    assert "Total must equal 100%" in form.errors["alloc_total_y2"]
 
 
 def test_two_year_plan_valid_with_correct_y2_allocations():
@@ -488,15 +499,15 @@ def test_two_year_plan_valid_with_correct_y2_allocations():
     data = _valid_form_data(
         plan_coverage="two_year",
         fiscal_year_y2="fy_2027",
-        alloc_admin_y2="10.00",
-        alloc_employment_y2="10.00",
-        alloc_education_y2="10.00",
-        alloc_income_y2="10.00",
-        alloc_housing_y2="10.00",
-        alloc_health_y2="10.00",
-        alloc_civic_y2="10.00",
-        alloc_transportation_y2="10.00",
-        alloc_partnerships_y2="20.00",  # total = 100%
+        alloc_admin_y2="5",
+        alloc_employment_y2="10",
+        alloc_education_y2="10",
+        alloc_income_y2="10",
+        alloc_housing_y2="10",
+        alloc_health_y2="10",
+        alloc_civic_y2="10",
+        alloc_transportation_y2="10",
+        alloc_partnerships_y2="25",  # total = 100%
     )
     form = TribalPlanFormFields(data=data)
     assert form.is_valid(), form.errors
