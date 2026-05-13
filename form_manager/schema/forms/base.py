@@ -31,7 +31,7 @@ class ACFFormRenderer(TemplatesSetting):
 
 class BaseFields(forms.Form):
     """A base Django form class that can also be used as a Pydantic field
-    for serializing form defintions into base classes."""
+    for serializing form definitions into base classes."""
 
     default_renderer = ACFFormRenderer
 

@@ -61,6 +61,7 @@ This file contains rules that are injected into every AI coding session. Keep it
 
 ### Language/Framework Rules
 <!-- Python 3.12+, Django 6, Pydantic -->
+- When not 100% certain about a Django API, behavior, setting, ORM detail, form/field semantic, signal, or migration operation, consult the official Django 6.0 docs (https://docs.djangoproject.com/en/6.0/) before answering or writing code — never guess from training data. Cite the docs URL inline when the answer is non-obvious.
 - Avoid using `# type: ignore` if you must, leave comment as to why
 - Prefer `Type | None` over `Optional[Type]`
 - Prefer Django ORM querysets over raw SQL
