@@ -348,7 +348,7 @@ def test_y1_allocation_total_over_100_fails():
     form = TribalPlanFormFields(data=data)
     assert not form.is_valid()
     assert "alloc_total_y1" in form.errors
-    assert "Total cannot exceed 100%" in form.errors["alloc_total_y1"]
+    assert "Exceeds 100%. Adjust so it adds up to 100%." in form.errors["alloc_total_y1"]
 
 
 def test_alloc_admin_y1_cannot_exceed_5():

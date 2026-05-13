@@ -655,16 +655,12 @@ class TribalPlanFormFields(BaseFields):
                 if cleaned_data.get(field_name) is None:
                     self.add_error(field_name, "This field is required.")
 
-        # 5.1: Year 1 allocation total must equal 100%.
+        # 5.1: Year 1 allocation total must equal 100%. The over-100 case is handled
+        # by the field-level max_value=100 validator on alloc_total_y1.
         y1_values = [cleaned_data.get(f) for f in _Y1_ALLOCATION_FIELDS]
         if all(v is not None for v in y1_values):
             y1_total = sum(Decimal(str(v)) for v in y1_values)
-            if y1_total > Decimal("100"):
-                self.add_error(
-                    "alloc_total_y1",
-                    "Exceeds 100%. Adjust so it adds up to 100%.",
-                )
-            elif y1_total < Decimal("100"):
+            if y1_total < Decimal("100"):
                 self.add_error("alloc_total_y1", "Total must equal 100%")
 
         # 5.1: Year 2 allocation total must equal 100% when a two-year plan is selected.
@@ -672,12 +668,7 @@ class TribalPlanFormFields(BaseFields):
             y2_values = [cleaned_data.get(f) for f in _Y2_ALLOCATION_FIELDS]
             if all(v is not None for v in y2_values):
                 y2_total = sum(Decimal(str(v)) for v in y2_values)
-                if y2_total > Decimal("100"):
-                    self.add_error(
-                        "alloc_total_y2",
-                        "Exceeds 100%. Adjust so it adds up to 100%.",
-                    )
-                elif y2_total < Decimal("100"):
+                if y2_total < Decimal("100"):
                     self.add_error("alloc_total_y2", "Total must equal 100%")
 
         return cleaned_data
