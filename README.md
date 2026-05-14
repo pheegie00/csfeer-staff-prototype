@@ -40,19 +40,19 @@
 | form\_manager/models/locking.py                           |       10 |        0 |    100% |           |
 | form\_manager/schema/\_\_init\_\_.py                      |        0 |        0 |    100% |           |
 | form\_manager/schema/choices.py                           |       13 |        0 |    100% |           |
-| form\_manager/schema/fields.py                            |      232 |       13 |     94% |148-149, 293, 297, 305, 318-322, 347, 390-391 |
+| form\_manager/schema/fields.py                            |      247 |       13 |     95% |151-152, 324, 328, 336, 349-353, 378, 421-422 |
 | form\_manager/schema/forms/\_\_init\_\_.py                |        6 |        0 |    100% |           |
-| form\_manager/schema/forms/base.py                        |       65 |        2 |     97% |   116-117 |
+| form\_manager/schema/forms/base.py                        |       65 |        5 |     92% |51-53, 116-117 |
 | form\_manager/schema/forms/tribal\_long\_form.py          |       54 |        0 |    100% |           |
 | form\_manager/schema/forms/tribal\_plan/\_\_init\_\_.py   |        2 |        0 |    100% |           |
-| form\_manager/schema/forms/tribal\_plan/fields.py         |      144 |        5 |     97% |612, 673-679, 688 |
+| form\_manager/schema/forms/tribal\_plan/fields.py         |      144 |        5 |     97% |604, 644-650, 656 |
 | form\_manager/schema/forms/tribal\_plan/form.py           |       18 |        0 |    100% |           |
 | form\_manager/schema/forms/tribal\_plan/texts.py          |       11 |        0 |    100% |           |
 | form\_manager/schema/forms/tribal\_short\_form.py         |       40 |        0 |    100% |           |
 | form\_manager/schema/forms/utils.py                       |        3 |        0 |    100% |           |
 | form\_manager/schema/layout.py                            |      232 |       23 |     90% |30-32, 36-43, 114-122, 385, 409, 439-446 |
 | form\_manager/schema/navigation.py                        |       86 |       10 |     88% |53, 65, 78-87 |
-| form\_manager/schema/widgets.py                           |       38 |        4 |     89% | 22, 69-72 |
+| form\_manager/schema/widgets.py                           |       40 |        4 |     90% | 28, 75-78 |
 | form\_manager/templatetags/\_\_init\_\_.py                |        0 |        0 |    100% |           |
 | form\_manager/templatetags/form\_manager\_tags.py         |       32 |       23 |     28% |15-21, 29-64 |
 | form\_manager/urls.py                                     |        3 |        0 |    100% |           |
@@ -85,7 +85,7 @@
 | users/tests.py                                            |        0 |        0 |    100% |           |
 | users/utils.py                                            |       17 |        3 |     82% |22, 30, 38 |
 | users/views.py                                            |        0 |        0 |    100% |           |
-| **TOTAL**                                                 | **2452** |  **475** | **81%** |           |
+| **TOTAL**                                                 | **2469** |  **478** | **81%** |           |
 
 
 ## Setup coverage badge
