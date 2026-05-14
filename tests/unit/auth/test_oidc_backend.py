@@ -11,7 +11,7 @@ def backend():
 
 @pytest.fixture
 def user(db, django_user_model):
-    return django_user_model.objects.create_user(
+    return django_user_model.get_recipient_user_model().objects.create_user(
         email="test@example.com",
         password="testpassword",
         first_name="",

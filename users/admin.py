@@ -14,7 +14,8 @@ class UserProfileInline(admin.StackedInline):
 @admin.register(CoreUser)
 class CoreUserAdmin(UserAdmin):
     inlines = (UserProfileInline,)
-    list_display = ("email", "first_name", "last_name", "is_staff", "id")
+    list_display = ("email", "first_name", "last_name", "is_staff", "type", "id")
+    list_filter = list(UserAdmin.list_filter) + ["type"]
     ordering = ("email",)
 
     add_fieldsets = (

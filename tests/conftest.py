@@ -5,7 +5,7 @@ Pytest configuration and fixtures for e2e tests.
 import os
 from collections.abc import Generator
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pytest
 from django.test.client import Client
@@ -194,11 +194,13 @@ def create_user(django_user_model):
         user = create_user(username="alice", password="secret", email="a@b.com", is_staff=True)
     """
 
+    User = cast("CoreUser", get_user_model())
+
     try:
-        return get_user_model().objects.get(email=TEST_USERS["demo"]["email"])
+        return User.get_recipient_user_model().objects.get(email=TEST_USERS["demo"]["email"])
     except ObjectDoesNotExist:
         call_command("seed_test_users", email=TEST_USERS["demo"]["email"])
-        return get_user_model().objects.get(email=TEST_USERS["demo"]["email"])
+        return User.get_recipient_user_model().objects.get(email=TEST_USERS["demo"]["email"])
 
 
 @pytest.fixture

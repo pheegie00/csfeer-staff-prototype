@@ -480,7 +480,9 @@ def non_ao_client(permission_groups, ao_form_entry, django_user_model, client):
     from organizations.models import UserOrganizationMembership
 
     fake = Faker()
-    user = django_user_model.objects.create_user(email=fake.email(), password="pw", is_active=True)
+    user = django_user_model.get_recipient_user_model().objects.create_user(
+        email=fake.email(), password="pw", is_active=True
+    )
     membership = UserOrganizationMembership.objects.create(
         user=user, organization=ao_form_entry.organization
     )

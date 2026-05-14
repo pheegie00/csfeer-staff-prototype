@@ -7,10 +7,10 @@ from core.models import BaseModel
 from users.managers import CoreUserManager
 
 
-class CoreUser(AbstractUser, TypedModel):
+class CoreUser(BaseModel, AbstractUser, TypedModel):
 
-    class Meta(AbstractUser.Meta, TypedModel.Meta):  # type: ignore
-        abstract = False
+    class Meta(BaseModel.Meta, AbstractUser.Meta, TypedModel.Meta):
+        pass
 
     username = None
     email = models.EmailField(_("email address"), unique=True)
@@ -20,8 +20,30 @@ class CoreUser(AbstractUser, TypedModel):
 
     objects: CoreUserManager = CoreUserManager()  # type: ignore[assignment]
 
+    @staticmethod
+    def get_recipient_user_model() -> "type[RecipientUser]":
+        return RecipientUser
+
+    @staticmethod
+    def get_federal_staff_user_model() -> "type[FederalStaffUser]":
+        return FederalStaffUser
+
     def __str__(self):
         return self.email
+
+
+class RecipientUser(CoreUser):
+
+    class Meta(CoreUser.Meta):
+        verbose_name = "Recipient"
+        verbose_name_plural = "Recipients"
+
+
+class FederalStaffUser(CoreUser):
+
+    class Meta(CoreUser.Meta):
+        verbose_name = "Federal Staff"
+        verbose_name_plural = "Federal Staffers"
 
 
 class UserProfile(BaseModel):

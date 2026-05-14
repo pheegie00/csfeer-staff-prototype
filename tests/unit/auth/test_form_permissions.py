@@ -73,7 +73,7 @@ def active_user(db, django_user_model):
     from faker import Faker
 
     fake = Faker()
-    return django_user_model.objects.create_user(
+    return django_user_model.get_recipient_user_model().objects.create_user(
         email=fake.email(),
         password=fake.password(),
         first_name=fake.first_name(),
@@ -87,7 +87,7 @@ def inactive_user(db, django_user_model):
     from faker import Faker
 
     fake = Faker()
-    return django_user_model.objects.create_user(
+    return django_user_model.get_recipient_user_model().objects.create_user(
         email=fake.email(),
         password=fake.password(),
         first_name=fake.first_name(),
@@ -155,7 +155,7 @@ def test_superuser_granted_without_membership(backend, org, django_user_model):
     from faker import Faker
 
     fake = Faker()
-    superuser = django_user_model.objects.create_superuser(
+    superuser = django_user_model.get_recipient_user_model().objects.create_superuser(
         email=fake.email(),
         password=fake.password(),
         first_name=fake.first_name(),
@@ -170,7 +170,7 @@ def test_superuser_granted_for_any_perm(backend, org, django_user_model):
     from faker import Faker
 
     fake = Faker()
-    superuser = django_user_model.objects.create_superuser(
+    superuser = django_user_model.get_recipient_user_model().objects.create_superuser(
         email=fake.email(),
         password=fake.password(),
         first_name=fake.first_name(),

@@ -9,7 +9,7 @@ This module contains:
 """
 
 from inspect import signature
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
@@ -17,6 +17,9 @@ from oauth2_authcodeflow.auth import AuthenticationBackend
 from oauth2_authcodeflow.conf import settings
 
 from users.models import UserProfile
+
+if TYPE_CHECKING:
+    from users.models import CoreUser
 
 
 class EmailOIDCAuthenticationBackend(AuthenticationBackend):
@@ -63,9 +66,10 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
 
             raise SuspiciousOperation("Email claim not found in OIDC token")
 
-        User = get_user_model()
+        CoreUser = cast("CoreUser", get_user_model())
+        RecipientUser = CoreUser.get_recipient_user_model()
         # Use email for lookup instead of username
-        user, created = User.objects.get_or_create(email=email)
+        user, created = RecipientUser.objects.get_or_create(email=email)
         user = cast(AbstractUser, user)
 
         self.update_user(user, created, claims, request, access_token)

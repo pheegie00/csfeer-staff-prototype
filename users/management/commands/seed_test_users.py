@@ -26,6 +26,8 @@ class Command(BaseCommand):
 
         UserModel = cast("CoreUser", get_user_model())
 
+        RecipientUser = UserModel.get_recipient_user_model()
+
         target_email = options.get("email")
 
         for user_info in TEST_USERS.values():
@@ -44,7 +46,7 @@ class Command(BaseCommand):
                     )
                 )
             except UserModel.DoesNotExist:
-                user = UserModel.objects.create_user(
+                user = RecipientUser.objects.create_user(
                     email=email,
                     password=user_info["password"],
                     is_staff="csfeer_admin" in roles,

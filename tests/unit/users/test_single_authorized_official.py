@@ -58,7 +58,7 @@ def make_user(db, django_user_model):
     fake = Faker()
 
     def _make():
-        return django_user_model.objects.create_user(
+        return django_user_model.get_recipient_user_model().objects.create_user(
             email=fake.email(),
             password=fake.password(),
             first_name=fake.first_name(),
