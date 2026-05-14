@@ -227,3 +227,21 @@ textarea.usa-textarea {
 .user-nav .usa-accordion__button.usa-nav__link:hover span::after {
   background-color: color("white");
 }
+
+/* ========================================
+   Markdown Prose — nested ordered lists
+   render as 1. → a. → i. by depth
+   ======================================== */
+.usa-prose {
+  ol {
+    list-style-type: decimal;
+
+    ol {
+      list-style-type: lower-alpha;
+
+      ol {
+        list-style-type: lower-roman;
+      }
+    }
+  }
+}
