@@ -1,14 +1,15 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from typedmodels.models import TypedModel
 
 from core.models import BaseModel
 from users.managers import CoreUserManager
 
 
-class CoreUser(AbstractUser, BaseModel):
+class CoreUser(AbstractUser, TypedModel):
 
-    class Meta(AbstractUser.Meta, BaseModel.Meta):  # type: ignore
+    class Meta(AbstractUser.Meta, TypedModel.Meta):  # type: ignore
         abstract = False
 
     username = None
