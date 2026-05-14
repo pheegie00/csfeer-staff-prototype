@@ -415,9 +415,9 @@ class TribalPlanForm(BaseFormSchema):
                     ),
                 ],
             ),
-            # Step 6: Section 6 — Individual & Targeted Community Eligibility
+            # Step 6: Section 6 — Individual & Community Eligibility
             StepBlock(
-                title="Individual & Targeted Community Eligibility",
+                title="Individual & Community Eligibility",
                 children=[
                     PermanentPageBlock(
                         title="Individual Eligibility",
@@ -436,7 +436,7 @@ class TribalPlanForm(BaseFormSchema):
                         ],
                     ),
                     PermanentPageBlock(
-                        title="Targeted Community Eligibility",
+                        title="Community Eligibility",
                         subtitle=(
                             "For those services that provide a community-wide benefit, "
                             "describe how the tribe or tribal organization ensures that "
@@ -445,8 +445,8 @@ class TribalPlanForm(BaseFormSchema):
                         children=[
                             SectionBlock(
                                 children=[
-                                    ReviewSubheadingBlock(title="Targeted Community Eligibility"),
-                                    FieldBlock(field_name="targeted_community_eligibility"),
+                                    ReviewSubheadingBlock(title="Community Eligibility"),
+                                    FieldBlock(field_name="community_eligibility"),
                                 ],
                             ),
                         ],
@@ -649,7 +649,7 @@ class TribalPlanForm(BaseFormSchema):
                                 ],
                             ),
                             TextBlock(
-                                bordered=False,
+                                bordered=True,
                                 text=_DEBARMENT_CERTIFICATION_TEXT,
                             ),
                             SectionBlock(
