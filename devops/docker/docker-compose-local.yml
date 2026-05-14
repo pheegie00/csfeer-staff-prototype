@@ -23,6 +23,9 @@ services:
       service: app
     environment:
       - SHOW_APP_VERSION=True
+      - OIDC_CONFIG__document_url=${CUSTOM_OIDC_DOCUMENT_URL:-http://oauth.csfeer:8081/realms/csfeer/.well-known/openid-configuration}
+      - OIDC_CONFIG__client_id=${CUSTOM_OIDC_CLIENT_ID:-csfeer-auth}
+      - OIDC_CONFIG__client_secret=${CUSTOM_OIDC_CLIENT_SECRET:-shhhhhhhh}
     post_start:
       - command: >
           /bin/bash -c "
