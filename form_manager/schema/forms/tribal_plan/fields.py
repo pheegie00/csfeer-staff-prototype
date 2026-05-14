@@ -243,8 +243,7 @@ class TribalPlanFormFields(BaseFields):
 
     # 3.1
     goals_and_objectives = acf_fields.TextareaField(
-        title="CSBG Goals, Objectives, and Strategies",
-        description="Maximum 5,000 characters.",
+        title="Description",
         max_length=5000,
     )
 
@@ -274,179 +273,172 @@ class TribalPlanFormFields(BaseFields):
     # region Section 5 — Use of Funds and Fiscal Controls
 
     # 5.1 Year 1 Allocations (must total 100%)
-    alloc_admin_y1 = acf_fields.DecimalField(
+    alloc_admin_y1 = acf_fields.PercentageField(
         title="Administrative cost",
         review_title="Administrative Funds (Year 1 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
+        max_value=5,
+        error_messages={"max_value": "Cannot exceed 5%%"},
     )
-    alloc_employment_y1 = acf_fields.DecimalField(
+    alloc_employment_y1 = acf_fields.PercentageField(
         title="Employment",
         review_title="Employment (Year 1 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
     )
-    alloc_education_y1 = acf_fields.DecimalField(
+    alloc_education_y1 = acf_fields.PercentageField(
         title="Childcare, Early Childhood, Youth Development & Adult Education",
         review_title="Education and Youth Development (Year 1 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
     )
-    alloc_income_y1 = acf_fields.DecimalField(
+    alloc_income_y1 = acf_fields.PercentageField(
         title="Income & Asset Building",
         review_title="Income and Asset Building (Year 1 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
     )
-    alloc_housing_y1 = acf_fields.DecimalField(
+    alloc_housing_y1 = acf_fields.PercentageField(
         title="Housing",
         review_title="Housing (Year 1 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
     )
-    alloc_health_y1 = acf_fields.DecimalField(
+    alloc_health_y1 = acf_fields.PercentageField(
         title="Health & Nutrition",
         review_title="Health and Nutrition (Year 1 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
     )
-    alloc_civic_y1 = acf_fields.DecimalField(
+    alloc_civic_y1 = acf_fields.PercentageField(
         title="Civic Engagement & Community Involvement",
         review_title="Civic Engagement and Community Involvement (Year 1 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
     )
-    alloc_transportation_y1 = acf_fields.DecimalField(
+    alloc_transportation_y1 = acf_fields.PercentageField(
         title="Transportation",
         review_title="Transportation (Year 1 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
     )
-    alloc_partnerships_y1 = acf_fields.DecimalField(
+    alloc_partnerships_y1 = acf_fields.PercentageField(
         title="Partnerships, Linkages & Coordination",
         review_title="Partnerships, Linkages, and Service Coordination (Year 1 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
     )
-    alloc_total_y1 = acf_fields.CalculatedDecimalField(
+    alloc_total_y1 = acf_fields.CalculatedPercentageField(
         title="Total (auto-calculated)",
         review_title="Year 1 Total (%)",
         fields=_Y1_ALLOCATION_FIELDS,
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
+        max_value=100,
+        error_messages={"max_value": "Exceeds 100%%. Adjust so it adds up to 100%%."},
     )
 
     # 5.1 Year 2 Allocations (conditional on two-year plan; must total 100%)
-    alloc_admin_y2 = acf_fields.DecimalField(
+    alloc_admin_y2 = acf_fields.PercentageField(
         title="Administrative cost",
         review_title="Administrative Funds (Year 2 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
+        max_value=5,
         required=False,
+        error_messages={"max_value": "Cannot exceed 5%%"},
     )
-    alloc_employment_y2 = acf_fields.DecimalField(
+    alloc_employment_y2 = acf_fields.PercentageField(
         title="Employment",
         review_title="Employment (Year 2 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
-    alloc_education_y2 = acf_fields.DecimalField(
+    alloc_education_y2 = acf_fields.PercentageField(
         title="Childcare, Early Childhood, Youth Development & Adult Education",
         review_title="Education and Youth Development (Year 2 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
-    alloc_income_y2 = acf_fields.DecimalField(
+    alloc_income_y2 = acf_fields.PercentageField(
         title="Income & Asset Building",
         review_title="Income and Asset Building (Year 2 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
-    alloc_housing_y2 = acf_fields.DecimalField(
+    alloc_housing_y2 = acf_fields.PercentageField(
         title="Housing",
         review_title="Housing (Year 2 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
-    alloc_health_y2 = acf_fields.DecimalField(
+    alloc_health_y2 = acf_fields.PercentageField(
         title="Health & Nutrition",
         review_title="Health and Nutrition (Year 2 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
-    alloc_civic_y2 = acf_fields.DecimalField(
+    alloc_civic_y2 = acf_fields.PercentageField(
         title="Civic Engagement & Community Involvement",
         review_title="Civic Engagement and Community Involvement (Year 2 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
-    alloc_transportation_y2 = acf_fields.DecimalField(
+    alloc_transportation_y2 = acf_fields.PercentageField(
         title="Transportation",
         review_title="Transportation (Year 2 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
-    alloc_partnerships_y2 = acf_fields.DecimalField(
+    alloc_partnerships_y2 = acf_fields.PercentageField(
         title="Partnerships, Linkages & Coordination",
         review_title="Partnerships, Linkages, and Service Coordination (Year 2 %)",
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
         min_value=0,
-        max_value=100,
         required=False,
     )
-    alloc_total_y2 = acf_fields.CalculatedDecimalField(
+    alloc_total_y2 = acf_fields.CalculatedPercentageField(
         title="Total (auto-calculated)",
         review_title="Year 2 Total (%)",
         fields=_Y2_ALLOCATION_FIELDS,
         max_digits=5,
-        decimal_places=2,
+        decimal_places=0,
+        max_value=100,
+        error_messages={"max_value": "Exceeds 100%%. Adjust so it adds up to 100%%."},
     )
 
     # 5.2 Limitation on Use of Funds - Acknowledgment
     use_of_funds_acknowledgment = acf_fields.BooleanField(
-        title="I acknowledge the limitation on use of CSBG funds as described above.",
+        title=(
+            "The Tribe or Tribal Organization acknowledges and assures compliance "
+            "with Section 678F of the CSBG Act"
+        ),
     )
 
     # 5.3 Single Audit Review
@@ -474,7 +466,7 @@ class TribalPlanFormFields(BaseFields):
 
     # endregion
 
-    # region Section 6 — Individual Eligibility and Targeted Community Eligibility
+    # region Section 6 — Individual Eligibility and Community Eligibility
 
     # 6.1
     individual_eligibility = acf_fields.TextareaField(
@@ -484,7 +476,7 @@ class TribalPlanFormFields(BaseFields):
     )
 
     # 6.2
-    targeted_community_eligibility = acf_fields.TextareaField(
+    community_eligibility = acf_fields.TextareaField(
         title="Description",
         description="5000 characters allowed.",
         max_length=5000,
@@ -621,90 +613,62 @@ class TribalPlanFormFields(BaseFields):
         # representing more than one tribe.
         if is_multi_tribe == "yes":
             if not cleaned_data.get("multi_tribe_names"):
-                self.add_error(
-                    "multi_tribe_names",
-                    "Names of all represented tribes are required"
-                    " when representing more than one tribe.",
-                )
+                self.add_error("multi_tribe_names", "This field is required.")
             if not cleaned_data.get("tribal_resolution_upload"):
-                self.add_error(
-                    "tribal_resolution_upload",
-                    "Tribal resolution documentation is required"
-                    " when representing more than one tribe.",
-                )
+                self.add_error("tribal_resolution_upload", "This field is required.")
 
         # 1.5: Additional Authorized Official fields are required when delegating authority.
         if has_delegation == "yes":
-            for field_name, label in [
-                ("delegation_name", "Full name"),
-                ("delegation_title", "Title"),
-                ("delegation_phone", "Phone number"),
-                ("delegation_email", "Email address"),
+            for field_name in [
+                "delegation_name",
+                "delegation_title",
+                "delegation_phone",
+                "delegation_email",
             ]:
                 if not cleaned_data.get(field_name):
-                    self.add_error(
-                        field_name,
-                        f"{label} is required when delegating signature authority.",
-                    )
+                    self.add_error(field_name, "This field is required.")
 
         # 2.2b: When tribes have recognition, the user must pick a provision method and
         # provide the corresponding citation or upload.
         if has_recognition == "yes":
             provision_method = cleaned_data.get("recognition_provision_method")
             if not provision_method:
-                self.add_error(
-                    "recognition_provision_method",
-                    "Select how you would like to provide recognition information.",
-                )
+                self.add_error("recognition_provision_method", "This field is required.")
             elif provision_method == "manual" and not cleaned_data.get("recognition_citation"):
-                self.add_error(
-                    "recognition_citation",
-                    "Provide a citation to the State statute or code acknowledging"
-                    " State recognition.",
-                )
+                self.add_error("recognition_citation", "This field is required.")
             elif provision_method == "upload" and not cleaned_data.get("recognition_upload"):
-                self.add_error(
-                    "recognition_upload",
-                    "Upload supporting recognition documentation.",
-                )
+                self.add_error("recognition_upload", "This field is required.")
 
         # 5.3: Audit dates are required when the applicant reports completing a Single Audit.
         if has_completed_single_audit == "yes":
-            for field_name, label in [
-                ("audit_date", "Date of audit"),
-                ("audit_period_start", "Period start"),
-                ("audit_period_end", "Period end"),
+            for field_name in [
+                "audit_date",
+                "audit_period_start",
+                "audit_period_end",
             ]:
                 if not cleaned_data.get(field_name):
-                    self.add_error(
-                        field_name,
-                        f"{label} is required when a Single Audit has been completed.",
-                    )
+                    self.add_error(field_name, "This field is required.")
 
         # Year 2 allocations: required when a two-year plan is selected.
         if plan_coverage == "two_year":
             for field_name in _Y2_ALLOCATION_FIELDS:
                 if cleaned_data.get(field_name) is None:
-                    self.add_error(field_name, "This allocation is required for a two-year plan.")
+                    self.add_error(field_name, "This field is required.")
 
-        # 5.1: Year 1 allocation total must equal 100%.
+        # 5.1: Year 1 allocation total must equal 100%. The over-100 case is handled
+        # by the field-level max_value=100 validator on alloc_total_y1.
         y1_values = [cleaned_data.get(f) for f in _Y1_ALLOCATION_FIELDS]
         if all(v is not None for v in y1_values):
             y1_total = sum(Decimal(str(v)) for v in y1_values)
-            if y1_total != Decimal("100"):
-                raise forms.ValidationError(
-                    f"Year 1 allocation percentages must total 100%. Current total: {y1_total}%."
-                )
+            if y1_total < Decimal("100"):
+                self.add_error("alloc_total_y1", "Total must equal 100%")
 
         # 5.1: Year 2 allocation total must equal 100% when a two-year plan is selected.
         if plan_coverage == "two_year":
             y2_values = [cleaned_data.get(f) for f in _Y2_ALLOCATION_FIELDS]
             if all(v is not None for v in y2_values):
                 y2_total = sum(Decimal(str(v)) for v in y2_values)
-                if y2_total != Decimal("100"):
-                    raise forms.ValidationError(
-                        "Year 2 allocation percentages must total 100%."
-                        f" Current total: {y2_total}%."
-                    )
+                if y2_total < Decimal("100"):
+                    self.add_error("alloc_total_y2", "Total must equal 100%")
 
         return cleaned_data

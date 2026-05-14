@@ -1,0 +1,14 @@
+<c-input-group>
+    <c-text-input
+        id="{{ widget.attrs.id }}"
+        name="{{ widget.name }}"
+        type="text"
+        value="{{ widget.value|default:'' }}"
+        inputmode="decimal"
+        :attrs="widget.attrs"
+        disabled="{% if widget.attrs.disabled %}True{% endif %}"
+        readonly="{% if widget.attrs.readonly %}True{% endif %}"
+        required="{% if widget.required %}True{% endif %}"
+    />
+    <c-input-suffix>%</c-input-suffix>
+</c-input-group>

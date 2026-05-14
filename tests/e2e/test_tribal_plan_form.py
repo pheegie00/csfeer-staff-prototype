@@ -110,7 +110,7 @@ def test_tribal_plan_form_nav_rail_section_labels(authenticated_page: Page, base
         "Section 3: Goals and Objectives",
         "Section 4: Community-Based Feedback",
         "Section 5: Use of Funds & Fiscal Controls",
-        "Section 6: Individual & Targeted Community Eligibility",
+        "Section 6: Individual & Community Eligibility",
         "Section 7: Statement of Assurances",
         "Section 8: Federal Certifications",
         "Review and Submit",
