@@ -40,7 +40,7 @@
                   </li>
                   <li class="usa-nav__submenu-item">
                     <a
-                      href="/oidc/logout?next=/&fail=/login-error/"
+                      href="/oidc/logout?next=/&fail=/"
                       class="usa-nav__link"
                     >
                       <span>Sign Out</span>
@@ -52,7 +52,7 @@
           </nav>
           {% else %}
           <nav>
-            <a class="usa-link usa-link--alt" href="{% url 'oidc_authentication' %}?next=/forms/&fail=/login-error/">Sign In</a>
+            <a class="usa-link usa-link--alt" href="{% url 'oidc_authentication' %}?next=/forms/&fail=/">Sign In</a>
           </nav>
           {% endif %}
         </div>

@@ -8,6 +8,7 @@ This module contains:
    user roles, groups, and organization membership based on OIDC claims.
 """
 
+import logging
 from inspect import signature
 from typing import cast
 
@@ -17,6 +18,8 @@ from oauth2_authcodeflow.auth import AuthenticationBackend
 from oauth2_authcodeflow.conf import settings
 
 from users.models import UserProfile
+
+logger = logging.getLogger(__name__)
 
 
 class EmailOIDCAuthenticationBackend(AuthenticationBackend):
@@ -70,6 +73,17 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
 
         self.update_user(user, created, claims, request, access_token)
         user.save()
+
+        return user
+
+    def authenticate_oauth2(self, *args, **kwargs) -> AbstractUser | None:
+
+        user = super().authenticate_oauth2(*args, **kwargs)
+
+        if user and not user.org_memberships.exists():
+            logger.warn(f"User {user.email} is not assigned to any organization.")
+            return None
+
         return user
 
     def update_user(

@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+{% if login_error %}
+<c-alert type="error" heading="Login Error">
+    {{ login_error_description }}
+</c-alert>
+{% endif %}
+
+
 <div class="grid-container padding-y-4">
   <h1 class="font-heading-xl">Welcome to CORE!</h1>
   <p class="font-body-lg">Community Services Form Engine</p>

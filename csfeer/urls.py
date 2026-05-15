@@ -18,15 +18,12 @@ Including another URLconf
 from django.apps import apps
 from django.contrib import admin
 from django.urls import include, path
-from django.views.generic import TemplateView
 
+from csfeer.views import HomePageView
 from form_manager.api import api as form_api
 
 urlpatterns = [
-    path("", TemplateView.as_view(template_name="index.html"), name="index"),
-    path(
-        "login-error/", TemplateView.as_view(template_name="login_error.html"), name="login_error"
-    ),
+    path("", HomePageView.as_view(), name="index"),
     path("admin/", admin.site.urls),
     path("oidc/", include("oauth2_authcodeflow.urls")),
     path("forms/", include("form_manager.urls")),
