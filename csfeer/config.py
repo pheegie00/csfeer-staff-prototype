@@ -7,7 +7,13 @@ class OIDCConfig(BaseModel):
     client_secret: str = ""
     force_secret_with_pkce: bool = True
     document_url: str = "http://oauth.csfeer:8081/realms/csfeer/.well-known/openid-configuration"
-    scopes: list[str] = ["openid", "email", "profile", "phone", "roles", "offline_access"]
+    scopes: list[str] = [
+        "openid",
+        "email",
+        "profile",
+        "phone",
+        "offline_access",
+    ]
     no_auth_urls: list[str] = ["api/", "logged-out", "login-error", "^/$"]
     use_pkce: bool = True
 
