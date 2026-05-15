@@ -2,9 +2,19 @@
 
 {% block content %}
 
-{% if login_error %}
-<c-alert type="error" heading="Login Error">
-    {{ login_error_description }}
+{% if login_error_source == "okta" %}
+<c-alert type="error" heading="We couldn't sign you in.">
+  <p>This could be due to an incorrect password, expired session, or MFA issue. 
+  Click <a href="">here</a> to try again.</p>
+
+  <p>If the problem persists, visit the login.acf.gov help center or contact 
+  CORE support at <a href="mailto:liane.peng@acf.hhs.gov">liane.peng@acf.hhs.gov</a></p>
+</c-alert>
+{% elif login_error_source == "app" %}
+<c-alert type="warning" heading="You're not yet set up in CORE.">
+  <p>Your login was successful, but your account hasn't been added to CORE yet. Access is granted by invitation only.</p>
+
+  <p>To request access, contact your CSBG Program Officer or email CORE support at <a href="mailto:liane.peng@acf.hhs.gov">liane.peng@acf.hhs.gov</a>. Include your name and the organization you're affiliated with.</p>
 </c-alert>
 {% endif %}
 

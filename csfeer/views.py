@@ -13,6 +13,7 @@ class CoreAuthCallbackView(CallbackView):
     def append_error_params(self, request, url):
         login_error = None
         login_error_description = None
+        login_error_source = None
 
         error_param = request.GET.get("error")
 
@@ -30,6 +31,7 @@ class CoreAuthCallbackView(CallbackView):
             case "access_denied":
                 login_error = "Access Denied"
                 login_error_description = request.GET.get("error_description")
+                login_error_source = "okta"
 
             # If there's an auth error from the app,
             # the library will return the user as None
@@ -37,15 +39,21 @@ class CoreAuthCallbackView(CallbackView):
             case "OIDC authent callback, no user error":
                 login_error = "Setup Incomplete"
                 login_error_description = "Your account isn't set up yet."
+                login_error_source = "app"
 
             case "_":
                 login_error = None
                 login_error_description = None
+                login_error_source = None
 
         if login_error:
 
             url += "&" + urlencode(
-                {"login_error": login_error, "login_error_description": login_error_description}
+                {
+                    "login_error": login_error,
+                    "login_error_description": login_error_description,
+                    "login_error_source": login_error_source,
+                }
             )
 
         return url
