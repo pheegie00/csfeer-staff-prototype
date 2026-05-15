@@ -468,6 +468,7 @@ class TribalPlanForm(BaseFormSchema):
                                 alert_type="info",
                                 heading="Programmatic assurances topics",
                                 message=_ASSURANCES_NARRATIVE_TOPICS,
+                                markdown=True,
                             ),
                             SectionBlock(
                                 children=[

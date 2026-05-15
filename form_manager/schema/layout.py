@@ -529,6 +529,15 @@ class AlertBoxBlock(RenderableBaseModel):
         bool,
         Field(description="Whether to render the compact slim alert variant"),
     ] = False
+    markdown: Annotated[
+        bool,
+        Field(
+            description=(
+                "Render `message` as Markdown. Intended for author-controlled static"
+                " content (e.g., the topic list in section 7.1), not user input."
+            ),
+        ),
+    ] = False
     template_name: Annotated[
         str,
         Field(description="Django template used to render this alert"),

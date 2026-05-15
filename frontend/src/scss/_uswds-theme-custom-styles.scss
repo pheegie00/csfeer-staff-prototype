@@ -265,3 +265,23 @@ textarea.usa-textarea {
   font-family: family("body");
   font-weight: font-weight("normal");
 }
+
+/* ========================================
+   Alert — tighten spacing for Markdown body
+   ======================================== */
+.usa-alert__body {
+  .usa-alert__heading {
+    margin-bottom: 0;
+  }
+
+  .usa-alert__text.usa-prose {
+    margin-top: 0;
+
+    > p,
+    > ul,
+    > ol {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+}
