@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django_cotton",
     "django_cotton_uswds",
     "django_json_widget",
+    "django_extensions",
     # Local
     "core",
     "users",
