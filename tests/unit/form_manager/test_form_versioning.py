@@ -22,7 +22,6 @@ def _make_definition(variant: str, *, name=None, family=None, schema=None) -> Fo
 
 @pytest.mark.django_db
 def test_multiple_variants_of_same_form_coexist():
-    """AC1: the data model supports multiple versions per form template."""
     v1 = _make_definition("1.0.0")
     v2 = _make_definition("2.0.0")
     v3 = _make_definition("2.1.0")
@@ -34,7 +33,6 @@ def test_multiple_variants_of_same_form_coexist():
 
 @pytest.mark.django_db
 def test_form_definition_unique_constraint_on_name_and_variant():
-    """AC1 guardrail: (name, variant) is unique; duplicates raise IntegrityError."""
     _make_definition("1.0.0")
     with pytest.raises(IntegrityError):
         with transaction.atomic():
@@ -43,7 +41,6 @@ def test_form_definition_unique_constraint_on_name_and_variant():
 
 @pytest.mark.django_db
 def test_form_entry_is_permanently_linked_to_its_template_version(create_user):
-    """AC2: a submission keeps pointing to the exact FormDefinition it was created against."""
     user = create_user
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=user).first()
 
@@ -52,7 +49,6 @@ def test_form_entry_is_permanently_linked_to_its_template_version(create_user):
         form_definition=v1, organization=org, created_by=user, version_number=1
     )
 
-    # Publish a new template version. The submission must still point at v1.
     _make_definition("2.0.0")
 
     entry.refresh_from_db()
@@ -62,7 +58,7 @@ def test_form_entry_is_permanently_linked_to_its_template_version(create_user):
 
 @pytest.mark.django_db
 def test_form_definition_with_entries_cannot_be_deleted(create_user):
-    """AC2 guardrail: PROTECT prevents losing the template a submission was filed against."""
+    """PROTECT prevents losing the template a submission was filed against."""
     user = create_user
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=user).first()
 
@@ -79,7 +75,7 @@ def test_form_definition_with_entries_cannot_be_deleted(create_user):
 
 @pytest.mark.django_db
 def test_publishing_new_version_does_not_mutate_prior_version(create_user):
-    """AC3: publishing v2 leaves v1's row (schema, schema_class, is_active) untouched."""
+    """Publishing v2 leaves v1's row (schema, schema_class, is_active) untouched."""
     v1 = _make_definition("1.0.0", schema={"version": "1.0.0", "fields": ["a", "b"]})
     snapshot = {
         "family": v1.family,
@@ -103,7 +99,6 @@ def test_publishing_new_version_does_not_mutate_prior_version(create_user):
 
 @pytest.mark.django_db
 def test_prior_version_submissions_remain_intact_and_queryable(create_user):
-    """AC4: after a new version publishes, old submissions are unchanged and findable."""
     user = create_user
     org = OrganizationProfile.objects.filter(userorganizationmembership__user=user).first()
 
@@ -119,7 +114,6 @@ def test_prior_version_submissions_remain_intact_and_queryable(create_user):
     )
     original_updated_at = entry.updated_at
 
-    # Publish two more versions of the same template.
     _make_definition("2.0.0")
     _make_definition("2.1.0")
 
@@ -128,10 +122,8 @@ def test_prior_version_submissions_remain_intact_and_queryable(create_user):
     assert entry.status == "submitted"
     assert entry.updated_at == original_updated_at
 
-    # Queryable by the historical variant.
     by_variant = FormEntry.objects.filter(form_definition__variant="1.0.0")
     assert list(by_variant.values_list("pk", flat=True)) == [entry.pk]
 
-    # And the new versions have no submissions yet.
     assert not FormEntry.objects.filter(form_definition__variant="2.0.0").exists()
     assert not FormEntry.objects.filter(form_definition__variant="2.1.0").exists()
