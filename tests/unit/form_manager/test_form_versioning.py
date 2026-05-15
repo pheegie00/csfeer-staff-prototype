@@ -21,7 +21,7 @@ def _make_definition(variant: str, *, name=None, family=None, schema=None) -> Fo
 
 
 @pytest.mark.django_db
-def test_multiple_variants_of_same_form_coexist():
+def test_multiple_variants_of_same_form_coexist(empty_form_definitions):
     v1 = _make_definition("1.0.0")
     v2 = _make_definition("2.0.0")
     v3 = _make_definition("2.1.0")

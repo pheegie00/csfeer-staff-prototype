@@ -46,7 +46,7 @@ def test_correctly_loads_form_schemas_in_db(django_db_setup):
 
 
 @pytest.mark.django_db
-def test_load_initial_forms_is_idempotent(use_test_schema):
+def test_load_initial_forms_is_idempotent(empty_form_definitions, use_test_schema):
     """Re-running the publish command without --force is a no-op for known versions."""
     call_command("load_initial_forms")
     first_count = FormDefinition.objects.count()
@@ -62,7 +62,7 @@ def test_load_initial_forms_is_idempotent(use_test_schema):
 
 
 @pytest.mark.django_db
-def test_load_initial_forms_force_resyncs_schema(use_test_schema):
+def test_load_initial_forms_force_resyncs_schema(empty_form_definitions, use_test_schema):
     """--force restores all canonical defaults (schema, schema_class, family, is_active)
     when the DB row has drifted."""
     call_command("load_initial_forms")
@@ -87,7 +87,9 @@ def test_load_initial_forms_force_resyncs_schema(use_test_schema):
 
 
 @pytest.mark.django_db
-def test_load_initial_forms_force_preserves_existing_submissions(use_test_schema, create_user):
+def test_load_initial_forms_force_preserves_existing_submissions(
+    empty_form_definitions, use_test_schema, create_user
+):
     """Re-publishing with --force must not disturb submissions linked to the template."""
     user = create_user
     call_command("load_initial_forms")
@@ -115,7 +117,9 @@ def test_load_initial_forms_force_preserves_existing_submissions(use_test_schema
 
 
 @pytest.mark.django_db
-def test_publishing_new_variant_via_command_preserves_prior_version_and_entries(create_user):
+def test_publishing_new_variant_via_command_preserves_prior_version_and_entries(
+    empty_form_definitions, create_user
+):
     """End-to-end: publish v3.0, then re-run the command with v3.0 + v3.1 in the
     registry. The new version lands as a sibling row; the old row and any
     submissions filed against it are untouched. Mirrors the real-world release
