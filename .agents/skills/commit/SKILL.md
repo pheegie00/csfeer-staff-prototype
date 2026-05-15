@@ -55,7 +55,7 @@ git diff --cached
 
 Using the diff and the commit convention detected in step 1, draft a commit message with:
 
-- A **subject line** (≤ 72 characters) that summarises the change, following the repository's convention. make sure to follow gitlint rules for the subject line.
+- A **subject line** (≤ 72 characters) that summarises the change, following the repository's convention. make sure to follow gitlint rules for the subject line. validate agains .gitlint rules and the repository's existing style.
 - An optional **body** that explains *why* the change was made, only when the diff is non-trivial.
 - Reference issue/ticket numbers when they appear in branch names or related context.
 - Focus on the intent of the change, not a file-by-file inventory.
