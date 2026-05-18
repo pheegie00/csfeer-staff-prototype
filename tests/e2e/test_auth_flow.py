@@ -70,3 +70,29 @@ def test_protected_page_redirects_to_login(page: Page, base_url: str) -> None:
 
     # Should be redirected to OAuth login
     page.wait_for_url("**/oauth.csfeer:8081/**")
+
+
+@pytest.mark.e2e
+@pytest.mark.auth
+def test_okta_access_denied_shows_error_alert(page: Page, base_url: str) -> None:
+    """Home page shows the Okta error alert when the IdP returns access_denied."""
+    login_page = LoginPage(page, base_url)
+    login_page.navigate_with_login_error(
+        source="okta",
+        error="Access Denied",
+        description="You are not assigned to this application.",
+    )
+    login_page.expect_okta_error()
+
+
+@pytest.mark.e2e
+@pytest.mark.auth
+def test_no_org_membership_shows_warning_alert(page: Page, base_url: str) -> None:
+    """Home page shows the setup-incomplete alert when the user has no org membership."""
+    login_page = LoginPage(page, base_url)
+    login_page.navigate_with_login_error(
+        source="app",
+        error="Setup Incomplete",
+        description="Your account isn't set up yet.",
+    )
+    login_page.expect_no_org_error()

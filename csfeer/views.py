@@ -22,8 +22,6 @@ class CoreAuthCallbackView(CallbackView):
             parsed_qs = parse_qs(url_parts.query)
             error_param = parsed_qs.get("error", [None])[0]
 
-        logger.warn(request.GET.get("error"))
-
         match error_param:
 
             # An okta error from login.acf.gov will have
@@ -82,6 +80,7 @@ class HomePageView(TemplateView):
             {
                 "login_error": self.request.GET.get("login_error"),
                 "login_error_description": self.request.GET.get("login_error_description"),
+                "login_error_source": self.request.GET.get("login_error_source"),
             }
         )
 

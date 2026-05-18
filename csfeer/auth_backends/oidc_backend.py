@@ -77,11 +77,15 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
         return user
 
     def authenticate_oauth2(self, *args, **kwargs) -> CoreUser | None:
+        """Overloaded to return None if the user doesn't have an organization.
+
+        The library will failed to authenticate a user if no user is returned from
+        this method."""
 
         user = cast(CoreUser, super().authenticate_oauth2(*args, **kwargs))
 
         if user and not user.org_memberships.exists():  # type: ignore
-            logger.warn(f"User {user.email} is not assigned to any organization.")
+            logger.warning("User %s is not assigned to any organization.", user.email)
             return None
 
         return user

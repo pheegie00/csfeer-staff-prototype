@@ -3,6 +3,7 @@ Page Object Model for login and authentication flows.
 """
 
 import os
+from urllib.parse import urlencode
 
 from playwright.sync_api import Page, expect
 
@@ -96,3 +97,24 @@ class LoginPage(BasePage):
         """Assert that login error is displayed."""
         error = self.page.get_by_text("Invalid username or password")
         expect(error).to_be_visible()
+
+    def navigate_with_login_error(
+        self, source: str, error: str, description: str | None = None
+    ) -> None:
+        """Navigate to the home page with login error query params."""
+        params: dict[str, str] = {"login_error_source": source, "login_error": error}
+        if description:
+            params["login_error_description"] = description
+        self.navigate(f"/?{urlencode(params)}")
+
+    def expect_okta_error(self) -> None:
+        """Assert the Okta access-denied error alert is visible."""
+        alert = self.page.locator(".usa-alert--error")
+        expect(alert).to_be_visible()
+        expect(alert.locator(".usa-alert__heading")).to_have_text("We couldn't sign you in.")
+
+    def expect_no_org_error(self) -> None:
+        """Assert the account-not-set-up warning alert is visible."""
+        alert = self.page.locator(".usa-alert--warning")
+        expect(alert).to_be_visible()
+        expect(alert.locator(".usa-alert__heading")).to_have_text("You're not yet set up in CORE.")

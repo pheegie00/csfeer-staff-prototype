@@ -5,7 +5,7 @@
 {% if login_error_source == "okta" %}
 <c-alert type="error" heading="We couldn't sign you in.">
   <p>This could be due to an incorrect password, expired session, or MFA issue. 
-  Click <a href="">here</a> to try again.</p>
+  Click <a href="{% url 'oidc_authentication' %}?next=/forms/&fail=/">here</a> to try again.</p>
 
   <p>If the problem persists, visit the login.acf.gov help center or contact 
   CORE support at <a href="mailto:liane.peng@acf.hhs.gov">liane.peng@acf.hhs.gov</a></p>
