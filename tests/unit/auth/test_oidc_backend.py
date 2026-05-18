@@ -1,4 +1,7 @@
+import logging
+
 import pytest
+from oauth2_authcodeflow.auth import AuthenticationBackend
 from unittest.mock import MagicMock, patch
 
 
@@ -136,3 +139,115 @@ class TestExtendUser:
             backend.update_user(user, False, CLAIMS, REQUEST, ACCESS_TOKEN)
 
         assert called == []
+
+
+class EmailOIDCAuthenticationBackend:
+
+    def _get_mock_user_model(self, mock_user, created=False):
+        mock_model = MagicMock()
+        mock_model.objects.get_or_create.return_value = (mock_user, created)
+        return mock_model
+
+    def test_update_user_called_with_correct_args(self, backend):
+        mock_user = MagicMock()
+        with (
+            patch.object(
+                backend, "get_full_claims", return_value={"email": "test@example.com", **CLAIMS}
+            ),
+            patch(
+                "csfeer.auth_backends.oidc_backend.settings",
+                OIDC_SETTINGS
+                | {
+                    "OIDC_OP_EXPECTED_EMAIL_CLAIM": "email",
+                    "OIDC_EMAIL_CLAIM": None,
+                },
+            ),
+            patch(
+                "csfeer.auth_backends.oidc_backend.get_user_model",
+                return_value=self._get_mock_user_model(mock_user, created=False),
+            ),
+            patch.object(backend, "update_user") as mock_update,
+        ):
+            backend.get_or_create_user(REQUEST, {}, ACCESS_TOKEN)
+
+        mock_update.assert_called_once_with(
+            mock_user, False, {"email": "test@example.com", **CLAIMS}, REQUEST, ACCESS_TOKEN
+        )
+
+    def test_user_save_called_after_update_user(self, backend):
+        mock_user = MagicMock()
+        with (
+            patch.object(
+                backend, "get_full_claims", return_value={"email": "test@example.com", **CLAIMS}
+            ),
+            patch(
+                "csfeer.auth_backends.oidc_backend.settings",
+                OIDC_SETTINGS
+                | {
+                    "OIDC_OP_EXPECTED_EMAIL_CLAIM": "email",
+                    "OIDC_EMAIL_CLAIM": None,
+                },
+            ),
+            patch(
+                "csfeer.auth_backends.oidc_backend.get_user_model",
+                return_value=self._get_mock_user_model(mock_user),
+            ),
+            patch.object(backend, "update_user"),
+        ):
+            backend.get_or_create_user(REQUEST, {}, ACCESS_TOKEN)
+
+        mock_user.save.assert_called_once()
+
+    def test_returns_user_from_get_or_create(self, backend):
+        mock_user = MagicMock()
+        with (
+            patch.object(
+                backend, "get_full_claims", return_value={"email": "test@example.com", **CLAIMS}
+            ),
+            patch(
+                "csfeer.auth_backends.oidc_backend.settings",
+                OIDC_SETTINGS
+                | {
+                    "OIDC_OP_EXPECTED_EMAIL_CLAIM": "email",
+                    "OIDC_EMAIL_CLAIM": None,
+                },
+            ),
+            patch(
+                "csfeer.auth_backends.oidc_backend.get_user_model",
+                return_value=self._get_mock_user_model(mock_user),
+            ),
+            patch.object(backend, "update_user"),
+        ):
+            result = backend.get_or_create_user(REQUEST, {}, ACCESS_TOKEN)
+
+        assert result == mock_user
+
+    def test_returns_none_when_super_returns_none(self, backend):
+        """Ensure authenticate_oauth2 eturns None when there's no user."""
+        with patch.object(AuthenticationBackend, "authenticate_oauth2", return_value=None):
+            result = backend.authenticate_oauth2()
+
+        assert result is None
+
+    def test_returns_none_and_logs_warning_when_no_org_membership(self, backend, caplog):
+        mock_user = MagicMock()
+        mock_user.email = "test@example.com"
+        mock_user.org_memberships.exists.return_value = False
+
+        with (
+            patch.object(AuthenticationBackend, "authenticate_oauth2", return_value=mock_user),
+            caplog.at_level(logging.WARNING, logger="csfeer.auth_backends.oidc_backend"),
+        ):
+            result = backend.authenticate_oauth2()
+
+        assert result is None
+        assert "not assigned to any organization" in caplog.text
+
+    def test_returns_user_when_org_membership_exists(self, backend):
+        mock_user = MagicMock()
+        mock_user.org_memberships.exists.return_value = True
+
+        with patch.object(AuthenticationBackend, "authenticate_oauth2", return_value=mock_user):
+            result = backend.authenticate_oauth2()
+
+        assert result == mock_user
