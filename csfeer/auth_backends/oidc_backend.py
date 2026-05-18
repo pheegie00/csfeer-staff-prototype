@@ -10,17 +10,14 @@ This module contains:
 
 import logging
 from inspect import signature
-from typing import TYPE_CHECKING, cast
+from typing import cast
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from oauth2_authcodeflow.auth import AuthenticationBackend
 from oauth2_authcodeflow.conf import settings
 
-if TYPE_CHECKING:
-    from users.models import CoreUser
-
-from users.models import UserProfile
+from users.models import CoreUser, UserProfile
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +80,7 @@ class EmailOIDCAuthenticationBackend(AuthenticationBackend):
 
         user = cast(CoreUser, super().authenticate_oauth2(*args, **kwargs))
 
-        if user and not user.org_memberships.exists():
+        if user and not user.org_memberships.exists():  # type: ignore
             logger.warn(f"User {user.email} is not assigned to any organization.")
             return None
 
