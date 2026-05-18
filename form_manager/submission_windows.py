@@ -75,6 +75,9 @@ def can_submit_draft(form_entry: FormEntry) -> tuple[bool, str]:
     Legacy entries with no stamped ``fiscal_year`` are allowed through so
     existing user drafts are not retroactively locked out.
     """
+    if form_entry.status == FormEntry.STATUS_CLOSED_WITHOUT_ACCEPTANCE:
+        return False, "This draft was closed because the fiscal year rolled over."
+
     if form_entry.fiscal_year is None:
         return True, ""
 
@@ -92,3 +95,19 @@ def can_submit_draft(form_entry: FormEntry) -> tuple[bool, str]:
     if window.status == SubmissionWindow.STATUS_UPCOMING:
         return False, f"Submission window opens on {window.opens_at:%B %-d, %Y}."
     return True, ""
+
+
+def close_stale_drafts(window: SubmissionWindow) -> int:
+    """Close prior-FY drafts for the same form as ``window``.
+
+    Sets ``status = closed_without_acceptance`` on every ``FormEntry`` for the
+    same ``form_definition`` whose ``fiscal_year`` is earlier than the given
+    window's and whose status is still ``draft``. Submitted, amended, and
+    already-closed entries are left alone. Returns the number of rows updated.
+    """
+    return FormEntry.objects.filter(
+        form_definition=window.form_definition,
+        fiscal_year__lt=window.fiscal_year,
+        fiscal_year__isnull=False,
+        status=FormEntry.STATUS_DRAFT,
+    ).update(status=FormEntry.STATUS_CLOSED_WITHOUT_ACCEPTANCE)

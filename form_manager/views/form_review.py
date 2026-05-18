@@ -104,6 +104,13 @@ def form_review(request, pk):
     """
     entry: FormEntry = get_object_or_404(FormEntry, pk=pk)
 
+    if entry.status == FormEntry.STATUS_CLOSED_WITHOUT_ACCEPTANCE:
+        messages.info(
+            request,
+            "This draft was closed because the fiscal year rolled over. " "It is now read-only.",
+        )
+        return redirect("form_preview", pk=entry.pk)
+
     if not user_can_edit(request.user, entry.organization):
         messages.error(request, "Permission denied.")
         return redirect("form_list")

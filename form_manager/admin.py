@@ -17,6 +17,7 @@ from form_manager.models import (
     FormEntry,
     SubmissionWindow,
 )
+from form_manager.submission_windows import close_stale_drafts
 
 # TODO: Review permission and remove any unnecessary admin actions like delete, save etc.
 
@@ -110,7 +111,18 @@ class SubmissionWindowAdmin(admin.ModelAdmin):
     list_display = ("form_definition", "fiscal_year", "opens_at", "closes_at", "status")
     list_filter = ("fiscal_year", "form_definition__family")
     search_fields = ("form_definition__name",)
+    actions = ["close_prior_fy_drafts"]
 
     @admin.display(description="Status")
     def status(self, obj):
         return obj.status
+
+    @admin.action(description="Close prior-FY drafts for the selected window's form")
+    def close_prior_fy_drafts(self, request, queryset):
+        total = 0
+        for window in queryset:
+            total += close_stale_drafts(window)
+        self.message_user(
+            request,
+            f"Closed {total} prior-FY draft(s) without acceptance.",
+        )

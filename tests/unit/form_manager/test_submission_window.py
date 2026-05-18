@@ -7,6 +7,7 @@ from form_manager.models import FormDefinition, FormEntry, SubmissionWindow
 from form_manager.submission_windows import (
     can_create_draft,
     can_submit_draft,
+    close_stale_drafts,
     current_fiscal_year,
     fy_bounds,
     fy_label,
@@ -257,3 +258,103 @@ def test_can_submit_draft_allows_when_past_due(seed_data, create_user):
     allowed, reason = can_submit_draft(entry)
     assert allowed
     assert reason == ""
+
+
+# ─── close_stale_drafts / closed_without_acceptance ──────────────────────────
+
+
+@pytest.mark.django_db
+def test_close_stale_drafts_closes_prior_fy_drafts(seed_data, create_user):
+    form_def = FormDefinition.objects.first()
+    assert form_def is not None
+    org = create_user.org_memberships.first().organization
+
+    prior = FormEntry.objects.create(
+        form_definition=form_def,
+        organization=org,
+        created_by=create_user,
+        fiscal_year=2025,
+        status=FormEntry.STATUS_DRAFT,
+    )
+    current = FormEntry.objects.create(
+        form_definition=form_def,
+        organization=org,
+        created_by=create_user,
+        fiscal_year=2026,
+        version_number=2,
+        status=FormEntry.STATUS_DRAFT,
+    )
+
+    SubmissionWindow.objects.filter(form_definition=form_def).delete()
+    new_window = SubmissionWindow.objects.create(
+        form_definition=form_def,
+        fiscal_year=2026,
+        opens_at=date(2025, 7, 1),
+        closes_at=date(2025, 9, 1),
+    )
+
+    closed = close_stale_drafts(new_window)
+    assert closed == 1
+
+    prior.refresh_from_db()
+    current.refresh_from_db()
+    assert prior.status == FormEntry.STATUS_CLOSED_WITHOUT_ACCEPTANCE
+    assert current.status == FormEntry.STATUS_DRAFT
+
+
+@pytest.mark.django_db
+def test_close_stale_drafts_skips_submitted_and_legacy_entries(seed_data, create_user):
+    form_def = FormDefinition.objects.first()
+    assert form_def is not None
+    org = create_user.org_memberships.first().organization
+
+    submitted = FormEntry.objects.create(
+        form_definition=form_def,
+        organization=org,
+        created_by=create_user,
+        fiscal_year=2025,
+        status=FormEntry.STATUS_SUBMITTED,
+    )
+    legacy = FormEntry.objects.create(
+        form_definition=form_def,
+        organization=org,
+        created_by=create_user,
+        fiscal_year=None,
+        version_number=2,
+        status=FormEntry.STATUS_DRAFT,
+    )
+
+    SubmissionWindow.objects.filter(form_definition=form_def).delete()
+    new_window = SubmissionWindow.objects.create(
+        form_definition=form_def,
+        fiscal_year=2026,
+        opens_at=date(2025, 7, 1),
+        closes_at=date(2025, 9, 1),
+    )
+
+    closed = close_stale_drafts(new_window)
+    assert closed == 0
+
+    submitted.refresh_from_db()
+    legacy.refresh_from_db()
+    assert submitted.status == FormEntry.STATUS_SUBMITTED
+    assert legacy.status == FormEntry.STATUS_DRAFT
+
+
+@pytest.mark.django_db
+def test_can_submit_draft_blocks_closed_without_acceptance(seed_data, create_user):
+    form_def = FormDefinition.objects.first()
+    assert form_def is not None
+    org = create_user.org_memberships.first().organization
+
+    entry = FormEntry.objects.create(
+        form_definition=form_def,
+        organization=org,
+        created_by=create_user,
+        fiscal_year=2025,
+        status=FormEntry.STATUS_CLOSED_WITHOUT_ACCEPTANCE,
+    )
+
+    allowed, reason = can_submit_draft(entry)
+    assert not allowed
+    assert "fiscal year rolled over" in reason

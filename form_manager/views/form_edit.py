@@ -137,6 +137,13 @@ def form_edit(request, pk):
     """
     entry: FormEntry = get_object_or_404(FormEntry, pk=pk)
 
+    if entry.status == FormEntry.STATUS_CLOSED_WITHOUT_ACCEPTANCE:
+        messages.info(
+            request,
+            "This draft was closed because the fiscal year rolled over. " "It is now read-only.",
+        )
+        return redirect("form_preview", pk=entry.pk)
+
     schema_class_ref = entry.form_definition.schema_class
 
     current_step_number = _parse_step_or_page_param(request.GET.get("step"))

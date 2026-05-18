@@ -56,11 +56,18 @@ class FormDefinition(BaseModel):
 
 
 class FormEntry(BaseModel):
+    STATUS_DRAFT = "draft"
+    STATUS_SUBMITTED = "submitted"
+    STATUS_AMENDED = "amended"
+    STATUS_ARCHIVED = "archived"
+    STATUS_CLOSED_WITHOUT_ACCEPTANCE = "closed_without_acceptance"
+
     STATUS_CHOICES = [
-        ("draft", "Draft"),
-        ("submitted", "Submitted"),
-        ("amended", "Amended"),
-        ("archived", "Archived"),
+        (STATUS_DRAFT, "Draft"),
+        (STATUS_SUBMITTED, "Submitted"),
+        (STATUS_AMENDED, "Amended"),
+        (STATUS_ARCHIVED, "Archived"),
+        (STATUS_CLOSED_WITHOUT_ACCEPTANCE, "Closed without acceptance"),
     ]
 
     form_definition = models.ForeignKey(FormDefinition, on_delete=models.PROTECT)
@@ -68,7 +75,7 @@ class FormEntry(BaseModel):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     data = models.JSONField(default=dict)
     version_number = models.PositiveIntegerField(default=1)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="draft")
+    status = models.CharField(max_length=32, choices=STATUS_CHOICES, default=STATUS_DRAFT)
     submitted_at = models.DateTimeField(null=True, blank=True)
     locked = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
