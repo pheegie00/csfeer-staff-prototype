@@ -72,6 +72,9 @@
             {% csrf_token %}
             <input type="hidden" name="lock_token" value="{{ lock_token }}">
             <div class="margin-top-4 padding-top-2 border-top-1px border-base-lighter">
+                {% if submit_blocked_reason %}
+                <p class="margin-bottom-2 text-base-dark">{{ submit_blocked_reason }}</p>
+                {% endif %}
                 <div class="display-flex flex-justify flex-wrap flex-gap-1 flex-align-end">
 
                     {% if current_step_number != 0 or current_page_number != 0 %}

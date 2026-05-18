@@ -21,6 +21,7 @@ from form_manager.schema.navigation import (
     build_form_edit_url,
     build_side_nav_items,
 )
+from form_manager.submission_windows import can_submit_draft
 from form_manager.utils import save_form_entry
 from form_manager.views.form_edit import remove_nodes_with_excluded_fields
 from users.utils import user_can_edit, user_can_submit
@@ -145,6 +146,8 @@ def form_review(request, pk):
 
     is_valid = form.is_valid(use_default_if_excluded=True)
 
+    window_allowed, window_reason = can_submit_draft(entry)
+
     # Set session flag to indicate user has seen the review page
     # This will cause form_edit to show validation errors
     request.session[f"show_errors_{entry.pk}"] = True
@@ -166,7 +169,8 @@ def form_review(request, pk):
             page_number=len(ui_components[-1].children or []) - 1,
         ),
         "is_valid": is_valid,
-        "can_submit": user_can_submit(request.user, entry.organization),
+        "can_submit": user_can_submit(request.user, entry.organization) and window_allowed,
+        "submit_blocked_reason": window_reason,
         "side_nav_items": build_side_nav_items(ui_components, is_review=True, entry_pk=entry.pk),
     }
 

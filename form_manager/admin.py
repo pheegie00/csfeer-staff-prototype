@@ -15,6 +15,7 @@ from form_manager.models import (
     FormDefinition,
     FormEditingLock,
     FormEntry,
+    SubmissionWindow,
 )
 
 # TODO: Review permission and remove any unnecessary admin actions like delete, save etc.
@@ -102,3 +103,14 @@ class FormEditingLockAdmin(admin.ModelAdmin):
     list_display = ("form_entry", "locked_by", "expires_at", "created_at")
     list_filter = ("form_entry__form_definition__name",)
     search_fields = ("form_entry__organization__name", "locked_by__email")
+
+
+@admin.register(SubmissionWindow)
+class SubmissionWindowAdmin(admin.ModelAdmin):
+    list_display = ("form_definition", "fiscal_year", "opens_at", "closes_at", "status")
+    list_filter = ("fiscal_year", "form_definition__family")
+    search_fields = ("form_definition__name",)
+
+    @admin.display(description="Status")
+    def status(self, obj):
+        return obj.status

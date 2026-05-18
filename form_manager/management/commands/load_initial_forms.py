@@ -1,9 +1,8 @@
 from django.core.management.base import BaseCommand
 
-from form_manager.models import (
-    FormDefinition,
-)
+from form_manager.models import FormDefinition, SubmissionWindow
 from form_manager.schema.forms.base import BaseFormSchema, SchemaValidationError
+from form_manager.submission_windows import current_fiscal_year
 from form_manager.utils import get_form_definitions
 
 
@@ -64,6 +63,13 @@ class Command(BaseCommand):
                     "is_active": True,
                     "schema_class": definition.__name__,
                 },
+            )
+
+            # Make every loaded form immediately submittable for the current
+            # FY using the federal default window (Oct 1 - Sep 30). Admins can
+            # narrow the dates per form via Django admin afterwards.
+            SubmissionWindow.objects.get_or_create(
+                form_definition=obj, fiscal_year=current_fiscal_year()
             )
 
             if created_bool:

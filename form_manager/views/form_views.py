@@ -15,6 +15,7 @@ from form_manager.models import (
     FormDefinition,
     FormEntry,
 )
+from form_manager.submission_windows import can_create_draft
 from form_manager.utils import reconstruct_state
 from form_manager.views.base import BaseSingleFormView, FormPermissionMixin
 from organizations.models import OrganizationProfile
@@ -52,6 +53,11 @@ def form_start(request, form_id: UUID):
         logger.info(f"{request.user} does not have permission to start forms for org {org.name}")
         return redirect("form_list")
     form_def = get_object_or_404(FormDefinition, id=form_id, is_active=True)
+    allowed, reason, window = can_create_draft(form_def)
+    if not allowed or window is None:
+        messages.error(request, reason)
+        logger.info(f"form_start blocked for {form_def.name}: {reason}")
+        return redirect("form_list")
     last = (
         FormEntry.objects.filter(organization=org, form_definition=form_def)
         .order_by("-version_number")
@@ -59,7 +65,11 @@ def form_start(request, form_id: UUID):
     )
     next_ver = 1 if not last else last.version_number + 1
     entry = FormEntry.objects.create(
-        form_definition=form_def, organization=org, created_by=request.user, version_number=next_ver
+        form_definition=form_def,
+        organization=org,
+        created_by=request.user,
+        version_number=next_ver,
+        fiscal_year=window.fiscal_year,
     )
     FormAuditTrail.objects.create(form_entry=entry, user=request.user, action="create")
     return redirect("form_edit", pk=entry.pk)

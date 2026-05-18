@@ -11,6 +11,7 @@ from django.views.decorators.http import require_http_methods
 from form_manager.locking import get_active_lock, release_editing_lock
 from form_manager.models import FormAuditTrail, FormEntry
 from form_manager.schema.forms.utils import import_form_schema
+from form_manager.submission_windows import can_submit_draft
 from users.utils import user_can_submit
 
 logger = logging.getLogger(__name__)
@@ -32,6 +33,11 @@ def form_finalize(request, pk):
     if not user_can_submit(request.user, entry.organization):
         messages.error(request, "Permission denied.")
         return redirect("form_list")
+
+    allowed, reason = can_submit_draft(entry)
+    if not allowed:
+        messages.error(request, reason)
+        return redirect(reverse("form_review", kwargs={"pk": entry.pk}))
 
     active_lock = get_active_lock(entry)
     if not active_lock or active_lock.locked_by != request.user:

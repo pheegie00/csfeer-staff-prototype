@@ -72,6 +72,11 @@ class FormEntry(BaseModel):
     submitted_at = models.DateTimeField(null=True, blank=True)
     locked = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
+    fiscal_year = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Federal FY ending calendar year, e.g. 2025 for FY25",
+    )
 
     class Meta(BaseModel.Meta):
         unique_together = ("organization", "form_definition", "version_number")
