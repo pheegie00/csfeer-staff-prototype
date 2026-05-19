@@ -10,7 +10,6 @@ from form_manager.schema.forms.base import BaseFormSchema, UIDefinition
 from form_manager.schema.forms.tribal_plan.fields import TribalPlanFormFields
 from form_manager.schema.forms.tribal_plan.texts import (
     _ASSURANCES_NARRATIVE_TOPICS,
-    _CSBG_ASSURANCES_NARRATIVE,
     _DEBARMENT_CERTIFICATION_TEXT,
     _DEBARMENT_LOWER_TIER_INSTRUCTIONS_TEXT,
     _DEBARMENT_PRIMARY_INSTRUCTIONS_TEXT,
@@ -492,9 +491,8 @@ class TribalPlanForm(BaseFormSchema):
                                 template_name="form_manager/legislation_link.html",
                             ),
                             TextBlock(
-                                bordered=True,
-                                heading="Statement of CSBG Assurances",
-                                text=_CSBG_ASSURANCES_NARRATIVE,
+                                text="",
+                                template_name="form_manager/csbg_assurances_narrative.html",
                             ),
                             SectionBlock(
                                 children=[

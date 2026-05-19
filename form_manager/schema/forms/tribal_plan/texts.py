@@ -2,48 +2,6 @@
 
 # ruff: noqa: E501  (long lines are intentional — paste raw text directly between the triple quotes)
 
-_CSBG_ASSURANCES_NARRATIVE = """
-As a part of the annual or biannual application and plan required by subsection 676 of the Community Services Block Grant Act, as amended, (42 U.S.C. 9901 et seq.) (the Act), the Tribe or Tribal Organization agrees to the Assurances in Section 676 of the Act (summarized below).
-
-Programmatic Assurances
-1. An assurance that funds made available through the grant or allotment will be used for at least one of the following purposes [per 676(b)(1)]:
-a. To support activities that are designed to assist low-income families and individuals, including families and individuals receiving assistance under part A of title IV of the Social Security Act (42 U.S.C. 601 et seq.), homeless families and individuals, migrant or seasonal farm workers, and elderly low-income individuals and families so that they may:
-i. Remove obstacles and solve problems that block the achievement of self-sufficiency.
-ii. Secure and retain meaningful employment.
-iii. Attain an adequate education, including family literacy initiatives.
-iv. Make better use of available income.
-v. Obtain and maintain adequate housing and a suitable living environment.
-vi. Obtain emergency assistance through loans, grants, or other means to meet immediate and urgent individual and family needs.
-vii. Achieve greater participation in community affairs.
-b. Address the needs of youth in low-income communities through youth development programs.
-c. Make more effective use of, and coordinate with, other programs related to the purposes of this subtitle.
-
-2. An assurance that information provided by the Tribe will contain the following [per 676(b)(3)]:
-a. A description of the service delivery system for services provided or coordinated with funds under section 675C(a), targeted to low-income individuals and families.
-b. A description of how linkages will be developed to fill identified service gaps through information, referrals, case management, and follow-up consultations.
-c. A description of how funds made available under section 675C(a) will be coordinated with other public and private resources.
-d. A description of how funds will support innovative initiatives, including fatherhood and other family-strengthening initiatives.
-
-3. An assurance that the Tribe will provide, on an emergency basis, supplies and services, nutritious food, and related services necessary to counteract starvation and malnutrition among low-income individuals [per 676(b)(4)].
-
-4. An assurance that the Tribe will ensure coordination between anti-poverty programs in each community and, where appropriate, emergency energy crisis intervention programs under title XXVI [per 676(b)(6)].
-
-5. An assurance that the Tribe will permit and cooperate with Federal investigations undertaken in accordance with section 678D [per 676(b)(7)].
-
-6. An assurance that the Tribe will participate in the performance measurement system (for example, ROMA) or another acceptable system and describe outcome measures used to measure performance in promoting self-sufficiency, family stability, and community revitalization [per 676(b)(13)].
-
-Administrative and Financial Assurances
-The Tribe further agrees to the following administrative assurances under the Community Services Block Grant Act:
-1. Administrative expenses will not exceed the greater of 5% of the allotment or the percentage represented by the ratio of $55,000 to the smallest State allotment for the fiscal year [Section 675C(b)(2)].
-2. Fiscal control and fund accounting procedures will be established to assure proper disbursal and accounting of Federal funds and monitoring of assistance under this subtitle [678D(a)(1)(A)].
-3. Each Tribe that expends $750,000 or more (during the fiscal year) in all types of Federal financial assistance will conduct an audit under the Single Audit Act and applicable OMB guidance [678D(2)(B)].
-4. Each CSBG Tribal Plan (or revised plan) will be made available for public inspection in a way that facilitates public review and comment [676(a)(2)(B) and 676(e)(2)].
-
-Other Administrative Certifications
-The Tribe also certifies:
-1. Cost and accounting standards of the Office of Management and Budget apply to recipients of Community Services Block Grant funds [678D(a)(1)(B), 2 CFR 200, and 45 CFR 75].
-""".strip()
-
 _LIMITATION_ON_USE_OF_FUNDS_TEXT = """
 Funds will not be used for the purchase or improvement of land, or the purchase, construction, or permanent improvement (other than low-cost residential weatherization or other energy-related home repairs) of any building or other facility without an approved federal waiver.
 """.strip()
