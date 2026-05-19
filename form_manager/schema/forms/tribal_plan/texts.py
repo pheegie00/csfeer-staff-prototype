@@ -10,10 +10,6 @@ _SINGLE_AUDIT_REQUIREMENTS_TEXT = """
 If your Tribe or Tribal Organization expended less than $750,000 in total federal funds during the fiscal year (not limited to CSBG funds), a Single Audit is not required.
 """.strip()
 
-_ASSURANCES_NARRATIVE_TOPICS = """
-As applicable, include the following topics in your description: CSBG service delivery system; geographical areas and categories of individuals to be served; criteria and method used for distribution of CSBG funds; purpose of funds, including activities to be supported; linkages to fill identified gaps in services; coordination with other public and private resources; and innovative community and neighborhood-based initiatives.
-""".strip()
-
 _LOBBYING_CERTIFICATION_TEXT = """
 Certification for Contracts, Grants, Loans, and Cooperative Agreements
 The undersigned certifies, to the best of his or her knowledge and belief, that:

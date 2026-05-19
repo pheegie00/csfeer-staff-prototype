@@ -9,7 +9,6 @@ from form_manager.constants import AllFormNames, CSBGTribalPlanApplicationForms,
 from form_manager.schema.forms.base import BaseFormSchema, UIDefinition
 from form_manager.schema.forms.tribal_plan.fields import TribalPlanFormFields
 from form_manager.schema.forms.tribal_plan.texts import (
-    _ASSURANCES_NARRATIVE_TOPICS,
     _DEBARMENT_CERTIFICATION_TEXT,
     _DEBARMENT_LOWER_TIER_INSTRUCTIONS_TEXT,
     _DEBARMENT_PRIMARY_INSTRUCTIONS_TEXT,
@@ -466,7 +465,8 @@ class TribalPlanForm(BaseFormSchema):
                             AlertBoxBlock(
                                 alert_type="info",
                                 heading="Programmatic assurances topics",
-                                message=_ASSURANCES_NARRATIVE_TOPICS,
+                                message="",
+                                template_name=("form_manager/programmatic_assurances_alert.html"),
                             ),
                             SectionBlock(
                                 children=[
