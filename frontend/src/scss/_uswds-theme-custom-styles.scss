@@ -227,3 +227,43 @@ textarea.usa-textarea {
 .user-nav .usa-accordion__button.usa-nav__link:hover span::after {
   background-color: color("white");
 }
+
+/* ========================================
+   Markdown Prose — nested ordered lists
+   render as 1. → a. → i. by depth
+   ======================================== */
+.usa-prose {
+  > p,
+  > ol,
+  > ul,
+  > ol li,
+  > ul li {
+    max-width: none;
+  }
+
+  h4 {
+    font-size: font-size("heading", 8);
+    font-family: family("body");
+    font-weight: font-weight("normal");
+    margin-top: 0;
+    margin-bottom: units(2);
+  }
+
+  ol {
+    list-style-type: decimal;
+
+    ol {
+      list-style-type: lower-alpha;
+
+      ol {
+        list-style-type: lower-roman;
+      }
+    }
+  }
+}
+
+.text-block__heading {
+  font-size: font-size("heading", 8);
+  font-family: family("body");
+  font-weight: font-weight("normal");
+}

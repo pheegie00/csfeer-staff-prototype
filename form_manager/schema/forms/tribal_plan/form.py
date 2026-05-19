@@ -495,6 +495,7 @@ class TribalPlanForm(BaseFormSchema):
                                 bordered=True,
                                 heading="Statement of CSBG Assurances",
                                 text=_CSBG_ASSURANCES_NARRATIVE,
+                                markdown=True,
                             ),
                             SectionBlock(
                                 children=[

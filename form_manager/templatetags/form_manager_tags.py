@@ -1,11 +1,23 @@
 from typing import Any
 
+import markdown as markdown_lib
 from django import template
+from django.utils.safestring import mark_safe
 
 from form_manager.schema.fields import StorageFilePath
 from form_manager.schema.layout import FieldBlock, ReviewSubheadingBlock
 
 register = template.Library()
+
+
+@register.filter(name="markdown")
+def markdown_filter(value: str) -> str:
+    # Intended for author-controlled static content (legal/certification text
+    # constants) — mark_safe is appropriate here, but do not point this filter
+    # at user input.
+    return mark_safe(
+        markdown_lib.markdown(value or "", extensions=["sane_lists"]),
+    )
 
 
 @register.filter

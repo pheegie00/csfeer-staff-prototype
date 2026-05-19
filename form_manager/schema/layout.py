@@ -551,6 +551,15 @@ class TextBlock(RenderableBaseModel):
         bool,
         Field(description="Whether to render the block with a surrounding border"),
     ] = False
+    markdown: Annotated[
+        bool,
+        Field(
+            description=(
+                "Render `text` as Markdown. Intended for author-controlled static"
+                " content (e.g., legal/certification text constants), not user input."
+            ),
+        ),
+    ] = False
     template_name: Annotated[
         str,
         Field(description="Django template used to render this text block"),
