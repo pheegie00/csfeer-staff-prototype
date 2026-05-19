@@ -466,7 +466,9 @@ class TribalPlanForm(BaseFormSchema):
                                 alert_type="info",
                                 heading="Programmatic assurances topics",
                                 message="",
-                                template_name=("form_manager/programmatic_assurances_alert.html"),
+                                template_name=(
+                                    "form_manager/content_blocks/programmatic_assurances_alert.html"
+                                ),
                             ),
                             SectionBlock(
                                 children=[
@@ -492,7 +494,7 @@ class TribalPlanForm(BaseFormSchema):
                             ),
                             TextBlock(
                                 text="",
-                                template_name="form_manager/csbg_assurances_narrative.html",
+                                template_name="form_manager/content_blocks/csbg_assurances_narrative.html",
                             ),
                             SectionBlock(
                                 children=[
