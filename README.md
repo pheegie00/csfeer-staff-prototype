@@ -33,9 +33,9 @@
 | form\_manager/apps.py                                     |        5 |        0 |    100% |           |
 | form\_manager/constants.py                                |       17 |        0 |    100% |           |
 | form\_manager/locking.py                                  |       59 |       13 |     78% |19-20, 36-47, 84-86 |
-| form\_manager/management/commands/load\_initial\_forms.py |       34 |        9 |     74% |34, 38-40, 58-73 |
+| form\_manager/management/commands/load\_initial\_forms.py |       34 |        4 |     88% | 34, 38-40 |
 | form\_manager/models/\_\_init\_\_.py                      |        3 |        0 |    100% |           |
-| form\_manager/models/fields.py                            |       22 |       13 |     41% |10-14, 18-24, 32 |
+| form\_manager/models/fields.py                            |       22 |        0 |    100% |           |
 | form\_manager/models/forms.py                             |       44 |        0 |    100% |           |
 | form\_manager/models/locking.py                           |       10 |        0 |    100% |           |
 | form\_manager/schema/\_\_init\_\_.py                      |        0 |        0 |    100% |           |
@@ -85,7 +85,7 @@
 | users/tests.py                                            |        0 |        0 |    100% |           |
 | users/utils.py                                            |       17 |        3 |     82% |22, 30, 38 |
 | users/views.py                                            |        0 |        0 |    100% |           |
-| **TOTAL**                                                 | **2475** |  **479** | **81%** |           |
+| **TOTAL**                                                 | **2475** |  **461** | **81%** |           |
 
 
 ## Setup coverage badge
