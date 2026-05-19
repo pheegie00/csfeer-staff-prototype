@@ -1,7 +1,7 @@
 {% load form_manager_tags %}
-<div class="{% if bordered %}border border-base-lighter radius-md padding-205{% else %}margin-top-2 margin-bottom-3{% endif %}">
+<div class="text-base-darker {% if bordered %}border border-base-lighter radius-md padding-205{% else %}margin-top-2 margin-bottom-3{% endif %}">
     {% if heading %}
-    <h3 class="text-block__heading margin-top-0 margin-bottom-2">{{ heading }}</h3>
+    <h3 class="text-block__heading text-normal margin-top-0 margin-bottom-2">{{ heading }}</h3>
     {% endif %}
     <div class="usa-prose">
         {% if markdown %}{{ text|markdown }}{% else %}{{ text|linebreaksbr }}{% endif %}
