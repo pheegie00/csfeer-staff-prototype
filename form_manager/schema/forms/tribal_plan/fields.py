@@ -290,14 +290,14 @@ class TribalPlanFormFields(BaseFields):
         min_value=0,
     )
     alloc_education_y1 = acf_fields.PercentageField(
-        title="Childcare, Early Childhood, Youth Development & Adult Education",
+        title="Childcare, Early Childhood, Youth Development and Adult Education",
         review_title="Education and Youth Development (Year 1 %)",
         max_digits=5,
         decimal_places=0,
         min_value=0,
     )
     alloc_income_y1 = acf_fields.PercentageField(
-        title="Income & Asset Building",
+        title="Income and Asset Building",
         review_title="Income and Asset Building (Year 1 %)",
         max_digits=5,
         decimal_places=0,
@@ -311,14 +311,14 @@ class TribalPlanFormFields(BaseFields):
         min_value=0,
     )
     alloc_health_y1 = acf_fields.PercentageField(
-        title="Health & Nutrition",
+        title="Health and Nutrition",
         review_title="Health and Nutrition (Year 1 %)",
         max_digits=5,
         decimal_places=0,
         min_value=0,
     )
     alloc_civic_y1 = acf_fields.PercentageField(
-        title="Civic Engagement & Community Involvement",
+        title="Civic Engagement and Community Involvement",
         review_title="Civic Engagement and Community Involvement (Year 1 %)",
         max_digits=5,
         decimal_places=0,
@@ -332,7 +332,7 @@ class TribalPlanFormFields(BaseFields):
         min_value=0,
     )
     alloc_partnerships_y1 = acf_fields.PercentageField(
-        title="Partnerships, Linkages & Coordination",
+        title="Partnerships, Linkages and Coordination",
         review_title="Partnerships, Linkages, and Service Coordination (Year 1 %)",
         max_digits=5,
         decimal_places=0,
@@ -368,7 +368,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_education_y2 = acf_fields.PercentageField(
-        title="Childcare, Early Childhood, Youth Development & Adult Education",
+        title="Childcare, Early Childhood, Youth Development and Adult Education",
         review_title="Education and Youth Development (Year 2 %)",
         max_digits=5,
         decimal_places=0,
@@ -376,7 +376,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_income_y2 = acf_fields.PercentageField(
-        title="Income & Asset Building",
+        title="Income and Asset Building",
         review_title="Income and Asset Building (Year 2 %)",
         max_digits=5,
         decimal_places=0,
@@ -392,7 +392,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_health_y2 = acf_fields.PercentageField(
-        title="Health & Nutrition",
+        title="Health and Nutrition",
         review_title="Health and Nutrition (Year 2 %)",
         max_digits=5,
         decimal_places=0,
@@ -400,7 +400,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_civic_y2 = acf_fields.PercentageField(
-        title="Civic Engagement & Community Involvement",
+        title="Civic Engagement and Community Involvement",
         review_title="Civic Engagement and Community Involvement (Year 2 %)",
         max_digits=5,
         decimal_places=0,
@@ -416,7 +416,7 @@ class TribalPlanFormFields(BaseFields):
         required=False,
     )
     alloc_partnerships_y2 = acf_fields.PercentageField(
-        title="Partnerships, Linkages & Coordination",
+        title="Partnerships, Linkages and Coordination",
         review_title="Partnerships, Linkages, and Service Coordination (Year 2 %)",
         max_digits=5,
         decimal_places=0,
