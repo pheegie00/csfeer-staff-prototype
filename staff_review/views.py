@@ -279,8 +279,9 @@ class SubmissionSaveEditView(View):
         editable = self._editable_paths(sub["form_type"])
         pending = {}
         for path in editable:
-            field_name = path.replace(".", "__")
-            new_val = request.POST.get(field_name, None)
+            # Form inputs use dotted path as the name attr (see
+            # _form_tribal_plan.html); match that exactly.
+            new_val = request.POST.get(path, None)
             if new_val is None:
                 continue
             original = _get_by_path(sub["data"], path)

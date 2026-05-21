@@ -15,9 +15,10 @@ Run:
     uv run python manage.py test staff_review.test_rationale_flow
 """
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 
 from form_manager.models.forms import FormAuditDetail, FormAuditTrail, FormEntry
 from staff_review.management.commands.seed_demo_data import stable_uuid
@@ -25,6 +26,15 @@ from staff_review.management.commands.seed_demo_data import stable_uuid
 User = get_user_model()
 
 
+# Strip the OIDC LoginRequiredMiddleware for these tests so client.force_login()
+# is sufficient. Real flow uses Okta SSO (CORE-138); we test that elsewhere.
+_TEST_MIDDLEWARE = [
+    m for m in settings.MIDDLEWARE
+    if "oauth2_authcodeflow" not in m
+]
+
+
+@override_settings(MIDDLEWARE=_TEST_MIDDLEWARE)
 class RationaleFlowTest(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -34,7 +44,9 @@ class RationaleFlowTest(TestCase):
         cls.staff_user = User.objects.get(email="m.rodriguez@acf.hhs.gov")
 
     def setUp(self):
-        self.client = Client()
+        # HTTP_HOST=localhost so test requests pass ALLOWED_HOSTS
+        # ('testserver' is not in the project's allowed_hosts list).
+        self.client = Client(HTTP_HOST="localhost")
         self.client.force_login(self.staff_user)
 
     def test_seed_creates_expected_rows(self):
