@@ -28,8 +28,11 @@ kill_timeout = "30s"
 # Runs once per release before swapping traffic to the new machine.
 # Migrates DB, seeds demo data (idempotent), and sets demo persona
 # passwords so users can sign in to the deployed demo.
+# NOTE: use absolute venv python path -- `sh -l` (login shell) wipes
+# the PATH ENV from the Dockerfile, so plain `python` resolves to the
+# system Python which doesn't have Django installed.
 [deploy]
-  release_command = "/bin/sh -lc 'python manage.py migrate --noinput && python manage.py seed_demo_data && python manage.py set_demo_passwords'"
+  release_command = "/app/.venv/bin/python manage.py migrate --noinput && /app/.venv/bin/python manage.py seed_demo_data && /app/.venv/bin/python manage.py set_demo_passwords"
   strategy = "rolling"
 
 [env]
@@ -67,4 +70,5 @@ kill_timeout = "30s"
   memory_mb = 512
 
 [processes]
-  app = "gunicorn --bind 0.0.0.0:8000 --workers 2 --timeout 60 --access-logfile - --error-logfile - csfeer.wsgi:application"
+  # Absolute venv path -- same reasoning as release_command above.
+  app = "/app/.venv/bin/gunicorn --bind 0.0.0.0:8000 --workers 2 --timeout 60 --access-logfile - --error-logfile - csfeer.wsgi:application"
