@@ -2,142 +2,134 @@
 {% load static %}
 
 {% block content %}
-<div class="grid-container-widescreen padding-y-4">
+{% include "staff_review/_chrome.html" %}
+
+<div class="app__body">
 
   {# ===== Page header ===== #}
-  <div class="display-flex flex-justify margin-bottom-3">
-    <div>
-      <h1 class="margin-0 font-heading-2xl text-bold">Submissions</h1>
-      <p class="margin-top-1 margin-bottom-0 text-base">
-        {{ filtered_count }} of {{ total }} submissions
-        &nbsp;&middot;&nbsp; FY26 cycle open
-        &nbsp;&middot;&nbsp; across all regions
-      </p>
-    </div>
-    <div class="display-flex flex-align-center" style="gap: 8px;">
-      <button type="button" class="usa-button usa-button--outline">Export CSV</button>
-      <button type="button" class="usa-button usa-button--outline">Configure forms</button>
+  <div class="ph">
+    <div class="ph__row">
+      <div>
+        <h1 class="ph__title">Submissions</h1>
+        <div class="ph__meta">
+          {{ filtered_count }} of {{ total }} submissions
+          &nbsp;&middot;&nbsp; FY26 cycle open
+          &nbsp;&middot;&nbsp; across all regions
+        </div>
+      </div>
+      <div class="ph__actions">
+        <button class="btn btn--ghost">Export CSV</button>
+        <button class="btn btn--outline">Configure forms</button>
+      </div>
     </div>
   </div>
 
-  {# ===== Toolbar: tabs + view switcher + filters ===== #}
-  <div class="bg-white border border-base-lighter radius-md padding-2 margin-bottom-3" style="box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
-
-    {# Tabs row #}
-    <div class="display-flex flex-align-center flex-wrap" style="gap: 6px;">
-      {% for tab_id, tab_label in tabs %}
-        {% if tab_id == "My queue" %}{% with c=counts.my_queue %}
-          <a href="?status={{ tab_id|urlencode }}" class="usa-button usa-button--unstyled padding-1 {% if active_status == tab_id %}text-bold text-primary-darker bg-primary-lighter radius-sm{% endif %}">
-            {{ tab_label }} <span class="usa-tag radius-pill margin-left-05">{{ c }}</span>
+  {# ===== Toolbar: tabs + filters ===== #}
+  <div class="toolbar">
+    <div class="toolbar__row">
+      <div class="tabs">
+        {% for tab_id, tab_label in tabs %}
+          <a href="?status={{ tab_id|urlencode }}"
+             class="tabs__tab {% if active_status == tab_id %}is-active{% endif %}">
+            {{ tab_label }}
+            <span class="tabs__count">{%
+                if tab_id == "My queue" %}{{ counts.my_queue }}{%
+                elif tab_id == "All" %}{{ counts.all }}{%
+                elif tab_id == "Submitted" %}{{ counts.submitted }}{%
+                elif tab_id == "In Progress" %}{{ counts.in_progress }}{%
+                elif tab_id == "Returned" %}{{ counts.returned }}{%
+                elif tab_id == "Resolved" %}{{ counts.resolved }}{%
+                endif %}</span>
           </a>
-        {% endwith %}{% elif tab_id == "All" %}{% with c=counts.all %}
-          <a href="?status={{ tab_id|urlencode }}" class="usa-button usa-button--unstyled padding-1 {% if active_status == tab_id %}text-bold text-primary-darker bg-primary-lighter radius-sm{% endif %}">
-            {{ tab_label }} <span class="usa-tag radius-pill margin-left-05">{{ c }}</span>
-          </a>
-        {% endwith %}{% elif tab_id == "Submitted" %}{% with c=counts.submitted %}
-          <a href="?status={{ tab_id|urlencode }}" class="usa-button usa-button--unstyled padding-1 {% if active_status == tab_id %}text-bold text-primary-darker bg-primary-lighter radius-sm{% endif %}">
-            {{ tab_label }} <span class="usa-tag radius-pill margin-left-05">{{ c }}</span>
-          </a>
-        {% endwith %}{% elif tab_id == "In Progress" %}{% with c=counts.in_progress %}
-          <a href="?status={{ tab_id|urlencode }}" class="usa-button usa-button--unstyled padding-1 {% if active_status == tab_id %}text-bold text-primary-darker bg-primary-lighter radius-sm{% endif %}">
-            {{ tab_label }} <span class="usa-tag radius-pill margin-left-05">{{ c }}</span>
-          </a>
-        {% endwith %}{% elif tab_id == "Returned" %}{% with c=counts.returned %}
-          <a href="?status={{ tab_id|urlencode }}" class="usa-button usa-button--unstyled padding-1 {% if active_status == tab_id %}text-bold text-primary-darker bg-primary-lighter radius-sm{% endif %}">
-            {{ tab_label }} <span class="usa-tag radius-pill margin-left-05">{{ c }}</span>
-          </a>
-        {% endwith %}{% elif tab_id == "Resolved" %}{% with c=counts.resolved %}
-          <a href="?status={{ tab_id|urlencode }}" class="usa-button usa-button--unstyled padding-1 {% if active_status == tab_id %}text-bold text-primary-darker bg-primary-lighter radius-sm{% endif %}">
-            {{ tab_label }} <span class="usa-tag radius-pill margin-left-05">{{ c }}</span>
-          </a>
-        {% endwith %}{% endif %}
-      {% endfor %}
+        {% endfor %}
+      </div>
     </div>
 
-    {# Filters row #}
-    <form method="get" class="display-flex flex-align-center flex-wrap margin-top-2 padding-top-2 border-top border-base-lightest" style="gap: 12px;">
+    <form method="get" class="toolbar__row toolbar__row--filters">
       <input type="hidden" name="status" value="{{ active_status }}">
 
-      <div class="usa-search usa-search--small" role="search" style="flex: 0 0 320px;">
-        <label class="usa-sr-only" for="staff-inbox-search">Search</label>
-        <input class="usa-input" id="staff-inbox-search" type="search" name="q" value="{{ query }}" placeholder="Search organization or UEI...">
-        <button class="usa-button" type="submit"><span class="usa-sr-only">Search</span>&#128269;</button>
+      <div class="searchwrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" name="q" value="{{ query }}" placeholder="Search organization or UEI...">
+        {% if query %}<a href="?status={{ active_status|urlencode }}" class="searchwrap__clear">&times;</a>{% endif %}
       </div>
 
-      <label class="display-flex flex-align-center" style="gap: 6px;">
-        <span class="font-body-2xs text-base">Form</span>
-        <select class="usa-select" name="form" onchange="this.form.submit()" style="width: auto;">
+      <label class="select">
+        <span class="select__lbl">Form</span>
+        <select name="form" onchange="this.form.submit()">
           {% for f in forms %}<option value="{{ f }}" {% if active_form == f %}selected{% endif %}>{{ f }}</option>{% endfor %}
         </select>
       </label>
 
-      <label class="display-flex flex-align-center" style="gap: 6px;">
-        <span class="font-body-2xs text-base">Region</span>
-        <select class="usa-select" name="region" onchange="this.form.submit()" style="width: auto;">
+      <label class="select">
+        <span class="select__lbl">Region</span>
+        <select name="region" onchange="this.form.submit()">
           {% for r in regions %}<option value="{{ r }}" {% if active_region == r %}selected{% endif %}>{{ r }}</option>{% endfor %}
         </select>
       </label>
 
-      <label class="display-flex flex-align-center" style="gap: 6px;">
-        <span class="font-body-2xs text-base">State</span>
-        <select class="usa-select" name="state" onchange="this.form.submit()" style="width: auto;">
+      <label class="select">
+        <span class="select__lbl">State</span>
+        <select name="state" onchange="this.form.submit()">
           {% for st in states %}<option value="{{ st }}" {% if active_state == st %}selected{% endif %}>{{ st }}</option>{% endfor %}
         </select>
       </label>
 
-      <div style="flex: 1;"></div>
+      <div class="toolbar__spacer"></div>
 
-      <a href="?" class="usa-button usa-button--unstyled">Clear filters</a>
+      <a href="?" class="linkbtn">Clear filters</a>
     </form>
   </div>
 
   {# ===== Submissions table ===== #}
   {% if rows %}
-  <div class="bg-white border border-base-lighter radius-md overflow-hidden" style="box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
-    <table class="usa-table usa-table--borderless width-full margin-0">
+  <div class="tbl-wrap">
+    <table class="tbl">
       <thead>
         <tr>
-          <th scope="col">Status</th>
-          <th scope="col">Organization</th>
-          <th scope="col">Form &middot; FY</th>
-          <th scope="col">Region &middot; State</th>
-          <th scope="col">Submitted</th>
-          <th scope="col">Last update</th>
-          <th scope="col">Returns</th>
-          <th scope="col" class="text-right">Age</th>
-          <th scope="col"></th>
+          <th>Status</th>
+          <th>Organization</th>
+          <th>Form &middot; FY</th>
+          <th>Region &middot; State</th>
+          <th>Submitted</th>
+          <th>Last update</th>
+          <th>Returns</th>
+          <th class="text-right">Age</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         {% for s in rows %}
-        <tr>
+        <tr class="tbl__row--clickable" onclick="window.location='{% url 'staff_review:submission_detail' sub_id=s.id %}'">
           <td>
-            <span class="usa-tag bg-{{ s.status_meta.variant }}-lighter text-{{ s.status_meta.variant }}-darker radius-pill">{{ s.status }}</span>
+            <span class="tag tag--{{ s.status_meta.variant }} tag--dot">{{ s.status }}</span>
           </td>
           <td>
-            <div class="text-bold">{{ s.org_name }}</div>
-            <div class="font-mono-3xs text-base">{{ s.uei }}</div>
+            <div class="tbl__org">{{ s.org_name }}</div>
+            <div class="tbl__uei">{{ s.uei }}</div>
           </td>
           <td>
             <div>{{ s.form_short }}</div>
-            <div class="text-base font-body-3xs">{{ s.fy }}</div>
+            <div class="tbl__meta">{{ s.fy }}</div>
           </td>
           <td>
-            <span class="usa-tag bg-base-lightest text-base-darker radius-sm margin-right-05">{{ s.region }}</span>
-            <span class="font-body-3xs text-base">{{ s.state }}</span>
+            <span class="region-chip">{{ s.region }}</span>
+            <span class="tbl__state">{{ s.state_abbr }}</span>
           </td>
-          <td class="text-base">{{ s.submitted }}</td>
-          <td class="text-base">{{ s.updated }}</td>
+          <td class="tbl__meta">{{ s.submitted }}</td>
+          <td class="tbl__meta">{{ s.updated }}</td>
           <td>
             {% if s.returns > 0 %}
-              <span class="usa-tag bg-warning-lighter text-warning-darker radius-pill">{{ s.returns }} / 1</span>
+              <span class="tag tag--warning tag--sm">{{ s.returns }} / 1</span>
             {% else %}
-              <span class="usa-tag bg-base-lightest text-base radius-pill">0 / 1</span>
+              <span class="tag tag--neutral tag--sm">0 / 1</span>
             {% endif %}
           </td>
-          <td class="text-right text-bold font-mono-sm">{{ s.days_in }}d</td>
           <td class="text-right">
-            <a href="{% url 'staff_review:submission_detail' sub_id=s.id %}" class="usa-button usa-button--unstyled text-bold">Open &rarr;</a>
+            <span class="age-badge {{ s.age_class }}">{{ s.days_in }}d</span>
+          </td>
+          <td class="text-right">
+            <a href="{% url 'staff_review:submission_detail' sub_id=s.id %}" class="tbl__open" onclick="event.stopPropagation()">Open &rarr;</a>
           </td>
         </tr>
         {% endfor %}
@@ -146,21 +138,13 @@
   </div>
 
   {% else %}
-    <div class="bg-white border border-base-lighter radius-md padding-6 text-center">
-      <div class="font-heading-3xl text-base-light">&#8981;</div>
-      <h3 class="margin-top-2 font-heading-lg">No submissions match your filters</h3>
-      <p class="text-base">Try clearing filters or adjusting your search.</p>
-      <a href="?" class="usa-button usa-button--outline">Clear filters</a>
+    <div class="empty">
+      <div class="empty__icon">&#8981;</div>
+      <h3>No submissions match your filters</h3>
+      <p>Try clearing filters or adjusting your search.</p>
+      <a href="?" class="btn btn--outline">Clear filters</a>
     </div>
   {% endif %}
-
-  <div class="margin-top-3 padding-2 bg-info-lighter border-left-05 border-info radius-sm text-base-darker">
-    <strong>Phase 2 migration in progress.</strong>
-    This is the Inbox screen translated from the React prototype to Django + USWDS.
-    Submission detail, return builder, edit-on-behalf, and determination flows still
-    live in the prototype at <a href="{% url 'staff_prototype:index' %}">/staff-prototype/</a>.
-    See <code>staff_review/README.md</code> for the migration plan.
-  </div>
 
 </div>
 {% endblock %}
