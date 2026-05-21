@@ -201,18 +201,23 @@ class Command(BaseCommand):
         return u
 
     def _assign_staff_to_csbg(self, staff_user):
-        """STAFF-MP-04: assign demo staff to the CSBG program as a reviewer."""
+        """STAFF-MP-04: assign demo staff to ALL OCS programs as a reviewer.
+
+        Maya is the OCS demo reviewer; she covers the full OCS portfolio so
+        every form template shows up in her Form Builder list.
+        """
         from programs.models import Program, UserProgramAssignment
-        csbg = Program.objects.filter(code="CSBG").first()
-        if csbg is None:
+        ocs_programs = Program.objects.filter(office__code="OCS")
+        if not ocs_programs.exists():
             self.stdout.write(self.style.WARNING(
-                "  CSBG program not found -- did you run `migrate programs`?"
+                "  No OCS programs found -- did you run `migrate programs`?"
             ))
             return
-        UserProgramAssignment.objects.get_or_create(
-            user=staff_user, program=csbg,
-            defaults={"role": "reviewer"},
-        )
+        for program in ocs_programs:
+            UserProgramAssignment.objects.get_or_create(
+                user=staff_user, program=program,
+                defaults={"role": "reviewer"},
+            )
 
     def _seed_form_definitions(self):
         from datetime import datetime, timezone as dt_tz
