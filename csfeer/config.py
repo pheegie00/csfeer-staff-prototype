@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -37,8 +39,15 @@ class LoggingConfig(BaseModel):
 
 
 class AppConfig(BaseSettings):
+    # Resolve .env path relative to THIS file (csfeer/config.py) so it works
+    # regardless of where Python is launched from -- previously "../.env" was
+    # interpreted relative to the CWD and silently broke when running manage.py
+    # commands from the repo root.
     model_config = SettingsConfigDict(
-        env_file="../.env", env_file_encoding="utf-8", extra="ignore", env_nested_delimiter="__"
+        env_file=str(Path(__file__).resolve().parent.parent / ".env"),
+        env_file_encoding="utf-8",
+        extra="ignore",
+        env_nested_delimiter="__",
     )
     secret_key: str = "REPLACE ME"
     debug: bool = True
