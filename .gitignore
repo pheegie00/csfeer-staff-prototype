@@ -218,6 +218,10 @@ static
 # Symlink for local development (points to frontend/built)
 csfeer/static/frontend
 
+# Hand-authored static assets that need to be tracked (override the 'static' rule above)
+!staff_prototype/static/
+!staff_prototype/static/**
+
 # E2E test artifacts
 tests/screenshots/
 tests/videos/
