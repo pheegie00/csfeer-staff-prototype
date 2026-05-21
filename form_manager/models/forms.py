@@ -56,11 +56,29 @@ class FormDefinition(BaseModel):
 
 
 class FormEntry(BaseModel):
+    # Status lifecycle:
+    #   draft       -- recipient drafting (CORE recipient flow)
+    #   submitted   -- recipient submitted, awaiting staff review
+    #   in_progress -- recipient editing after a return (CORE-161 acknowledgements pending)
+    #   returned    -- federal staff returned with review items (CORE-168, AO sig cleared per CORE-43)
+    #   amended     -- federal staff edited on behalf (CORE-167), awaiting AO re-sig
+    #   accepted    -- final determination = Accepted, locked (CORE-44, CORE-45)
+    #   closed      -- final determination = Closed without Acceptance, locked (CORE-44, CORE-45)
+    #   archived    -- end-of-life
     STATUS_CHOICES = [
         ("draft", "Draft"),
         ("submitted", "Submitted"),
+        ("in_progress", "In Progress"),
+        ("returned", "Returned"),
         ("amended", "Amended"),
+        ("accepted", "Accepted"),
+        ("closed", "Closed without Acceptance"),
         ("archived", "Archived"),
+    ]
+
+    DETERMINATION_OUTCOMES = [
+        ("accepted", "Accepted"),
+        ("closed", "Closed without Acceptance"),
     ]
 
     form_definition = models.ForeignKey(FormDefinition, on_delete=models.PROTECT)
@@ -73,6 +91,19 @@ class FormEntry(BaseModel):
     locked = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
 
+    # Final determination (CORE-44, CORE-45). Set when staff finalizes the
+    # submission. Null until then. Once set, status is 'accepted' or 'closed'
+    # and locked=True. Cannot be reverted at the application layer.
+    determination_outcome = models.CharField(
+        max_length=20, choices=DETERMINATION_OUTCOMES, null=True, blank=True
+    )
+    determination_notes = models.TextField(blank=True)
+    determined_at = models.DateTimeField(null=True, blank=True)
+    determined_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="determined_submissions",
+    )
+
     class Meta(BaseModel.Meta):
         unique_together = ("organization", "form_definition", "version_number")
         ordering = ["-updated_at"]
@@ -84,19 +115,53 @@ class FormEntry(BaseModel):
                 FORM_TRIBAL_PLAN_CAN_SIGN_AUTHORIZED_OFFICIAL,
                 FORM_TRIBAL_PLAN_CAN_SIGN_AUTHORIZED_OFFICIAL_DESCRIPTION,
             ),
+            # Federal Staff permissions (CORE-132). Cross-region view per CORE-29.
+            ("staff_view_any_submission",
+             "Federal Staff -- view any submission regardless of region (CORE-29, CORE-132)"),
+            ("staff_edit_on_behalf",
+             "Federal Staff -- edit any submission on behalf of recipient (CORE-167)"),
+            ("staff_return_submission",
+             "Federal Staff -- return a submission with review items (CORE-168, CORE-169)"),
+            ("staff_determine_submission",
+             "Federal Staff -- record final determination (Accept / Close) (CORE-44, CORE-45)"),
+            ("staff_archive_submission",
+             "Federal Staff -- archive a submission (CORE-132)"),
         ]
 
     def __str__(self) -> str:  # pragma: no cover - trivial
         return f"{self.organization.name} - {self.form_definition.name} (v{self.version_number})"
 
+    @property
+    def is_resolved(self) -> bool:
+        """True if a final determination has been recorded (CORE-45 lock)."""
+        return self.status in ("accepted", "closed")
+
+    @property
+    def is_returned_or_in_progress(self) -> bool:
+        return self.status in ("returned", "in_progress")
+
+    @property
+    def returns_used(self) -> int:
+        """Number of returns issued. Used for CORE-169 one-return enforcement."""
+        return self.staff_returns.count() if hasattr(self, "staff_returns") else 0
+
 
 class FormAuditTrail(BaseModel):
     form_entry = models.ForeignKey(FormEntry, on_delete=models.CASCADE, related_name="audits")
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    action = models.CharField(
-        max_length=50
-    )  # create, save, submit, amend, lock, unlock, archive, unarchive
+    # Actions:
+    #   create, save, submit, amend, lock, unlock, archive, unarchive (existing)
+    #   edit_on_behalf, return, ao_signature_cleared,
+    #   accept, close, ack_review_item (new for staff workflow)
+    action = models.CharField(max_length=50)
     notes = models.TextField(blank=True)
+
+    # Required rationale for edit_on_behalf actions (CORE-167).
+    # Blank for other action types. Plain text only, immutable after save.
+    rationale = models.TextField(
+        blank=True,
+        help_text="Required for edit_on_behalf actions per CORE-167. Immutable after save.",
+    )
 
     def __str__(self) -> str:  # pragma: no cover - trivial
         return f"{self.form_entry} - {self.action} by {self.user}"
