@@ -1,0 +1,168 @@
+{# Tribal Plan & Application form -- 8 sections. mode = 'review' or 'edit'. #}
+
+{# SECTION 1 - Organization Information (auto, always locked) #}
+<div class="section">
+  <div class="section__head">
+    <div class="section__head-l">
+      <span class="section__num">1</span>
+      <h2>Organization Information</h2>
+    </div>
+    <div class="section__head-r">
+      <span class="t-sm t-muted">Auto-populated from UEI</span>
+    </div>
+  </div>
+  <div class="section__body">
+    <div class="grid-2">
+      <div class="fld is-locked"><div class="fld__lbl">Organization Legal Name</div><div class="fld__val">{{ d.org.name }}</div></div>
+      <div class="fld is-locked"><div class="fld__lbl">UEI</div><div class="fld__val">{{ d.org.uei }}</div></div>
+      <div class="fld is-locked"><div class="fld__lbl">State</div><div class="fld__val">{{ d.org.state }}</div></div>
+      <div class="fld is-locked"><div class="fld__lbl">Region</div><div class="fld__val">{{ d.org.region }}</div></div>
+      <div class="fld is-locked"><div class="fld__lbl">DUNS</div><div class="fld__val">{{ d.org.duns|default:"--" }}</div></div>
+      <div class="fld is-locked"><div class="fld__lbl">Fiscal Year</div><div class="fld__val">{{ d.org.fy }}</div></div>
+    </div>
+  </div>
+</div>
+
+{# SECTION 2 - Primary Contact #}
+<div class="section">
+  <div class="section__head">
+    <div class="section__head-l"><span class="section__num">2</span><h2>Primary Contact</h2></div>
+  </div>
+  <div class="section__body">
+    <div class="grid-2">
+      {% if mode == 'edit' %}
+        <div class="fld"><label class="fld__lbl">Name</label><input type="text" name="contact.name" value="{{ d.contact.name }}"></div>
+        <div class="fld"><label class="fld__lbl">Title</label><input type="text" name="contact.title" value="{{ d.contact.title }}"></div>
+        <div class="fld"><label class="fld__lbl">Email</label><input type="text" name="contact.email" value="{{ d.contact.email }}"></div>
+        <div class="fld"><label class="fld__lbl">Phone</label><input type="text" name="contact.phone" value="{{ d.contact.phone }}"></div>
+      {% else %}
+        <div class="fld"><div class="fld__lbl">Name</div><div class="fld__val">{{ d.contact.name }}</div></div>
+        <div class="fld"><div class="fld__lbl">Title</div><div class="fld__val">{{ d.contact.title }}</div></div>
+        <div class="fld"><div class="fld__lbl">Email</div><div class="fld__val">{{ d.contact.email }}</div></div>
+        <div class="fld"><div class="fld__lbl">Phone</div><div class="fld__val">{{ d.contact.phone }}</div></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{# SECTION 3 - Programmatic Plan #}
+<div class="section">
+  <div class="section__head"><div class="section__head-l"><span class="section__num">3</span><h2>Programmatic Plan</h2></div></div>
+  <div class="section__body">
+    {% if mode == 'edit' %}
+      <div class="fld fld--full"><label class="fld__lbl">Mission statement</label><textarea name="plan.mission" rows="3">{{ d.plan.mission }}</textarea></div>
+      <div class="fld fld--full"><label class="fld__lbl">Annual goals</label><textarea name="plan.goals" rows="3">{{ d.plan.goals }}</textarea></div>
+      <div class="fld fld--full"><label class="fld__lbl">Coordination with other programs</label><textarea name="plan.coordination" rows="3">{{ d.plan.coordination }}</textarea></div>
+    {% else %}
+      <div class="fld fld--full"><div class="fld__lbl">Mission statement</div><div class="fld__val">{{ d.plan.mission }}</div></div>
+      <div class="fld fld--full"><div class="fld__lbl">Annual goals</div><div class="fld__val">{{ d.plan.goals }}</div></div>
+      <div class="fld fld--full"><div class="fld__lbl">Coordination with other programs</div><div class="fld__val">{{ d.plan.coordination }}</div></div>
+    {% endif %}
+  </div>
+</div>
+
+{# SECTION 4 - Service Areas #}
+<div class="section">
+  <div class="section__head"><div class="section__head-l"><span class="section__num">4</span><h2>Service Areas</h2></div></div>
+  <div class="section__body">
+    {% if mode == 'edit' %}
+      <div class="fld fld--full"><label class="fld__lbl">Service area description</label><textarea name="services" rows="3">{{ d.services }}</textarea></div>
+    {% else %}
+      <div class="fld fld--full"><div class="fld__lbl">Service area description</div><div class="fld__val">{{ d.services }}</div></div>
+    {% endif %}
+  </div>
+</div>
+
+{# SECTION 5 - Proposed Budget #}
+<div class="section">
+  <div class="section__head">
+    <div class="section__head-l"><span class="section__num">5</span><h2>Proposed Budget</h2></div>
+    <div class="section__head-r"><span class="t-sm t-muted">Total &middot; {{ total_budget }}</span></div>
+  </div>
+  <div class="section__body">
+    <div class="grid-3">
+      {% if mode != 'edit' %}
+        <div class="fld"><div class="fld__lbl">Employment Services</div><div class="fld__val">${{ d.budget.employment|stringformat:"d" }}</div></div>
+        <div class="fld"><div class="fld__lbl">Education</div><div class="fld__val">${{ d.budget.education|stringformat:"d" }}</div></div>
+        <div class="fld"><div class="fld__lbl">Emergency Assistance</div><div class="fld__val">${{ d.budget.emergency|stringformat:"d" }}</div></div>
+        <div class="fld"><div class="fld__lbl">Housing</div><div class="fld__val">${{ d.budget.housing|stringformat:"d" }}</div></div>
+        <div class="fld"><div class="fld__lbl">Nutrition</div><div class="fld__val">${{ d.budget.nutrition|stringformat:"d" }}</div></div>
+        <div class="fld"><div class="fld__lbl">Administrative</div><div class="fld__val">${{ d.budget.admin|stringformat:"d" }}</div></div>
+        <div class="fld"><div class="fld__lbl">Other</div><div class="fld__val">${{ d.budget.other|stringformat:"d" }}</div></div>
+      {% else %}
+        <div class="fld"><label class="fld__lbl">Employment Services</label><div class="fld__currency-wrap"><span class="fld__currency-sym">$</span><input type="text" class="fld__input fld__input--currency" name="budget.employment" value="{{ d.budget.employment }}"></div></div>
+        <div class="fld"><label class="fld__lbl">Education</label><div class="fld__currency-wrap"><span class="fld__currency-sym">$</span><input type="text" class="fld__input fld__input--currency" name="budget.education" value="{{ d.budget.education }}"></div></div>
+        <div class="fld"><label class="fld__lbl">Emergency Assistance</label><div class="fld__currency-wrap"><span class="fld__currency-sym">$</span><input type="text" class="fld__input fld__input--currency" name="budget.emergency" value="{{ d.budget.emergency }}"></div></div>
+        <div class="fld"><label class="fld__lbl">Housing</label><div class="fld__currency-wrap"><span class="fld__currency-sym">$</span><input type="text" class="fld__input fld__input--currency" name="budget.housing" value="{{ d.budget.housing }}"></div></div>
+        <div class="fld"><label class="fld__lbl">Nutrition</label><div class="fld__currency-wrap"><span class="fld__currency-sym">$</span><input type="text" class="fld__input fld__input--currency" name="budget.nutrition" value="{{ d.budget.nutrition }}"></div></div>
+        <div class="fld"><label class="fld__lbl">Administrative</label><div class="fld__currency-wrap"><span class="fld__currency-sym">$</span><input type="text" class="fld__input fld__input--currency" name="budget.admin" value="{{ d.budget.admin }}"></div></div>
+        <div class="fld"><label class="fld__lbl">Other</label><div class="fld__currency-wrap"><span class="fld__currency-sym">$</span><input type="text" class="fld__input fld__input--currency" name="budget.other" value="{{ d.budget.other }}"></div></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{# SECTION 6 - Programmatic Narrative #}
+<div class="section">
+  <div class="section__head"><div class="section__head-l"><span class="section__num">6</span><h2>Programmatic Narrative</h2></div></div>
+  <div class="section__body">
+    {% if mode == 'edit' %}
+      <div class="fld fld--full"><label class="fld__lbl">Employment Services narrative</label><textarea name="narrative.employment" rows="3">{{ d.narrative.employment }}</textarea></div>
+      <div class="fld fld--full"><label class="fld__lbl">Housing narrative</label><textarea name="narrative.housing" rows="3">{{ d.narrative.housing }}</textarea></div>
+      <div class="fld fld--full"><label class="fld__lbl">Emergency Assistance narrative</label><textarea name="narrative.emergency" rows="3">{{ d.narrative.emergency }}</textarea></div>
+    {% else %}
+      <div class="fld fld--full"><div class="fld__lbl">Employment Services narrative</div><div class="fld__val">{{ d.narrative.employment }}</div></div>
+      <div class="fld fld--full"><div class="fld__lbl">Housing narrative</div><div class="fld__val">{{ d.narrative.housing }}</div></div>
+      <div class="fld fld--full"><div class="fld__lbl">Emergency Assistance narrative</div><div class="fld__val">{{ d.narrative.emergency }}</div></div>
+    {% endif %}
+  </div>
+</div>
+
+{# SECTION 7 - Attestation of Assurances (staff-locked) #}
+<div class="section section--locked">
+  <div class="section__head">
+    <div class="section__head-l"><span class="section__num">7</span><h2>Attestation of Assurances</h2>
+      <span class="section__lockchip">Recipient-only</span>
+    </div>
+    <div class="section__head-r"><span class="tag tag--success tag--sm">Acknowledged</span></div>
+  </div>
+  <div class="section__body">
+    <p class="form-attest">The undersigned attests that the organization meets all CSBG eligibility, anti-discrimination, and reporting requirements under 42 U.S.C. 9901-9926.</p>
+    <div class="fld is-locked"><div class="fld__lbl">Acknowledged by</div><div class="fld__val">{{ d.attestation.ackBy }} &middot; {{ d.attestation.ackAt }}</div></div>
+  </div>
+  <div class="section__lockednote">Federal Staff cannot edit attestation content per REQ-043.</div>
+</div>
+
+{# SECTION 8 - AO Signature (staff-locked) #}
+<div class="section section--locked">
+  <div class="section__head">
+    <div class="section__head-l"><span class="section__num">8</span><h2>Authorized Official Signature</h2>
+      <span class="section__lockchip">Recipient-only</span>
+    </div>
+    <div class="section__head-r">
+      {% if d.ao.cleared %}
+        <span class="tag tag--danger tag--sm">Cleared -- requires resignature</span>
+      {% else %}
+        <span class="tag tag--primary tag--sm">Signed</span>
+      {% endif %}
+    </div>
+  </div>
+  <div class="section__body">
+    <div class="grid-2">
+      <div class="fld is-locked"><div class="fld__lbl">AO Name</div><div class="fld__val">{{ d.ao.name }}</div></div>
+      <div class="fld is-locked"><div class="fld__lbl">Title</div><div class="fld__val">{{ d.ao.title }}</div></div>
+    </div>
+    <div class="fld fld--full">
+      <div class="fld__lbl">Typed signature</div>
+      {% if d.ao.cleared %}
+        <div class="sig-box sig-box--cleared">
+          <strong>Cleared on return</strong> &middot; {{ d.ao.clearedAt }} &middot; The Authorized Official must re-sign before this submission can be re-submitted (REQ-042).
+        </div>
+      {% else %}
+        <div class="sig-box sig-box--signed">{{ d.ao.name }}</div>
+      {% endif %}
+    </div>
+    <div class="fld is-locked"><div class="fld__lbl">Date signed</div><div class="fld__val">{{ d.ao.signedAt|default:"--" }}</div></div>
+  </div>
+  <div class="section__lockednote">Federal Staff cannot sign or edit this section per REQ-043. Only the designated AO may complete it.</div>
+</div>

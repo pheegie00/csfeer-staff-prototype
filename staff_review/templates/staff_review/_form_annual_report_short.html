@@ -1,0 +1,106 @@
+{# Annual Report (Short Form) -- 6 sections, no AO. mode = 'review' or 'edit'. #}
+
+{# SECTION 1 - Organization Information #}
+<div class="section">
+  <div class="section__head">
+    <div class="section__head-l"><span class="section__num">1</span><h2>Organization Information</h2></div>
+    <div class="section__head-r"><span class="t-sm t-muted">Auto-populated from UEI</span></div>
+  </div>
+  <div class="section__body">
+    <div class="grid-2">
+      <div class="fld is-locked"><div class="fld__lbl">Organization Legal Name</div><div class="fld__val">{{ d.org.name }}</div></div>
+      <div class="fld is-locked"><div class="fld__lbl">UEI</div><div class="fld__val">{{ d.org.uei }}</div></div>
+      <div class="fld is-locked"><div class="fld__lbl">State</div><div class="fld__val">{{ d.org.state }}</div></div>
+      <div class="fld is-locked"><div class="fld__lbl">Region</div><div class="fld__val">{{ d.org.region }}</div></div>
+      <div class="fld is-locked"><div class="fld__lbl">Fiscal Year</div><div class="fld__val">{{ d.org.fy }}</div></div>
+    </div>
+  </div>
+</div>
+
+{# SECTION 2 - Primary Contact #}
+<div class="section">
+  <div class="section__head"><div class="section__head-l"><span class="section__num">2</span><h2>Primary Contact</h2></div></div>
+  <div class="section__body">
+    <div class="grid-2">
+      {% if mode == 'edit' %}
+        <div class="fld"><label class="fld__lbl">Name</label><input type="text" name="contact.name" value="{{ d.contact.name }}"></div>
+        <div class="fld"><label class="fld__lbl">Title</label><input type="text" name="contact.title" value="{{ d.contact.title }}"></div>
+        <div class="fld"><label class="fld__lbl">Email</label><input type="text" name="contact.email" value="{{ d.contact.email }}"></div>
+        <div class="fld"><label class="fld__lbl">Phone</label><input type="text" name="contact.phone" value="{{ d.contact.phone }}"></div>
+      {% else %}
+        <div class="fld"><div class="fld__lbl">Name</div><div class="fld__val">{{ d.contact.name }}</div></div>
+        <div class="fld"><div class="fld__lbl">Title</div><div class="fld__val">{{ d.contact.title }}</div></div>
+        <div class="fld"><div class="fld__lbl">Email</div><div class="fld__val">{{ d.contact.email }}</div></div>
+        <div class="fld"><div class="fld__lbl">Phone</div><div class="fld__val">{{ d.contact.phone }}</div></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{# SECTION 3 - Reporting Period #}
+<div class="section">
+  <div class="section__head"><div class="section__head-l"><span class="section__num">3</span><h2>Reporting Period</h2></div></div>
+  <div class="section__body">
+    <div class="grid-2">
+      {% if mode == 'edit' %}
+        <div class="fld"><label class="fld__lbl">Period start</label><input type="text" name="period.start" value="{{ d.period.start }}"></div>
+        <div class="fld"><label class="fld__lbl">Period end</label><input type="text" name="period.end" value="{{ d.period.end }}"></div>
+      {% else %}
+        <div class="fld"><div class="fld__lbl">Period start</div><div class="fld__val">{{ d.period.start }}</div></div>
+        <div class="fld"><div class="fld__lbl">Period end</div><div class="fld__val">{{ d.period.end }}</div></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{# SECTION 4 - Outcomes & Counts #}
+<div class="section">
+  <div class="section__head">
+    <div class="section__head-l"><span class="section__num">4</span><h2>Outcomes &amp; Counts</h2></div>
+    <div class="section__head-r"><span class="t-sm t-muted">Aggregate totals for the reporting period</span></div>
+  </div>
+  <div class="section__body">
+    <div class="grid-3">
+      {% if mode == 'edit' %}
+        <div class="fld"><label class="fld__lbl">Individuals served</label><input type="text" name="outcomes.individualsServed" value="{{ d.outcomes.individualsServed }}"></div>
+        <div class="fld"><label class="fld__lbl">Households served</label><input type="text" name="outcomes.householdsServed" value="{{ d.outcomes.householdsServed }}"></div>
+        <div class="fld"><label class="fld__lbl">Employment outcomes</label><input type="text" name="outcomes.employment" value="{{ d.outcomes.employment }}"></div>
+        <div class="fld"><label class="fld__lbl">Education outcomes</label><input type="text" name="outcomes.education" value="{{ d.outcomes.education }}"></div>
+        <div class="fld"><label class="fld__lbl">Housing stabilized</label><input type="text" name="outcomes.housingStabilized" value="{{ d.outcomes.housingStabilized }}"></div>
+        <div class="fld"><label class="fld__lbl">Food security</label><input type="text" name="outcomes.foodSecurity" value="{{ d.outcomes.foodSecurity }}"></div>
+      {% else %}
+        <div class="fld"><div class="fld__lbl">Individuals served</div><div class="fld__val">{{ d.outcomes.individualsServed }}</div></div>
+        <div class="fld"><div class="fld__lbl">Households served</div><div class="fld__val">{{ d.outcomes.householdsServed }}</div></div>
+        <div class="fld"><div class="fld__lbl">Employment outcomes</div><div class="fld__val">{{ d.outcomes.employment }}</div></div>
+        <div class="fld"><div class="fld__lbl">Education outcomes</div><div class="fld__val">{{ d.outcomes.education }}</div></div>
+        <div class="fld"><div class="fld__lbl">Housing stabilized</div><div class="fld__val">{{ d.outcomes.housingStabilized }}</div></div>
+        <div class="fld"><div class="fld__lbl">Food security</div><div class="fld__val">{{ d.outcomes.foodSecurity }}</div></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{# SECTION 5 - Services Provided #}
+<div class="section">
+  <div class="section__head"><div class="section__head-l"><span class="section__num">5</span><h2>Services Provided</h2></div></div>
+  <div class="section__body">
+    {% if mode == 'edit' %}
+      <div class="fld fld--full"><label class="fld__lbl">Services provided narrative</label><textarea name="services" rows="3">{{ d.services }}</textarea></div>
+    {% else %}
+      <div class="fld fld--full"><div class="fld__lbl">Services provided narrative</div><div class="fld__val">{{ d.services }}</div></div>
+    {% endif %}
+  </div>
+</div>
+
+{# SECTION 6 - Attestation (staff-locked) #}
+<div class="section section--locked">
+  <div class="section__head">
+    <div class="section__head-l"><span class="section__num">6</span><h2>Attestation</h2><span class="section__lockchip">Recipient-only</span></div>
+    <div class="section__head-r"><span class="tag tag--success tag--sm">Acknowledged</span></div>
+  </div>
+  <div class="section__body">
+    <p class="form-attest">The undersigned attests that all reported data is accurate to the best of their knowledge.</p>
+    <div class="fld is-locked"><div class="fld__lbl">Acknowledged by</div><div class="fld__val">{{ d.attestation.ackBy }} &middot; {{ d.attestation.ackAt }}</div></div>
+  </div>
+  <div class="section__lockednote">Federal Staff cannot edit attestation content per REQ-043.</div>
+</div>

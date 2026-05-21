@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+{% include "staff_review/_chrome.html" %}
+
+<div class="app__body">
+
+  {# Breadcrumb #}
+  <div class="ph">
+    <div class="ph__crumbs">
+      <a href="{% url 'staff_review:inbox' %}">Submissions</a>
+      <span class="ph__sep">&rsaquo;</span>
+      <a href="{% url 'staff_review:submission_detail' sub_id=sub.id %}">{{ sub.data.org.name }}</a>
+      <span class="ph__sep">&rsaquo;</span>
+      <span>Return for revision</span>
+    </div>
+    <div class="ph__row">
+      <div>
+        <h1 class="ph__title">Return for revision</h1>
+        <div class="ph__meta">{{ sub.data.org.name }} &middot; {{ fd.short }} &middot; {{ sub.fy }}</div>
+      </div>
+    </div>
+  </div>
+
+  {# One-return warning #}
+  <div class="alert alert--danger">
+    <div class="alert__icon">!</div>
+    <div class="alert__body">
+      <h4 class="alert__title">One return only</h4>
+      <div class="alert__text">CORE allows <strong>one return per submission</strong> (REQ-024). After {{ sub.data.org.name }} resubmits, your only remaining actions will be <strong>Accept</strong> or <strong>Close without acceptance</strong>. Make sure every item the recipient needs to address is captured below.</div>
+    </div>
+  </div>
+
+  <form method="post" action="{% url 'staff_review:return_send' sub_id=sub.id %}">
+    {% csrf_token %}
+
+    <div class="layout layout--detail">
+      <div class="layout__main">
+
+        {# Review items #}
+        <div class="card card--builder">
+          <div class="card__head card__head--builder">
+            <div>
+              <h3>Review items</h3>
+              <div class="t-sm t-muted">Minimum 1 item. Each becomes a discrete item the recipient must acknowledge before resubmit (REQ-023). Functional parity with the current review memo (REQ-044).</div>
+            </div>
+          </div>
+          <div class="card__body" id="items-container">
+            {# Render up to N items (initial render: 3 blank slots) #}
+            {% for i in "12345"|make_list %}
+              <div class="ri-edit">
+                <div class="ri-edit__num">{{ forloop.counter }}</div>
+                <div class="ri-edit__body">
+                  <div class="ri-edit__loc">
+                    <label class="select">
+                      <span class="select__lbl">Section</span>
+                      <select name="item-{{ forloop.counter }}-section">
+                        <option value="">--</option>
+                        {% for s in sections %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+                      </select>
+                    </label>
+                    <input type="text" class="ri-edit__field" name="item-{{ forloop.counter }}-field" placeholder="Optional: field name (e.g., 'Administrative budget')">
+                  </div>
+                  <textarea class="textarea" name="item-{{ forloop.counter }}-text" placeholder="{% if forloop.first %}Describe what the recipient needs to address. Be specific -- cite policy where applicable. Avoid yes/no questions.{% else %}(optional: another review item){% endif %}"></textarea>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        {# Summary #}
+        <div class="card" style="margin-top: 12px;">
+          <div class="card__head card__head--builder">
+            <div>
+              <h3>Summary note (optional)</h3>
+              <div class="t-sm t-muted">A short overview message that opens the return email. Not a substitute for review items.</div>
+            </div>
+          </div>
+          <div class="card__body">
+            <textarea name="summary" class="textarea textarea--summary" placeholder="Optional -- e.g., 'Overall in good shape, three items below to address. Reach out if any are unclear.'"></textarea>
+          </div>
+        </div>
+
+        {# What happens callout #}
+        <div class="alert alert--warning" style="margin-top: 12px;">
+          <div class="alert__icon">!</div>
+          <div class="alert__body">
+            <h4 class="alert__title">What happens when you send this back</h4>
+            <ul class="alert__list">
+              <li>Status flips to <strong>Returned</strong>. All Recipient users at {{ sub.data.org.name }} receive an email (REQ-041).</li>
+              {% if sub.data.ao %}<li>AO Signature is <strong>cleared</strong>. The AO must re-sign before the recipient can resubmit (REQ-042).</li>{% endif %}
+              <li>Each item must be individually acknowledged by the recipient before they can submit again (REQ-023).</li>
+              <li>The original submission record is preserved read-only in the audit trail (REQ-035).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {# Right rail #}
+      <div class="layout__side">
+        <div class="rail">
+          <div class="rail__head">Submission</div>
+          <div class="rail__body">
+            <div class="rail__item"><div class="rail__k">Organization</div><div class="rail__v">{{ sub.data.org.name }}</div></div>
+            <div class="rail__item"><div class="rail__k">UEI</div><div class="rail__v"><code>{{ sub.data.org.uei }}</code></div></div>
+            <div class="rail__item"><div class="rail__k">Region &middot; State</div><div class="rail__v">{{ sub.data.org.region }} &middot; {{ sub.data.org.state }}</div></div>
+            <div class="rail__item"><div class="rail__k">Form</div><div class="rail__v">{{ fd.short }}</div></div>
+            <div class="rail__item"><div class="rail__k">Submitted</div><div class="rail__v">{{ sub.submitted }}</div></div>
+          </div>
+        </div>
+
+        <div class="rail">
+          <div class="rail__head">Will be notified</div>
+          <div class="rail__body">
+            <div class="rail__item">
+              <div class="rail__k">Primary contact</div>
+              <div class="rail__v">
+                <div>{{ sub.data.contact.name }}</div>
+                <div class="t-xs t-muted">{{ sub.data.contact.email }}</div>
+              </div>
+            </div>
+            {% if sub.data.ao %}
+              <div class="rail__item">
+                <div class="rail__k">Authorized Official</div>
+                <div class="rail__v">
+                  <div>{{ sub.data.ao.name }}</div>
+                  <div class="t-xs t-muted">{{ sub.data.ao.email }}</div>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="sticky-actions">
+          <a href="{% url 'staff_review:submission_detail' sub_id=sub.id %}" class="btn btn--ghost btn--full">Cancel</a>
+          <button type="submit" class="btn btn--full">Send back to recipient</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

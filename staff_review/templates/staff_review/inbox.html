@@ -137,7 +137,7 @@
           </td>
           <td class="text-right text-bold font-mono-sm">{{ s.days_in }}d</td>
           <td class="text-right">
-            <a href="#/sub/{{ s.id }}" class="usa-button usa-button--unstyled text-bold">Open &rarr;</a>
+            <a href="{% url 'staff_review:submission_detail' sub_id=s.id %}" class="usa-button usa-button--unstyled text-bold">Open &rarr;</a>
           </td>
         </tr>
         {% endfor %}

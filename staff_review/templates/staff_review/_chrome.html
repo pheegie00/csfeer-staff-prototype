@@ -1,0 +1,48 @@
+{% load static %}
+{# Shared chrome for staff_review pages: pulls in the prototype's USWDS-derived stylesheet so production templates render with the same visual language as the React prototype. Phase 3: extract these styles into the project's main SCSS pipeline. #}
+
+<link rel="stylesheet" href="{% static 'staff_prototype/styles.css' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+
+{# Gov banner + App header, ported from prototype #}
+<div class="usgov-stripe">
+  <div class="usgov-stripe__flag" aria-hidden="true">US</div>
+  <span>An official website of the United States government</span>
+</div>
+<header class="app-header">
+  <a href="{% url 'staff_review:inbox' %}" class="app-header__brand" style="text-decoration:none;color:inherit;">
+    <div class="app-header__logo">C</div>
+    <div>
+      <div class="app-header__title">CORE</div>
+      <div class="app-header__subtitle">Community Outcomes Reporting Engine &middot; OCS</div>
+    </div>
+  </a>
+  <nav class="app-header__nav">
+    <a href="{% url 'staff_review:inbox' %}" class="active">Submissions</a>
+    <a href="#">Form templates</a>
+    <a href="#">Exports</a>
+    <a href="#">Help</a>
+  </nav>
+  <div class="app-header__user">
+    <button class="iconbtn" title="Notifications">&#9993;<span class="iconbtn__dot"></span></button>
+    <div class="app-header__avatar">
+      <div class="avatar">{{ user.initials|default:"MR" }}</div>
+      <div class="app-header__meta">
+        <div>{{ user.name|default:"Maya Rodriguez" }}</div>
+        <div class="t-muted t-xs">{{ user.role|default:"Federal Staff" }}</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+{# Django message stream rendered as USWDS-style toasts #}
+{% if messages %}
+  {% for m in messages %}
+    <div class="toast {% if m.tags == 'success' %}toast--success{% elif m.tags == 'error' %}toast--info{% else %}toast--info{% endif %}" style="position: static; transform: none; left: auto; bottom: auto; margin: 8px auto; max-width: 1640px;">
+      <span class="toast__icon">{% if m.tags == 'success' %}OK{% else %}i{% endif %}</span>
+      <span>{{ m }}</span>
+    </div>
+  {% endfor %}
+{% endif %}

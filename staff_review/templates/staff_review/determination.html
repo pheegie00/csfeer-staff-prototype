@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+{% include "staff_review/_chrome.html" %}
+
+<div class="app__body">
+
+  <div class="ph">
+    <div class="ph__crumbs">
+      <a href="{% url 'staff_review:inbox' %}">Submissions</a>
+      <span class="ph__sep">&rsaquo;</span>
+      <a href="{% url 'staff_review:submission_detail' sub_id=sub.id %}">{{ sub.data.org.name }}</a>
+      <span class="ph__sep">&rsaquo;</span>
+      <span>Record final determination</span>
+    </div>
+    <div class="ph__row">
+      <div>
+        <h1 class="ph__title">Record final determination</h1>
+        <div class="ph__meta">{{ sub.data.org.name }} &middot; {{ fd.short }} &middot; {{ sub.fy }} &middot; Submitted {{ sub.submitted }} &middot; Returns {{ sub.returns }} of 1</div>
+      </div>
+    </div>
+  </div>
+
+  <form method="post" action="{% url 'staff_review:determination_record' sub_id=sub.id %}" id="det-form">
+    {% csrf_token %}
+
+    <div class="layout layout--detail">
+      <div class="layout__main">
+
+        <div class="card">
+          <div class="card__body">
+            <label class="radio-card is-selected is-selected--success" for="outcome-accept">
+              <input type="radio" id="outcome-accept" name="outcome" value="Accepted" checked style="position:absolute;opacity:0;">
+              <div class="radio-card__dot"></div>
+              <div>
+                <h4>&#10003; Accept submission</h4>
+                <p>Form data is finalized and locked from all further edits. Recipient is notified. Available for CSV export and downstream reporting (REQ-027).</p>
+              </div>
+            </label>
+
+            <label class="radio-card" for="outcome-close">
+              <input type="radio" id="outcome-close" name="outcome" value="Closed" style="position:absolute;opacity:0;">
+              <div class="radio-card__dot"></div>
+              <div>
+                <h4>&times; Close without acceptance</h4>
+                <p>Submission is closed; data preserved for the record but not counted as accepted for this fiscal year. Recipient is notified. Use for withdrawals, organizational changes, or persistent quality issues.</p>
+              </div>
+            </label>
+
+            <div class="fld fld--full" style="margin-top: 16px;">
+              <label class="fld__lbl" for="notes">Determination notes</label>
+              <textarea id="notes" name="notes" class="textarea" placeholder="Required if closing without acceptance. Otherwise optional -- note anything worth carrying forward (e.g., 'All review items resolved on resubmit. AO re-signed 5/16.')"></textarea>
+              <div class="fld__hint">Stored with the determination record. Visible to recipient and in the activity log.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert--warning" style="margin-top: 12px;">
+          <div class="alert__icon">!</div>
+          <div class="alert__body">
+            <h4 class="alert__title">This action is final</h4>
+            <div class="alert__text">Per REQ-026, the submission is locked from <strong>all further edits by every user</strong>. If anything needs correcting, use <em>Edit on behalf</em> before recording the determination.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="layout__side">
+        <div class="rail">
+          <div class="rail__head">Submission</div>
+          <div class="rail__body">
+            <div class="rail__item"><div class="rail__k">Organization</div><div class="rail__v">{{ sub.data.org.name }}</div></div>
+            <div class="rail__item"><div class="rail__k">UEI</div><div class="rail__v"><code>{{ sub.data.org.uei }}</code></div></div>
+            <div class="rail__item"><div class="rail__k">Form</div><div class="rail__v">{{ fd.short }}</div></div>
+            <div class="rail__item"><div class="rail__k">Submitted</div><div class="rail__v">{{ sub.submitted }}</div></div>
+            <div class="rail__item"><div class="rail__k">Returns used</div><div class="rail__v">{{ sub.returns }} of 1</div></div>
+          </div>
+        </div>
+
+        <div class="sticky-actions">
+          <a href="{% url 'staff_review:submission_detail' sub_id=sub.id %}" class="btn btn--ghost btn--full">Cancel</a>
+          <button type="submit" class="btn btn--full">Record determination</button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <script>
+    // Toggle radio-card visual selection
+    document.querySelectorAll('.radio-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const radio = card.querySelector('input[type=radio]');
+        radio.checked = true;
+        document.querySelectorAll('.radio-card').forEach(c => {
+          c.classList.remove('is-selected', 'is-selected--success', 'is-selected--danger');
+        });
+        if (radio.value === 'Accepted') card.classList.add('is-selected', 'is-selected--success');
+        else card.classList.add('is-selected', 'is-selected--danger');
+      });
+    });
+  </script>
+</div>
+{% endblock %}

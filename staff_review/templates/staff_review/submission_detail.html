@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+{% include "staff_review/_chrome.html" %}
+
+<div class="app__body">
+
+  {# ===== Breadcrumb ===== #}
+  <div class="ph">
+    <div class="ph__crumbs">
+      <a href="{% url 'staff_review:inbox' %}">Submissions</a>
+      <span class="ph__sep">&rsaquo;</span>
+      <span>{{ d.org.name }}</span>
+      <span class="ph__sep">&rsaquo;</span>
+      <span>{% if mode == 'edit' %}Edit on behalf{% else %}{{ fd.short }}{% endif %}</span>
+    </div>
+  </div>
+
+  {# ===== Mode-specific banners ===== #}
+  {% if mode == 'edit' %}
+    <div class="alert alert--warning">
+      <div class="alert__icon">&#9998;</div>
+      <div class="alert__body">
+        <h4 class="alert__title">You are editing on behalf of {{ d.org.name }}</h4>
+        <div class="alert__text">Every change is logged. You'll be asked for a rationale before saving (REQ-043). <strong>Attestation</strong> and <strong>AO Signature</strong> are restricted to recipients -- staff cannot edit those fields.</div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if final_review_only and mode == 'review' %}
+    <div class="alert alert--info">
+      <div class="alert__icon">i</div>
+      <div class="alert__body">
+        <h4 class="alert__title">Final review -- one return already used</h4>
+        <div class="alert__text">This submission has been returned once already. Per REQ-024, your only remaining actions are <strong>Accept</strong> or <strong>Close without acceptance</strong>. A second return is not available.</div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if resolved %}
+    <div class="alert alert--{% if sub.status == 'Accepted' %}success{% else %}neutral{% endif %}">
+      <div class="alert__icon">{% if sub.status == 'Accepted' %}&#10003;{% else %}&times;{% endif %}</div>
+      <div class="alert__body">
+        <h4 class="alert__title">{% if sub.status == 'Accepted' %}Accepted{% else %}Closed without acceptance{% endif %} &middot; {{ sub.determination.when }} by {{ sub.determination.by }}</h4>
+        <div class="alert__text">
+          Locked from all edits (REQ-026). Record retained indefinitely (REQ-035).
+          {% if sub.determination.notes %}<div class="mt-1"><em>"{{ sub.determination.notes }}"</em></div>{% endif %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {# ===== Sticky action bar ===== #}
+  <div class="actionbar {% if resolved %}actionbar--locked{% endif %} {% if mode == 'edit' %}actionbar--edit{% endif %}">
+    <div class="actionbar__left">
+      <span class="tag tag--{{ status_meta.variant }} tag--dot">{{ sub.status }}</span>
+      <div>
+        <div class="actionbar__org">{{ d.org.name }}</div>
+        <div class="actionbar__sub t-sm t-muted">
+          {% if resolved %}
+            {{ fd.short }} &middot; {{ sub.fy }} &middot; {{ sub.returns }} return{{ sub.returns|pluralize }} &middot; {{ sub.days_in }}d cycle
+          {% elif sub.status == 'Returned' %}
+            {{ fd.short }} &middot; {{ sub.fy }} &middot; Returned {{ sub.returned_at }} &middot; {{ sub.return_items|length }} item{{ sub.return_items|length|pluralize }} &middot; {{ ack_count }} of {{ sub.return_items|length }} acknowledged
+          {% elif mode == 'edit' %}
+            {{ pending_count }} pending edit{{ pending_count|pluralize }}. Make changes, then save with rationale.
+          {% else %}
+            {{ fd.short }} &middot; {{ sub.fy }} &middot; Submitted {{ sub.submitted }} &middot; Returns {{ sub.returns }} / 1 &middot; {{ sub.days_in }}d in queue
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="actionbar__right">
+      {% if resolved %}
+        <span class="t-sm t-muted mr-2">All actions locked</span>
+      {% elif sub.status == 'Returned' %}
+        <button class="btn btn--ghost btn--sm">Email recipient</button>
+        <button class="btn btn--outline btn--sm" disabled>Awaiting resubmit &amp; resignature</button>
+      {% elif mode == 'edit' %}
+        <a href="{% url 'staff_review:submission_detail' sub_id=sub.id %}" class="btn btn--ghost btn--sm">Exit edit mode</a>
+      {% else %}
+        <button class="btn btn--ghost btn--sm">View as recipient</button>
+        <button class="btn btn--ghost btn--sm">Download PDF</button>
+        {% if can_edit %}
+          <a href="{% url 'staff_review:submission_edit' sub_id=sub.id %}" class="btn btn--outline">Edit on behalf</a>
+        {% endif %}
+        {% if can_return %}
+          <a href="{% url 'staff_review:return_builder' sub_id=sub.id %}" class="btn btn--outline">Return for revision</a>
+        {% endif %}
+        {% if can_determine %}
+          <a href="{% url 'staff_review:determination' sub_id=sub.id %}" class="btn">Make determination</a>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+
+  {# ===== Layout: form (main) + rail (side) ===== #}
+  <div class="layout layout--detail">
+    <div class="layout__main">
+
+      {# Returned-state acknowledgement panel #}
+      {% if sub.status == 'Returned' %}
+        <div class="card card--returned">
+          <div class="returned__hd">
+            <div>
+              <h3>Returned &middot; awaiting resubmit</h3>
+              <div class="t-sm t-muted">Returned {{ sub.returned_at }} &middot; {{ sub.return_items|length }} items &middot; {{ ack_count }} of {{ sub.return_items|length }} acknowledged &middot; AO {% if d.ao.signed %}re-signed{% else %}has not re-signed{% endif %}</div>
+            </div>
+          </div>
+          {% if sub.return_summary %}
+            <div class="returned__summary">
+              <div class="returned__summary-lbl">Summary note sent</div>
+              <div class="returned__summary-txt">"{{ sub.return_summary }}"</div>
+            </div>
+          {% endif %}
+          <div class="returned__items">
+            {% for ri in sub.return_items %}
+              <div class="ack-row {% if ri.ack %}is-ack{% endif %}">
+                <div class="ack-row__indicator">
+                  <div class="ack-dot {% if ri.ack %}is-ack{% endif %}">{% if ri.ack %}&#10003;{% else %}{{ forloop.counter }}{% endif %}</div>
+                </div>
+                <div class="ack-row__body">
+                  <div class="ack-row__loc">{{ ri.section_label }}{% if ri.field_label %} &middot; {{ ri.field_label }}{% endif %}</div>
+                  <div class="ack-row__txt">{{ ri.text }}</div>
+                  {% if ri.ack %}
+                    <div class="ack-row__resp">
+                      <div class="ack-row__resp-lbl">Recipient response &middot; {{ ri.ack.when }}</div>
+                      <div>"{{ ri.ack.response }}"</div>
+                      <div class="t-xs t-muted">Acknowledged by {{ ri.ack.by }}</div>
+                    </div>
+                  {% else %}
+                    <div class="ack-row__wait">Waiting for acknowledgement &middot; sent {{ sub.returned_at }}</div>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {# ===== FORM (mode-aware: review or edit) ===== #}
+      <form method="post" action="{% url 'staff_review:submission_save_edit' sub_id=sub.id %}">
+        {% csrf_token %}
+        {% if sub.form_type == 'tribal-plan' %}
+          {% include "staff_review/_form_tribal_plan.html" %}
+        {% else %}
+          {% include "staff_review/_form_annual_report_short.html" %}
+        {% endif %}
+
+        {# In edit mode, show sticky bottom action: stage edits or open rationale #}
+        {% if mode == 'edit' %}
+          <div class="card" style="position: sticky; bottom: 16px; margin-top: 16px;">
+            <div class="card__body" style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+              <div class="t-sm t-muted">
+                {% if has_pending %}{{ pending_count }} pending edit{{ pending_count|pluralize }} staged{% else %}Make changes above, then stage them{% endif %}
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button type="submit" class="btn btn--ghost">Stage edits</button>
+                <a href="{% url 'staff_review:submission_detail' sub_id=sub.id %}" class="btn btn--ghost">Discard</a>
+                {% if has_pending %}
+                  <a href="#rationale-form" class="btn">Save with rationale ({{ pending_count }})</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </form>
+
+      {# Rationale form, shown below in edit mode when there are pending edits #}
+      {% if mode == 'edit' and has_pending %}
+        <div id="rationale-form" class="card" style="margin-top: 16px; border-left: 4px solid var(--primary);">
+          <div class="card__head">
+            <h3>Add a rationale for these edits</h3>
+            <span class="tag tag--primary tag--sm">{{ pending_count }} field{{ pending_count|pluralize }}</span>
+          </div>
+          <div class="card__body">
+            <div class="rat__changes" style="margin-bottom: 14px;">
+              <div class="rat__changes-hd">Changes that will be saved together:</div>
+              <ul class="rat__changes-list">
+                {% for path, change in pending.items %}
+                  <li>
+                    <div class="rat__path">{{ path }}</div>
+                    <div class="rat__diff">
+                      <span class="rat__from">{{ change.original }}</span>
+                      <span class="rat__arrow">&rarr;</span>
+                      <span class="rat__to">{{ change.value }}</span>
+                    </div>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+
+            <form method="post" action="{% url 'staff_review:rationale' sub_id=sub.id %}">
+              {% csrf_token %}
+              <div class="fld fld--full">
+                <label class="fld__lbl" for="rationale">Rationale <span class="req">*</span></label>
+                <textarea id="rationale" name="rationale" class="textarea textarea--rationale" placeholder="Explain why these changes are needed. Include context (call notes, emails, etc.) where helpful." required></textarea>
+                <div class="fld__hint">Plain text only &middot; min 1 character &middot; cannot be edited after save</div>
+              </div>
+              <div class="rat__lock">
+                <strong>Restricted fields not edited:</strong> AO Signature and Attestation of Assurances are off-limits to Federal Staff (REQ-043).
+              </div>
+              <div style="margin-top:14px;text-align:right;">
+                <a href="{% url 'staff_review:submission_detail' sub_id=sub.id %}" class="btn btn--ghost">Cancel</a>
+                <button type="submit" class="btn">Save {{ pending_count }} edit{{ pending_count|pluralize }} with rationale</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      {% endif %}
+
+    </div>
+
+    {# ===== Right rail ===== #}
+    <div class="layout__side">
+      <div class="rail">
+        <div class="rail__head">Submission</div>
+        <div class="rail__body">
+          <div class="rail__item"><div class="rail__k">Organization</div><div class="rail__v">{{ d.org.name }}</div></div>
+          <div class="rail__item"><div class="rail__k">UEI</div><div class="rail__v"><code>{{ d.org.uei }}</code></div></div>
+          <div class="rail__item"><div class="rail__k">Region &middot; State</div><div class="rail__v">{{ d.org.region }} &middot; {{ d.org.state }}</div></div>
+          <div class="rail__item"><div class="rail__k">Form</div><div class="rail__v">{{ fd.short }}</div></div>
+          <div class="rail__item"><div class="rail__k">Fiscal Year</div><div class="rail__v">{{ sub.fy }}</div></div>
+          <div class="rail__item"><div class="rail__k">Submitted</div><div class="rail__v">{{ sub.submitted }}</div></div>
+          <div class="rail__item"><div class="rail__k">Returns</div><div class="rail__v">{{ sub.returns }} of 1 allowed</div></div>
+        </div>
+      </div>
+
+      <div class="rail">
+        <div class="rail__head">Recipient contacts</div>
+        <div class="rail__body">
+          {% if d.ao %}
+            <div class="rail__item">
+              <div class="rail__k">Authorized Official</div>
+              <div class="rail__v">
+                <div>{{ d.ao.name }}</div>
+                <div class="t-xs t-muted">{{ d.ao.title }}</div>
+                <div class="t-xs t-muted">{{ d.ao.email }}</div>
+              </div>
+            </div>
+          {% endif %}
+          <div class="rail__item">
+            <div class="rail__k">Primary contact</div>
+            <div class="rail__v">
+              <div>{{ d.contact.name }}</div>
+              <div class="t-xs t-muted">{{ d.contact.title }}</div>
+              <div class="t-xs t-muted">{{ d.contact.email }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if sub.return_items %}
+        <div class="rail">
+          <div class="rail__head">Review items ({{ ack_count }} of {{ sub.return_items|length }} ack'd)</div>
+          <div class="rail__body">
+            {% for ri in sub.return_items %}
+              <div class="ri-mini">
+                <div class="ri-mini__num">{{ forloop.counter }}</div>
+                <div>
+                  <div class="ri-mini__section">{{ ri.section_label }}</div>
+                  <div class="ri-mini__status {% if ri.ack %}is-ack{% endif %}">
+                    {% if ri.ack %}Acknowledged {{ ri.ack.when }}{% else %}Waiting for ack{% endif %}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {# Activity log (inline accordion -- prototype has a drawer) #}
+      <details class="rail-link">
+        <summary style="cursor:pointer;display:flex;justify-content:space-between;width:100%;">
+          <span>View full activity log</span>
+          <span>&rarr;</span>
+        </summary>
+        <div style="padding:8px 14px 14px;">
+          {% for e in sub.events %}
+            <div class="log log--{{ e.kind|default:'event' }}">
+              <div class="log__dot"></div>
+              <div class="log__col">
+                <div class="log__when">{{ e.when }}</div>
+                <div class="log__who">
+                  <span class="log__name">{{ e.who }}</span>
+                  <span class="log__role">{{ e.who_role }}</span>
+                </div>
+                <div class="log__what">{{ e.action }}</div>
+                {% if e.notes %}<div class="log__notes">{{ e.notes }}</div>{% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+{% endblock %}
