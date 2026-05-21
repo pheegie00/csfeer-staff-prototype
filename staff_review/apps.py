@@ -14,3 +14,8 @@ class StaffReviewConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "staff_review"
     verbose_name = "Staff Review (production)"
+
+    def ready(self):
+        # Wire audit signal handlers (CORE-21, CORE-36).
+        # Importing the module is enough -- decorators register the receivers.
+        from staff_review import signals  # noqa: F401

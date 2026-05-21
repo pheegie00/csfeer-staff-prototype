@@ -29,6 +29,7 @@ from django.views import View
 from django.views.generic import TemplateView
 
 from form_manager.models.forms import FormAuditDetail, FormAuditTrail, FormDefinition, FormEntry
+from staff_review.audit_models import SystemEvent
 from staff_review.management.commands.seed_demo_data import stable_uuid
 from staff_review.models import FormReturn, FormReturnItem
 from staff_review.permissions import StaffRequiredMixin, staff_queryset_filter
@@ -859,6 +860,21 @@ class CSVExportView(StaffRequiredMixin, View):
                 contact.get("phone", ""),
             ])
 
+        # CORE-36: log the export as a system event
+        SystemEvent.objects.create(
+            kind="export_csv",
+            actor=request.user if request.user.is_authenticated else None,
+            ip_address=(request.META.get("HTTP_X_FORWARDED_FOR", "").split(",")[0].strip()
+                        or request.META.get("REMOTE_ADDR")),
+            user_agent=request.META.get("HTTP_USER_AGENT", "")[:512],
+            detail={
+                "form_definition_id": str(form_def.id),
+                "form_name": form_def.name,
+                "fiscal_year": fy,
+                "row_count": len(entries),
+            },
+            notes=f"CSV export: {form_def.name} / {fy} -- {len(entries)} resolved row{'s' if len(entries) != 1 else ''}",
+        )
         return resp
 
 
