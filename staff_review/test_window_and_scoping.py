@@ -75,7 +75,12 @@ class FormScopingTest(TestCase):
     def setUpTestData(cls):
         call_command("seed_demo_data", verbosity=0)
         cls.csbg = Program.objects.get(code="CSBG")
-        cls.form_def = FormDefinition.objects.filter(program=cls.csbg).first()
+        # Pick the Tribal Plan specifically -- post-seed-expansion there are
+        # multiple CSBG forms with different scopings; the tribal plan is the
+        # one seeded with scope_to_org_types=["tribe"].
+        cls.form_def = FormDefinition.objects.get(
+            program=cls.csbg, name="CSBG Model Tribal Plan", variant="1.0.0",
+        )
         cls.scoping = cls.form_def.scoping  # seeded with scope_to_org_types=["tribe"]
 
         state_ok = State.objects.get(code="OK")

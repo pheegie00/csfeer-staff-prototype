@@ -56,17 +56,19 @@ class FormDefinitionBackfillTest(TestCase):
     def setUpTestData(cls):
         call_command("seed_demo_data", verbosity=0)
 
-    def test_all_form_definitions_attributed_to_csbg(self):
-        csbg = Program.objects.get(code="CSBG")
-        # seed_demo_data creates Tribal Plan + AR Short under CSBG
+    def test_all_form_definitions_attributed_to_a_program(self):
+        # After seed expansion (Phase II + 6 other OCS programs), every form
+        # has SOME program -- the strict "all CSBG" assumption no longer holds.
         forms = FormDefinition.objects.all()
         self.assertGreater(forms.count(), 0)
         for fd in forms:
-            self.assertEqual(fd.program, csbg, f"{fd.name} should be CSBG-scoped")
+            self.assertIsNotNone(fd.program, f"{fd.name} should be attributed to a program")
 
-    def test_cycle_type_defaults_to_annual(self):
+    def test_cycle_type_in_valid_set(self):
+        # The expanded seed includes annual + quarterly + ad_hoc cycles.
+        valid = {c[0] for c in FormDefinition.CYCLE_TYPES}
         for fd in FormDefinition.objects.all():
-            self.assertEqual(fd.cycle_type, "annual")
+            self.assertIn(fd.cycle_type, valid)
 
 
 @override_settings(MIDDLEWARE=_TEST_MIDDLEWARE)

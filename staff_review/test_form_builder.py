@@ -35,20 +35,22 @@ class FormBuilderProgramScopingTest(TestCase):
         cls.csbg = Program.objects.get(code="CSBG")
         cls.tanf = Program.objects.get(code="TANF")
 
-        # Add a TANF-scoped form (reusing a valid choice from constants)
+        # Add a TANF-scoped form. Use variant 9.0.0 to avoid colliding with
+        # the seed migration which creates CSBG Annual Report 3.0 (States)
+        # at variant 1.0.0.
         cls.tanf_form = FormDefinition.objects.create(
-            name=CSBGAnnualReportForms.STATES_ANNUAL_REPORT_3_0.value,  # placeholder; valid choice
-            variant="1.0.0",
+            name=CSBGAnnualReportForms.STATES_ANNUAL_REPORT_3_0.value,
+            variant="9.0.0",
             program=cls.tanf,
             family=FormFamilies.CSBG_ANNUAL_REPORT.value,
             schema={}, schema_class="TANFDemo", is_active=True,
             cycle_type="quarterly",
         )
 
-        # A shared form (e.g., SF-424 stand-in)
+        # A shared form (e.g., SF-424 stand-in). Variant 9.0.0 for same reason.
         cls.shared_form = FormDefinition.objects.create(
-            name=CSBGAnnualReportForms.ENTITITES_ANNUAL_REPORT_3_0.value,  # valid choice
-            variant="1.0.0",
+            name=CSBGAnnualReportForms.ENTITITES_ANNUAL_REPORT_3_0.value,
+            variant="9.0.0",
             family=FormFamilies.CSBG_ANNUAL_REPORT.value,
             schema={}, schema_class="SharedDemo", is_active=True,
             is_shared=True,
@@ -60,18 +62,19 @@ class FormBuilderProgramScopingTest(TestCase):
         c.force_login(user)
         return c
 
-    def test_csbg_user_sees_only_csbg_owned_forms(self):
-        # Maya is assigned to CSBG only -- should NOT see TANF form in 'owned'
+    def test_ocs_user_sees_only_ocs_owned_forms(self):
+        # Maya is assigned to all OCS programs -- should see CSBG/LIHEAP/etc.
+        # but NOT see TANF form (OFA office) in 'owned'.
         c = self._client(self.staff_user)
         resp = c.get("/staff/form-builder/")
         self.assertEqual(resp.status_code, 200)
         owned_forms = resp.context["owned_forms"]
         for fd in owned_forms:
             self.assertEqual(
-                fd.program.code, "CSBG",
-                f"{fd.name} should be CSBG-scoped (Maya only manages CSBG)"
+                fd.program.office.code, "OCS",
+                f"{fd.name} should be OCS-scoped (Maya only manages OCS programs)"
             )
-        # TANF form should NOT appear in owned list
+        # TANF form (OFA) should NOT appear in owned list
         self.assertNotIn(self.tanf_form, list(owned_forms))
 
     def test_shared_forms_visible_to_all_staff(self):

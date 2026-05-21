@@ -59,7 +59,12 @@ class PublishServiceTest(TestCase):
         call_command("seed_demo_data", verbosity=0)
         cls.staff_user = User.objects.get(email="m.rodriguez@acf.hhs.gov")
         cls.csbg = Program.objects.get(code="CSBG")
-        cls.source = FormDefinition.objects.filter(program=cls.csbg).first()
+        # Pick the Tribal Plan specifically (post-seed-expansion there are
+        # multiple CSBG forms; we want the one with scope_to_org_types=["tribe"]
+        # so the scope-clone assertion is meaningful).
+        cls.source = FormDefinition.objects.get(
+            program=cls.csbg, name="CSBG Model Tribal Plan", variant="1.0.0",
+        )
 
     def test_publish_creates_new_form_definition(self):
         new_fd, affected = publish_new_version(

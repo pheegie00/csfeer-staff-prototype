@@ -107,7 +107,9 @@ class SystemEventTest(TestCase):
         c.force_login(self.staff_user)
         # Need a form_def id with at least one resolved entry (s4 is Accepted)
         # The form_def for s4 (tribal-plan) is created by seed.
-        fd = FormDefinition.objects.get(name__icontains="Tribal Plan")
+        # Use exact name -- post-seed-expansion "Tribal Plan" also matches
+        # "LIHEAP Model State / Tribal Plan".
+        fd = FormDefinition.objects.get(name="CSBG Model Tribal Plan", variant="1.0.0")
         before = SystemEvent.objects.filter(kind="export_csv").count()
         resp = c.get(f"/staff/exports/csv/?form_type={fd.id}&fy=FY26")
         self.assertEqual(resp.status_code, 200)
