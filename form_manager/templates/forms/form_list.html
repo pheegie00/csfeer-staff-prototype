@@ -23,15 +23,31 @@
                 <c-card title="{{ d.name }}">
                   <c-card.header>
                     <h3 class="usa-card__heading">{{ d.name }}</h3>
+                    {# Batch H: window status badge (Open / Opens MM/DD / Closed). #}
+                    {% if d.window_state.badge_label %}
+                      <span class="usa-tag {% if d.window_state.badge_tone == 'error' %}bg-error{% elif d.window_state.badge_tone == 'warn' %}bg-warning{% else %}bg-info{% endif %}"
+                            title="{{ d.window_state.detail }}">
+                        {{ d.window_state.badge_label }}
+                      </span>
+                    {% endif %}
                   </c-card.header>
                   {% can_start_form request.user organization as can_start %}
 
-                  {% if can_start %}
+                  {% if can_start and d.window_state.can_start %}
                   <c-card.footer>
                     <a href="{% url 'form_start' d.id %}" class="usa-button width-full display-flex flex-align-center flex-justify-center">
                       <img src="{% static 'frontend/uswds/img/usa-icons/add_circle.svg' %}" class="usa-icon margin-right-05" aria-hidden="true" alt="" style="filter: brightness(0) invert(1);">
                       Start New Form
                     </a>
+                  </c-card.footer>
+                  {% elif can_start and not d.window_state.can_start %}
+                  <c-card.footer>
+                    <span class="usa-button usa-button--outline width-full display-flex flex-align-center flex-justify-center"
+                          aria-disabled="true"
+                          title="{{ d.window_state.detail }}"
+                          style="cursor: not-allowed; opacity: 0.6;">
+                      {% if d.window_state.status == 'upcoming' %}Not yet open{% else %}Window closed{% endif %}
+                    </span>
                   </c-card.footer>
                   {% endif %}
                 </c-card>

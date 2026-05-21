@@ -15,6 +15,12 @@ from form_manager.models import (
     FormDefinition,
     FormEntry,
 )
+from form_manager.scoping_filters import (
+    FormStartBlocked,
+    annotate_window_state,
+    assert_can_start_form,
+    forms_available_to_org,
+)
 from form_manager.utils import reconstruct_state
 from form_manager.views.base import BaseSingleFormView, FormPermissionMixin
 from organizations.models import OrganizationProfile
@@ -32,7 +38,18 @@ def form_list(request):
         else FormEntry.objects.none()
     )
     entries = annotate_active_editors(raw_entries)
-    definitions = FormDefinition.objects.filter(is_active=True)
+
+    # Batch H: only show templates this org is in scope for (CORE-22), and
+    # annotate each with its current-FY window state (CORE-25) so the
+    # template can render Open / Opens MM/DD / Closed badges.
+    if org is not None:
+        eligible = forms_available_to_org(
+            FormDefinition.objects.filter(is_active=True), org,
+        )
+        definitions = list(annotate_window_state(eligible))
+    else:
+        definitions = []
+
     return render(
         request,
         "forms/form_list.html",
@@ -52,6 +69,18 @@ def form_start(request, form_id: UUID):
         logger.info(f"{request.user} does not have permission to start forms for org {org.name}")
         return redirect("form_list")
     form_def = get_object_or_404(FormDefinition, id=form_id, is_active=True)
+
+    # Batch H: enforce scope + window before creating the FormEntry.
+    try:
+        assert_can_start_form(form_def, org)
+    except FormStartBlocked as blocked:
+        messages.error(request, blocked.message)
+        logger.info(
+            "form_start blocked for user=%s org=%s form=%s reason=%s",
+            request.user, org.name, form_def.name, blocked.reason_code,
+        )
+        return redirect("form_list")
+
     last = (
         FormEntry.objects.filter(organization=org, form_definition=form_def)
         .order_by("-version_number")
