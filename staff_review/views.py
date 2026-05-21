@@ -1,11 +1,15 @@
 """Views for staff_review (production federal-staff workflow).
 
-Phase 2 translation of the React handoff bundle into Django + USWDS.
-Mock data lives in staff_review.mock_data; Phase 3 replaces it with
-real Submission querysets.
+Phase 3 Step 1 wiring:
+- Mock_data still provides initial seed shape, but read paths query
+  the real DB (FormEntry / FormReturn / FormReturnItem) via get_submission_view().
+- Rationale flow (CORE-167) writes to FormAuditTrail + FormAuditDetail
+  and applies edits to FormEntry.data.
+- Inbox + detail views fall back to mock_data only if the DB hasn't been
+  seeded yet (e.g., fresh checkout before running `make seed-demo-data`).
 
 Screens implemented in this module:
-- Inbox (Table view only; Kanban/Card views are next)
+- Inbox (Table view only; Kanban/Card views still on backlog)
 - Submission detail (review mode)
 - Submission detail (edit-on-behalf mode)
 - Return for revision builder
@@ -13,13 +17,18 @@ Screens implemented in this module:
 - Determination flow (POST handler that locks submission)
 """
 
+import uuid
+
 from django.contrib import messages
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.views import View
 from django.views.generic import TemplateView
 
+from form_manager.models.forms import FormAuditDetail, FormAuditTrail, FormEntry
+from staff_review.management.commands.seed_demo_data import stable_uuid
 from staff_review.mock_data import (
     FORM_DEFS,
     STATUS_META,
@@ -31,6 +40,67 @@ from staff_review.mock_data import (
     get_submission,
     total_budget,
 )
+
+
+# ============================================================
+# DB ↔ mock_data bridge
+# ============================================================
+#
+# Demo state is stored in real DB rows (after running
+# `uv run python manage.py seed_demo_data`). Until then, views fall back
+# to in-memory mock_data so the app renders out-of-the-box.
+#
+# Each mock submission's stable id ('s1', 's2', ...) maps to a
+# deterministic FormEntry UUID via stable_uuid("form_entry", sub_id).
+#
+# Phase 3 Step 2+ will remove the mock_data fallback once seeding is
+# part of the local-dev setup script.
+
+def get_db_entry(sub_id):
+    """Return the real FormEntry for a mock sub_id, or None if not seeded."""
+    try:
+        return FormEntry.objects.select_related("organization", "form_definition", "determined_by").get(
+            id=stable_uuid("form_entry", sub_id)
+        )
+    except FormEntry.DoesNotExist:
+        return None
+
+
+def apply_db_overlay(mock_sub):
+    """Layer DB-applied edits + status changes onto a mock submission.
+
+    If a real FormEntry exists for this sub_id, prefer its current
+    `data`, `status`, and determination fields over the mock baseline.
+    Mock data remains the source of structural fallbacks (events, contacts).
+    """
+    entry = get_db_entry(mock_sub["id"])
+    if entry is None:
+        return mock_sub  # not seeded -- show raw mock
+
+    # Build a shallow copy of mock + overlay
+    out = dict(mock_sub)
+    out["data"] = entry.data or mock_sub["data"]
+    # Reverse-map DB status to mock display strings
+    db_to_mock_status = {
+        "submitted": "Submitted",
+        "in_progress": "In Progress",
+        "returned": "Returned",
+        "amended": "In Progress",
+        "accepted": "Accepted",
+        "closed": "Closed",
+        "archived": "Closed",
+        "draft": "Submitted",  # not normally seen on staff side
+    }
+    out["status"] = db_to_mock_status.get(entry.status, mock_sub["status"])
+    out["_db_entry"] = entry  # so views can reference for audit-trail-driven event feed
+    if entry.determination_outcome:
+        out["determination"] = {
+            "outcome": "Accepted" if entry.determination_outcome == "accepted" else "Closed without Acceptance",
+            "when": entry.determined_at.strftime("%Y-%m-%d") if entry.determined_at else "",
+            "by": entry.determined_by.email if entry.determined_by else "",
+            "notes": entry.determination_notes,
+        }
+    return out
 
 
 # ============================================================
@@ -139,9 +209,14 @@ class SubmissionDetailView(TemplateView):
 
     def get_context_data(self, **kwargs):
         sub_id = kwargs.get("sub_id")
-        sub = get_submission(sub_id)
-        if sub is None:
+        mock_sub = get_submission(sub_id)
+        if mock_sub is None:
             raise Http404(f"Submission {sub_id} not found")
+
+        # Overlay DB-applied edits + status changes on the mock baseline.
+        # After CORE-167 rationale save, the form .data + .status reflect
+        # what was persisted, not the mock_data starting point.
+        sub = apply_db_overlay(mock_sub)
 
         ctx = super().get_context_data(**kwargs)
         d = sub["data"]
@@ -252,16 +327,27 @@ class SubmissionSaveEditView(View):
 
 
 class RationaleView(View):
-    """POST handler: finalize the pending edits with a required rationale.
+    """POST handler: finalize pending edits with a required rationale.
 
-    In production this would write to FormAuditTrail per CORE-167 and
-    update the Submission model. Here we just clear the session pending
-    edits and toast.
+    Writes a real FormAuditTrail row (action='edit_on_behalf',
+    rationale=<text>, user=<staff>) plus one FormAuditDetail child row
+    per changed field (old + new value). Also applies the edits to
+    FormEntry.data so the next view of the submission reflects them.
+
+    CORE-167 (Add rationale when editing on a recipient's behalf):
+        - rationale required (block save otherwise)
+        - rationale + field changes stored on the audit trail
+        - audit trail immutable once written
+
+    Status transition: if the FormEntry was 'submitted', flips to
+    'amended' (Federal Staff has touched it; AO re-signature gate
+    applies before recipient can re-submit).
     """
 
     def post(self, request, sub_id):
-        sub = get_submission(sub_id)
-        if sub is None:
+        # Verify mock baseline exists (URL safety)
+        mock_sub = get_submission(sub_id)
+        if mock_sub is None:
             raise Http404()
 
         rationale = (request.POST.get("rationale") or "").strip()
@@ -276,14 +362,69 @@ class RationaleView(View):
             messages.warning(request, "No pending edits to save.")
             return redirect(reverse("staff_review:submission_detail", kwargs={"sub_id": sub_id}))
 
-        # Clear session pending; in real impl would persist to DB w/ rationale
+        # Look up the real FormEntry. If not seeded, error out clearly --
+        # demo data must be present for CORE-167 wiring to function.
+        entry = get_db_entry(sub_id)
+        if entry is None:
+            messages.error(
+                request,
+                "Database not seeded. Run `uv run python manage.py seed_demo_data` "
+                "from the repo root, then retry.",
+            )
+            return redirect(reverse("staff_review:submission_edit", kwargs={"sub_id": sub_id}))
+
+        actor = request.user if request.user.is_authenticated else None
+
+        # Write the audit trail + field details + apply edits atomically.
+        from django.db import transaction
+        with transaction.atomic():
+            trail = FormAuditTrail.objects.create(
+                form_entry=entry,
+                user=actor,
+                action="edit_on_behalf",
+                notes=f"Edited {n} field{'s' if n != 1 else ''} on behalf of {entry.organization.name}",
+                rationale=rationale,
+            )
+
+            updated_data = dict(entry.data or {})
+            for path, change in pending.items():
+                new_val = change.get("value")
+                old_val = change.get("original")
+
+                FormAuditDetail.objects.create(
+                    form_entry=entry,
+                    user=actor,
+                    field_name=path,
+                    old_value=str(old_val) if old_val is not None else "",
+                    new_value=str(new_val) if new_val is not None else "",
+                )
+                _set_by_path(updated_data, path, new_val)
+
+            entry.data = updated_data
+            # Transition status if appropriate (mirrors prototype behavior)
+            if entry.status == "submitted":
+                entry.status = "amended"
+            entry.save(update_fields=["data", "status", "updated_at"])
+
+        # Clear session staging
         request.session[session_key] = {}
         request.session.modified = True
+
         messages.success(
             request,
-            f"{n} edit{'s' if n != 1 else ''} saved with rationale. Logged (mock -- no real DB write yet).",
+            f"{n} edit{'s' if n != 1 else ''} saved with rationale. "
+            f"Audit trail row {trail.id} created.",
         )
         return redirect(reverse("staff_review:submission_detail", kwargs={"sub_id": sub_id}))
+
+
+def _set_by_path(obj, path, value):
+    """In-place dotted-path setter on nested dict (mirrors hifi-detail.jsx setByPath)."""
+    keys = path.split(".")
+    cur = obj
+    for k in keys[:-1]:
+        cur = cur.setdefault(k, {})
+    cur[keys[-1]] = value
 
 
 # ============================================================
