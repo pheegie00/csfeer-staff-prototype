@@ -57,6 +57,13 @@ class FormReturn(BaseModel):
     # Flag set when the AO signature was cleared as part of the return
     # (CORE-43). Almost always True for tribal_plan submissions; False
     # for forms that don't require AO sig (annual-report-short).
+    #
+    # TODO STAFF-MP-01: 'AO signature' is a Tribal Plan concept. Non-CSBG
+    # programs (TANF financial reports, HMRF performance measures) have
+    # different signatory roles (preparer / certifier in TANF). Generalize
+    # this field into a `signatures_cleared` JSONField or polymorphic state
+    # when adding the first non-CSBG program. See
+    # docs/multi_program_architecture.md.
     ao_signature_cleared = models.BooleanField(default=False)
 
     class Meta(BaseModel.Meta):

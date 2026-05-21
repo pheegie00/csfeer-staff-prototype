@@ -10,10 +10,16 @@ class FormFamilies(TextChoices):
     collections are assigned an OMB control number.
 
     Find the official names of OBM numbers here: https://www.reginfo.gov/public/do/PRASearch
+
+    SCALING NOTE: Currently CSBG-only. When adding new ACF programs
+    (TANF, Tribal TANF, HMRF, HPOG -- see docs/multi_program_architecture.md
+    and STAFF-MP-10 in docs/backlog.md), add sibling enum entries here.
     """
 
     CSBG_ANNUAL_REPORT = "0970-0492", _("CSBG Annual Report")
     CSBG_TRIBAL_PLAN_APPLICATION = "0970-0635", _("CSBG Model Tribal Plan Applications")
+    # TODO STAFF-MP-10: TANF financial / data / MOE families
+    # TODO STAFF-MP-11: SF-424 (shared standard federal application)
 
 
 class CSBGAnnualReportForms(TextChoices):

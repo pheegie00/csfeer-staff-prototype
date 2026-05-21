@@ -23,6 +23,13 @@ User = get_user_model()
 
 
 class FormDefinition(BaseModel):
+    # TODO STAFF-MP-01: add `program = ForeignKey(programs.Program)` so each
+    # form is tied to a specific ACF program (CSBG, TANF, HMRF, etc.). Without
+    # this, staff permissions can't be scoped per-program. See
+    # docs/multi_program_architecture.md.
+    # TODO STAFF-MP-03: add `cycle_type` field (annual / quarterly / monthly /
+    # ad_hoc). CSBG is annual; ACF-196R is quarterly. Misclassifying surfaces
+    # bad submission windows.
     family = models.CharField(
         null=False,
         blank=False,

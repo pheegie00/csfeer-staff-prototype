@@ -10,6 +10,15 @@ from organizations.constants import RegionChoices
 
 
 class OrganizationProfile(BaseModel):
+    """Recipient organization (Tribe today; State / Territory / CBO / etc. when
+    multi-program scaling lands).
+
+    TODO STAFF-MP-02: add `org_type` choices field. Today every org is
+    implicitly treated as a Tribe (per CSBG-only scope), but TANF will
+    introduce State + Territory, HMRF will introduce CBO / Faith-Based /
+    Higher Ed. See docs/multi_program_architecture.md.
+    """
+
     name = models.CharField(max_length=255)
     address = models.TextField(blank=True)
     contact_email = models.EmailField(blank=True)
