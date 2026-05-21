@@ -15,7 +15,7 @@
 # automatically. We map DATABASE_URL into the granular DB_CONFIG__*
 # pydantic-settings keys below via a release script.
 
-app = "csfeer-staff-prototype"
+app = "core"
 primary_region = "iad"
 kill_signal = "SIGTERM"
 kill_timeout = "30s"
@@ -41,7 +41,7 @@ kill_timeout = "30s"
   # Allow the fly.dev hostname + the local-dev names so a developer
   # tunneling via `fly proxy` still works. Override at deploy time with
   # `fly secrets set ALLOWED_HOSTS='["..."]'` if needed.
-  ALLOWED_HOSTS = '["csfeer-staff-prototype.fly.dev","localhost","127.0.0.1"]'
+  ALLOWED_HOSTS = '["core.fly.dev","localhost","127.0.0.1"]'
   # Empty -> falls through to ModelBackend (Django auth) in settings.py.
   # Set to a real URL after Keycloak is deployed.
   OIDC_CONFIG__DOCUMENT_URL = ""
