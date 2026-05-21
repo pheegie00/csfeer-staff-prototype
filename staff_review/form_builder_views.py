@@ -46,11 +46,18 @@ from django.utils import timezone
 from django.views import View
 from django.views.generic import TemplateView
 
-from form_manager.models.forms import FormDefinition
+from form_manager.models.forms import FormDefinition, FormEntry
 from organizations.models import OrgType
 from programs.models import FormScoping, Program, SubmissionWindow
 from staff_review.mock_data import USER
 from staff_review.permissions import StaffRequiredMixin
+from staff_review.publish_service import (
+    IN_PROGRESS_STATUSES,
+    PublishError,
+    bump_major,
+    bump_minor,
+    publish_new_version,
+)
 
 
 def _user_program_ids(user):
@@ -277,3 +284,96 @@ class FormScopingEditView(StaffRequiredMixin, View):
             f"-- now {count} org{'s' if count != 1 else ''} in scope.",
         )
         return redirect(reverse("staff_review:form_builder_detail", kwargs={"form_def_id": form_def.id}))
+
+
+# ============================================================
+# PUBLISH NEW VERSION (CORE-23, CORE-24)
+# ============================================================
+
+class PublishNewVersionView(StaffRequiredMixin, TemplateView):
+    """GET: render the publish form. POST: execute the publish service.
+
+    The form shows the proposed new version (defaults to source's
+    bumped-minor), the impact (count of in-progress submissions that
+    will be auto-closed), and inheritance toggles for scoping + window.
+    """
+
+    template_name = "staff_review/form_builder_publish.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        fd_id = kwargs.get("form_def_id")
+        form_def = get_object_or_404(FormDefinition, pk=fd_id)
+
+        if not _user_can_manage(self.request.user, form_def):
+            messages.error(
+                self.request,
+                f"You are not assigned to manage forms in the "
+                f"{form_def.program.code if form_def.program else '(unscoped)'} program.",
+            )
+
+        try:
+            default_minor = bump_minor(str(form_def.variant))
+        except PublishError:
+            default_minor = ""
+        try:
+            default_major = bump_major(str(form_def.variant))
+        except PublishError:
+            default_major = ""
+
+        affected_count = FormEntry.objects.filter(
+            form_definition=form_def, status__in=IN_PROGRESS_STATUSES,
+        ).count()
+
+        has_scoping = hasattr(form_def, "scoping")
+        has_current_fy_window = form_def.submission_windows.filter(fiscal_year="FY26").exists()
+
+        ctx.update({
+            "user": USER,
+            "form_def": form_def,
+            "can_manage": _user_can_manage(self.request.user, form_def),
+            "default_minor": default_minor,
+            "default_major": default_major,
+            "affected_count": affected_count,
+            "has_scoping": has_scoping,
+            "has_current_fy_window": has_current_fy_window,
+        })
+        return ctx
+
+    def post(self, request, form_def_id):
+        form_def = get_object_or_404(FormDefinition, pk=form_def_id)
+        if not _user_can_manage(request.user, form_def):
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied()
+
+        new_variant = (request.POST.get("new_variant") or "").strip()
+        notes = (request.POST.get("notes") or "").strip()
+        clone_scoping = request.POST.get("clone_scoping") == "on"
+        clone_window = request.POST.get("clone_window") == "on"
+
+        try:
+            new_fd, affected = publish_new_version(
+                source_form_def=form_def,
+                new_variant=new_variant,
+                actor=request.user if request.user.is_authenticated else None,
+                notes=notes,
+                clone_scoping=clone_scoping,
+                clone_current_window=clone_window,
+            )
+        except PublishError as e:
+            messages.error(request, str(e))
+            return redirect(reverse(
+                "staff_review:form_builder_publish",
+                kwargs={"form_def_id": form_def.id},
+            ))
+
+        toast = (
+            f"Published {new_fd.name} v{new_fd.variant}. "
+            f"Previous version v{form_def.variant} deprecated. "
+            + (f"{affected} in-progress submission{'s' if affected != 1 else ''} auto-closed."
+               if affected else "No in-progress submissions affected.")
+        )
+        messages.success(request, toast)
+        return redirect(reverse(
+            "staff_review:form_builder_detail", kwargs={"form_def_id": new_fd.id},
+        ))

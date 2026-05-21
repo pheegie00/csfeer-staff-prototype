@@ -4,6 +4,7 @@ from staff_review.form_builder_views import (
     FormBuilderDetailView,
     FormBuilderListView,
     FormScopingEditView,
+    PublishNewVersionView,
     SubmissionWindowEditView,
 )
 from staff_review.views import (
@@ -53,4 +54,6 @@ urlpatterns = [
     # Batch F -- CORE-25 (submission windows) + CORE-22 (org scoping)
     path("form-builder/<uuid:form_def_id>/window/", SubmissionWindowEditView.as_view(), name="form_builder_window_edit"),
     path("form-builder/<uuid:form_def_id>/scope/", FormScopingEditView.as_view(), name="form_builder_scope_edit"),
+    # Batch G -- CORE-23/24 (publish new version + auto-close deprecated)
+    path("form-builder/<uuid:form_def_id>/publish/", PublishNewVersionView.as_view(), name="form_builder_publish"),
 ]

@@ -28,7 +28,15 @@
       </div>
       <div class="ph__actions">
         {% if not can_manage %}<span class="t-sm t-muted">Read-only</span>{% endif %}
-        <button class="btn" disabled title="Needs form-schema editor UI (CORE-27 follow-up)">Publish new version</button>
+        {% if form_def.is_active %}
+          <a href="{% url 'staff_review:form_builder_publish' form_def_id=form_def.id %}"
+             class="btn {% if not can_manage %}is-disabled{% endif %}"
+             {% if not can_manage %}onclick="return false;"{% endif %}>
+            Publish new version
+          </a>
+        {% else %}
+          <span class="tag tag--neutral tag--sm">Deprecated</span>
+        {% endif %}
       </div>
     </div>
   </div>

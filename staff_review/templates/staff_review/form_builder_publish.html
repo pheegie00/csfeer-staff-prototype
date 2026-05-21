@@ -1,0 +1,151 @@
+{% extends "staff_review/_base_staff.html" %}
+{% load static %}
+
+{% block content %}
+<div class="app__body">
+
+  <div class="ph">
+    <div class="ph__crumbs">
+      <a href="{% url 'staff_review:form_builder_list' %}">Form templates</a>
+      <span class="ph__sep">&rsaquo;</span>
+      <a href="{% url 'staff_review:form_builder_detail' form_def_id=form_def.id %}">{{ form_def.name }}</a>
+      <span class="ph__sep">&rsaquo;</span>
+      <span>Publish new version</span>
+    </div>
+    <div class="ph__row">
+      <div>
+        <h1 class="ph__title">Publish new version</h1>
+        <div class="ph__meta">
+          Current: <strong>v{{ form_def.variant }}</strong>
+          {% if form_def.program %}
+            &middot; <span class="region-chip">{{ form_def.program.code }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if not can_manage %}
+    <div class="alert alert--warning">
+      <div class="alert__icon">!</div>
+      <div class="alert__body">
+        <h4 class="alert__title">Read-only</h4>
+        <div class="alert__text">You don't have publish rights for this template's program (STAFF-MP-05).</div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if affected_count > 0 %}
+    <div class="alert alert--danger">
+      <div class="alert__icon">!</div>
+      <div class="alert__body">
+        <h4 class="alert__title">{{ affected_count }} in-progress submission{{ affected_count|pluralize }} will be auto-closed</h4>
+        <div class="alert__text">
+          Per CORE-24: when a new version is published, in-progress submissions
+          on the deprecated version (Draft, Submitted, In Progress, Returned,
+          Amended) are automatically marked <strong>Closed without Acceptance</strong>
+          with a note pointing at this publish event. Already-resolved submissions
+          (Accepted, Closed) are untouched.
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="alert alert--info">
+      <div class="alert__icon">i</div>
+      <div class="alert__body">
+        <h4 class="alert__title">No in-progress submissions to close</h4>
+        <div class="alert__text">
+          The deprecated version will retain its history; no recipient data is impacted.
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="card" style="max-width: 740px;">
+    <div class="card__head"><h3>Publish settings</h3></div>
+    <div class="card__body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="fld" style="margin-bottom: 16px;">
+          <label class="fld__lbl" for="new_variant">New version (semver, e.g. 1.1.0)</label>
+          <input id="new_variant" name="new_variant" type="text"
+                 value="{{ default_minor }}"
+                 style="padding:8px 10px; border:1px solid var(--line); border-radius:4px; font-family:var(--ff-mono); width:200px;">
+          <div class="fld__hint" style="margin-top: 6px;">
+            One-click options:
+            {% if default_minor %}
+              <button type="button" class="linkbtn" onclick="document.getElementById('new_variant').value='{{ default_minor }}'">
+                MINOR -> {{ default_minor }}
+              </button>
+            {% endif %}
+            {% if default_major %}
+              &middot;
+              <button type="button" class="linkbtn" onclick="document.getElementById('new_variant').value='{{ default_major }}'">
+                MAJOR -> {{ default_major }}
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="fld" style="margin-bottom: 16px;">
+          <label class="fld__lbl" for="notes">Changelog notes (optional)</label>
+          <textarea id="notes" name="notes" rows="3"
+                    style="width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:4px;"
+                    placeholder="What changed in this version? Recorded in the audit trail."></textarea>
+        </div>
+
+        <div style="background: var(--paper-2); padding: 14px 16px; border-radius: 6px; margin-bottom: 16px;">
+          <div class="t-sm t-bold" style="margin-bottom: 10px;">Inherit from v{{ form_def.variant }}</div>
+          <label style="display:flex; gap:8px; align-items:flex-start; padding: 4px 0;">
+            <input type="checkbox" name="clone_scoping" {% if has_scoping %}checked{% endif %}>
+            <span>
+              <strong>Org scoping</strong> (CORE-22)
+              <div class="t-xs t-muted">Copy rule-based + explicit org scoping. Recommended.</div>
+              {% if not has_scoping %}<div class="t-xs t-muted">No scoping on source -- nothing to clone.</div>{% endif %}
+            </span>
+          </label>
+          <label style="display:flex; gap:8px; align-items:flex-start; padding: 4px 0;">
+            <input type="checkbox" name="clone_window" {% if has_current_fy_window %}checked{% endif %}>
+            <span>
+              <strong>Current FY submission window</strong> (CORE-25)
+              <div class="t-xs t-muted">Copy the FY26 opens/closes dates. You can adjust afterwards.</div>
+              {% if not has_current_fy_window %}<div class="t-xs t-muted">No FY26 window on source -- nothing to clone.</div>{% endif %}
+            </span>
+          </label>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <a href="{% url 'staff_review:form_builder_detail' form_def_id=form_def.id %}"
+             class="btn btn--ghost">Cancel</a>
+          <button type="submit" class="btn"
+                  {% if not can_manage %}disabled{% endif %}>
+            Publish new version
+            {% if affected_count > 0 %}
+              <span class="t-xs" style="opacity: 0.85;">(closes {{ affected_count }} in-progress)</span>
+            {% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="alert alert--neutral" style="margin-top: 24px; max-width: 740px;">
+    <div class="alert__icon">i</div>
+    <div class="alert__body">
+      <h4 class="alert__title">What this does (CORE-23 / CORE-24)</h4>
+      <div class="alert__text">
+        <ol style="margin: 6px 0 0 20px; padding: 0;">
+          <li>Creates a new FormDefinition row with the same name + new variant, copying schema, family, cycle, program.</li>
+          <li>Optionally clones scoping + current-FY window from this version.</li>
+          <li>Marks v{{ form_def.variant }} as <code>is_active=False</code> (deprecated).</li>
+          <li>For every in-progress FormEntry on v{{ form_def.variant }}, sets status to <code>closed</code> with determination notes pointing at this publish event.</li>
+          <li>Writes audit trail rows.</li>
+          <li>Redirects you to the new version's detail page.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
