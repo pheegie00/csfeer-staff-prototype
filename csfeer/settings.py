@@ -84,6 +84,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "csfeer.context_processors.app_version",
+                "staff_review.context_processors.staff_persona",
             ],
             "builtins": [
                 "pattern_library.loader_tags",

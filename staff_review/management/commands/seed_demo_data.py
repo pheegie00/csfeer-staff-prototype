@@ -121,6 +121,11 @@ class Command(BaseCommand):
             f"Seeded {len(mock_data.SUBMISSIONS)} demo submissions (idempotent)."
         ))
 
+        # Phase 4 Step 7: seed the per-role demo personas in a separate pass
+        # so the View-as toggle has accounts to switch between.
+        from django.core.management import call_command
+        call_command("seed_demo_users", verbosity=options.get("verbosity", 1))
+
     # --------------------------------------------------------------------
     # Seeding helpers
     # --------------------------------------------------------------------

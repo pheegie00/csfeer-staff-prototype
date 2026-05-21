@@ -79,8 +79,12 @@ class OrganizationProfileOrgTypeTest(TestCase):
     def setUpTestData(cls):
         call_command("seed_demo_data", verbosity=0)
 
-    def test_all_seeded_orgs_default_to_tribe(self):
-        for org in OrganizationProfile.objects.all():
+    def test_pre_existing_csbg_orgs_default_to_tribe(self):
+        # STAFF-MP-02 asserts the backfill migration set org_type='tribe'
+        # on the legacy CSBG orgs from mock_data. Phase 4 Step 7 added
+        # recipient demo personas with intentionally non-tribe org_types
+        # (state, cbo) -- those are excluded by the "(Demo)" name suffix.
+        for org in OrganizationProfile.objects.exclude(name__icontains="(Demo)"):
             self.assertEqual(org.org_type, "tribe", f"{org.name} should default to TRIBE")
 
 

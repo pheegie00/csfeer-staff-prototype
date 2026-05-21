@@ -31,7 +31,12 @@ class FormFamilies(TextChoices):
     SSBG_FAMILY = "0970-0234", _("SSBG Annual Report (SF-PPR)")
     RCD_FAMILY = "0970-RCD", _("Rural Community Development Performance Report")
 
-    # TODO STAFF-MP-10: TANF financial / data / MOE families
+    # --- OFA programs (placeholder seeds so OFA-scoped staff users see content) ---
+    TANF_FAMILY = "0970-0338", _("TANF ACF-196R Financial Report")
+    TRIBAL_TANF_FAMILY = "0970-0345", _("Tribal TANF Data Report")
+    HMRF_FAMILY = "0970-0460", _("HMRF Performance Progress Report")
+    HPOG_FAMILY = "0970-0394", _("HPOG Performance Progress Report (dormant)")
+
     # TODO STAFF-MP-11: SF-424 (shared standard federal application)
 
 
@@ -118,6 +123,34 @@ class SSBGForms(TextChoices):
 
 
 # ============================================================
+# OFA programs (placeholder seeds for the multi-program prototype)
+# ============================================================
+
+class TANFForms(TextChoices):
+    """Temporary Assistance for Needy Families. OMB 0970-0338, 0970-0199."""
+    TANF_ACF_196R = "TANF ACF-196R Financial Report"
+    TANF_ACF_199 = "TANF ACF-199 Data Report"
+    TANF_MOE_REPORT = "TANF MOE Annual Report"
+
+
+class TribalTANFForms(TextChoices):
+    """Tribal TANF. OMB 0970-0345, 0970-0218."""
+    TRIBAL_TANF_DATA = "Tribal TANF Data Report (ACF-343)"
+    TRIBAL_TANF_PLAN = "Tribal TANF Plan"
+
+
+class HMRFForms(TextChoices):
+    """Healthy Marriage / Responsible Fatherhood. OMB 0970-0460."""
+    HMRF_PPR = "HMRF Performance Progress Report"
+    HMRF_FINAL_REPORT = "HMRF Final Performance Report"
+
+
+class HPOGForms(TextChoices):
+    """Health Profession Opportunity Grants. OMB 0970-0394 (dormant)."""
+    HPOG_PPR = "HPOG Performance Progress Report"
+
+
+# ============================================================
 # Aggregated choices for FormDefinition.name field
 # ============================================================
 
@@ -132,10 +165,15 @@ ALL_FORM_NAME_CHOICES = list(itertools.chain(
     CEDForms.choices,
     RCDForms.choices,
     SSBGForms.choices,
+    TANFForms.choices,
+    TribalTANFForms.choices,
+    HMRFForms.choices,
+    HPOGForms.choices,
 ))
 
 type AllFormNames = (
     CSBGAnnualReportForms | CSBGTribalPlanApplicationForms |
     CSBGStateTerritoryPlanForms | CSBGEligibleEntityListForms |
-    LIHEAPForms | LIHWAPForms | AFIForms | CEDForms | RCDForms | SSBGForms
+    LIHEAPForms | LIHWAPForms | AFIForms | CEDForms | RCDForms | SSBGForms |
+    TANFForms | TribalTANFForms | HMRFForms | HPOGForms
 )

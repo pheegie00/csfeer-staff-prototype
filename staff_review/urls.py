@@ -1,5 +1,6 @@
 from django.urls import path
 
+from staff_review.demo_views import DemoUsersIndexView, ViewAsUserView
 from staff_review.form_builder_views import (
     FormBuilderDetailView,
     FormBuilderListView,
@@ -56,4 +57,8 @@ urlpatterns = [
     path("form-builder/<uuid:form_def_id>/scope/", FormScopingEditView.as_view(), name="form_builder_scope_edit"),
     # Batch G -- CORE-23/24 (publish new version + auto-close deprecated)
     path("form-builder/<uuid:form_def_id>/publish/", PublishNewVersionView.as_view(), name="form_builder_publish"),
+
+    # Phase 4 Step 7 -- View-as impersonation for demo / testing (superuser-only)
+    path("demo-users/", DemoUsersIndexView.as_view(), name="demo_users_index"),
+    path("demo-users/view-as/", ViewAsUserView.as_view(), name="view_as_user"),
 ]

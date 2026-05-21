@@ -1,0 +1,57 @@
+{% extends "staff_review/_base_staff.html" %}
+
+{% block title %}Demo personas - CORE{% endblock %}
+
+{% block content %}
+<main class="page-shell" style="max-width: 1200px;">
+  <div class="page-shell__hdr">
+    <div>
+      <h1 class="page-shell__title">Demo personas</h1>
+      <p class="t-muted">
+        Seeded sample users covering every staff + recipient role.
+        Click "View as" to one-click impersonate (superuser only).
+        Re-seed via <code>uv run python manage.py seed_demo_users</code>.
+      </p>
+    </div>
+  </div>
+
+  <div class="card-grid" style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px;">
+    {% for p in personas %}
+      <div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 16px;">
+        <div>
+          <div style="font: 600 15px 'Public Sans', sans-serif; color: #111827;">
+            {{ p.display_name }}
+            {% if p.email == current_user_email %}
+              <span class="tag tag--success" style="margin-left: 8px;">Current</span>
+            {% endif %}
+          </div>
+          <div class="t-muted t-xs" style="margin-top: 2px;">
+            {{ p.label }}
+          </div>
+          <div class="t-muted t-xs" style="margin-top: 2px; font-family: 'IBM Plex Mono', monospace;">
+            {{ p.email }}
+          </div>
+          <div class="t-muted t-xs" style="margin-top: 4px;">
+            <strong>Category:</strong> {{ p.category }}
+          </div>
+        </div>
+        <form action="{% url 'staff_review:view_as_user' %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="user_id" value="{{ p.user_id }}">
+          <input type="hidden" name="next" value="{% url 'staff_review:inbox' %}">
+          <button type="submit" class="btn btn--primary" {% if p.email == current_user_email %}disabled{% endif %}>
+            {% if p.email == current_user_email %}Current view{% else %}View as -->{% endif %}
+          </button>
+        </form>
+      </div>
+    {% empty %}
+      <div class="card">
+        <div class="t-muted">
+          No demo personas seeded yet. Run:
+          <code>uv run python manage.py seed_demo_users</code>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</main>
+{% endblock %}
