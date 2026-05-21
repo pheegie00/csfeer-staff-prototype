@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+{% include "staff_review/_chrome.html" %}
+
+<div class="app__body">
+
+  <div class="ph">
+    <div class="ph__crumbs">
+      <a href="{% url 'staff_review:inbox' %}">Submissions</a>
+      <span class="ph__sep">&rsaquo;</span>
+      <span>Exports</span>
+    </div>
+    <div class="ph__row">
+      <div>
+        <h1 class="ph__title">Export resolved submissions</h1>
+        <div class="ph__meta">
+          CORE-46 &middot; Scoped by form type and fiscal year &middot;
+          {{ resolved_count }} resolved submission{{ resolved_count|pluralize }} in scope across the system
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout layout--detail">
+    <div class="layout__main">
+      <div class="card">
+        <div class="card__head">
+          <h3>Pick what to export</h3>
+        </div>
+        <div class="card__body">
+          <form method="get" action="{% url 'staff_review:export_csv' %}">
+            <div class="grid-2">
+              <div class="fld">
+                <label class="fld__lbl" for="form_type">Form type</label>
+                <select id="form_type" name="form_type" class="select" style="width:100%; padding:8px 10px;">
+                  {% for fd in form_defs %}
+                    <option value="{{ fd.id }}">{{ fd.name }} (v{{ fd.variant }})</option>
+                  {% empty %}
+                    <option value="">(no form types with resolved submissions)</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="fld">
+                <label class="fld__lbl" for="fy">Fiscal year</label>
+                <select id="fy" name="fy" class="select" style="width:100%; padding:8px 10px;">
+                  {% for fy in fiscal_years %}
+                    <option value="{{ fy }}">{{ fy }}</option>
+                  {% empty %}
+                    <option value="">(no fiscal years available)</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <div class="alert alert--info" style="margin-top: 16px;">
+              <div class="alert__icon">i</div>
+              <div class="alert__body">
+                <h4 class="alert__title">Scope</h4>
+                <div class="alert__text">
+                  Per CORE-46, exports are limited to <strong>resolved</strong> submissions
+                  (status = Accepted or Closed without Acceptance). Draft, Submitted,
+                  In Progress, and Returned submissions are excluded.
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:16px; display:flex; justify-content:flex-end; gap:8px;">
+              <a href="{% url 'staff_review:inbox' %}" class="btn btn--ghost">Cancel</a>
+              <button type="submit" class="btn">Download CSV</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="layout__side">
+      <div class="rail">
+        <div class="rail__head">Columns in export</div>
+        <div class="rail__body">
+          <div class="rail__item t-sm">Submission ID, Organization, UEI, State, Region</div>
+          <div class="rail__item t-sm">Form Type, Form Version, Fiscal Year</div>
+          <div class="rail__item t-sm">Submitted / Determined timestamps</div>
+          <div class="rail__item t-sm">Determination outcome + notes + reviewer</div>
+          <div class="rail__item t-sm">Returns used, AO signed status + name</div>
+          <div class="rail__item t-sm">Primary contact name + email + phone</div>
+        </div>
+      </div>
+
+      <div class="rail">
+        <div class="rail__head">Compliance</div>
+        <div class="rail__body">
+          <div class="rail__item t-sm">
+            All exports are logged in the system audit trail
+            (<a href="{% url 'staff_review:audit_log' %}">CORE-47</a>).
+            File names include form type + FY for traceability.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

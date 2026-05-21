@@ -30,7 +30,8 @@
   <nav class="app-header__nav">
     <a href="{% url 'staff_review:inbox' %}" class="active">Submissions</a>
     <a href="#">Form templates</a>
-    <a href="#">Exports</a>
+    <a href="{% url 'staff_review:exports' %}">Exports</a>
+    <a href="{% url 'staff_review:audit_log' %}">Audit log</a>
     <a href="#">Help</a>
   </nav>
   <div class="app-header__user">

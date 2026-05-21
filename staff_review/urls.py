@@ -1,8 +1,11 @@
 from django.urls import path
 
 from staff_review.views import (
+    AuditLogView,
+    CSVExportView,
     DeterminationRecordView,
     DeterminationView,
+    ExportsIndexView,
     InboxView,
     RationaleView,
     ReturnBuilderView,
@@ -30,4 +33,11 @@ urlpatterns = [
     # Determination
     path("sub/<str:sub_id>/determination/", DeterminationView.as_view(), name="determination"),
     path("sub/<str:sub_id>/determination/record/", DeterminationRecordView.as_view(), name="determination_record"),
+
+    # Exports (CORE-46) -- CSV export of resolved submissions
+    path("exports/", ExportsIndexView.as_view(), name="exports"),
+    path("exports/csv/", CSVExportView.as_view(), name="export_csv"),
+
+    # System audit log (CORE-47) -- FISMA / NIST 800-53 compliance viewer
+    path("audit-log/", AuditLogView.as_view(), name="audit_log"),
 ]

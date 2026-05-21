@@ -17,17 +17,18 @@ Screens implemented in this module:
 - Determination flow (POST handler that locks submission)
 """
 
+import csv
 import uuid
 
 from django.contrib import messages
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 from django.views.generic import TemplateView
 
-from form_manager.models.forms import FormAuditDetail, FormAuditTrail, FormEntry
+from form_manager.models.forms import FormAuditDetail, FormAuditTrail, FormDefinition, FormEntry
 from staff_review.management.commands.seed_demo_data import stable_uuid
 from staff_review.mock_data import (
     FORM_DEFS,
@@ -581,6 +582,197 @@ class DeterminationRecordView(View):
             f"Submission {action} and locked. (mock -- no real DB write).",
         )
         return redirect(reverse("staff_review:submission_detail", kwargs={"sub_id": sub_id}))
+
+
+# ============================================================
+# CSV EXPORT (CORE-46)
+# ============================================================
+#
+# Federal Staff must be able to export resolved submission data as
+# structured CSV scoped to a specific form type from all organizations
+# for a specific fiscal year. Export covers resolved submissions
+# only (status = accepted or closed). Field names human-readable +
+# consistent across exports.
+
+
+class ExportsIndexView(TemplateView):
+    """Form to configure a CSV export.
+
+    Lists distinct (form_definition, fiscal_year) combinations available
+    for resolved-only export, plus the legend telling the user what's
+    in scope. Submitting the form GETs the CSVExportView with query
+    params.
+    """
+
+    template_name = "staff_review/exports.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        resolved = FormEntry.objects.filter(status__in=("accepted", "closed"))
+        # Build pickers: distinct form definitions in resolved set
+        form_defs = (
+            FormDefinition.objects
+            .filter(pk__in=resolved.values_list("form_definition_id", flat=True).distinct())
+            .order_by("name")
+        )
+        # Fiscal years are in FormEntry.data['org']['fy'] -- collect distinct values
+        fiscal_years = sorted({e.data.get("org", {}).get("fy", "") for e in resolved if e.data}, reverse=True)
+        ctx.update({
+            "user": USER,
+            "form_defs": form_defs,
+            "fiscal_years": [fy for fy in fiscal_years if fy],
+            "resolved_count": resolved.count(),
+        })
+        return ctx
+
+
+class CSVExportView(View):
+    """Generate + stream a CSV file. CORE-46.
+
+    Required query params:
+        form_type   -- FormDefinition.id (UUID)
+        fy          -- fiscal year string, e.g. 'FY26'
+
+    Returns text/csv with Content-Disposition: attachment.
+    """
+
+    def get(self, request):
+        form_def_id = request.GET.get("form_type")
+        fy = request.GET.get("fy", "").strip()
+
+        if not form_def_id or not fy:
+            messages.error(request, "Pick a form type and fiscal year.")
+            return redirect(reverse("staff_review:exports"))
+
+        try:
+            form_def = FormDefinition.objects.get(pk=form_def_id)
+        except (FormDefinition.DoesNotExist, ValueError):
+            messages.error(request, "Form definition not found.")
+            return redirect(reverse("staff_review:exports"))
+
+        # Resolved-only (per CORE-46), filtered by form + fy
+        entries = FormEntry.objects.filter(
+            form_definition=form_def,
+            status__in=("accepted", "closed"),
+        ).select_related("organization", "determined_by").order_by("determined_at")
+        entries = [e for e in entries if (e.data or {}).get("org", {}).get("fy") == fy]
+
+        # Stream CSV response
+        resp = HttpResponse(content_type="text/csv")
+        filename = f"core_export_{form_def.name.lower().replace(' ', '_')}_{fy}_resolved.csv"
+        resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+        writer = csv.writer(resp)
+        # Header row -- human-readable, consistent column names per CORE-46
+        writer.writerow([
+            "Submission ID",
+            "Organization",
+            "UEI",
+            "State",
+            "Region",
+            "Form Type",
+            "Form Version",
+            "Fiscal Year",
+            "Submitted At",
+            "Determined At",
+            "Determination Outcome",
+            "Determined By",
+            "Determination Notes",
+            "Returns Used",
+            "AO Signed",
+            "AO Name",
+            "Primary Contact",
+            "Primary Contact Email",
+            "Primary Contact Phone",
+        ])
+
+        for e in entries:
+            d = e.data or {}
+            org = d.get("org", {})
+            ao = d.get("ao", {}) or {}
+            contact = d.get("contact", {}) or {}
+            writer.writerow([
+                str(e.id),
+                e.organization.name,
+                org.get("uei", ""),
+                org.get("state", ""),
+                org.get("region", ""),
+                form_def.name,
+                str(form_def.variant),
+                org.get("fy", ""),
+                e.submitted_at.isoformat() if e.submitted_at else "",
+                e.determined_at.isoformat() if e.determined_at else "",
+                e.get_determination_outcome_display() if e.determination_outcome else "",
+                e.determined_by.email if e.determined_by else "",
+                e.determination_notes,
+                e.staff_returns.count(),
+                "yes" if ao.get("signed") else "no",
+                ao.get("name", ""),
+                contact.get("name", ""),
+                contact.get("email", ""),
+                contact.get("phone", ""),
+            ])
+
+        return resp
+
+
+# ============================================================
+# SYSTEM AUDIT LOG VIEWER (CORE-47)
+# ============================================================
+#
+# FISMA / NIST SP 800-53 compliance requirement. Shows every form-level
+# audit event with actor + timestamp + action + notes + rationale.
+# Append-only on the DB side; this view is read-only.
+
+class AuditLogView(TemplateView):
+    """System-wide audit log viewer.
+
+    Filters: actor email, action type, organization, date range.
+    Pagination: 50 rows per page.
+    """
+
+    template_name = "staff_review/audit_log.html"
+    PAGE_SIZE = 50
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        actor = (self.request.GET.get("actor") or "").strip().lower()
+        action = (self.request.GET.get("action") or "").strip()
+        org_query = (self.request.GET.get("org") or "").strip().lower()
+        page = max(1, int(self.request.GET.get("page", 1)))
+
+        qs = FormAuditTrail.objects.select_related(
+            "form_entry", "form_entry__organization", "user"
+        ).order_by("-created_at")
+
+        if actor:
+            qs = qs.filter(user__email__icontains=actor)
+        if action:
+            qs = qs.filter(action=action)
+        if org_query:
+            qs = qs.filter(form_entry__organization__name__icontains=org_query)
+
+        total = qs.count()
+        start = (page - 1) * self.PAGE_SIZE
+        rows = list(qs[start:start + self.PAGE_SIZE])
+
+        # Available action types (for the dropdown)
+        action_types = sorted(set(FormAuditTrail.objects.values_list("action", flat=True).distinct()))
+
+        ctx.update({
+            "user": USER,
+            "rows": rows,
+            "total": total,
+            "page": page,
+            "page_size": self.PAGE_SIZE,
+            "page_count": (total + self.PAGE_SIZE - 1) // self.PAGE_SIZE,
+            "actor": actor,
+            "active_action": action,
+            "org_query": org_query,
+            "action_types": action_types,
+        })
+        return ctx
 
 
 # ============================================================
