@@ -23,7 +23,7 @@
       <div class="alert__icon">&#9998;</div>
       <div class="alert__body">
         <h4 class="alert__title">You are editing on behalf of {{ d.org.name }}</h4>
-        <div class="alert__text">Every change is logged. You'll be asked for a rationale before saving (REQ-043). <strong>Attestation</strong> and <strong>AO Signature</strong> are restricted to recipients -- staff cannot edit those fields.</div>
+        <div class="alert__text">Every change is logged. You'll be asked for a rationale before saving (CORE-167). <strong>Attestation</strong> and <strong>AO Signature</strong> are restricted to recipients -- staff cannot edit those fields.</div>
       </div>
     </div>
   {% endif %}
@@ -33,7 +33,7 @@
       <div class="alert__icon">i</div>
       <div class="alert__body">
         <h4 class="alert__title">Final review -- one return already used</h4>
-        <div class="alert__text">This submission has been returned once already. Per REQ-024, your only remaining actions are <strong>Accept</strong> or <strong>Close without acceptance</strong>. A second return is not available.</div>
+        <div class="alert__text">This submission has been returned once already. Per CORE-169, your only remaining actions are <strong>Accept</strong> or <strong>Close without acceptance</strong>. A second return is not available.</div>
       </div>
     </div>
   {% endif %}
@@ -44,7 +44,7 @@
       <div class="alert__body">
         <h4 class="alert__title">{% if sub.status == 'Accepted' %}Accepted{% else %}Closed without acceptance{% endif %} &middot; {{ sub.determination.when }} by {{ sub.determination.by }}</h4>
         <div class="alert__text">
-          Locked from all edits (REQ-026). Record retained indefinitely (REQ-035).
+          Locked from all edits (CORE-45). Record retained indefinitely (CORE-170).
           {% if sub.determination.notes %}<div class="mt-1"><em>"{{ sub.determination.notes }}"</em></div>{% endif %}
         </div>
       </div>
@@ -198,7 +198,7 @@
                 <div class="fld__hint">Plain text only &middot; min 1 character &middot; cannot be edited after save</div>
               </div>
               <div class="rat__lock">
-                <strong>Restricted fields not edited:</strong> AO Signature and Attestation of Assurances are off-limits to Federal Staff (REQ-043).
+                <strong>Restricted fields not edited:</strong> AO Signature and Attestation of Assurances are off-limits to Federal Staff (CORE-167).
               </div>
               <div style="margin-top:14px;text-align:right;">
                 <a href="{% url 'staff_review:submission_detail' sub_id=sub.id %}" class="btn btn--ghost">Cancel</a>

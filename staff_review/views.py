@@ -254,7 +254,7 @@ class SubmissionSaveEditView(View):
 class RationaleView(View):
     """POST handler: finalize the pending edits with a required rationale.
 
-    In production this would write to FormAuditTrail per REQ-043 and
+    In production this would write to FormAuditTrail per CORE-167 and
     update the Submission model. Here we just clear the session pending
     edits and toast.
     """
@@ -325,7 +325,7 @@ class ReturnSendView(View):
     """POST handler: send the return.
 
     In production this would: change status to Returned, clear AO sig
-    (REQ-042), create ReturnItem rows, send recipient email (REQ-041,042),
+    (CORE-43), create ReturnItem rows, send recipient email (CORE-42,042),
     write to audit trail. Here we just toast and redirect.
     """
 

@@ -130,7 +130,7 @@
     <p class="form-attest">The undersigned attests that the organization meets all CSBG eligibility, anti-discrimination, and reporting requirements under 42 U.S.C. 9901-9926.</p>
     <div class="fld is-locked"><div class="fld__lbl">Acknowledged by</div><div class="fld__val">{{ d.attestation.ackBy }} &middot; {{ d.attestation.ackAt }}</div></div>
   </div>
-  <div class="section__lockednote">Federal Staff cannot edit attestation content per REQ-043.</div>
+  <div class="section__lockednote">Federal Staff cannot edit attestation content per CORE-167.</div>
 </div>
 
 {# SECTION 8 - AO Signature (staff-locked) #}
@@ -156,7 +156,7 @@
       <div class="fld__lbl">Typed signature</div>
       {% if d.ao.cleared %}
         <div class="sig-box sig-box--cleared">
-          <strong>Cleared on return</strong> &middot; {{ d.ao.clearedAt }} &middot; The Authorized Official must re-sign before this submission can be re-submitted (REQ-042).
+          <strong>Cleared on return</strong> &middot; {{ d.ao.clearedAt }} &middot; The Authorized Official must re-sign before this submission can be re-submitted (CORE-43).
         </div>
       {% else %}
         <div class="sig-box sig-box--signed">{{ d.ao.name }}</div>
@@ -164,5 +164,5 @@
     </div>
     <div class="fld is-locked"><div class="fld__lbl">Date signed</div><div class="fld__val">{{ d.ao.signedAt|default:"--" }}</div></div>
   </div>
-  <div class="section__lockednote">Federal Staff cannot sign or edit this section per REQ-043. Only the designated AO may complete it.</div>
+  <div class="section__lockednote">Federal Staff cannot sign or edit this section per CORE-167. Only the designated AO may complete it.</div>
 </div>
