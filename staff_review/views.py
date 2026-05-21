@@ -30,6 +30,7 @@ from django.views.generic import TemplateView
 
 from form_manager.models.forms import FormAuditDetail, FormAuditTrail, FormDefinition, FormEntry
 from staff_review.management.commands.seed_demo_data import stable_uuid
+from staff_review.models import FormReturn, FormReturnItem
 from staff_review.mock_data import (
     FORM_DEFS,
     STATUS_META,
@@ -488,21 +489,28 @@ class ReturnBuilderView(TemplateView):
 class ReturnSendView(View):
     """POST handler: send the return.
 
-    In production this would: change status to Returned, clear AO sig
-    (CORE-43), create ReturnItem rows, send recipient email (CORE-42,042),
-    write to audit trail. Here we just toast and redirect.
+    Wires:
+      CORE-168 -- write FormReturn + N FormReturnItem rows
+      CORE-169 -- enforce one return per submission (block if already returned)
+      CORE-43  -- clear AO signature on FormEntry.data.ao
+      CORE-170 -- snapshot original submission into FormEntry.data['__original']
+                  before any future resubmit-side mutations
+      CORE-36  -- write FormAuditTrail row with action='return'
+
+    Email notifications (CORE-42, CORE-41) are NOT sent here -- they
+    depend on the email infrastructure SPIKE (CORE-70). Audit trail
+    notes call this out for future wiring.
     """
 
     def post(self, request, sub_id):
-        sub = get_submission(sub_id)
-        if sub is None:
+        mock_sub = get_submission(sub_id)
+        if mock_sub is None:
             raise Http404()
 
+        # Collect items from form
         items = []
-        # Form posts as: item-1-section, item-1-field, item-1-text, item-2-*, etc.
-        # Look for all item indices that have text
         i = 1
-        while True:
+        while i <= 50:  # bounded
             text = request.POST.get(f"item-{i}-text", "").strip()
             if text:
                 items.append({
@@ -510,26 +518,103 @@ class ReturnSendView(View):
                     "field": request.POST.get(f"item-{i}-field", "").strip(),
                     "text": text,
                 })
-            elif i > 10 and not text:
-                break
             i += 1
-            if i > 50:  # safety
-                break
 
         summary = request.POST.get("summary", "").strip()
 
         if not items:
-            messages.error(request, "At least one review item is required.")
+            messages.error(request, "At least one review item is required (CORE-168).")
             return redirect(reverse("staff_review:return_builder", kwargs={"sub_id": sub_id}))
 
-        # Clear session drafts
+        entry = get_db_entry(sub_id)
+        if entry is None:
+            messages.error(request, "Database not seeded. Run `make seed-demo-data` first.")
+            return redirect(reverse("staff_review:return_builder", kwargs={"sub_id": sub_id}))
+
+        # CORE-169: enforce one return per submission lifetime
+        if entry.staff_returns.exists():
+            messages.error(
+                request,
+                f"CORE-169: {entry.organization.name} has already been returned "
+                f"once -- the only remaining actions are Accept or Close without Acceptance.",
+            )
+            return redirect(reverse("staff_review:submission_detail", kwargs={"sub_id": sub_id}))
+
+        # CORE-45 / locked submissions cannot be returned
+        if entry.locked or entry.status in ("accepted", "closed"):
+            messages.error(request, "Submission is locked -- cannot return.")
+            return redirect(reverse("staff_review:submission_detail", kwargs={"sub_id": sub_id}))
+
+        actor = request.user if request.user.is_authenticated else None
+        had_ao = bool((entry.data or {}).get("ao"))
+
+        from django.db import transaction
+        with transaction.atomic():
+            # CORE-170: preserve a snapshot of the current submission state
+            # under data['__original'] so resubmits can show what changed.
+            # Only snapshot if not already snapshotted (preserve FIRST submission).
+            data = dict(entry.data or {})
+            if "__original" not in data:
+                # Strip nested __original key if any (defensive)
+                snapshot = {k: v for k, v in data.items() if k != "__original"}
+                data["__original"] = snapshot
+
+            # CORE-43: clear AO signature so AO must re-sign before resubmit
+            ao_cleared = False
+            if had_ao:
+                ao = dict(data.get("ao") or {})
+                ao["signed"] = False
+                ao["cleared"] = True
+                ao["clearedAt"] = timezone.now().strftime("%Y-%m-%d")
+                data["ao"] = ao
+                ao_cleared = True
+
+            # CORE-168: create the FormReturn row
+            ret = FormReturn.objects.create(
+                form_entry=entry,
+                returned_by=actor,
+                summary=summary,
+                ao_signature_cleared=ao_cleared,
+            )
+
+            # CORE-168: create one FormReturnItem per review item
+            for idx, it in enumerate(items, start=1):
+                FormReturnItem.objects.create(
+                    form_return=ret,
+                    section=it["section"],
+                    field=it["field"],
+                    text=it["text"],
+                    order=idx,
+                )
+
+            # Transition status; clear AO; persist data snapshot
+            entry.status = "returned"
+            entry.data = data
+            entry.save(update_fields=["status", "data", "updated_at"])
+
+            # CORE-36: write audit trail
+            FormAuditTrail.objects.create(
+                form_entry=entry,
+                user=actor,
+                action="return",
+                notes=(
+                    f"Returned with {len(items)} review item{'s' if len(items) != 1 else ''} (CORE-168). "
+                    + ("AO signature cleared (CORE-43). " if ao_cleared else "")
+                    + "Recipient notification not yet wired (CORE-42 depends on SPIKE CORE-70). "
+                    + "Original submission snapshot preserved (CORE-170)."
+                ),
+            )
+
         request.session.pop(f"return_drafts_{sub_id}", None)
         request.session.modified = True
 
-        messages.success(
-            request,
-            f"Returned to {sub['data']['org']['name']} with {len(items)} item{'s' if len(items) != 1 else ''}. AO signature cleared. (mock -- no real DB/email).",
+        toast = (
+            f"Returned to {entry.organization.name} with {len(items)} "
+            f"item{'s' if len(items) != 1 else ''}. "
+            + ("AO signature cleared. " if ao_cleared else "")
+            + "Audit trail written. (Email notification still mocked.)"
         )
+        messages.success(request, toast)
         return redirect(reverse("staff_review:submission_detail", kwargs={"sub_id": sub_id}))
 
 
@@ -558,14 +643,25 @@ class DeterminationView(TemplateView):
 
 
 class DeterminationRecordView(View):
-    """POST handler: record the determination, lock the submission."""
+    """POST handler: record the determination, lock the submission.
+
+    Wires:
+      CORE-44 -- write determination_outcome, determination_notes,
+                 determined_at, determined_by on FormEntry; transition
+                 status to 'accepted' or 'closed'
+      CORE-45 -- set FormEntry.locked = True (permanent compliance lock)
+      CORE-36 -- write FormAuditTrail action='accept' or 'close'
+
+    Once recorded, the submission is read-only at the application
+    layer. Reverting requires DB intervention.
+    """
 
     def post(self, request, sub_id):
-        sub = get_submission(sub_id)
-        if sub is None:
+        mock_sub = get_submission(sub_id)
+        if mock_sub is None:
             raise Http404()
 
-        outcome = request.POST.get("outcome")
+        outcome = request.POST.get("outcome")  # "Accepted" | "Closed"
         notes = request.POST.get("notes", "").strip()
 
         if outcome not in ("Accepted", "Closed"):
@@ -576,10 +672,59 @@ class DeterminationRecordView(View):
             messages.error(request, "Notes are required when closing without acceptance.")
             return redirect(reverse("staff_review:determination", kwargs={"sub_id": sub_id}))
 
-        action = "accepted" if outcome == "Accepted" else "closed without acceptance"
+        entry = get_db_entry(sub_id)
+        if entry is None:
+            messages.error(request, "Database not seeded. Run `make seed-demo-data` first.")
+            return redirect(reverse("staff_review:determination", kwargs={"sub_id": sub_id}))
+
+        # CORE-45: cannot re-determine an already-resolved submission
+        if entry.is_resolved or entry.locked:
+            messages.error(
+                request,
+                f"CORE-45: Submission already resolved ({entry.get_status_display()}) "
+                f"and locked from edits. Cannot re-determine.",
+            )
+            return redirect(reverse("staff_review:submission_detail", kwargs={"sub_id": sub_id}))
+
+        actor = request.user if request.user.is_authenticated else None
+        outcome_code = "accepted" if outcome == "Accepted" else "closed"
+        action_label = "accept" if outcome == "Accepted" else "close"
+
+        from django.db import transaction
+        with transaction.atomic():
+            # CORE-44: persist the determination
+            entry.determination_outcome = outcome_code
+            entry.determination_notes = notes
+            entry.determined_at = timezone.now()
+            entry.determined_by = actor
+            entry.status = outcome_code
+
+            # CORE-45: lock the submission permanently at the app layer
+            entry.locked = True
+
+            entry.save(update_fields=[
+                "determination_outcome", "determination_notes",
+                "determined_at", "determined_by",
+                "status", "locked", "updated_at",
+            ])
+
+            # CORE-36: audit trail
+            FormAuditTrail.objects.create(
+                form_entry=entry,
+                user=actor,
+                action=action_label,
+                notes=(
+                    f"Final determination: {outcome} (CORE-44). "
+                    f"Submission locked (CORE-45)."
+                    + (f" Reviewer notes: {notes}" if notes else "")
+                ),
+            )
+
+        verb = "accepted" if outcome == "Accepted" else "closed without acceptance"
         messages.success(
             request,
-            f"Submission {action} and locked. (mock -- no real DB write).",
+            f"Submission {verb} and locked. Audit trail written. "
+            f"(Recipient + leadership notifications still mocked -- depends on CORE-70 SPIKE.)",
         )
         return redirect(reverse("staff_review:submission_detail", kwargs={"sub_id": sub_id}))
 
