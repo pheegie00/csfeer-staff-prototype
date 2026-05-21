@@ -1,0 +1,86 @@
+{% extends "staff_review/_base_staff.html" %}
+
+{% block title %}Feature flags - CORE{% endblock %}
+
+{% block content %}
+<main class="page-shell" style="max-width: 1100px;">
+  <div class="page-shell__hdr">
+    <div>
+      <h1 class="page-shell__title">Feature flags</h1>
+      <p class="t-muted">
+        Toggle features on or off across the entire app. Useful for hiding
+        work in progress before a customer demo. Currently {{ total_on }} on,
+        {{ total_off }} off.
+      </p>
+    </div>
+  </div>
+
+  {% for category, rows in grouped_flags.items %}
+    <section class="card" style="margin-top: 16px;">
+      <div class="card__head">
+        <h3>{{ category }}</h3>
+      </div>
+      <div class="card__body">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th style="width: 32%;">Feature</th>
+              <th>Description</th>
+              <th style="width: 12%; text-align: right;">State</th>
+              <th style="width: 14%; text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in rows %}
+              <tr>
+                <td>
+                  <div style="font: 600 14px 'Public Sans', sans-serif;">{{ r.label }}</div>
+                  <div class="t-muted t-xs" style="font-family: 'IBM Plex Mono', monospace; margin-top: 2px;">
+                    {{ r.key }}
+                  </div>
+                  {% if r.updated_by %}
+                    <div class="t-muted t-xs" style="margin-top: 4px;">
+                      Last changed by {{ r.updated_by.email }} at {{ r.updated_at|date:"M j, g:i a" }}
+                    </div>
+                  {% endif %}
+                </td>
+                <td class="t-sm">{{ r.description }}</td>
+                <td style="text-align: right;">
+                  {% if r.is_enabled %}
+                    <span class="tag tag--success">On</span>
+                  {% else %}
+                    <span class="tag tag--neutral">Off</span>
+                  {% endif %}
+                </td>
+                <td style="text-align: right;">
+                  <form action="{% url 'staff_review:feature_flag_toggle' %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="key" value="{{ r.key }}">
+                    <button type="submit" class="btn btn--ghost btn--sm">
+                      {% if r.is_enabled %}Turn off{% else %}Turn on{% endif %}
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  {% endfor %}
+
+  <div class="alert alert--info" style="margin-top: 24px;">
+    <div class="alert__icon">i</div>
+    <div class="alert__body">
+      <h4 class="alert__title">How flags work</h4>
+      <div class="alert__text">
+        Toggling a flag off hides the nav link AND blocks the underlying
+        URL with a friendly "feature disabled" page. Changes take effect
+        immediately for every user. Re-enabling restores normal behavior.
+        Adding a brand new flag in code defaults it to On until you
+        explicitly turn it off here.
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

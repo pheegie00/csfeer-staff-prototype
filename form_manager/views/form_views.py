@@ -42,11 +42,20 @@ def form_list(request):
     # Batch H: only show templates this org is in scope for (CORE-22), and
     # annotate each with its current-FY window state (CORE-25) so the
     # template can render Open / Opens MM/DD / Closed badges.
+    # Gated by the recipient_window_enforcement flag so a demo can show
+    # the unrestricted form-fill flow when desired.
+    from staff_review.feature_flags import is_enabled
+    enforcement_on = is_enabled("recipient_window_enforcement")
     if org is not None:
-        eligible = forms_available_to_org(
-            FormDefinition.objects.filter(is_active=True), org,
-        )
-        definitions = list(annotate_window_state(eligible))
+        base_qs = FormDefinition.objects.filter(is_active=True)
+        if enforcement_on:
+            eligible = forms_available_to_org(base_qs, org)
+            definitions = list(annotate_window_state(eligible))
+        else:
+            # Flag off: every active form shows, no window badges, no scope filter.
+            definitions = list(base_qs)
+            for fd in definitions:
+                fd.window_state = None
     else:
         definitions = []
 
@@ -71,15 +80,18 @@ def form_start(request, form_id: UUID):
     form_def = get_object_or_404(FormDefinition, id=form_id, is_active=True)
 
     # Batch H: enforce scope + window before creating the FormEntry.
-    try:
-        assert_can_start_form(form_def, org)
-    except FormStartBlocked as blocked:
-        messages.error(request, blocked.message)
-        logger.info(
-            "form_start blocked for user=%s org=%s form=%s reason=%s",
-            request.user, org.name, form_def.name, blocked.reason_code,
-        )
-        return redirect("form_list")
+    # Gated by the recipient_window_enforcement feature flag.
+    from staff_review.feature_flags import is_enabled
+    if is_enabled("recipient_window_enforcement"):
+        try:
+            assert_can_start_form(form_def, org)
+        except FormStartBlocked as blocked:
+            messages.error(request, blocked.message)
+            logger.info(
+                "form_start blocked for user=%s org=%s form=%s reason=%s",
+                request.user, org.name, form_def.name, blocked.reason_code,
+            )
+            return redirect("form_list")
 
     last = (
         FormEntry.objects.filter(organization=org, form_definition=form_def)

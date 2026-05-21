@@ -89,14 +89,19 @@ DEMO_ADMIN_SESSION_KEY = "is_demo_admin"
 def _request_can_use_viewas(request) -> bool:
     """A request may use the View-as toggle if:
 
-    1. The current user IS a superuser, OR
-    2. The session was previously a superuser who initiated View-as
+    1. The view_as_toggle feature flag is ON, AND
+    2. The current user IS a superuser, OR
+       The session was previously a superuser who initiated View-as
        (DEMO_ADMIN_SESSION_KEY=True).
 
-    This second case is what lets a demo flow work fluidly: log in as
-    root@acf.hhs.gov, switch to Maya, then keep switching to Dana / Sam
-    without having to sign back out and in as root each time.
+    Case 2's second clause is what lets a demo flow work fluidly: log
+    in as root@acf.hhs.gov, switch to Maya, then keep switching to
+    Dana / Sam without having to sign back out and in as root each
+    time.
     """
+    from staff_review.feature_flags import is_enabled
+    if not is_enabled("view_as_toggle"):
+        return False
     if not request.user.is_authenticated:
         return False
     if request.user.is_superuser:

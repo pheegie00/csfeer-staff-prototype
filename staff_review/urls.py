@@ -1,5 +1,6 @@
 from django.urls import path
 
+from staff_review.admin_views import FeatureFlagAdminView, FeatureFlagToggleView
 from staff_review.demo_views import DemoUsersIndexView, ViewAsUserView
 from staff_review.form_builder_views import (
     FormBuilderDetailView,
@@ -7,6 +8,11 @@ from staff_review.form_builder_views import (
     FormScopingEditView,
     PublishNewVersionView,
     SubmissionWindowEditView,
+)
+from staff_review.help_views import (
+    HelpArticleView,
+    HelpChatView,
+    HelpIndexView,
 )
 from staff_review.views import (
     AuditLogView,
@@ -61,4 +67,13 @@ urlpatterns = [
     # Phase 4 Step 7 -- View-as impersonation for demo / testing (superuser-only)
     path("demo-users/", DemoUsersIndexView.as_view(), name="demo_users_index"),
     path("demo-users/view-as/", ViewAsUserView.as_view(), name="view_as_user"),
+
+    # Phase 4 Step 9 -- Help section (role-filtered KB + chatbot)
+    path("help/", HelpIndexView.as_view(), name="help_index"),
+    path("help/chat/", HelpChatView.as_view(), name="help_chat"),
+    path("help/<slug:slug>/", HelpArticleView.as_view(), name="help_article"),
+
+    # Phase 4 Step 10 -- Feature flag admin (superuser-only)
+    path("features/", FeatureFlagAdminView.as_view(), name="feature_flags_admin"),
+    path("features/toggle/", FeatureFlagToggleView.as_view(), name="feature_flag_toggle"),
 ]

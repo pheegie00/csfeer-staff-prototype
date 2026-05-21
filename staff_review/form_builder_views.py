@@ -49,6 +49,7 @@ from django.views.generic import TemplateView
 from form_manager.models.forms import FormDefinition, FormEntry
 from organizations.models import OrgType
 from programs.models import FormScoping, Program, SubmissionWindow
+from staff_review.feature_flags import FeatureRequiredMixin
 from staff_review.mock_data import USER
 from staff_review.permissions import StaffRequiredMixin
 from staff_review.publish_service import (
@@ -83,7 +84,9 @@ def _user_can_manage(user, form_def):
     return user.program_assignments.filter(program_id=form_def.program_id).exists()
 
 
-class FormBuilderListView(StaffRequiredMixin, TemplateView):
+class FormBuilderListView(FeatureRequiredMixin, StaffRequiredMixin, TemplateView):
+    feature_key = "form_builder"
+
     """List form templates the current user can manage.
 
     Splits the list into two sections:
@@ -106,8 +109,11 @@ class FormBuilderListView(StaffRequiredMixin, TemplateView):
         )
 
         # ?program=<code> narrows the list to one program. Empty / unknown
-        # falls back to "all my programs."
-        program_filter = (self.request.GET.get("program") or "").strip()
+        # falls back to "all my programs." Gated by feature flag so a demo
+        # presenter can disable the filtering UI entirely if desired.
+        from staff_review.feature_flags import is_enabled
+        chip_filters_on = is_enabled("form_builder_chip_filters")
+        program_filter = (self.request.GET.get("program") or "").strip() if chip_filters_on else ""
         active_program = None
         if program_filter:
             active_program = next(
@@ -144,7 +150,9 @@ class FormBuilderListView(StaffRequiredMixin, TemplateView):
         return ctx
 
 
-class FormBuilderDetailView(StaffRequiredMixin, TemplateView):
+class FormBuilderDetailView(FeatureRequiredMixin, StaffRequiredMixin, TemplateView):
+    feature_key = "form_builder"
+
     """Single form template's lifecycle dashboard.
 
     Shows: program, current version, version history, cycle type,
@@ -214,7 +222,9 @@ class FormBuilderDetailView(StaffRequiredMixin, TemplateView):
 # SUBMISSION WINDOW EDIT (CORE-25)
 # ============================================================
 
-class SubmissionWindowEditView(StaffRequiredMixin, View):
+class SubmissionWindowEditView(FeatureRequiredMixin, StaffRequiredMixin, View):
+    feature_key = "form_builder"
+
     """POST handler: create or update a SubmissionWindow.
 
     Form fields:
@@ -264,7 +274,9 @@ class SubmissionWindowEditView(StaffRequiredMixin, View):
 # FORM SCOPING EDIT (CORE-22)
 # ============================================================
 
-class FormScopingEditView(StaffRequiredMixin, View):
+class FormScopingEditView(FeatureRequiredMixin, StaffRequiredMixin, View):
+    feature_key = "form_builder"
+
     """POST handler: update org-type scoping on a FormDefinition.
 
     Form fields:
@@ -303,7 +315,9 @@ class FormScopingEditView(StaffRequiredMixin, View):
 # PUBLISH NEW VERSION (CORE-23, CORE-24)
 # ============================================================
 
-class PublishNewVersionView(StaffRequiredMixin, TemplateView):
+class PublishNewVersionView(FeatureRequiredMixin, StaffRequiredMixin, TemplateView):
+    feature_key = "form_builder"
+
     """GET: render the publish form. POST: execute the publish service.
 
     The form shows the proposed new version (defaults to source's

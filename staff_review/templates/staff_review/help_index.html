@@ -1,0 +1,182 @@
+{% extends "staff_review/_base_staff.html" %}
+
+{% block title %}Help - CORE{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Help-specific layout */
+  .help-grid {
+    display: grid; grid-template-columns: 1fr 360px; gap: 24px;
+    align-items: start;
+  }
+  @media (max-width: 1000px) {
+    .help-grid { grid-template-columns: 1fr; }
+  }
+  .help-cat { margin-bottom: 28px; }
+  .help-cat__title {
+    font: 600 16px "Public Sans", sans-serif; color: #1f2937;
+    margin: 0 0 10px; padding-bottom: 6px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .help-art {
+    padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 6px;
+    margin-bottom: 8px; background: #fff;
+    transition: border-color 0.12s ease, background 0.12s ease;
+  }
+  .help-art:hover { border-color: #6366f1; background: #f5f3ff; }
+  .help-art a { text-decoration: none; color: inherit; display: block; }
+  .help-art__title { font: 600 14px "Public Sans", sans-serif; color: #111827; }
+  .help-art__summary { color: #6b7280; font-size: 13px; margin-top: 4px; }
+
+  /* Chat widget */
+  .help-chat {
+    position: sticky; top: 16px;
+    border: 1px solid #d1d5db; border-radius: 8px;
+    background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    display: flex; flex-direction: column;
+    max-height: calc(100vh - 100px);
+  }
+  .help-chat__hdr {
+    padding: 12px 14px; border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb; border-radius: 8px 8px 0 0;
+  }
+  .help-chat__hdr-title { font: 600 14px "Public Sans", sans-serif; color: #111827; }
+  .help-chat__hdr-sub { font-size: 12px; color: #6b7280; margin-top: 2px; }
+  .help-chat__log {
+    flex: 1 1 auto; overflow-y: auto; padding: 12px 14px;
+    min-height: 200px;
+  }
+  .help-chat__empty {
+    color: #9ca3af; font-size: 13px; padding: 16px 0; text-align: center;
+  }
+  .help-chat__turn { margin-bottom: 12px; }
+  .help-chat__turn--user { text-align: right; }
+  .help-chat__bubble {
+    display: inline-block; padding: 8px 12px; border-radius: 12px;
+    max-width: 95%; font-size: 13px; line-height: 1.4;
+  }
+  .help-chat__bubble--user {
+    background: #1d4ed8; color: #fff; border-bottom-right-radius: 4px;
+  }
+  .help-chat__bubble--assistant {
+    background: #f3f4f6; color: #111827; border-bottom-left-radius: 4px;
+    text-align: left;
+  }
+  .help-chat__article-link {
+    display: block; margin-top: 6px; padding: 6px 8px;
+    background: #fff; border: 1px solid #d1d5db; border-radius: 4px;
+    color: #1d4ed8; text-decoration: none; font-size: 12px;
+  }
+  .help-chat__article-link:hover { background: #eff6ff; }
+  .help-chat__article-link strong { display: block; color: #111827; }
+  .help-chat__article-link span { color: #6b7280; font-weight: normal; }
+  .help-chat__form {
+    border-top: 1px solid #e5e7eb; padding: 10px 12px;
+    display: flex; gap: 6px; align-items: flex-end;
+  }
+  .help-chat__input {
+    flex: 1; padding: 8px 10px;
+    border: 1px solid #d1d5db; border-radius: 4px;
+    font: 400 13px "Public Sans", sans-serif;
+    resize: vertical; min-height: 36px;
+  }
+  .help-chat__send {
+    padding: 8px 14px; background: #1d4ed8; color: #fff;
+    border: 0; border-radius: 4px; cursor: pointer;
+    font: 500 13px "Public Sans", sans-serif;
+  }
+  .help-chat__send:hover { background: #1e3a8a; }
+  .help-chat__reset {
+    background: none; border: 0; color: #6b7280;
+    font-size: 12px; cursor: pointer; padding: 4px;
+  }
+  .help-chat__reset:hover { color: #ef4444; }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="page-shell" style="max-width: 1280px;">
+  <div class="page-shell__hdr">
+    <div>
+      <h1 class="page-shell__title">Help</h1>
+      <p class="t-muted">
+        {{ total_articles }} article{{ total_articles|pluralize }} available for your role.
+        Quick start guides up top, browse by category below.
+      </p>
+    </div>
+  </div>
+
+  <div class="help-grid">
+    <div>
+      {% for category, arts in articles_by_category.items %}
+        <section class="help-cat">
+          <h2 class="help-cat__title">{{ category }}</h2>
+          {% for a in arts %}
+            <div class="help-art">
+              <a href="{% url 'staff_review:help_article' slug=a.slug %}">
+                <div class="help-art__title">{{ a.title }}</div>
+                <div class="help-art__summary">{{ a.summary }}</div>
+              </a>
+            </div>
+          {% endfor %}
+        </section>
+      {% empty %}
+        <div class="card">
+          <div class="card__body">
+            <p class="t-muted">
+              No articles match your current role. If you think this is a
+              mistake, contact a Platform Admin to widen your assignments.
+            </p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if chatbot_enabled %}
+      <aside class="help-chat" id="chat">
+        <div class="help-chat__hdr">
+          <div class="help-chat__hdr-title">Help assistant</div>
+          <div class="help-chat__hdr-sub">
+            I search the knowledge base above. Ask me anything you can think of
+            and I will point you to the right article.
+          </div>
+        </div>
+        <div class="help-chat__log">
+          {% if chat_history %}
+            {% for turn in chat_history %}
+              <div class="help-chat__turn help-chat__turn--{{ turn.role }}">
+                <div class="help-chat__bubble help-chat__bubble--{{ turn.role }}">
+                  {{ turn.text }}
+                  {% for art in turn.articles %}
+                    <a class="help-chat__article-link" href="{% url 'staff_review:help_article' slug=art.slug %}">
+                      <strong>{{ art.title }}</strong>
+                      <span>{{ art.summary }}</span>
+                    </a>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endfor %}
+            <form action="{% url 'staff_review:help_chat' %}" method="post" style="text-align: center; margin-top: 8px;">
+              {% csrf_token %}
+              <input type="hidden" name="reset" value="1">
+              <button type="submit" class="help-chat__reset">Clear conversation</button>
+            </form>
+          {% else %}
+            <div class="help-chat__empty">
+              No conversation yet. Try "how do I return a submission" or
+              "what does Opens Jul 1 mean".
+            </div>
+          {% endif %}
+        </div>
+        <form action="{% url 'staff_review:help_chat' %}" method="post" class="help-chat__form">
+          {% csrf_token %}
+          <textarea name="query" class="help-chat__input" placeholder="Ask a question..." rows="1"></textarea>
+          <button type="submit" class="help-chat__send">Send</button>
+        </form>
+      </aside>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}
+
+{% block nav_help_class %}is-active{% endblock %}

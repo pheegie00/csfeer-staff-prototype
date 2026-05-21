@@ -129,3 +129,11 @@ class FormReturnItem(BaseModel):
     @property
     def is_acknowledged(self) -> bool:
         return self.acknowledged_at is not None
+
+
+# Re-export so Django auto-discovers the feature_flags + audit models.
+from staff_review.audit_models import (  # noqa: E402, F401
+    AccountAuditTrail,
+    SystemEvent,
+)
+from staff_review.feature_flags import FeatureFlag  # noqa: E402, F401

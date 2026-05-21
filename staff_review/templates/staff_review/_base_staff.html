@@ -82,10 +82,23 @@
   {% endcomment %}
   <nav class="app-header__nav">
     <a href="{% url 'staff_review:inbox' %}" class="{% block nav_inbox_class %}{% endblock %}">Submissions</a>
-    <a href="{% url 'staff_review:form_builder_list' %}" class="{% block nav_form_builder_class %}{% endblock %}">Form templates</a>
-    <a href="{% url 'staff_review:exports' %}" class="{% block nav_exports_class %}{% endblock %}">Exports</a>
-    <a href="{% url 'staff_review:audit_log' %}" class="{% block nav_audit_class %}{% endblock %}">Audit log</a>
-    <a href="#">Help</a>
+    {% if flags.form_builder %}
+      <a href="{% url 'staff_review:form_builder_list' %}" class="{% block nav_form_builder_class %}{% endblock %}">Form templates</a>
+    {% endif %}
+    {% if flags.csv_exports %}
+      <a href="{% url 'staff_review:exports' %}" class="{% block nav_exports_class %}{% endblock %}">Exports</a>
+    {% endif %}
+    {% if flags.audit_log_viewer %}
+      <a href="{% url 'staff_review:audit_log' %}" class="{% block nav_audit_class %}{% endblock %}">Audit log</a>
+    {% endif %}
+    {% if flags.help_section %}
+      <a href="{% url 'staff_review:help_index' %}" class="{% block nav_help_class %}{% endblock %}">Help</a>
+    {% endif %}
+    {% if request.user.is_superuser %}
+      <a href="{% url 'staff_review:feature_flags_admin' %}" class="{% block nav_features_class %}{% endblock %}" title="Toggle features on/off">
+        <span style="opacity: 0.7;">&#9881;</span> Features
+      </a>
+    {% endif %}
   </nav>
   <div class="app-header__user">
     <button class="iconbtn" title="Notifications">&#9993;<span class="iconbtn__dot"></span></button>

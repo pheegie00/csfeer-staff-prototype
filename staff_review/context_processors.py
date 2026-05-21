@@ -114,8 +114,15 @@ def staff_persona(request):
     can_view_as = _request_can_use_viewas(request)
     demo_personas = get_demo_personas() if can_view_as else []
 
+    # Feature flags: exposed as a plain dict so templates can do
+    # `{% if flags.help_section %}`. Lazy import to avoid pulling models
+    # at module load.
+    from staff_review.feature_flags import flags_enabled_map
+    flags = flags_enabled_map()
+
     return {
         "staff_persona": persona,
         "demo_personas": demo_personas,
         "is_demo_admin": can_view_as,
+        "flags": flags,
     }

@@ -32,6 +32,7 @@ from form_manager.models.forms import FormAuditDetail, FormAuditTrail, FormDefin
 from staff_review.audit_models import SystemEvent
 from staff_review.management.commands.seed_demo_data import stable_uuid
 from staff_review.models import FormReturn, FormReturnItem
+from staff_review.feature_flags import FeatureRequiredMixin
 from staff_review.permissions import StaffRequiredMixin, staff_queryset_filter
 from staff_review.mock_data import (
     FORM_DEFS,
@@ -742,7 +743,8 @@ class DeterminationRecordView(StaffRequiredMixin, View):
 # consistent across exports.
 
 
-class ExportsIndexView(StaffRequiredMixin, TemplateView):
+class ExportsIndexView(FeatureRequiredMixin, StaffRequiredMixin, TemplateView):
+    feature_key = "csv_exports"
     """Form to configure a CSV export.
 
     Lists distinct (form_definition, fiscal_year) combinations available
@@ -773,7 +775,9 @@ class ExportsIndexView(StaffRequiredMixin, TemplateView):
         return ctx
 
 
-class CSVExportView(StaffRequiredMixin, View):
+class CSVExportView(FeatureRequiredMixin, StaffRequiredMixin, View):
+    feature_key = "csv_exports"
+
     """Generate + stream a CSV file. CORE-46.
 
     Required query params:
@@ -886,7 +890,9 @@ class CSVExportView(StaffRequiredMixin, View):
 # audit event with actor + timestamp + action + notes + rationale.
 # Append-only on the DB side; this view is read-only.
 
-class AuditLogView(StaffRequiredMixin, TemplateView):
+class AuditLogView(FeatureRequiredMixin, StaffRequiredMixin, TemplateView):
+    feature_key = "audit_log_viewer"
+
     """System-wide audit log viewer.
 
     Filters: actor email, action type, organization, date range.

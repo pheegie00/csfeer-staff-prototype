@@ -1,0 +1,67 @@
+{% extends "staff_review/_base_staff.html" %}
+
+{% block title %}{{ article.title }} - Help - CORE{% endblock %}
+
+{% block extra_head %}
+<style>
+  .help-art-shell { max-width: 820px; margin: 0 auto; padding: 32px 24px; }
+  .help-art-back {
+    display: inline-block; color: #6b7280; text-decoration: none;
+    font-size: 13px; margin-bottom: 16px;
+  }
+  .help-art-back:hover { color: #1d4ed8; }
+  .help-art-cat {
+    display: inline-block; font-size: 12px; color: #6366f1;
+    text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .help-art-title { font: 700 28px "Public Sans", sans-serif; color: #111827; margin: 0 0 8px; }
+  .help-art-summary { font: 400 16px "Public Sans", sans-serif; color: #6b7280; margin-bottom: 24px; }
+  .help-art-body {
+    font: 400 15px/1.6 "Public Sans", sans-serif; color: #1f2937;
+  }
+  .help-art-body p { margin: 0 0 16px; }
+  .help-art-related {
+    margin-top: 40px; padding-top: 24px; border-top: 1px solid #e5e7eb;
+  }
+  .help-art-related h3 {
+    font: 600 14px "Public Sans", sans-serif; color: #6b7280;
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;
+  }
+  .help-art-related a {
+    display: block; padding: 10px 12px; border: 1px solid #e5e7eb;
+    border-radius: 6px; margin-bottom: 6px; text-decoration: none;
+    color: inherit;
+  }
+  .help-art-related a:hover { border-color: #6366f1; background: #f5f3ff; }
+  .help-art-related strong { display: block; color: #111827; }
+  .help-art-related span { color: #6b7280; font-size: 13px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="help-art-shell">
+  <a href="{% url 'staff_review:help_index' %}" class="help-art-back">&larr; All help articles</a>
+  <div class="help-art-cat">{{ article.category }}</div>
+  <h1 class="help-art-title">{{ article.title }}</h1>
+  <p class="help-art-summary">{{ article.summary }}</p>
+  <div class="help-art-body">
+    {# linebreaks filter wraps in <p>...</p> on blank lines and adds <br> within. #}
+    {{ article.body|linebreaks }}
+  </div>
+
+  {% if related %}
+    <div class="help-art-related">
+      <h3>More in {{ article.category }}</h3>
+      {% for r in related %}
+        <a href="{% url 'staff_review:help_article' slug=r.slug %}">
+          <strong>{{ r.title }}</strong>
+          <span>{{ r.summary }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+</main>
+{% endblock %}
+
+{% block nav_help_class %}is-active{% endblock %}
