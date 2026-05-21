@@ -171,6 +171,73 @@ on FormDefinition rows, and CSV export grouping.
 Mark this doc as ADR-001 in `docs/adr/` so the team knows the architecture
 direction. Future PRs reference it.
 
+## Form Builder is the multi-tenant admin layer
+
+Form Builder is **not just a lifecycle screen** -- it's the program-scoped admin
+interface that lets each program self-manage their forms without seeing
+each other's. This is what enables platform scaling without a central form-
+authoring bottleneck.
+
+### Requirements (program-scoped by default)
+
+- **OCS form admins** see + manage CSBG forms only. They cannot list, edit,
+  publish, or version TANF / HMRF forms.
+- **OFA TANF form admins** see + manage TANF forms only. They cannot see
+  CSBG.
+- **OFA HMRF form admins** see + manage HMRF forms only.
+- **Platform admins** (small group at ACF level) see all programs + manage
+  shared / cross-program forms like SF-424.
+- **Federal staff reviewers** (the staff_review user) generally do NOT have
+  Form Builder access -- different role, different permissions.
+
+### Affects every Form Builder feature
+
+| Feature                              | Program-scoped behavior                                          |
+|--------------------------------------|------------------------------------------------------------------|
+| List form templates                  | Queryset filtered by `form.program in user.assigned_programs`    |
+| Create new version of a form         | Restricted to forms in user's program(s)                          |
+| Publish form to recipient orgs       | Only orgs scoped to the same program(s)                          |
+| Set submission window                | Per-program calendar                                              |
+| Configure org scoping (CORE-22)      | Org picker filtered to user's program's eligible org types        |
+| Archive / unpublish form             | Only forms in user's program(s)                                  |
+| View version history                 | Only forms in user's program(s)                                  |
+| Audit log of form template changes   | Filtered by program                                              |
+
+### Shared forms (SF-424, etc.)
+
+SF-424 is used across every ACF grant program. Modeling options:
+
+1. **Single shared FormDefinition** owned by platform admins. Programs
+   reference it but cannot edit. Updates propagate everywhere.
+2. **Per-program copy** (own version per program). Programs can fork +
+   customize. More flexible but version drift risk.
+
+Recommend **Option 1** for SF-424 specifically (it's a federally
+standardized form). Allow Option 2 for program-specific forks if/when a
+program needs additional fields.
+
+Implementation needs:
+- `FormDefinition.is_shared` boolean
+- `FormDefinition.program` is nullable for shared forms (or use a special
+  "shared" Program with multiple owners)
+- Form Builder UI surfaces shared forms in a separate section, read-only
+  except for platform admins
+
+### Permissions needed (extend CORE-132 set)
+
+New permissions on `FormDefinition` (in addition to existing
+`form_view` / `form_edit`):
+
+| Permission code                  | Allowed action                                                 |
+|----------------------------------|----------------------------------------------------------------|
+| `form_builder_view_program`      | View forms within the user's assigned programs                 |
+| `form_builder_create_program`    | Create new form template versions within assigned programs     |
+| `form_builder_publish_program`   | Publish form versions, set windows, configure org scoping      |
+| `form_builder_archive_program`   | Archive / unpublish forms within assigned programs             |
+| `form_builder_view_shared`       | View cross-program shared forms (read-only)                    |
+| `form_builder_manage_shared`     | (Platform admin only) Edit shared forms like SF-424            |
+| `form_builder_view_all`          | (Platform admin only) View any program's forms                 |
+
 ## Things to NOT do now (deferred)
 
 - Full per-program permissions framework with role hierarchies. Premature.

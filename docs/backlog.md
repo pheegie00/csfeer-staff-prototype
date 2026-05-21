@@ -45,6 +45,44 @@ Each gets a CORE-xxx ticket number on file.
     programs; permissions reusable across programs.
   - Priority: HIGH -- required as soon as program #2 (TANF) lands.
 
+### Form Builder multi-tenancy (CRITICAL -- blocks program self-service)
+
+- **STAFF-MP-05: Program-scoped Form Builder permissions**
+  - Story: As an OCS form admin, I want to see and manage only CSBG forms.
+    As an OFA TANF form admin, I want to see and manage only TANF forms.
+    Each program self-manages without bleeding into others.
+  - Acceptance: 7 new FormDefinition permissions added (see
+    multi_program_architecture.md "Form Builder is the multi-tenant
+    admin layer"); Form Templates Manager UI filters templates by user's
+    assigned programs; cross-program leakage tested.
+  - Depends on: STAFF-MP-01, STAFF-MP-04.
+  - Priority: HIGH -- blocks any program self-service. Without this, every
+    new program needs a central platform admin to publish/version their
+    forms.
+
+- **STAFF-MP-06: Shared forms (SF-424 etc.) governance**
+  - Story: As a platform admin, I want to manage cross-program shared forms
+    like SF-424 from one place, while program admins reference but cannot
+    edit them.
+  - Acceptance: `FormDefinition.is_shared` boolean added; shared forms
+    surface in their own section in the Form Builder UI; only users with
+    `form_builder_manage_shared` perm can edit.
+  - Depends on: STAFF-MP-05.
+  - Priority: MEDIUM -- needed when first non-CSBG program lands (because
+    SF-424 will be referenced).
+
+- **STAFF-MP-07: Form Builder UI -- per-program views**
+  - Story: As a form admin, when I open Form Builder I see a list scoped to
+    my program(s). I never see other programs' forms unless I'm explicitly
+    assigned.
+  - Acceptance: Form Templates Manager screen (currently scaffolded in
+    staff_prototype Screen 7 + HTML mockup) updated to: (a) filter by
+    user's programs, (b) show shared-forms section separately, (c) only
+    show Publish + Edit actions on forms user has permission for.
+  - Depends on: STAFF-MP-05.
+  - Priority: HIGH -- shipping Form Builder without this would teach users
+    a global-admin pattern we'd have to retrain.
+
 ### TANF-specific forms (per OFA grant program research)
 
 - **STAFF-MP-10: Add TANF Form Family enums**

@@ -19,6 +19,12 @@
       <div class="app-header__subtitle">Community Outcomes Reporting Engine &middot; OCS</div>
     </div>
   </a>
+  {# TODO STAFF-MP-05/07: Form templates nav item leads to Form Builder.
+     When built, the Form Builder UI must be program-scoped per
+     docs/multi_program_architecture.md ("Form Builder is the multi-tenant
+     admin layer"). Each program admin sees + manages only their own
+     program's forms. Shared forms (SF-424 etc.) shown in a separate
+     section, read-only for everyone except platform admins. #}
   <nav class="app-header__nav">
     <a href="{% url 'staff_review:inbox' %}" class="active">Submissions</a>
     <a href="#">Form templates</a>
