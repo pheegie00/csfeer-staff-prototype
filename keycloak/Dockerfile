@@ -8,7 +8,7 @@
 #   For a prototype this is fine; if the machine is destroyed, the next
 #   boot re-imports from the JSON.
 
-FROM quay.io/keycloak/keycloak:26.0
+FROM quay.io/keycloak/keycloak:26.4
 
 # Enable the health endpoint so Fly's TCP check has something solid to hit.
 ENV KC_HEALTH_ENABLED=true \

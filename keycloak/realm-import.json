@@ -2801,5 +2801,7 @@
         }
       ]
     }
-  ]
+  ],
+  "organizationsEnabled": false,
+  "verifiableCredentialsEnabled": false
 }
