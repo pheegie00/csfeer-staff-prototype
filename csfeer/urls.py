@@ -31,6 +31,7 @@ urlpatterns = [
     path("oidc/", include("oauth2_authcodeflow.urls")),
     path("forms/", include("form_manager.urls")),
     path("staff-prototype/", include("staff_prototype.urls")),
+    path("staff/", include("staff_review.urls")),
     path("api/v1/", form_api.urls),
 ]
 

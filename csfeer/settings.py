@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "form_manager",
     "organizations",
     "staff_prototype",
+    "staff_review",
     "django.forms",
 ]
 
