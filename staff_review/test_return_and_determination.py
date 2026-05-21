@@ -17,7 +17,7 @@ from staff_review.models import FormReturn, FormReturnItem
 
 User = get_user_model()
 
-_TEST_MIDDLEWARE = [m for m in settings.MIDDLEWARE if "oauth2_authcodeflow" not in m]
+_TEST_MIDDLEWARE = [m for m in settings.MIDDLEWARE if "oauth2_authcodeflow" not in m and "LoginRequiredMiddlewareWithCurrentPath" not in m]
 
 
 @override_settings(MIDDLEWARE=_TEST_MIDDLEWARE)

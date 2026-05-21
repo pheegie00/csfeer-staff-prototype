@@ -57,7 +57,10 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "oauth2_authcodeflow.middleware.LoginRequiredMiddleware",
+    # Custom subclass: sends users back to the URL they actually requested
+    # rather than the stale session-cached `next` from a prior login. See
+    # csfeer/middleware.py.
+    "csfeer.middleware.LoginRequiredMiddlewareWithCurrentPath",
     "oauth2_authcodeflow.middleware.RefreshAccessTokenMiddleware",
     "oauth2_authcodeflow.middleware.RefreshSessionMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",

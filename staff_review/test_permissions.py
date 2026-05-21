@@ -22,7 +22,7 @@ from staff_review.permissions import FEDERAL_STAFF_GROUP, staff_queryset_filter
 
 User = get_user_model()
 
-_TEST_MIDDLEWARE = [m for m in settings.MIDDLEWARE if "oauth2_authcodeflow" not in m]
+_TEST_MIDDLEWARE = [m for m in settings.MIDDLEWARE if "oauth2_authcodeflow" not in m and "LoginRequiredMiddlewareWithCurrentPath" not in m]
 
 # Every URL the mixin protects (mirrors staff_review/urls.py)
 PROTECTED_URLS = [

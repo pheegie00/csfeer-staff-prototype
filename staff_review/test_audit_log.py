@@ -28,7 +28,7 @@ from staff_review.audit_models import (
 from staff_review.management.commands.seed_demo_data import stable_uuid
 
 User = get_user_model()
-_TEST_MIDDLEWARE = [m for m in settings.MIDDLEWARE if "oauth2_authcodeflow" not in m]
+_TEST_MIDDLEWARE = [m for m in settings.MIDDLEWARE if "oauth2_authcodeflow" not in m and "LoginRequiredMiddlewareWithCurrentPath" not in m]
 
 
 @override_settings(MIDDLEWARE=_TEST_MIDDLEWARE)
