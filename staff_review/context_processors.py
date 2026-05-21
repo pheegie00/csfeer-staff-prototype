@@ -30,18 +30,26 @@ def _role_label(user):
 
     # Staff side: read the highest-privilege role across their program assignments.
     if user.groups.filter(name=FEDERAL_STAFF_GROUP).exists():
-        assignments = user.program_assignments.select_related("program__office").all()
+        assignments = list(user.program_assignments.select_related("program__office").all())
         if not assignments:
             return "Federal Staff"
         roles = {a.role for a in assignments}
-        # Office spans the assignments?
+
+        # If the user covers exactly ONE program, name the program. Otherwise
+        # collapse to office codes -- this lets us distinguish a "CSBG-only"
+        # admin from an "OCS-wide" admin in the header chip.
+        programs = {a.program.code for a in assignments}
         offices = {a.program.office.code for a in assignments}
-        office_str = "/".join(sorted(offices))
+        if len(programs) == 1:
+            scope_str = next(iter(programs))
+        else:
+            scope_str = "/".join(sorted(offices))
+
         if "admin" in roles:
-            return f"{office_str} Program Admin"
+            return f"{scope_str} Program Admin"
         if "auditor" in roles:
-            return f"{office_str} Auditor"
-        return f"{office_str} Reviewer"
+            return f"{scope_str} Auditor"
+        return f"{scope_str} Reviewer"
 
     # Recipient side: recipient groups are attached at
     # UserOrganizationMembership.groups (not user.groups directly). Union both.
@@ -98,16 +106,16 @@ def staff_persona(request):
         "is_superuser": u.is_superuser,
     }
 
-    # Only superusers see the View-as dropdown. Importing inside the
-    # function avoids a circular-import risk at app load.
-    if u.is_superuser:
-        from staff_review.demo_views import get_demo_personas
-        demo_personas = get_demo_personas()
-    else:
-        demo_personas = []
+    # Show the View-as dropdown if the request is allowed to impersonate:
+    # either the current user is a superuser, OR they were the superuser
+    # who initiated View-as earlier in this session (session flag).
+    # Importing inside the function avoids a circular-import risk at app load.
+    from staff_review.demo_views import _request_can_use_viewas, get_demo_personas
+    can_view_as = _request_can_use_viewas(request)
+    demo_personas = get_demo_personas() if can_view_as else []
 
     return {
         "staff_persona": persona,
         "demo_personas": demo_personas,
-        "is_demo_admin": u.is_superuser,
+        "is_demo_admin": can_view_as,
     }

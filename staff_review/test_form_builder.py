@@ -128,3 +128,55 @@ class FormBuilderProgramScopingTest(TestCase):
         c2 = self._client(super_u)
         resp2 = c2.get(f"/staff/form-builder/{self.shared_form.id}/")
         self.assertTrue(resp2.context["can_manage"])
+
+
+@override_settings(MIDDLEWARE=_TEST_MIDDLEWARE)
+class FormBuilderProgramChipFilterTest(TestCase):
+    """The 'Your programs:' chips on /staff/form-builder/ are clickable filters."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_demo_data", verbosity=0)
+        cls.maya = User.objects.get(email="maya.rodriguez@acf.hhs.gov")
+
+    def _client(self, user):
+        c = Client(HTTP_HOST="localhost")
+        c.force_login(user)
+        return c
+
+    def test_no_filter_shows_all_assigned_program_forms(self):
+        c = self._client(self.maya)
+        resp = c.get("/staff/form-builder/")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIsNone(resp.context["active_program_code"])
+        program_codes = {fd.program.code for fd in resp.context["owned_forms"]}
+        # Maya covers all OCS programs -- should see forms from multiple
+        self.assertGreater(len(program_codes), 1)
+
+    def test_chip_filter_narrows_to_one_program(self):
+        c = self._client(self.maya)
+        resp = c.get("/staff/form-builder/?program=CSBG")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context["active_program_code"], "CSBG")
+        program_codes = {fd.program.code for fd in resp.context["owned_forms"]}
+        self.assertEqual(program_codes, {"CSBG"},
+            "Filtered list should contain ONLY CSBG forms")
+
+    def test_chip_filter_ignored_for_program_not_in_assignments(self):
+        # Maya is OCS-only; ?program=TANF should be ignored (not silently
+        # leak OFA forms, but also not error -- just falls back to "all
+        # my programs").
+        c = self._client(self.maya)
+        resp = c.get("/staff/form-builder/?program=TANF")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIsNone(resp.context["active_program_code"],
+            "Unassigned program code should be ignored")
+        # Result should be Maya's normal (all OCS) view
+        for fd in resp.context["owned_forms"]:
+            self.assertEqual(fd.program.office.code, "OCS")
+
+    def test_unknown_program_code_is_ignored(self):
+        c = self._client(self.maya)
+        resp = c.get("/staff/form-builder/?program=NOPE")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIsNone(resp.context["active_program_code"])

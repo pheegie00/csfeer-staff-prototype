@@ -98,13 +98,32 @@ class FormBuilderListView(StaffRequiredMixin, TemplateView):
         u = self.request.user
         assigned_program_ids = _user_program_ids(u)
 
-        # Per-program templates
-        owned_forms = (
+        # Programs the user is assigned to -- shown as filter chips
+        assigned_programs = list(
+            Program.objects.filter(id__in=assigned_program_ids)
+            .select_related("office")
+            .order_by("office__code", "code")
+        )
+
+        # ?program=<code> narrows the list to one program. Empty / unknown
+        # falls back to "all my programs."
+        program_filter = (self.request.GET.get("program") or "").strip()
+        active_program = None
+        if program_filter:
+            active_program = next(
+                (p for p in assigned_programs if p.code == program_filter), None,
+            )
+
+        # Per-program templates -- filtered if a chip is selected
+        owned_qs = (
             FormDefinition.objects
             .filter(program_id__in=assigned_program_ids, is_shared=False)
             .select_related("program", "program__office")
             .order_by("program__code", "name", "-variant")
         )
+        if active_program is not None:
+            owned_qs = owned_qs.filter(program=active_program)
+        owned_forms = owned_qs
 
         # Shared templates (SF-424 etc.) -- visible to all staff, editable only by platform admins
         shared_forms = (
@@ -114,19 +133,13 @@ class FormBuilderListView(StaffRequiredMixin, TemplateView):
             .order_by("name", "-variant")
         )
 
-        # Programs the user is assigned to -- shown as filter chips
-        assigned_programs = (
-            Program.objects.filter(id__in=assigned_program_ids)
-            .select_related("office")
-            .order_by("office__code", "code")
-        )
-
         ctx.update({
             "user": USER,
             "owned_forms": owned_forms,
             "shared_forms": shared_forms,
             "assigned_programs": assigned_programs,
             "has_any_assignments": bool(assigned_program_ids),
+            "active_program_code": active_program.code if active_program else None,
         })
         return ctx
 

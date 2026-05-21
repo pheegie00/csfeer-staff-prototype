@@ -37,12 +37,28 @@ class SeedDemoUsersTest(TestCase):
             "dana.chen@acf.hhs.gov",
             "sam.patel@acf.hhs.gov",
             "riley.brooks@acf.hhs.gov",
+            "jordan.lee@acf.hhs.gov",
+            "casey.wu@acf.hhs.gov",
             "root@acf.hhs.gov",
         ]:
             self.assertTrue(
                 User.objects.filter(email=email).exists(),
                 f"Expected staff persona {email} to be seeded",
             )
+
+    def test_csbg_only_admin_assignments(self):
+        jordan = User.objects.get(email="jordan.lee@acf.hhs.gov")
+        assigned = list(jordan.program_assignments.select_related("program").all())
+        self.assertEqual(len(assigned), 1, "Jordan should have exactly 1 program assignment")
+        self.assertEqual(assigned[0].program.code, "CSBG")
+        self.assertEqual(assigned[0].role, "admin")
+
+    def test_liheap_only_admin_assignments(self):
+        casey = User.objects.get(email="casey.wu@acf.hhs.gov")
+        assigned = list(casey.program_assignments.select_related("program").all())
+        self.assertEqual(len(assigned), 1)
+        self.assertEqual(assigned[0].program.code, "LIHEAP")
+        self.assertEqual(assigned[0].role, "admin")
 
     def test_all_recipient_personas_seeded(self):
         for email in [
@@ -157,15 +173,40 @@ class ViewAsToggleTest(TestCase):
     def test_demo_users_index_lists_all_seeded_personas(self):
         c = self._client(self.root)
         resp = c.get("/staff/demo-users/")
-        # All 5 staff + 3 recipient emails should appear
+        # All 7 staff + 3 recipient emails should appear
         body = resp.content.decode()
         for email in [
             "maya.rodriguez@acf.hhs.gov", "dana.chen@acf.hhs.gov",
             "sam.patel@acf.hhs.gov", "riley.brooks@acf.hhs.gov",
+            "jordan.lee@acf.hhs.gov", "casey.wu@acf.hhs.gov",
             "root@acf.hhs.gov", "tribe-ao@example.com",
             "state-editor@example.com", "cbo-approver@example.com",
         ]:
             self.assertIn(email, body, f"{email} should appear in the personas list")
+
+    def test_toggle_persists_after_switching_from_superuser(self):
+        """is_demo_admin session flag keeps the toggle visible after switch.
+
+        Lets the demo flow superuser -> Maya -> Dana without re-login.
+        """
+        c = self._client(self.root)
+        # Switch from root to Maya (a non-superuser)
+        c.post(
+            "/staff/demo-users/view-as/",
+            data={"user_id": str(self.maya.id), "next": "/staff/"},
+        )
+        # Now we're Maya; she's NOT a superuser. But the session flag
+        # should still let her hit the demo-users page + switch again.
+        resp = c.get("/staff/demo-users/")
+        self.assertEqual(resp.status_code, 200,
+            "Demo-users index should remain accessible after switching to non-superuser")
+        # And a second switch should work
+        resp2 = c.post(
+            "/staff/demo-users/view-as/",
+            data={"user_id": str(self.dana.id), "next": "/staff/"},
+        )
+        self.assertEqual(resp2.status_code, 302)
+        self.assertEqual(str(c.session["_auth_user_id"]), str(self.dana.id))
 
 
 @override_settings(MIDDLEWARE=_TEST_MIDDLEWARE)
@@ -185,6 +226,13 @@ class RoleLabelTest(TestCase):
 
     def test_ocs_admin_label(self):
         self.assertEqual(self._role_label_for("dana.chen@acf.hhs.gov"), "OCS Program Admin")
+
+    def test_csbg_only_admin_label_names_program_not_office(self):
+        # Jordan covers ONE program (CSBG) -- label should say CSBG, not OCS.
+        self.assertEqual(self._role_label_for("jordan.lee@acf.hhs.gov"), "CSBG Program Admin")
+
+    def test_liheap_only_admin_label_names_program_not_office(self):
+        self.assertEqual(self._role_label_for("casey.wu@acf.hhs.gov"), "LIHEAP Program Admin")
 
     def test_ofa_admin_label(self):
         self.assertEqual(self._role_label_for("sam.patel@acf.hhs.gov"), "OFA Program Admin")

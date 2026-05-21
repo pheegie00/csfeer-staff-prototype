@@ -47,10 +47,16 @@ User = get_user_model()
 
 # ---- Staff personas ---------------------------------------------------
 
-# (email, first, last, office_code, role, is_superuser, label)
-# office_code = "OCS", "OFA", or "*" for cross-office (superuser).
+# (email, first, last, scope, role, is_superuser, label)
+#
+# scope is one of:
+#   "*"                  -- cross-office (superuser-style, all programs)
+#   "OCS" / "OFA"        -- all programs under that office
+#   ["CSBG", "LIHEAP"]   -- explicit list of program codes
+#
 # role values match UserProgramAssignment.ROLE_CHOICES.
 STAFF_PERSONAS = [
+    # Whole-office staff
     ("maya.rodriguez@acf.hhs.gov", "Maya", "Rodriguez", "OCS", "reviewer", False,
      "OCS Reviewer"),
     ("dana.chen@acf.hhs.gov", "Dana", "Chen", "OCS", "admin", False,
@@ -59,6 +65,14 @@ STAFF_PERSONAS = [
      "OFA Program Admin"),
     ("riley.brooks@acf.hhs.gov", "Riley", "Brooks", "OCS", "auditor", False,
      "OCS Auditor"),
+
+    # Single-program admins -- narrower than whole-office
+    ("jordan.lee@acf.hhs.gov", "Jordan", "Lee", ["CSBG"], "admin", False,
+     "CSBG Program Admin"),
+    ("casey.wu@acf.hhs.gov", "Casey", "Wu", ["LIHEAP"], "admin", False,
+     "LIHEAP Program Admin"),
+
+    # Cross-everything superuser
     ("root@acf.hhs.gov", "Platform", "Admin", "*", "admin", True,
      "Platform Superuser"),
 ]
@@ -111,7 +125,7 @@ class Command(BaseCommand):
         return group
 
     def _seed_staff_persona(self, persona, staff_group):
-        email, first, last, office_code, role, is_super, label = persona
+        email, first, last, scope, role, is_super, label = persona
 
         u, created = User.objects.get_or_create(
             email=email,
@@ -147,17 +161,29 @@ class Command(BaseCommand):
             self.stdout.write(f"  {email}  -> superuser (no program assignments needed)")
             return
 
-        if office_code == "*":
+        # Resolve `scope` to a Program queryset.
+        if scope == "*":
             programs = Program.objects.all()
+        elif isinstance(scope, str):
+            programs = Program.objects.filter(office__code=scope)
         else:
-            programs = Program.objects.filter(office__code=office_code)
+            # list/tuple of program codes
+            programs = Program.objects.filter(code__in=scope)
 
         if not programs.exists():
             self.stdout.write(self.style.WARNING(
-                f"  {email}: no programs found for office {office_code} -- "
+                f"  {email}: no programs matched scope={scope} -- "
                 f"did you run `migrate programs`?"
             ))
             return
+
+        # Idempotent: only the listed programs end up assigned. If a
+        # persona's scope NARROWS between seed runs (e.g. CSBG-only
+        # added after starting as OCS-wide), strip stale assignments.
+        target_ids = set(programs.values_list("id", flat=True))
+        stale = u.program_assignments.exclude(program_id__in=target_ids)
+        if stale.exists():
+            stale.delete()
 
         for program in programs:
             UserProgramAssignment.objects.update_or_create(

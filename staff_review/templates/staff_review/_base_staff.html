@@ -9,26 +9,34 @@
   <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'staff_prototype/styles.css' %}">
   <style>
-    /* Phase 4 Step 7: View-as dropdown -- superuser-only impersonation. */
-    .viewas-toggle { position: relative; margin-right: 12px; }
-    .viewas-toggle__btn {
+    /* Phase 4 Step 7: View-as dropdown wired into the header avatar.
+       Click the avatar / name to switch persona (demo-admin only). */
+    .viewas-toggle { position: relative; }
+    .viewas-toggle__avatar {
       cursor: pointer; list-style: none;
-      background: #fffbeb; border: 1px solid #facc15; border-radius: 4px;
-      padding: 6px 12px; font: 500 13px "Public Sans", sans-serif;
-      color: #92400e;
+      padding: 4px 8px; border-radius: 6px;
+      transition: background 0.12s ease;
     }
-    .viewas-toggle__btn::-webkit-details-marker { display: none; }
-    .viewas-toggle__btn:hover { background: #fef3c7; }
+    .viewas-toggle__avatar::-webkit-details-marker { display: none; }
+    .viewas-toggle__avatar:hover { background: #f3f4f6; }
+    details[open] > .viewas-toggle__avatar { background: #eef2ff; }
+    .viewas-toggle__chevron {
+      display: inline-block; margin-left: 4px;
+      font-size: 10px; color: #6b7280;
+      transition: transform 0.12s ease;
+    }
+    details[open] .viewas-toggle__chevron { transform: rotate(180deg); }
+
     .viewas-toggle__panel {
-      position: absolute; top: calc(100% + 4px); right: 0;
-      width: 320px; max-height: 480px; overflow-y: auto;
+      position: absolute; top: calc(100% + 6px); right: 0;
+      width: 340px; max-height: 520px; overflow-y: auto;
       background: #fff; border: 1px solid #d1d5db; border-radius: 6px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.12); z-index: 100;
-      padding: 8px 0;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 100;
+      padding: 6px 0;
     }
     .viewas-toggle__hdr {
-      padding: 10px 14px; border-bottom: 1px solid #e5e7eb;
-      font: 400 13px "Public Sans", sans-serif; color: #1f2937;
+      padding: 12px 14px; border-bottom: 1px solid #e5e7eb;
+      font: 600 13px "Public Sans", sans-serif; color: #1f2937;
     }
     .viewas-toggle__row { margin: 0; }
     .viewas-toggle__btn-row {
@@ -38,7 +46,7 @@
     }
     .viewas-toggle__btn-row:hover:not(:disabled) { background: #f3f4f6; }
     .viewas-toggle__btn-row:disabled {
-      opacity: 0.5; cursor: default; background: #f9fafb;
+      cursor: default; background: #f9fafb;
     }
     .viewas-toggle__row-name { color: #111827; }
     .viewas-toggle__row-meta { margin-top: 2px; }
@@ -80,16 +88,28 @@
     <a href="#">Help</a>
   </nav>
   <div class="app-header__user">
+    <button class="iconbtn" title="Notifications">&#9993;<span class="iconbtn__dot"></span></button>
     {% if is_demo_admin %}
-      {# Superuser-only "View as" dropdown -- one-click impersonation of seeded demo personas. #}
+      {# Clickable avatar -> View-as dropdown. Click the avatar/name to switch personas. #}
       <details class="viewas-toggle">
-        <summary class="viewas-toggle__btn" title="View as another role">
-          <span aria-hidden="true">&#x21C4;</span>&nbsp;View as
+        <summary class="viewas-toggle__avatar" title="Click to switch personas">
+          <div class="app-header__avatar">
+            <div class="avatar">{{ staff_persona.initials|default:"??" }}</div>
+            <div class="app-header__meta">
+              <div>
+                {{ staff_persona.name|default:"Guest" }}
+                <span class="viewas-toggle__chevron" aria-hidden="true">&#9662;</span>
+              </div>
+              <div class="t-muted t-xs">{{ staff_persona.role_label|default:"" }}</div>
+            </div>
+          </div>
         </summary>
         <div class="viewas-toggle__panel">
           <div class="viewas-toggle__hdr">
-            Currently: <strong>{{ staff_persona.name }}</strong>
-            <div class="t-muted t-xs">{{ staff_persona.role_label }}</div>
+            Switch persona (testing)
+            <div class="t-muted t-xs" style="margin-top:2px;">
+              Currently: <strong>{{ staff_persona.name }}</strong> -- {{ staff_persona.role_label }}
+            </div>
           </div>
           {% for p in demo_personas %}
             <form action="{% url 'staff_review:view_as_user' %}" method="post" class="viewas-toggle__row">
@@ -97,7 +117,10 @@
               <input type="hidden" name="user_id" value="{{ p.user_id }}">
               <input type="hidden" name="next" value="{{ request.get_full_path }}">
               <button type="submit" class="viewas-toggle__btn-row" {% if p.email == staff_persona.email %}disabled{% endif %}>
-                <div class="viewas-toggle__row-name">{{ p.display_name }}</div>
+                <div class="viewas-toggle__row-name">
+                  {{ p.display_name }}
+                  {% if p.email == staff_persona.email %}<span class="tag tag--success tag--sm" style="margin-left:6px;">Current</span>{% endif %}
+                </div>
                 <div class="viewas-toggle__row-meta t-muted t-xs">{{ p.label }}</div>
               </button>
             </form>
@@ -106,15 +129,15 @@
             See all demo personas -></a>
         </div>
       </details>
-    {% endif %}
-    <button class="iconbtn" title="Notifications">&#9993;<span class="iconbtn__dot"></span></button>
-    <div class="app-header__avatar">
-      <div class="avatar">{{ staff_persona.initials|default:"??" }}</div>
-      <div class="app-header__meta">
-        <div>{{ staff_persona.name|default:"Guest" }}</div>
-        <div class="t-muted t-xs">{{ staff_persona.role_label|default:"" }}</div>
+    {% else %}
+      <div class="app-header__avatar">
+        <div class="avatar">{{ staff_persona.initials|default:"??" }}</div>
+        <div class="app-header__meta">
+          <div>{{ staff_persona.name|default:"Guest" }}</div>
+          <div class="t-muted t-xs">{{ staff_persona.role_label|default:"" }}</div>
+        </div>
       </div>
-    </div>
+    {% endif %}
   </div>
 </header>
 

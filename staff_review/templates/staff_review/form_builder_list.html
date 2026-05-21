@@ -21,18 +21,46 @@
     </div>
   </div>
 
-  {# Assigned programs chip strip #}
+  {# Assigned programs chip strip -- click any chip to filter the list. #}
   {% if assigned_programs %}
   <div class="toolbar">
     <div class="toolbar__row">
       <div class="t-sm t-muted" style="margin-right:8px;">Your programs:</div>
+      <a href="{% url 'staff_review:form_builder_list' %}"
+         class="region-chip region-chip--link {% if not active_program_code %}region-chip--active{% endif %}"
+         title="Show all your programs">All</a>
       {% for p in assigned_programs %}
-        <span class="region-chip" title="{{ p.office.name }}">{{ p.office.code }} &middot; {{ p.code }}</span>
+        <a href="?program={{ p.code }}"
+           class="region-chip region-chip--link {% if active_program_code == p.code %}region-chip--active{% endif %}"
+           title="{{ p.office.name }} -- click to filter">{{ p.office.code }} &middot; {{ p.code }}</a>
       {% endfor %}
       <div class="toolbar__spacer"></div>
-      <span class="t-sm t-muted">Each program admin sees only their own program's forms. Shared forms (e.g., SF-424) are managed by platform admins.</span>
+      {% if active_program_code %}
+        <span class="t-sm t-muted">
+          Filtered to <strong>{{ active_program_code }}</strong>.
+          <a href="{% url 'staff_review:form_builder_list' %}">Clear</a>
+        </span>
+      {% else %}
+        <span class="t-sm t-muted">Click a chip to filter to one program.</span>
+      {% endif %}
     </div>
   </div>
+  <style>
+    /* Chip-as-link styling for the program filter strip. */
+    .region-chip--link {
+      cursor: pointer; text-decoration: none;
+      transition: background 0.12s ease, border-color 0.12s ease;
+    }
+    .region-chip--link:hover {
+      background: #eef2ff; border-color: #6366f1;
+    }
+    .region-chip--active {
+      background: #1d4ed8; color: #fff !important; border-color: #1d4ed8;
+    }
+    .region-chip--active:hover {
+      background: #1e3a8a; border-color: #1e3a8a;
+    }
+  </style>
   {% endif %}
 
   {# Your programs' templates #}

@@ -83,20 +83,45 @@ def get_demo_personas():
     return personas
 
 
-class _SuperuserRequiredMixin:
-    """Cheaper than UserPassesTestMixin -- just enforce is_superuser at dispatch."""
+DEMO_ADMIN_SESSION_KEY = "is_demo_admin"
+
+
+def _request_can_use_viewas(request) -> bool:
+    """A request may use the View-as toggle if:
+
+    1. The current user IS a superuser, OR
+    2. The session was previously a superuser who initiated View-as
+       (DEMO_ADMIN_SESSION_KEY=True).
+
+    This second case is what lets a demo flow work fluidly: log in as
+    root@acf.hhs.gov, switch to Maya, then keep switching to Dana / Sam
+    without having to sign back out and in as root each time.
+    """
+    if not request.user.is_authenticated:
+        return False
+    if request.user.is_superuser:
+        return True
+    return bool(request.session.get(DEMO_ADMIN_SESSION_KEY))
+
+
+class _ViewAsAdminRequiredMixin:
+    """Enforce View-as eligibility (real superuser OR session-flagged demo admin)."""
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect(reverse("staff_review:inbox"))  # login redirect
-        if not request.user.is_superuser:
+        if not _request_can_use_viewas(request):
             raise PermissionDenied(
                 "View-as is restricted to platform superusers."
             )
         return super().dispatch(request, *args, **kwargs)
 
 
-class DemoUsersIndexView(_SuperuserRequiredMixin, TemplateView):
+# Backward-compat alias for callers that imported the old name.
+_SuperuserRequiredMixin = _ViewAsAdminRequiredMixin
+
+
+class DemoUsersIndexView(_ViewAsAdminRequiredMixin, TemplateView):
     """List all seeded demo personas with a one-click 'View as' button.
 
     Linked from the staff nav's View-as dropdown. Useful as a single
@@ -112,7 +137,7 @@ class DemoUsersIndexView(_SuperuserRequiredMixin, TemplateView):
         return ctx
 
 
-class ViewAsUserView(_SuperuserRequiredMixin, View):
+class ViewAsUserView(_ViewAsAdminRequiredMixin, View):
     """POST -> switch the session login to the chosen demo persona.
 
     Accepts: user_id (POST), next (optional POST).
@@ -144,8 +169,20 @@ class ViewAsUserView(_SuperuserRequiredMixin, View):
             )
 
         # Django's login() rotates the session; the user_logged_in signal in
-        # staff_review/signals.py fires and writes an audit row.
-        login(request, target, backend="django.contrib.auth.backends.ModelBackend")
+        # staff_review/signals.py fires and writes an audit row. The backend
+        # MUST be one of settings.AUTHENTICATION_BACKENDS or the next
+        # request will see request.user as anonymous (Django logs them out
+        # when the stored backend isn't configured).
+        login(
+            request, target,
+            backend="csfeer.auth_backends.EmailOIDCAuthenticationBackend",
+        )
+
+        # Persist the demo-admin flag so the toggle stays visible after
+        # switching from superuser -> non-superuser persona. Otherwise the
+        # user would have to log back in as root@... to switch again.
+        request.session[DEMO_ADMIN_SESSION_KEY] = True
+
         messages.success(
             request,
             f"Now viewing as {target.first_name} {target.last_name} ({target.email}).",
