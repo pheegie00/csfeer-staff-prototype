@@ -42,7 +42,7 @@ class AppConfig(BaseSettings):
     )
     secret_key: str = "REPLACE ME"
     debug: bool = True
-    allowed_hosts: list[str] = ["localhost", "0.0.0.0", "ui.csfeer", "127.0.0.1"]
+    allowed_hosts: list[str] = ["localhost", "0.0.0.0", "ui.csfeer", "ui.core", "127.0.0.1"]
     time_zone: str = "America/New_York"
     language_code: str = "en-us"
     use_i18n: bool = True
