@@ -28,11 +28,12 @@ kill_timeout = "30s"
 # Runs once per release before swapping traffic to the new machine.
 # Migrates DB, seeds demo data (idempotent), and sets demo persona
 # passwords so users can sign in to the deployed demo.
-# NOTE: use absolute venv python path -- `sh -l` (login shell) wipes
-# the PATH ENV from the Dockerfile, so plain `python` resolves to the
-# system Python which doesn't have Django installed.
+# NOTE: must wrap in `sh -c` (without -l) so the && chain is parsed
+# as shell syntax instead of literal argv to the first python. And
+# we use absolute venv python paths because `-l` (login shell) would
+# strip the venv from PATH.
 [deploy]
-  release_command = "/app/.venv/bin/python manage.py migrate --noinput && /app/.venv/bin/python manage.py seed_demo_data && /app/.venv/bin/python manage.py set_demo_passwords"
+  release_command = "/bin/sh -c '/app/.venv/bin/python manage.py migrate --noinput && /app/.venv/bin/python manage.py seed_demo_data && /app/.venv/bin/python manage.py set_demo_passwords'"
   strategy = "rolling"
 
 [env]
