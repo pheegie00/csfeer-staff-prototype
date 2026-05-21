@@ -1,6 +1,11 @@
 from django.urls import path
 
-from staff_review.form_builder_views import FormBuilderDetailView, FormBuilderListView
+from staff_review.form_builder_views import (
+    FormBuilderDetailView,
+    FormBuilderListView,
+    FormScopingEditView,
+    SubmissionWindowEditView,
+)
 from staff_review.views import (
     AuditLogView,
     CSVExportView,
@@ -45,4 +50,7 @@ urlpatterns = [
     # Form Builder (Batch E.2) -- program-scoped form template management
     path("form-builder/", FormBuilderListView.as_view(), name="form_builder_list"),
     path("form-builder/<uuid:form_def_id>/", FormBuilderDetailView.as_view(), name="form_builder_detail"),
+    # Batch F -- CORE-25 (submission windows) + CORE-22 (org scoping)
+    path("form-builder/<uuid:form_def_id>/window/", SubmissionWindowEditView.as_view(), name="form_builder_window_edit"),
+    path("form-builder/<uuid:form_def_id>/scope/", FormScopingEditView.as_view(), name="form_builder_scope_edit"),
 ]

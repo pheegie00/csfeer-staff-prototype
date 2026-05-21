@@ -27,13 +27,8 @@
         </div>
       </div>
       <div class="ph__actions">
-        {% if can_manage %}
-          <button class="btn btn--ghost" disabled title="Needs OrgScoping data model (CORE-22)">Adjust org scoping</button>
-          <button class="btn btn--ghost" disabled title="Needs SubmissionWindow data model (CORE-25)">Edit submission window</button>
-          <button class="btn" disabled title="Needs form-schema editor UI (CORE-27 follow-up)">Publish new version</button>
-        {% else %}
-          <span class="t-sm t-muted">Read-only</span>
-        {% endif %}
+        {% if not can_manage %}<span class="t-sm t-muted">Read-only</span>{% endif %}
+        <button class="btn" disabled title="Needs form-schema editor UI (CORE-27 follow-up)">Publish new version</button>
       </div>
     </div>
   </div>
@@ -41,43 +36,163 @@
   <div class="layout layout--detail">
     <div class="layout__main">
 
+      {# ===== Submission window (CORE-25) ===== #}
       <div class="card" style="margin-bottom: 16px;">
-        <div class="card__head"><h3>Submission window (current FY)</h3></div>
+        <div class="card__head">
+          <h3>Submission window &middot; {{ current_fy }}</h3>
+          {% if current_window %}
+            {% if current_window.is_open %}
+              <span class="tag tag--success tag--dot">Open</span>
+            {% elif current_window.is_upcoming %}
+              <span class="tag tag--info tag--dot">Upcoming</span>
+            {% else %}
+              <span class="tag tag--warning tag--dot">Past Due</span>
+            {% endif %}
+          {% else %}
+            <span class="tag tag--neutral tag--sm">No window set</span>
+          {% endif %}
+        </div>
         <div class="card__body">
-          <div class="alert alert--neutral">
-            <div class="alert__icon">i</div>
-            <div class="alert__body">
-              <h4 class="alert__title">SubmissionWindow model not yet implemented</h4>
-              <div class="alert__text">
-                CORE-25 introduces per-form-per-FY open/close dates with
-                Open / Upcoming / Past Due status. UI shape will mirror
-                this card -- start date, end date, remaining days,
-                Edit button.
+          {% if current_window %}
+            <div class="grid-2" style="margin-bottom: 12px;">
+              <div class="fld">
+                <div class="fld__lbl">Opens</div>
+                <div class="fld__val">{{ current_window.opens_at|date:"Y-m-d (D)" }}</div>
+              </div>
+              <div class="fld">
+                <div class="fld__lbl">Closes</div>
+                <div class="fld__val">{{ current_window.closes_at|date:"Y-m-d (D)" }}</div>
               </div>
             </div>
-          </div>
+            {% if current_window.is_upcoming %}
+              <div class="t-sm t-muted">
+                Opens in {{ current_window.days_until_open }} day{{ current_window.days_until_open|pluralize }}.
+                Recipients cannot start drafts until then.
+              </div>
+            {% elif current_window.is_open %}
+              <div class="t-sm" style="color: var(--success);">
+                {{ current_window.days_until_close }} day{{ current_window.days_until_close|pluralize }} until close.
+              </div>
+            {% else %}
+              <div class="t-sm" style="color: var(--returned-darker);">
+                Closed {{ current_window.closes_at|date:"Y-m-d" }}. No new drafts can be started.
+                Existing drafts can still be edited + submitted per CORE-25.
+              </div>
+            {% endif %}
+          {% else %}
+            <p class="t-sm t-muted">No submission window set for {{ current_fy }}. Recipients cannot start new drafts until one is configured.</p>
+          {% endif %}
+
+          {% if can_manage %}
+          <form method="post" action="{% url 'staff_review:form_builder_window_edit' form_def_id=form_def.id %}"
+                style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line-soft);">
+            {% csrf_token %}
+            <div class="t-sm t-bold" style="margin-bottom: 8px;">Set / update window</div>
+            <div class="grid-2" style="grid-template-columns: 100px 1fr 1fr; gap: 12px;">
+              <div class="fld">
+                <label class="fld__lbl" for="window_fy">FY</label>
+                <input id="window_fy" type="text" name="fiscal_year" value="{{ current_fy }}"
+                       style="padding:7px 10px; border:1px solid var(--line); border-radius:4px;">
+              </div>
+              <div class="fld">
+                <label class="fld__lbl" for="window_opens">Opens</label>
+                <input id="window_opens" type="date" name="opens_at"
+                       value="{% if current_window %}{{ current_window.opens_at|date:'Y-m-d' }}{% endif %}"
+                       style="padding:7px 10px; border:1px solid var(--line); border-radius:4px;">
+              </div>
+              <div class="fld">
+                <label class="fld__lbl" for="window_closes">Closes</label>
+                <input id="window_closes" type="date" name="closes_at"
+                       value="{% if current_window %}{{ current_window.closes_at|date:'Y-m-d' }}{% endif %}"
+                       style="padding:7px 10px; border:1px solid var(--line); border-radius:4px;">
+              </div>
+            </div>
+            <div style="margin-top: 10px; text-align: right;">
+              <button type="submit" class="btn btn--sm">Save window</button>
+            </div>
+          </form>
+          {% endif %}
         </div>
       </div>
 
+      {# Other FY windows (history) #}
+      {% if windows|length > 1 %}
       <div class="card" style="margin-bottom: 16px;">
-        <div class="card__head"><h3>Organization scoping (CORE-22)</h3></div>
+        <div class="card__head"><h3>All windows</h3></div>
         <div class="card__body">
-          <div class="alert alert--neutral">
-            <div class="alert__icon">i</div>
-            <div class="alert__body">
-              <h4 class="alert__title">OrgScoping model not yet implemented</h4>
-              <div class="alert__text">
-                CORE-22 introduces an explicit scoping table that
-                determines which recipient orgs can fill out this form
-                version. For now, scoping is implicit via the form's
-                program assignment (e.g., CSBG forms scope to all 574
-                Federally Recognized Tribes).
-              </div>
+          <table class="tbl">
+            <thead><tr><th>Fiscal year</th><th>Opens</th><th>Closes</th><th>Status</th></tr></thead>
+            <tbody>
+              {% for w in windows %}
+              <tr {% if w.id == current_window.id %}style="background:var(--primary-lightest);"{% endif %}>
+                <td><strong>{{ w.fiscal_year }}</strong></td>
+                <td class="tbl__meta">{{ w.opens_at|date:"Y-m-d" }}</td>
+                <td class="tbl__meta">{{ w.closes_at|date:"Y-m-d" }}</td>
+                <td>
+                  {% if w.is_open %}<span class="tag tag--success tag--sm">Open</span>
+                  {% elif w.is_upcoming %}<span class="tag tag--info tag--sm">Upcoming</span>
+                  {% else %}<span class="tag tag--warning tag--sm">Past Due</span>{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
+      {# ===== Org scoping (CORE-22) ===== #}
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card__head">
+          <h3>Organization scoping</h3>
+          <span class="tag tag--primary tag--sm">{{ scoped_org_count }} org{{ scoped_org_count|pluralize }} in scope</span>
+        </div>
+        <div class="card__body">
+          {% if org_type_labels %}
+            <div class="t-sm" style="margin-bottom: 10px;">
+              <strong>Rule-based scope:</strong> All organizations of type:
+              {% for label in org_type_labels %}
+                <span class="region-chip">{{ label }}</span>
+              {% endfor %}
             </div>
-          </div>
+          {% endif %}
+          {% if scoping and scoping.explicit_orgs.exists %}
+            <div class="t-sm" style="margin-bottom: 10px;">
+              <strong>Plus {{ scoping.explicit_orgs.count }} explicit org{{ scoping.explicit_orgs.count|pluralize }}</strong> (regardless of org_type).
+            </div>
+          {% endif %}
+          {% if not scoping %}
+            <p class="t-sm t-muted">No scoping configured. Recipients cannot see this form until you scope it to at least one org type or explicit org.</p>
+          {% endif %}
+
+          {% if can_manage %}
+          <form method="post" action="{% url 'staff_review:form_builder_scope_edit' form_def_id=form_def.id %}"
+                style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line-soft);">
+            {% csrf_token %}
+            <div class="t-sm t-bold" style="margin-bottom: 8px;">Scope by organization type</div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 6px 16px;">
+              {% for code, label in all_org_types %}
+                <label style="display:flex; align-items:center; gap:8px; padding:4px 0;">
+                  <input type="checkbox" name="org_types" value="{{ code }}"
+                         {% if scoping and code in scoping.scope_to_org_types %}checked{% endif %}>
+                  <span class="t-sm">{{ label }}</span>
+                </label>
+              {% endfor %}
+            </div>
+            <div class="t-xs t-muted" style="margin-top: 8px;">
+              Per CORE-22: at publish time, a form can be scoped to one or more
+              organization types. Users outside scope cannot see or access the form.
+              Explicit per-org overrides via the admin interface (deferred to follow-up).
+            </div>
+            <div style="margin-top: 10px; text-align: right;">
+              <button type="submit" class="btn btn--sm">Save scoping</button>
+            </div>
+          </form>
+          {% endif %}
         </div>
       </div>
 
+      {# ===== Version history ===== #}
       <div class="card">
         <div class="card__head">
           <h3>Version history</h3>
@@ -85,24 +200,14 @@
         </div>
         <div class="card__body">
           <table class="tbl">
-            <thead>
-              <tr>
-                <th>Version</th>
-                <th>Status</th>
-                <th>Created</th>
-                <th>Schema class</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Version</th><th>Status</th><th>Created</th><th>Schema class</th></tr></thead>
             <tbody>
               {% for v in version_history %}
               <tr {% if v.id == form_def.id %}style="background:var(--primary-lightest);"{% endif %}>
                 <td><strong>v{{ v.variant }}</strong>{% if v.id == form_def.id %} <span class="tag tag--primary tag--sm">Viewing</span>{% endif %}</td>
                 <td>
-                  {% if v.is_active %}
-                    <span class="tag tag--success tag--sm">Published</span>
-                  {% else %}
-                    <span class="tag tag--neutral tag--sm">Archived</span>
-                  {% endif %}
+                  {% if v.is_active %}<span class="tag tag--success tag--sm">Published</span>
+                  {% else %}<span class="tag tag--neutral tag--sm">Archived</span>{% endif %}
                 </td>
                 <td class="tbl__meta">{{ v.created_at|date:"Y-m-d" }}</td>
                 <td class="tbl__meta">{{ v.schema_class }}</td>
@@ -111,7 +216,7 @@
             </tbody>
           </table>
           <p class="t-sm t-muted" style="margin-top:12px;">
-            Per CORE-23/CORE-27: each submission is permanently linked to the
+            Per CORE-23: each submission is permanently linked to the
             template version it was created under. Old versions are never deleted.
           </p>
         </div>
@@ -155,10 +260,9 @@
         <div class="rail__head">Shared form notes</div>
         <div class="rail__body">
           <div class="rail__item t-sm">
-            This form is used across multiple programs (e.g., SF-424 is
-            the standard federal application). Per STAFF-MP-06, only
-            platform admins can edit shared forms; program admins
-            reference but cannot mutate.
+            This form is used across multiple programs (e.g., SF-424). Per
+            STAFF-MP-06, only platform admins can edit shared forms; program
+            admins reference but cannot mutate.
           </div>
         </div>
       </div>

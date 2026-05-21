@@ -215,7 +215,8 @@ class Command(BaseCommand):
         )
 
     def _seed_form_definitions(self):
-        from programs.models import Program
+        from datetime import datetime, timezone as dt_tz
+        from programs.models import FormScoping, Program, SubmissionWindow
         csbg = Program.objects.filter(code="CSBG").first()
         defs = {}
         for form_type, (name, family) in FORM_TYPE_MAPPING.items():
@@ -232,10 +233,30 @@ class Command(BaseCommand):
                     "cycle_type": "annual",
                 },
             )
-            # Idempotent: backfill program if it was missing on existing rows
             if fd.program_id is None and csbg is not None:
                 fd.program = csbg
                 fd.save(update_fields=["program"])
+
+            # CORE-25: seed an FY26 submission window for each form
+            # Tribal Plan = open now (May 8 - Jun 30, 2026)
+            # Annual Report Short = upcoming (Aug 1 - Oct 31, 2026)
+            if form_type == "tribal-plan":
+                opens = datetime(2026, 5, 8, 0, 0, tzinfo=dt_tz.utc)
+                closes = datetime(2026, 6, 30, 23, 59, tzinfo=dt_tz.utc)
+            else:  # annual-report-short
+                opens = datetime(2026, 8, 1, 0, 0, tzinfo=dt_tz.utc)
+                closes = datetime(2026, 10, 31, 23, 59, tzinfo=dt_tz.utc)
+            SubmissionWindow.objects.update_or_create(
+                form_definition=fd, fiscal_year="FY26",
+                defaults={"opens_at": opens, "closes_at": closes},
+            )
+
+            # CORE-22: scope each form to "all tribes" via org_type rule
+            scoping, _ = FormScoping.objects.update_or_create(
+                form_definition=fd,
+                defaults={"scope_to_org_types": ["tribe"]},
+            )
+
             defs[form_type] = fd
         return defs
 

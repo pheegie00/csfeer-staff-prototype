@@ -36,13 +36,19 @@ What this commit does NOT do (deferred):
   the UX before we model the data
 """
 
+from datetime import datetime, timezone as dt_tz
+
 from django.contrib import messages
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
+from django.utils import timezone
+from django.views import View
 from django.views.generic import TemplateView
 
 from form_manager.models.forms import FormDefinition
-from programs.models import Program
+from organizations.models import OrgType
+from programs.models import FormScoping, Program, SubmissionWindow
 from staff_review.mock_data import USER
 from staff_review.permissions import StaffRequiredMixin
 
@@ -150,11 +156,124 @@ class FormBuilderDetailView(StaffRequiredMixin, TemplateView):
             .order_by("-variant")
         )
 
+        # CORE-25: submission windows for this form across fiscal years
+        windows = list(form_def.submission_windows.order_by("-opens_at"))
+        current_fy = "FY26"  # TODO: derive from a global setting
+        current_window = next((w for w in windows if w.fiscal_year == current_fy), None)
+
+        # CORE-22: org scoping for this form
+        scoping = getattr(form_def, "scoping", None)
+        scoped_org_count = scoping.in_scope_org_count() if scoping else 0
+
+        # Human labels for org types in scope
+        org_type_labels = []
+        if scoping and scoping.scope_to_org_types:
+            type_dict = {c[0]: c[1] for c in OrgType.choices}
+            org_type_labels = [type_dict.get(t, t) for t in scoping.scope_to_org_types]
+
         ctx.update({
             "user": USER,
             "form_def": form_def,
             "version_history": version_history,
             "can_manage": _user_can_manage(u, form_def),
             "is_shared": form_def.is_shared,
+            # CORE-25
+            "windows": windows,
+            "current_window": current_window,
+            "current_fy": current_fy,
+            # CORE-22
+            "scoping": scoping,
+            "scoped_org_count": scoped_org_count,
+            "org_type_labels": org_type_labels,
+            "all_org_types": OrgType.choices,
         })
         return ctx
+
+
+# ============================================================
+# SUBMISSION WINDOW EDIT (CORE-25)
+# ============================================================
+
+class SubmissionWindowEditView(StaffRequiredMixin, View):
+    """POST handler: create or update a SubmissionWindow.
+
+    Form fields:
+      fiscal_year    -- e.g. "FY26"
+      opens_at       -- YYYY-MM-DD
+      closes_at      -- YYYY-MM-DD
+
+    Uses update_or_create so the same FY just overwrites.
+    """
+
+    def post(self, request, form_def_id):
+        form_def = get_object_or_404(FormDefinition, pk=form_def_id)
+        if not _user_can_manage(request.user, form_def):
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied()
+
+        fy = (request.POST.get("fiscal_year") or "").strip()
+        opens_s = (request.POST.get("opens_at") or "").strip()
+        closes_s = (request.POST.get("closes_at") or "").strip()
+
+        if not (fy and opens_s and closes_s):
+            messages.error(request, "Fiscal year + opens + closes are all required.")
+            return redirect(reverse("staff_review:form_builder_detail", kwargs={"form_def_id": form_def.id}))
+
+        try:
+            opens_at = datetime.fromisoformat(opens_s).replace(tzinfo=dt_tz.utc)
+            closes_at = datetime.fromisoformat(closes_s).replace(tzinfo=dt_tz.utc)
+        except ValueError:
+            messages.error(request, "Dates must be YYYY-MM-DD format.")
+            return redirect(reverse("staff_review:form_builder_detail", kwargs={"form_def_id": form_def.id}))
+
+        if closes_at <= opens_at:
+            messages.error(request, "Close date must be after open date.")
+            return redirect(reverse("staff_review:form_builder_detail", kwargs={"form_def_id": form_def.id}))
+
+        window, created = SubmissionWindow.objects.update_or_create(
+            form_definition=form_def,
+            fiscal_year=fy,
+            defaults={"opens_at": opens_at, "closes_at": closes_at},
+        )
+        action = "created" if created else "updated"
+        messages.success(request, f"{fy} submission window {action} -- status: {window.get_status_display() if hasattr(window, 'get_status_display') else window.status}.")
+        return redirect(reverse("staff_review:form_builder_detail", kwargs={"form_def_id": form_def.id}))
+
+
+# ============================================================
+# FORM SCOPING EDIT (CORE-22)
+# ============================================================
+
+class FormScopingEditView(StaffRequiredMixin, View):
+    """POST handler: update org-type scoping on a FormDefinition.
+
+    Form fields:
+      org_types[]   -- multi-select of OrgType values
+
+    Idempotent: replaces the scope_to_org_types list outright.
+    Explicit-org additions/removals are a separate UI (deferred).
+    """
+
+    def post(self, request, form_def_id):
+        form_def = get_object_or_404(FormDefinition, pk=form_def_id)
+        if not _user_can_manage(request.user, form_def):
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied()
+
+        org_types = request.POST.getlist("org_types")
+        valid = {c[0] for c in OrgType.choices}
+        org_types = [t for t in org_types if t in valid]
+
+        scoping, _ = FormScoping.objects.update_or_create(
+            form_definition=form_def,
+            defaults={"scope_to_org_types": org_types},
+        )
+
+        count = scoping.in_scope_org_count()
+        type_labels = [dict(OrgType.choices).get(t, t) for t in org_types]
+        messages.success(
+            request,
+            f"Org scoping updated: {', '.join(type_labels) or '(none)'} "
+            f"-- now {count} org{'s' if count != 1 else ''} in scope.",
+        )
+        return redirect(reverse("staff_review:form_builder_detail", kwargs={"form_def_id": form_def.id}))
