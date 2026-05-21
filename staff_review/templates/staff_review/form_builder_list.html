@@ -1,0 +1,168 @@
+{% extends "staff_review/_base_staff.html" %}
+{% load static %}
+
+{% block content %}
+<div class="app__body">
+
+  <div class="ph">
+    <div class="ph__row">
+      <div>
+        <h1 class="ph__title">Form templates</h1>
+        <div class="ph__meta">
+          Per-program lifecycle management &middot; STAFF-MP-05/07 &middot;
+          {{ owned_forms|length }} owned by your programs &middot;
+          {{ shared_forms|length }} shared (read-only)
+        </div>
+      </div>
+      <div class="ph__actions">
+        <button class="btn btn--ghost" title="See docs/multi_program_architecture.md for the Form Builder pattern">How this works</button>
+        <button class="btn" disabled title="Publishing a new version requires the form-schema editor UI (CORE-27 follow-up)">Publish new version</button>
+      </div>
+    </div>
+  </div>
+
+  {# Assigned programs chip strip #}
+  {% if assigned_programs %}
+  <div class="toolbar">
+    <div class="toolbar__row">
+      <div class="t-sm t-muted" style="margin-right:8px;">Your programs:</div>
+      {% for p in assigned_programs %}
+        <span class="region-chip" title="{{ p.office.name }}">{{ p.office.code }} &middot; {{ p.code }}</span>
+      {% endfor %}
+      <div class="toolbar__spacer"></div>
+      <span class="t-sm t-muted">Each program admin sees only their own program's forms. Shared forms (e.g., SF-424) are managed by platform admins.</span>
+    </div>
+  </div>
+  {% endif %}
+
+  {# Your programs' templates #}
+  {% if not has_any_assignments %}
+    <div class="alert alert--warning" style="margin-bottom:16px;">
+      <div class="alert__icon">!</div>
+      <div class="alert__body">
+        <h4 class="alert__title">No program assignments</h4>
+        <div class="alert__text">
+          You're not assigned to any programs yet. Contact your program lead
+          to be added (STAFF-MP-04). Without assignments, you can view shared
+          forms but cannot manage any program's templates.
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if owned_forms %}
+  <div class="tbl-wrap" style="margin-bottom:24px;">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Program</th>
+          <th>Form</th>
+          <th>Version</th>
+          <th>Cycle</th>
+          <th>Status</th>
+          <th>Family / OMB</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fd in owned_forms %}
+        <tr class="tbl__row--clickable" onclick="window.location='{% url 'staff_review:form_builder_detail' form_def_id=fd.id %}'">
+          <td>
+            <span class="region-chip">{{ fd.program.office.code }} &middot; {{ fd.program.code }}</span>
+          </td>
+          <td>
+            <div class="tbl__org">{{ fd.name }}</div>
+            <div class="tbl__uei">{{ fd.schema_class }}</div>
+          </td>
+          <td class="tbl__meta">v{{ fd.variant }}</td>
+          <td>
+            <span class="tag tag--neutral tag--sm">{{ fd.get_cycle_type_display }}</span>
+          </td>
+          <td>
+            {% if fd.is_active %}
+              <span class="tag tag--success tag--sm">Published</span>
+            {% else %}
+              <span class="tag tag--neutral tag--sm">Archived</span>
+            {% endif %}
+          </td>
+          <td class="tbl__meta">{{ fd.family }}</td>
+          <td class="text-right">
+            <a href="{% url 'staff_review:form_builder_detail' form_def_id=fd.id %}" class="tbl__open" onclick="event.stopPropagation()">Manage &rarr;</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% elif has_any_assignments %}
+    <div class="empty">
+      <div class="empty__icon">&#9744;</div>
+      <h3>No form templates in your programs yet</h3>
+      <p>
+        New form templates are added via code change + deployment per CORE-27
+        (extensible schema). Once added, they'll appear here for lifecycle
+        management.
+      </p>
+    </div>
+  {% endif %}
+
+  {# Shared forms (SF-424 etc.) #}
+  {% if shared_forms %}
+  <div class="card">
+    <div class="card__head">
+      <h3>Shared forms (SF-424 and other cross-program)</h3>
+      <span class="tag tag--neutral tag--sm">Read-only -- platform admins manage</span>
+    </div>
+    <div class="card__body">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Form</th>
+            <th>Version</th>
+            <th>Status</th>
+            <th>Used by</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fd in shared_forms %}
+          <tr>
+            <td><div class="tbl__org">{{ fd.name }}</div></td>
+            <td class="tbl__meta">v{{ fd.variant }}</td>
+            <td>
+              {% if fd.is_active %}
+                <span class="tag tag--success tag--sm">Published</span>
+              {% else %}
+                <span class="tag tag--neutral tag--sm">Archived</span>
+              {% endif %}
+            </td>
+            <td class="tbl__meta">All programs</td>
+            <td class="text-right">
+              <a href="{% url 'staff_review:form_builder_detail' form_def_id=fd.id %}" class="tbl__open">View &rarr;</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="alert alert--info" style="margin-top:24px;">
+    <div class="alert__icon">i</div>
+    <div class="alert__body">
+      <h4 class="alert__title">How Form Builder works</h4>
+      <div class="alert__text">
+        Per <code>docs/multi_program_architecture.md</code> -- new form
+        templates (e.g. a future Quarterly Progress Report) are added via
+        a code change + deployment per CORE-27. Federal Staff manage
+        <strong>lifecycle</strong> here: versions, submission windows
+        (CORE-25), org scoping (CORE-22), archival. Each program admin
+        sees only their own program's forms (STAFF-MP-05/07). Shared
+        forms like SF-424 are owned by platform admins only.
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

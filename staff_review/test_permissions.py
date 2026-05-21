@@ -33,6 +33,7 @@ PROTECTED_URLS = [
     "/staff/sub/s1/determination/",
     "/staff/exports/",
     "/staff/audit-log/",
+    "/staff/form-builder/",
 ]
 
 

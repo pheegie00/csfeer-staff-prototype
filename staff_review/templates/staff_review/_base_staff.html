@@ -34,7 +34,7 @@
   {% endcomment %}
   <nav class="app-header__nav">
     <a href="{% url 'staff_review:inbox' %}" class="{% block nav_inbox_class %}{% endblock %}">Submissions</a>
-    <a href="#">Form templates</a>
+    <a href="{% url 'staff_review:form_builder_list' %}" class="{% block nav_form_builder_class %}{% endblock %}">Form templates</a>
     <a href="{% url 'staff_review:exports' %}" class="{% block nav_exports_class %}{% endblock %}">Exports</a>
     <a href="{% url 'staff_review:audit_log' %}" class="{% block nav_audit_class %}{% endblock %}">Audit log</a>
     <a href="#">Help</a>

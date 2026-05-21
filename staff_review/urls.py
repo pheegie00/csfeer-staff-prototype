@@ -1,5 +1,6 @@
 from django.urls import path
 
+from staff_review.form_builder_views import FormBuilderDetailView, FormBuilderListView
 from staff_review.views import (
     AuditLogView,
     CSVExportView,
@@ -40,4 +41,8 @@ urlpatterns = [
 
     # System audit log (CORE-47) -- FISMA / NIST 800-53 compliance viewer
     path("audit-log/", AuditLogView.as_view(), name="audit_log"),
+
+    # Form Builder (Batch E.2) -- program-scoped form template management
+    path("form-builder/", FormBuilderListView.as_view(), name="form_builder_list"),
+    path("form-builder/<uuid:form_def_id>/", FormBuilderDetailView.as_view(), name="form_builder_detail"),
 ]

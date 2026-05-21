@@ -1,0 +1,169 @@
+{% extends "staff_review/_base_staff.html" %}
+{% load static %}
+
+{% block content %}
+<div class="app__body">
+
+  <div class="ph">
+    <div class="ph__crumbs">
+      <a href="{% url 'staff_review:form_builder_list' %}">Form templates</a>
+      <span class="ph__sep">&rsaquo;</span>
+      <span>{{ form_def.name }}</span>
+    </div>
+    <div class="ph__row">
+      <div>
+        <h1 class="ph__title">{{ form_def.name }}</h1>
+        <div class="ph__meta">
+          v{{ form_def.variant }} &middot;
+          {% if form_def.program %}
+            <span class="region-chip">{{ form_def.program.office.code }} &middot; {{ form_def.program.code }}</span>
+          {% else %}
+            <span class="tag tag--warning tag--sm">unscoped</span>
+          {% endif %}
+          &middot; {{ form_def.get_cycle_type_display }} cycle
+          {% if form_def.is_shared %}
+            &middot; <span class="tag tag--neutral tag--sm">Shared (cross-program)</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="ph__actions">
+        {% if can_manage %}
+          <button class="btn btn--ghost" disabled title="Needs OrgScoping data model (CORE-22)">Adjust org scoping</button>
+          <button class="btn btn--ghost" disabled title="Needs SubmissionWindow data model (CORE-25)">Edit submission window</button>
+          <button class="btn" disabled title="Needs form-schema editor UI (CORE-27 follow-up)">Publish new version</button>
+        {% else %}
+          <span class="t-sm t-muted">Read-only</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="layout layout--detail">
+    <div class="layout__main">
+
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card__head"><h3>Submission window (current FY)</h3></div>
+        <div class="card__body">
+          <div class="alert alert--neutral">
+            <div class="alert__icon">i</div>
+            <div class="alert__body">
+              <h4 class="alert__title">SubmissionWindow model not yet implemented</h4>
+              <div class="alert__text">
+                CORE-25 introduces per-form-per-FY open/close dates with
+                Open / Upcoming / Past Due status. UI shape will mirror
+                this card -- start date, end date, remaining days,
+                Edit button.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card__head"><h3>Organization scoping (CORE-22)</h3></div>
+        <div class="card__body">
+          <div class="alert alert--neutral">
+            <div class="alert__icon">i</div>
+            <div class="alert__body">
+              <h4 class="alert__title">OrgScoping model not yet implemented</h4>
+              <div class="alert__text">
+                CORE-22 introduces an explicit scoping table that
+                determines which recipient orgs can fill out this form
+                version. For now, scoping is implicit via the form's
+                program assignment (e.g., CSBG forms scope to all 574
+                Federally Recognized Tribes).
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card__head">
+          <h3>Version history</h3>
+          <span class="tag tag--primary tag--sm">{{ version_history|length }} version{{ version_history|length|pluralize }}</span>
+        </div>
+        <div class="card__body">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Version</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Schema class</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for v in version_history %}
+              <tr {% if v.id == form_def.id %}style="background:var(--primary-lightest);"{% endif %}>
+                <td><strong>v{{ v.variant }}</strong>{% if v.id == form_def.id %} <span class="tag tag--primary tag--sm">Viewing</span>{% endif %}</td>
+                <td>
+                  {% if v.is_active %}
+                    <span class="tag tag--success tag--sm">Published</span>
+                  {% else %}
+                    <span class="tag tag--neutral tag--sm">Archived</span>
+                  {% endif %}
+                </td>
+                <td class="tbl__meta">{{ v.created_at|date:"Y-m-d" }}</td>
+                <td class="tbl__meta">{{ v.schema_class }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <p class="t-sm t-muted" style="margin-top:12px;">
+            Per CORE-23/CORE-27: each submission is permanently linked to the
+            template version it was created under. Old versions are never deleted.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="layout__side">
+      <div class="rail">
+        <div class="rail__head">Template details</div>
+        <div class="rail__body">
+          <div class="rail__item"><div class="rail__k">Form Family / OMB</div><div class="rail__v">{{ form_def.family }}</div></div>
+          <div class="rail__item"><div class="rail__k">Schema class</div><div class="rail__v"><code>{{ form_def.schema_class }}</code></div></div>
+          <div class="rail__item"><div class="rail__k">Cycle</div><div class="rail__v">{{ form_def.get_cycle_type_display }}</div></div>
+          <div class="rail__item"><div class="rail__k">Created</div><div class="rail__v">{{ form_def.created_at|date:"Y-m-d" }}</div></div>
+          <div class="rail__item"><div class="rail__k">Last updated</div><div class="rail__v">{{ form_def.updated_at|date:"Y-m-d" }}</div></div>
+        </div>
+      </div>
+
+      {% if form_def.program %}
+      <div class="rail">
+        <div class="rail__head">Program ownership</div>
+        <div class="rail__body">
+          <div class="rail__item">
+            <div class="rail__k">Office</div>
+            <div class="rail__v">{{ form_def.program.office.name }} ({{ form_def.program.office.code }})</div>
+          </div>
+          <div class="rail__item">
+            <div class="rail__k">Program</div>
+            <div class="rail__v">{{ form_def.program.name }} ({{ form_def.program.code }})</div>
+          </div>
+          <div class="rail__item">
+            <div class="rail__k">Active</div>
+            <div class="rail__v">{% if form_def.program.is_active %}Yes{% else %}No (dormant){% endif %}</div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if form_def.is_shared %}
+      <div class="rail">
+        <div class="rail__head">Shared form notes</div>
+        <div class="rail__body">
+          <div class="rail__item t-sm">
+            This form is used across multiple programs (e.g., SF-424 is
+            the standard federal application). Per STAFF-MP-06, only
+            platform admins can edit shared forms; program admins
+            reference but cannot mutate.
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
