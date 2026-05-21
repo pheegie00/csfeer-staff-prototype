@@ -112,6 +112,7 @@ class Command(BaseCommand):
             staff_group = self._seed_federal_staff_group()
             staff_user = self._seed_staff_user(staff_group)
             self._seed_non_staff_user()  # for permission-deny smoke test
+            self._assign_staff_to_csbg(staff_user)  # STAFF-MP-04
             form_defs = self._seed_form_definitions()
             for sub in mock_data.SUBMISSIONS:
                 self._seed_submission(sub, form_defs, staff_user)
@@ -199,7 +200,23 @@ class Command(BaseCommand):
             u.save()
         return u
 
+    def _assign_staff_to_csbg(self, staff_user):
+        """STAFF-MP-04: assign demo staff to the CSBG program as a reviewer."""
+        from programs.models import Program, UserProgramAssignment
+        csbg = Program.objects.filter(code="CSBG").first()
+        if csbg is None:
+            self.stdout.write(self.style.WARNING(
+                "  CSBG program not found -- did you run `migrate programs`?"
+            ))
+            return
+        UserProgramAssignment.objects.get_or_create(
+            user=staff_user, program=csbg,
+            defaults={"role": "reviewer"},
+        )
+
     def _seed_form_definitions(self):
+        from programs.models import Program
+        csbg = Program.objects.filter(code="CSBG").first()
         defs = {}
         for form_type, (name, family) in FORM_TYPE_MAPPING.items():
             fd, _ = FormDefinition.objects.get_or_create(
@@ -211,8 +228,14 @@ class Command(BaseCommand):
                     "schema": {},
                     "schema_class": "DemoFormSchema",
                     "is_active": True,
+                    "program": csbg,
+                    "cycle_type": "annual",
                 },
             )
+            # Idempotent: backfill program if it was missing on existing rows
+            if fd.program_id is None and csbg is not None:
+                fd.program = csbg
+                fd.save(update_fields=["program"])
             defs[form_type] = fd
         return defs
 

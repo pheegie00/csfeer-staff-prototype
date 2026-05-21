@@ -23,13 +23,42 @@ User = get_user_model()
 
 
 class FormDefinition(BaseModel):
-    # TODO STAFF-MP-01: add `program = ForeignKey(programs.Program)` so each
-    # form is tied to a specific ACF program (CSBG, TANF, HMRF, etc.). Without
-    # this, staff permissions can't be scoped per-program. See
-    # docs/multi_program_architecture.md.
-    # TODO STAFF-MP-03: add `cycle_type` field (annual / quarterly / monthly /
-    # ad_hoc). CSBG is annual; ACF-196R is quarterly. Misclassifying surfaces
-    # bad submission windows.
+    # Cycle type (STAFF-MP-03). Affects submission window calculations.
+    CYCLE_TYPES = [
+        ("annual", "Annual"),
+        ("quarterly", "Quarterly"),
+        ("monthly", "Monthly"),
+        ("ad_hoc", "Ad-hoc"),
+    ]
+
+    # STAFF-MP-01: every form belongs to a specific ACF program (CSBG, TANF,
+    # HMRF, etc.). Nullable for now so existing rows don't break on migrate;
+    # data migration in 0008 backfills all existing forms to CSBG, after
+    # which this should be tightened to non-null.
+    program = models.ForeignKey(
+        "programs.Program",
+        on_delete=models.PROTECT,
+        related_name="form_definitions",
+        null=True, blank=True,
+        help_text="The ACF program this form belongs to (STAFF-MP-01). "
+                  "Existing rows backfill to CSBG.",
+    )
+    # STAFF-MP-03: how often this form gets submitted. CSBG = annual,
+    # ACF-196R = quarterly, etc. Drives the submission window UI per CORE-25.
+    cycle_type = models.CharField(
+        max_length=20, choices=CYCLE_TYPES, default="annual",
+        help_text="Submission cycle frequency (STAFF-MP-03). "
+                  "CSBG = annual; ACF-196R = quarterly.",
+    )
+    # STAFF-MP-06: cross-program shared forms (e.g., SF-424). When True, this
+    # FormDefinition is referenced by multiple programs but owned by no one
+    # except platform admins. Implementation of program-scoped Form Builder
+    # treats these specially -- read-only to per-program admins.
+    is_shared = models.BooleanField(
+        default=False,
+        help_text="True for cross-program shared forms like SF-424 (STAFF-MP-06).",
+    )
+
     family = models.CharField(
         null=False,
         blank=False,

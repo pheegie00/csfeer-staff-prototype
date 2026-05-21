@@ -9,17 +9,39 @@ from core.models import BaseActivityFields, BaseModel
 from organizations.constants import RegionChoices
 
 
-class OrganizationProfile(BaseModel):
-    """Recipient organization (Tribe today; State / Territory / CBO / etc. when
-    multi-program scaling lands).
+class OrgType(models.TextChoices):
+    """Recipient organization type (STAFF-MP-02).
 
-    TODO STAFF-MP-02: add `org_type` choices field. Today every org is
-    implicitly treated as a Tribe (per CSBG-only scope), but TANF will
-    introduce State + Territory, HMRF will introduce CBO / Faith-Based /
-    Higher Ed. See docs/multi_program_architecture.md.
+    Different ACF programs serve different mixes of recipient orgs:
+        CSBG: TRIBE only (currently)
+        TANF: STATE + TERRITORY
+        HMRF: CBO + FAITH_BASED + TRIBE + WORKFORCE + HIGHER_ED
+        HPOG: HIGHER_ED + WORKFORCE + TRIBE + STATE + CBO
+    """
+    TRIBE       = "tribe", "Federally Recognized Tribe"
+    TRIBAL_ORG  = "tribal_org", "Tribal Organization"
+    STATE       = "state", "State Government"
+    TERRITORY   = "territory", "U.S. Territory"
+    HIGHER_ED   = "higher_ed", "Higher Education Institution"
+    WORKFORCE   = "workforce_agency", "Workforce System Agency"
+    CBO         = "cbo", "Community-Based Organization"
+    FAITH_BASED = "faith_based", "Faith-Based Organization"
+    OTHER       = "other", "Other"
+
+
+class OrganizationProfile(BaseModel):
+    """Recipient organization.
+
+    Per STAFF-MP-02, org_type identifies the recipient flavor. Today all
+    existing rows backfill to TRIBE (CSBG-only history); future TANF/HMRF
+    seeding adds STATE, CBO, etc.
     """
 
     name = models.CharField(max_length=255)
+    org_type = models.CharField(
+        max_length=30, choices=OrgType.choices, default=OrgType.TRIBE,
+        help_text="STAFF-MP-02: Tribal / State / Territory / CBO / Higher Ed / etc.",
+    )
     address = models.TextField(blank=True)
     contact_email = models.EmailField(blank=True)
     contact_phone = models.CharField(max_length=30, blank=True)

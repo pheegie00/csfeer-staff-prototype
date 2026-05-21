@@ -69,16 +69,37 @@ class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 def staff_queryset_filter(queryset, user):
     """Filter a FormEntry queryset to what `user` can see.
 
-    Federal Staff: cross-region, sees everything (CORE-29).
-    Non-Federal-Staff: empty queryset (recipient-side scoping is the
-    existing form_manager app's responsibility, not this one).
+    Visibility rules:
+      - Anonymous: empty
+      - Superuser: everything (admin bypass)
+      - User with explicit cross-program permission
+        ('form_manager.staff_view_any_submission' OUTSIDE the group):
+        everything
+      - Federal Staff group member with one or more
+        UserProgramAssignment rows: limited to FormEntries whose
+        form_definition.program is in the user's assigned programs
+        (STAFF-MP-04). This enables OCS staff to see only CSBG,
+        OFA staff to see only TANF/HMRF/etc.
+      - Federal Staff group member with NO program assignments:
+        cross-program access -- the legacy "Federal Staff sees all"
+        behavior from CORE-29. Keeps backward compatibility for
+        single-program installs.
     """
     if not user.is_authenticated:
         return queryset.none()
     if user.is_superuser:
         return queryset
-    if user.groups.filter(name=FEDERAL_STAFF_GROUP).exists():
-        return queryset  # cross-region per CORE-29
-    if user.has_perm("form_manager.staff_view_any_submission"):
+    # Explicit override permission (granted to e.g. ACF leadership)
+    if user.has_perm("form_manager.staff_view_any_submission") and not user.groups.filter(name=FEDERAL_STAFF_GROUP).exists():
         return queryset
+
+    if user.groups.filter(name=FEDERAL_STAFF_GROUP).exists():
+        # STAFF-MP-04: program-scoped if user has assignments;
+        # falls back to CORE-29 cross-program if no assignments are configured.
+        assigned_program_ids = list(
+            user.program_assignments.values_list("program_id", flat=True)
+        )
+        if assigned_program_ids:
+            return queryset.filter(form_definition__program_id__in=assigned_program_ids)
+        return queryset  # legacy cross-program access
     return queryset.none()
