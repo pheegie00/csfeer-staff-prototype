@@ -701,11 +701,13 @@
       "secret": "**********",
       "redirectUris": [
         "http://ui.csfeer:8000/oidc/callback",
+        "http://ui.core:8000/oidc/callback",
         "http://localhost:8000/oidc/callback",
         "http://127.0.0.1:8000/oidc/callback"
       ],
       "webOrigins": [
         "http://ui.csfeer:8000",
+        "http://ui.core:8000",
         "http://127.0.0.1:8000",
         "http://localhost:8000"
       ],
