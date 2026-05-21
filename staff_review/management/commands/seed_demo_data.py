@@ -27,6 +27,8 @@ import uuid
 from datetime import datetime, timezone
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -107,7 +109,9 @@ class Command(BaseCommand):
 
         with transaction.atomic():
             self._seed_states()
-            staff_user = self._seed_staff_user()
+            staff_group = self._seed_federal_staff_group()
+            staff_user = self._seed_staff_user(staff_group)
+            self._seed_non_staff_user()  # for permission-deny smoke test
             form_defs = self._seed_form_definitions()
             for sub in mock_data.SUBMISSIONS:
                 self._seed_submission(sub, form_defs, staff_user)
@@ -130,7 +134,34 @@ class Command(BaseCommand):
         for abbr, region in STATE_REGION.items():
             State.objects.get_or_create(code=abbr, defaults={"region": region})
 
-    def _seed_staff_user(self):
+    def _seed_federal_staff_group(self):
+        """Create the 'Federal Staff' group + bind the 5 staff permissions to it.
+
+        Permissions live on FormEntry's Meta.permissions (added in Phase 3 Step 0).
+        See staff_review/permissions.py for the mixin that gates views on this group.
+        """
+        group, _ = Group.objects.get_or_create(name="Federal Staff")
+        ct = ContentType.objects.get(app_label="form_manager", model="formentry")
+        perms = Permission.objects.filter(
+            content_type=ct,
+            codename__in=[
+                "staff_view_any_submission",
+                "staff_edit_on_behalf",
+                "staff_return_submission",
+                "staff_determine_submission",
+                "staff_archive_submission",
+            ],
+        )
+        if perms.count() != 5:
+            # Migrations haven't run yet for the new perms -- warn and skip group binding.
+            self.stdout.write(self.style.WARNING(
+                f"  Expected 5 staff permissions, found {perms.count()}. "
+                "Did you run `uv run python manage.py migrate`?"
+            ))
+        group.permissions.set(perms)
+        return group
+
+    def _seed_staff_user(self, staff_group):
         user = mock_data.USER
         u, created = User.objects.get_or_create(
             email=user["email"],
@@ -138,6 +169,28 @@ class Command(BaseCommand):
                 "first_name": user["name"].split()[0],
                 "last_name": user["name"].split()[-1],
                 "is_staff": True,
+                "is_active": True,
+            },
+        )
+        if created:
+            u.set_unusable_password()
+            u.save()
+        # CORE-132: ensure user is in the Federal Staff group
+        u.groups.add(staff_group)
+        return u
+
+    def _seed_non_staff_user(self):
+        """Seed a non-staff user so we can verify the permission-deny path.
+
+        Email matches the seed_test_users command's 'recipient-viewer' demo
+        user (which is unaffiliated with the Federal Staff group).
+        """
+        u, created = User.objects.get_or_create(
+            email="recipient-viewer@example.com",
+            defaults={
+                "first_name": "Recipient",
+                "last_name": "Viewer",
+                "is_staff": False,
                 "is_active": True,
             },
         )

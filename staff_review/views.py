@@ -31,6 +31,7 @@ from django.views.generic import TemplateView
 from form_manager.models.forms import FormAuditDetail, FormAuditTrail, FormDefinition, FormEntry
 from staff_review.management.commands.seed_demo_data import stable_uuid
 from staff_review.models import FormReturn, FormReturnItem
+from staff_review.permissions import StaffRequiredMixin, staff_queryset_filter
 from staff_review.mock_data import (
     FORM_DEFS,
     STATUS_META,
@@ -109,7 +110,7 @@ def apply_db_overlay(mock_sub):
 # INBOX
 # ============================================================
 
-class InboxView(TemplateView):
+class InboxView(StaffRequiredMixin, TemplateView):
     """Federal-staff submission inbox -- the landing screen."""
 
     template_name = "staff_review/inbox.html"
@@ -224,7 +225,7 @@ def _abbr(state):
 # SUBMISSION DETAIL (review + edit-on-behalf)
 # ============================================================
 
-class SubmissionDetailView(TemplateView):
+class SubmissionDetailView(StaffRequiredMixin, TemplateView):
     """Submission detail. mode is 'review' (default) or 'edit'."""
 
     template_name = "staff_review/submission_detail.html"
@@ -285,7 +286,7 @@ class SubmissionEditView(SubmissionDetailView):
     mode = "edit"
 
 
-class SubmissionSaveEditView(View):
+class SubmissionSaveEditView(StaffRequiredMixin, View):
     """POST handler: accept inline form data, store in session as pending edits.
 
     Triggered when staff submit the edit form (NOT the rationale form).
@@ -350,7 +351,7 @@ class SubmissionSaveEditView(View):
             ]
 
 
-class RationaleView(View):
+class RationaleView(StaffRequiredMixin, View):
     """POST handler: finalize pending edits with a required rationale.
 
     Writes a real FormAuditTrail row (action='edit_on_behalf',
@@ -455,7 +456,7 @@ def _set_by_path(obj, path, value):
 # RETURN FOR REVISION BUILDER
 # ============================================================
 
-class ReturnBuilderView(TemplateView):
+class ReturnBuilderView(StaffRequiredMixin, TemplateView):
     template_name = "staff_review/return_builder.html"
 
     def get_context_data(self, **kwargs):
@@ -486,7 +487,7 @@ class ReturnBuilderView(TemplateView):
         return ctx
 
 
-class ReturnSendView(View):
+class ReturnSendView(StaffRequiredMixin, View):
     """POST handler: send the return.
 
     Wires:
@@ -622,7 +623,7 @@ class ReturnSendView(View):
 # DETERMINATION
 # ============================================================
 
-class DeterminationView(TemplateView):
+class DeterminationView(StaffRequiredMixin, TemplateView):
     """Determination form (Accept / Close without acceptance + notes)."""
 
     template_name = "staff_review/determination.html"
@@ -642,7 +643,7 @@ class DeterminationView(TemplateView):
         return ctx
 
 
-class DeterminationRecordView(View):
+class DeterminationRecordView(StaffRequiredMixin, View):
     """POST handler: record the determination, lock the submission.
 
     Wires:
@@ -740,7 +741,7 @@ class DeterminationRecordView(View):
 # consistent across exports.
 
 
-class ExportsIndexView(TemplateView):
+class ExportsIndexView(StaffRequiredMixin, TemplateView):
     """Form to configure a CSV export.
 
     Lists distinct (form_definition, fiscal_year) combinations available
@@ -771,7 +772,7 @@ class ExportsIndexView(TemplateView):
         return ctx
 
 
-class CSVExportView(View):
+class CSVExportView(StaffRequiredMixin, View):
     """Generate + stream a CSV file. CORE-46.
 
     Required query params:
@@ -869,7 +870,7 @@ class CSVExportView(View):
 # audit event with actor + timestamp + action + notes + rationale.
 # Append-only on the DB side; this view is read-only.
 
-class AuditLogView(TemplateView):
+class AuditLogView(StaffRequiredMixin, TemplateView):
     """System-wide audit log viewer.
 
     Filters: actor email, action type, organization, date range.
