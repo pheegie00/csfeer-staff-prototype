@@ -2633,8 +2633,6 @@
   },
   "keycloakVersion": "26.3.1",
   "userManagedAccessAllowed": false,
-  "organizationsEnabled": false,
-  "verifiableCredentialsEnabled": false,
   "adminPermissionsEnabled": false,
   "clientProfiles": {
     "profiles": []
