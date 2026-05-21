@@ -119,29 +119,50 @@ class InboxView(TemplateView):
         active_form = self.request.GET.get("form", "All")
         active_region = self.request.GET.get("region", "All")
         active_state = self.request.GET.get("state", "All")
+        active_view = self.request.GET.get("view", "table")  # table | kanban | card
         query = (self.request.GET.get("q") or "").strip().lower()
 
         rows = self._filter(SUBMISSIONS, active_status, active_form, active_region, active_state, query)
         rows = self._enrich(rows)
+
+        counts = counts_by_status(SUBMISSIONS)
+        # Pre-compose tabs with counts so templates don't need branching.
+        tabs = [
+            {"id": "My queue",    "label": "My queue",    "count": counts["my_queue"]},
+            {"id": "All",         "label": "All",         "count": counts["all"]},
+            {"id": "Submitted",   "label": "Submitted",   "count": counts["submitted"]},
+            {"id": "In Progress", "label": "In Progress", "count": counts["in_progress"]},
+            {"id": "Returned",    "label": "Returned",    "count": counts["returned"]},
+            {"id": "Resolved",    "label": "Resolved",    "count": counts["resolved"]},
+        ]
+
+        # Kanban columns -- buckets of rows by status (matches prototype hifi-inbox.jsx).
+        kanban_columns = [
+            {"status": "Submitted",   "label": "Submitted",   "hint": "New, awaiting review",
+             "rows": [r for r in rows if r["status"] == "Submitted"]},
+            {"status": "In Progress", "label": "In Progress", "hint": "Recipient editing",
+             "rows": [r for r in rows if r["status"] == "In Progress"]},
+            {"status": "Returned",    "label": "Returned",    "hint": "Awaiting resubmit",
+             "rows": [r for r in rows if r["status"] == "Returned"]},
+            {"status": "Accepted",    "label": "Accepted",    "hint": "Locked -- resolved",
+             "rows": [r for r in rows if r["status"] == "Accepted"]},
+            {"status": "Closed",      "label": "Closed",      "hint": "Closed without acceptance",
+             "rows": [r for r in rows if r["status"] == "Closed"]},
+        ]
 
         ctx.update({
             "user": USER,
             "rows": rows,
             "total": len(SUBMISSIONS),
             "filtered_count": len(rows),
-            "counts": counts_by_status(SUBMISSIONS),
-            "tabs": [
-                ("My queue",    "My queue"),
-                ("All",         "All"),
-                ("Submitted",   "Submitted"),
-                ("In Progress", "In Progress"),
-                ("Returned",    "Returned"),
-                ("Resolved",    "Resolved"),
-            ],
+            "counts": counts,
+            "tabs": tabs,
+            "kanban_columns": kanban_columns,
             "active_status": active_status,
             "active_form": active_form,
             "active_region": active_region,
             "active_state": active_state,
+            "active_view": active_view,
             "query": query,
             "forms":   ["All", "Tribal Plan", "Annual Report (Short)"],
             "regions": ["All", "VI", "VIII", "IX", "X"],

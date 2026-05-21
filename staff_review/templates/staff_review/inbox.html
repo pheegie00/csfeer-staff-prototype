@@ -24,34 +24,47 @@
     </div>
   </div>
 
-  {# ===== Toolbar: tabs + filters ===== #}
+  {# ===== Toolbar: tabs + view switcher + filters ===== #}
   <div class="toolbar">
     <div class="toolbar__row">
       <div class="tabs">
-        {% for tab_id, tab_label in tabs %}
-          <a href="?status={{ tab_id|urlencode }}"
-             class="tabs__tab {% if active_status == tab_id %}is-active{% endif %}">
-            {{ tab_label }}
-            <span class="tabs__count">{%
-                if tab_id == "My queue" %}{{ counts.my_queue }}{%
-                elif tab_id == "All" %}{{ counts.all }}{%
-                elif tab_id == "Submitted" %}{{ counts.submitted }}{%
-                elif tab_id == "In Progress" %}{{ counts.in_progress }}{%
-                elif tab_id == "Returned" %}{{ counts.returned }}{%
-                elif tab_id == "Resolved" %}{{ counts.resolved }}{%
-                endif %}</span>
+        {% for tab in tabs %}
+          <a href="?status={{ tab.id|urlencode }}&view={{ active_view }}"
+             class="tabs__tab {% if active_status == tab.id %}is-active{% endif %}">
+            {{ tab.label }}
+            <span class="tabs__count">{{ tab.count }}</span>
           </a>
         {% endfor %}
+      </div>
+
+      {# View switcher: Table / Kanban / Cards (matches prototype) #}
+      <div class="toolbar__viewswitch" role="group" aria-label="View">
+        <a href="?status={{ active_status|urlencode }}&view=table"
+           class="viewbtn {% if active_view == 'table' %}is-active{% endif %}" title="Dense triage">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg>
+          <span>Table</span>
+        </a>
+        <a href="?status={{ active_status|urlencode }}&view=kanban"
+           class="viewbtn {% if active_view == 'kanban' %}is-active{% endif %}" title="By status">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="10" rx="1"/><rect x="17" y="4" width="4" height="13" rx="1"/></svg>
+          <span>Kanban</span>
+        </a>
+        <a href="?status={{ active_status|urlencode }}&view=card"
+           class="viewbtn {% if active_view == 'card' %}is-active{% endif %}" title="Roomy scan">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+          <span>Cards</span>
+        </a>
       </div>
     </div>
 
     <form method="get" class="toolbar__row toolbar__row--filters">
       <input type="hidden" name="status" value="{{ active_status }}">
+      <input type="hidden" name="view" value="{{ active_view }}">
 
       <div class="searchwrap">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         <input type="text" name="q" value="{{ query }}" placeholder="Search organization or UEI...">
-        {% if query %}<a href="?status={{ active_status|urlencode }}" class="searchwrap__clear">&times;</a>{% endif %}
+        {% if query %}<a href="?status={{ active_status|urlencode }}&view={{ active_view }}" class="searchwrap__clear">&times;</a>{% endif %}
       </div>
 
       <label class="select">
@@ -77,73 +90,160 @@
 
       <div class="toolbar__spacer"></div>
 
-      <a href="?" class="linkbtn">Clear filters</a>
+      <a href="?view={{ active_view }}" class="linkbtn">Clear filters</a>
     </form>
   </div>
 
-  {# ===== Submissions table ===== #}
-  {% if rows %}
-  <div class="tbl-wrap">
-    <table class="tbl">
-      <thead>
-        <tr>
-          <th>Status</th>
-          <th>Organization</th>
-          <th>Form &middot; FY</th>
-          <th>Region &middot; State</th>
-          <th>Submitted</th>
-          <th>Last update</th>
-          <th>Returns</th>
-          <th class="text-right">Age</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for s in rows %}
-        <tr class="tbl__row--clickable" onclick="window.location='{% url 'staff_review:submission_detail' sub_id=s.id %}'">
-          <td>
-            <span class="tag tag--{{ s.status_meta.variant }} tag--dot">{{ s.status }}</span>
-          </td>
-          <td>
-            <div class="tbl__org">{{ s.org_name }}</div>
-            <div class="tbl__uei">{{ s.uei }}</div>
-          </td>
-          <td>
-            <div>{{ s.form_short }}</div>
-            <div class="tbl__meta">{{ s.fy }}</div>
-          </td>
-          <td>
-            <span class="region-chip">{{ s.region }}</span>
-            <span class="tbl__state">{{ s.state_abbr }}</span>
-          </td>
-          <td class="tbl__meta">{{ s.submitted }}</td>
-          <td class="tbl__meta">{{ s.updated }}</td>
-          <td>
-            {% if s.returns > 0 %}
-              <span class="tag tag--warning tag--sm">{{ s.returns }} / 1</span>
-            {% else %}
-              <span class="tag tag--neutral tag--sm">0 / 1</span>
-            {% endif %}
-          </td>
-          <td class="text-right">
-            <span class="age-badge {{ s.age_class }}">{{ s.days_in }}d</span>
-          </td>
-          <td class="text-right">
-            <a href="{% url 'staff_review:submission_detail' sub_id=s.id %}" class="tbl__open" onclick="event.stopPropagation()">Open &rarr;</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  {% else %}
-    <div class="empty">
-      <div class="empty__icon">&#8981;</div>
-      <h3>No submissions match your filters</h3>
-      <p>Try clearing filters or adjusting your search.</p>
-      <a href="?" class="btn btn--outline">Clear filters</a>
+  {# ===== TABLE VIEW ===== #}
+  {% if active_view == 'table' %}
+    {% if rows %}
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Organization</th>
+            <th>Form &middot; FY</th>
+            <th>Region &middot; State</th>
+            <th>Submitted</th>
+            <th>Last update</th>
+            <th>Returns</th>
+            <th class="text-right">Age</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in rows %}
+          <tr class="tbl__row--clickable" onclick="window.location='{% url 'staff_review:submission_detail' sub_id=s.id %}'">
+            <td><span class="tag tag--{{ s.status_meta.variant }} tag--dot">{{ s.status }}</span></td>
+            <td>
+              <div class="tbl__org">{{ s.org_name }}</div>
+              <div class="tbl__uei">{{ s.uei }}</div>
+            </td>
+            <td>
+              <div>{{ s.form_short }}</div>
+              <div class="tbl__meta">{{ s.fy }}</div>
+            </td>
+            <td>
+              <span class="region-chip">{{ s.region }}</span>
+              <span class="tbl__state">{{ s.state_abbr }}</span>
+            </td>
+            <td class="tbl__meta">{{ s.submitted }}</td>
+            <td class="tbl__meta">{{ s.updated }}</td>
+            <td>
+              {% if s.returns > 0 %}
+                <span class="tag tag--warning tag--sm">{{ s.returns }} / 1</span>
+              {% else %}
+                <span class="tag tag--neutral tag--sm">0 / 1</span>
+              {% endif %}
+            </td>
+            <td class="text-right">
+              <span class="age-badge {{ s.age_class }}">{{ s.days_in }}d</span>
+            </td>
+            <td class="text-right">
+              <a href="{% url 'staff_review:submission_detail' sub_id=s.id %}" class="tbl__open" onclick="event.stopPropagation()">Open &rarr;</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+    {% else %}
+      <div class="empty">
+        <div class="empty__icon">&#8981;</div>
+        <h3>No submissions match your filters</h3>
+        <p>Try clearing filters or adjusting your search.</p>
+        <a href="?view={{ active_view }}" class="btn btn--outline">Clear filters</a>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  {# ===== KANBAN VIEW ===== #}
+  {% if active_view == 'kanban' %}
+  <div class="kanban">
+    {% for col in kanban_columns %}
+      <div class="kanban__col">
+        <div class="kanban__head">
+          <div>
+            <h4>{{ col.label }}</h4>
+            <div class="kanban__hint">{{ col.hint }}</div>
+          </div>
+          <span class="kanban__count">{{ col.rows|length }}</span>
+        </div>
+        <div class="kanban__list">
+          {% if col.rows %}
+            {% for s in col.rows %}
+            <a href="{% url 'staff_review:submission_detail' sub_id=s.id %}" class="kcard" style="text-decoration:none;color:inherit;">
+              <div class="kcard__top">
+                <div class="kcard__org">{{ s.org_name }}</div>
+                <span class="age-badge {{ s.age_class }}">{{ s.days_in }}d</span>
+              </div>
+              <div class="kcard__form">{{ s.form_short }} &middot; {{ s.fy }}</div>
+              <div class="kcard__bot">
+                <span class="region-chip region-chip--sm">{{ s.region }}</span>
+                <span class="kcard__state">{{ s.state_abbr }}</span>
+                <span class="kcard__sub">{{ s.submitted }}</span>
+                {% if s.returns > 0 %}<span class="kcard__r">R{{ s.returns }}</span>{% endif %}
+              </div>
+            </a>
+            {% endfor %}
+          {% else %}
+            <div class="kanban__empty">No submissions</div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {# ===== CARD VIEW ===== #}
+  {% if active_view == 'card' %}
+    {% if rows %}
+    <div class="cardgrid">
+      {% for s in rows %}
+      <a href="{% url 'staff_review:submission_detail' sub_id=s.id %}" class="cardgrid__card" style="text-decoration:none;color:inherit;">
+        <div class="cgcard__hd">
+          <span class="tag tag--{{ s.status_meta.variant }} tag--dot">{{ s.status }}</span>
+          <span class="age-badge {{ s.age_class }}">{{ s.days_in }}d</span>
+        </div>
+        <div class="cgcard__org">{{ s.org_name }}</div>
+        <div class="cgcard__form">{{ s.form_short }} &middot; {{ s.fy }}</div>
+
+        <div class="cgcard__row">
+          <div>
+            <div class="cgcard__k">Region &middot; State</div>
+            <div class="cgcard__v">{{ s.region }} &middot; {{ s.state_abbr }}</div>
+          </div>
+          <div>
+            <div class="cgcard__k">Submitted</div>
+            <div class="cgcard__v">{{ s.submitted }}</div>
+          </div>
+          <div>
+            <div class="cgcard__k">Returns</div>
+            <div class="cgcard__v">
+              {% if s.returns > 0 %}
+                <span class="tag tag--warning tag--sm">{{ s.returns }} / 1</span>
+              {% else %}
+                <span class="tag tag--neutral tag--sm">0 / 1</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="cgcard__foot">
+          <span class="cgcard__open">Open &rarr;</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+      <div class="empty">
+        <div class="empty__icon">&#8981;</div>
+        <h3>No submissions match your filters</h3>
+        <p>Try clearing filters or adjusting your search.</p>
+        <a href="?view={{ active_view }}" class="btn btn--outline">Clear filters</a>
+      </div>
+    {% endif %}
   {% endif %}
 
 </div>
