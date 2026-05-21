@@ -68,6 +68,25 @@ AUTHENTICATION_BACKENDS = [
     "csfeer.auth_backends.EmailOIDCAuthenticationBackend",
     "csfeer.auth_backends.FormPermissionBackend",
 ]
+
+# Deployment fallback: when no Keycloak is reachable (the OIDC discovery
+# URL is empty OR points at the local-only hostnames), strip the OIDC
+# middleware and add Django's ModelBackend so password login works. Used
+# for the Fly.io demo deploy until we get Keycloak up in front of it.
+_oidc_url = (settings.oidc_config.document_url or "").lower()
+_oidc_is_local_only = (
+    not _oidc_url
+    or "oauth.csfeer" in _oidc_url
+    or "localhost" in _oidc_url
+    or "127.0.0.1" in _oidc_url
+)
+if _oidc_is_local_only and settings.is_production:
+    MIDDLEWARE = [m for m in MIDDLEWARE if "oauth2_authcodeflow" not in m]
+    AUTHENTICATION_BACKENDS = [
+        "django.contrib.auth.backends.ModelBackend",
+        "csfeer.auth_backends.FormPermissionBackend",
+    ]
+    LOGIN_URL = "/admin/login/"
 ROOT_URLCONF = "csfeer.urls"
 APPEND_SLASH = False
 
@@ -276,6 +295,24 @@ _version_file = BASE_DIR / ".version"
 APP_VERSION = _version_file.read_text().strip() if _version_file.exists() else "unknown"
 
 CSRF_TRUSTED_ORIGINS = settings.csrf_trusted_origins
+
+# Production safety. Fly terminates TLS at the edge and forwards HTTP
+# internally with `X-Forwarded-Proto: https`, so we have to tell Django
+# to trust that header for is_secure() to return True. Also enforce
+# secure cookies + HSTS in production.
+if settings.is_production:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 7  # 1 week, easy to roll back
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+    # Conservative whitelist: allow any *.fly.dev origin so we don't have to
+    # re-deploy when the app gets renamed. Plus whatever the user configures.
+    CSRF_TRUSTED_ORIGINS = list(settings.csrf_trusted_origins) + [
+        "https://*.fly.dev",
+    ]
 
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 

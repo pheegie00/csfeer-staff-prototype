@@ -1,0 +1,70 @@
+# fly.toml -- CORE staff prototype deployment config.
+#
+# App name will be set by `fly launch` (or via --name). The placeholder
+# below gets replaced when the user first runs fly launch.
+#
+# Sized for Fly's free tier:
+#   - 1 shared-cpu-1x machine, 512MB RAM (close to the smallest paid size,
+#     but free-tier covered)
+#   - 1 region (iad = Northern Virginia; closest to ACF / DC).
+#   - Auto-stop when idle so we don't burn the free tier credit when no
+#     one is using the demo.
+#
+# Postgres is a SEPARATE Fly app created by `fly postgres create` and
+# attached to this app via `fly postgres attach`, which sets DATABASE_URL
+# automatically. We map DATABASE_URL into the granular DB_CONFIG__*
+# pydantic-settings keys below via a release script.
+
+app = "csfeer-staff-prototype"
+primary_region = "iad"
+kill_signal = "SIGTERM"
+kill_timeout = "30s"
+
+[build]
+  dockerfile = "Dockerfile"
+  # Use the "prod" target from the multi-stage Dockerfile.
+  build-target = "prod"
+
+# Runs once per release before swapping traffic to the new machine.
+# Migrates DB, seeds demo data (idempotent), and sets demo persona
+# passwords so users can sign in to the deployed demo.
+[deploy]
+  release_command = "/bin/sh -lc 'python manage.py migrate --noinput && python manage.py seed_demo_data && python manage.py set_demo_passwords'"
+  strategy = "rolling"
+
+[env]
+  # Pydantic-settings reads these as overrides over config.py defaults.
+  # ENVIRONMENT=production toggles SECURE_PROXY_SSL_HEADER + the OIDC
+  # middleware bypass in csfeer/settings.py.
+  ENVIRONMENT = "production"
+  DEBUG = "false"
+  # Allow the fly.dev hostname + the local-dev names so a developer
+  # tunneling via `fly proxy` still works. Override at deploy time with
+  # `fly secrets set ALLOWED_HOSTS='["..."]'` if needed.
+  ALLOWED_HOSTS = '["csfeer-staff-prototype.fly.dev","localhost","127.0.0.1"]'
+  # Empty -> falls through to ModelBackend (Django auth) in settings.py.
+  # Set to a real URL after Keycloak is deployed.
+  OIDC_CONFIG__DOCUMENT_URL = ""
+  PORT = "8000"
+  DJANGO_SETTINGS_MODULE = "csfeer.settings"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 50
+    soft_limit = 25
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512
+
+[processes]
+  app = "gunicorn --bind 0.0.0.0:8000 --workers 2 --timeout 60 --access-logfile - --error-logfile - csfeer.wsgi:application"

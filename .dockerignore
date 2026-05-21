@@ -1,3 +1,57 @@
+# Keep build context small for faster Fly deploys.
+
+# Python
 .python-version
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Node
+node_modules
+
+# Django collected output (rebuilt inside the image)
 staticfiles
 staticfiles.json
+
+# Tests + dev tooling
+.coverage
+htmlcov
+.tox
+
+# IDE / OS
+.vscode
+.idea
+.DS_Store
+*.swp
+
+# Local secrets + env
+.env
+.env.*
+!.env.example
+
+# Logs + DBs
+logs/
+*.log
+*.sqlite3
+db.sqlite3
+
+# Git
+.git
+.gitignore
+
+# CI / deploy artifacts
+.github
+
+# Documentation that doesn't need to ship with the image
+DEMO_NOTES.md
+docs/
+*.md
+!README.md
+
+# Fly state
+fly.toml.bak

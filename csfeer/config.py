@@ -1,6 +1,8 @@
+import os
 from pathlib import Path
+from urllib.parse import unquote, urlparse
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -76,6 +78,38 @@ class AppConfig(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.environment in ["production", "prod"]
+
+    # Fly Postgres (and most PaaS Postgres providers) sets a single
+    # DATABASE_URL env var like:
+    #   postgres://user:pass@host:5432/dbname
+    # Translate that into the granular DBConfig fields so the rest of
+    # settings.py doesn't have to change. Explicit DB_CONFIG__* env vars
+    # always win over DATABASE_URL.
+    @model_validator(mode="after")
+    def _hydrate_db_config_from_database_url(self):
+        database_url = os.environ.get("DATABASE_URL", "").strip()
+        if not database_url:
+            return self
+        try:
+            parsed = urlparse(database_url)
+        except ValueError:
+            return self
+        if not parsed.hostname:
+            return self
+        # Only fill in fields the user hasn't already overridden via
+        # DB_CONFIG__* env vars (pydantic-settings has already applied
+        # those by the time the validator runs).
+        if "DB_CONFIG__PGHOST" not in os.environ:
+            self.db_config.pghost = parsed.hostname
+        if "DB_CONFIG__PGPORT" not in os.environ and parsed.port:
+            self.db_config.pgport = str(parsed.port)
+        if "DB_CONFIG__PGUSER" not in os.environ and parsed.username:
+            self.db_config.pguser = unquote(parsed.username)
+        if "DB_CONFIG__PGPASSWORD" not in os.environ and parsed.password:
+            self.db_config.pgpassword = unquote(parsed.password)
+        if "DB_CONFIG__PGDATABASE" not in os.environ and parsed.path:
+            self.db_config.pgdatabase = parsed.path.lstrip("/")
+        return self
 
 
 def get_app_config() -> AppConfig:

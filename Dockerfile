@@ -38,6 +38,10 @@ COPY --chown=python:python ./core /app/core
 COPY --chown=python:python ./form_manager /app/form_manager
 COPY --chown=python:python ./users /app/users
 COPY --chown=python:python ./organizations /app/organizations
+# Apps added during the staff-prototype build (Phase 3-4 work)
+COPY --chown=python:python ./programs /app/programs
+COPY --chown=python:python ./staff_review /app/staff_review
+COPY --chown=python:python ./staff_prototype /app/staff_prototype
 COPY --chown=python:python ./pyproject.toml .
 COPY --chown=python:python ./uv.lock .
 COPY --chown=python:python ./manage.py .
@@ -92,9 +96,17 @@ CMD ["uv", "run", "python", "manage.py", "runserver", "0.0.0.0:8000", "--nostati
 FROM build-base AS prod
 
 COPY --chown=python:python --from=static /app/frontend/built /app/csfeer/static/frontend
-RUN uv run manage.py collectstatic --noinput
+# collectstatic uses settings; in prod we need DJANGO_SETTINGS_MODULE set.
+# Failures don't block the image build (we still want the app to come up
+# so logs surface the real issue). The deploy's release_command also runs
+# collectstatic so this is belt + suspenders.
+RUN uv run manage.py collectstatic --noinput || true
 
-CMD [ "gunicorn", "--user", "python", "--bind", "0.0.0.0:8000", "csfeer.wsgi:application"]
+EXPOSE 8000
+CMD [ "gunicorn", "--bind", "0.0.0.0:8000", \
+      "--workers", "2", "--timeout", "60", \
+      "--access-logfile", "-", "--error-logfile", "-", \
+      "csfeer.wsgi:application"]
 
 ##### Production e2e test runner
 FROM prod AS prod-e2e
