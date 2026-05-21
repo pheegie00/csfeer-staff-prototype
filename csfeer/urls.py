@@ -30,6 +30,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("oidc/", include("oauth2_authcodeflow.urls")),
     path("forms/", include("form_manager.urls")),
+    path("staff-prototype/", include("staff_prototype.urls")),
     path("api/v1/", form_api.urls),
 ]
 
