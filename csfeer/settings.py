@@ -57,6 +57,10 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # Bounce stale /oidc/callback hits to /staff/ instead of 400'ing.
+    # Must run BEFORE LoginRequiredMiddleware so it gets to short-circuit
+    # the request before the auth check fires.
+    "csfeer.middleware.StaleCallbackRedirectMiddleware",
     # Custom subclass: sends users back to the URL they actually requested
     # rather than the stale session-cached `next` from a prior login. See
     # csfeer/middleware.py.
