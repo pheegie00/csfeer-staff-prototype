@@ -148,6 +148,7 @@ Each ticket below has a one-paragraph "how to verify" the PM can run against the
 | Item | Status | Notes |
 |---|---|---|
 | STAFF-MP-06 (Shared forms admin UI) | Deferred | Model + `is_shared` flag exist. Dedicated Platform Admin edit UI for SF-424 is a follow-up. |
+| STAFF-MP-12 (Submission Detail Figma redesign) | Not started | Chrome + Submissions inbox have been redesigned per the new Figma. Submission Detail (Tribal Plan accordion + Accept/Close modals) is the natural next deliverable. Figma assets are in hand. |
 | CORE-41, 42, 70, 157 (Email notifications) | Deferred | Batch D. Needs SMTP infrastructure spike (will use `thebusinessofdelivery@gmail.com` for test sends per memory rule). |
 | CORE-28 (Document new form template pattern) | Pending | Doc-only, needs to be written after Form Builder feedback. |
 | Phase II form schemas | Placeholders | The 16 newly seeded Phase II + OFA form templates have `{}` schemas. Schema editor UI is a Phase 6 deliverable. |
@@ -240,6 +241,88 @@ The 7 STAFF-MP tickets shipped in this release were created in the project's int
 - **Priority:** HIGH (shipping Form Builder without this would teach users a global-admin pattern we'd have to retrain)
 - **Status in this release:** SHIPPED
 - **Dependencies:** STAFF-MP-05
+
+### STAFF-MP-08: Pre-sign-in landing page
+
+- **Story:** As an unauthenticated visitor, when I open the root URL I want a branded landing page that explains what CORE does and gives me a clear Sign In CTA, instead of being dumped into the auth flow without context.
+- **Acceptance criteria:**
+  - Public marketing page at `/` (no auth required)
+  - Navy CORE header with "Sign in" button top-right
+  - Hero with product description + primary "Sign in to continue" CTA
+  - Feature grid (6 cards) summarizing the major capabilities (program scoping, return/determine, Form Builder, audit + exports, help, window enforcement)
+  - "Programs onboarded" chip strip listing all 11 seeded programs
+  - ACF "Children & Families" navy footer
+  - Signed-in users still redirect straight to `/staff/` on `/` so logged-in flow isn't slowed down
+- **Priority:** MEDIUM (customer-facing first impression)
+- **Status in this release:** SHIPPED
+- **Dependencies:** none
+
+### STAFF-MP-09: Apply Figma "Staff Experience 05" chrome to all staff pages
+
+- **Story:** As a federal staff member, when I sign in I want the new branded look (navy header, user-chip dropdown, ACF footer) across every staff page so the UI feels cohesive and intentional.
+- **Acceptance criteria:**
+  - New `_base_staff.html` chrome: navy CORE header with subtitle
+  - User-chip dropdown ("First Last v") on the right of the header that contains all previously-horizontal-nav items:
+    - "Go to" group: Submissions, Form templates, Exports, Audit log, Help
+    - "View as (testing)" group: persona switcher (demo-admin only)
+    - "Platform" group: Features admin (superuser only)
+    - Sign out
+  - ACF "Children & Families" navy footer on every staff page
+  - Page-level secondary nav slot (subnav block) so individual pages can add their own tabs without touching base
+  - No regressions: every Phase 4 + Phase 5 feature remains reachable and functional via the new dropdown
+- **Priority:** MEDIUM (visual cohesion)
+- **Status in this release:** SHIPPED
+- **Dependencies:** none
+
+### STAFF-MP-10: Redesign Submissions inbox per Figma
+
+- **Story:** As a federal staff member, I want a clean Active/Completed tab split on the Submissions inbox with a focused filter row and a simple table, matching the new Figma design.
+- **Acceptance criteria:**
+  - Tab subnav under the header: "Active submissions" and "Completed submissions"
+    - Active bucket = anything not yet resolved (Submitted / In Progress / Returned)
+    - Completed bucket = Accepted or Closed
+  - Filter row: regions, organizations, forms, fiscal years dropdowns + primary "Apply filter" button
+  - Pale-blue section header band on the table ("Needs review" on Active, "Completed" on Completed)
+  - Table columns per Figma: Organization, Forms (with OMB no. subtitle), Period, Status, Last action by, Last updated, Action
+  - Distinct status pills per status (Submitted, In Progress, Returned, Accepted, Closed)
+  - "Export CSV" button visible on the Completed tab (gated by the `csv_exports` feature flag)
+  - Pagination footer
+  - **Preserved from prior release:** Table / Kanban / Card view toggle still works (see STAFF-MP-11)
+- **Priority:** MEDIUM
+- **Status in this release:** SHIPPED
+- **Dependencies:** STAFF-MP-09
+
+### STAFF-MP-11: Preserve Table / Kanban / Card view toggle in redesigned inbox
+
+- **Story:** As a federal staff member, even after the visual redesign I want to keep being able to switch between Table, Kanban, and Card views of the inbox so I can work the queue the way I think about it.
+- **Acceptance criteria:**
+  - View toggle control (Table / Kanban / Card) on the inbox filter row
+  - Toggling view preserves the current bucket + all active filters
+  - Table view matches the new Figma design (see STAFF-MP-10)
+  - Kanban view renders one column per status bucket, restyled with the navy + pale-blue palette to feel native to the new design
+  - Kanban columns are filtered to the active bucket (Active tab shows Submitted/In Progress/Returned lanes; Completed tab shows Accepted/Closed lanes)
+  - Card view: responsive grid of detail cards, each linking to the submission detail
+  - All three views link to the same submission detail page
+- **Priority:** MEDIUM (existing functionality the team values)
+- **Status in this release:** SHIPPED
+- **Dependencies:** STAFF-MP-10
+
+### STAFF-MP-12: Apply Figma look to Submission Detail (Tribal Plan) page
+
+- **Story:** As a federal staff member reviewing a submission, I want the detail page to match the new Figma design: clean breadcrumb, big "Review and Submit" heading, collapsible section accordions, "Add review item" buttons per section, and confirmation modals on Accept / Close.
+- **Acceptance criteria:**
+  - Breadcrumb at top: "All submissions / [Organization name]"
+  - Form title + status pills (Submitted / Accepted / Closed) in left column
+  - Right column: "Close without acceptance" and primary blue "Accept" buttons
+  - "Review and Submit" H1 with "Expand all" toggle on the right
+  - Each form section renders as a collapsible accordion ("Section 1: Tribal Administrative Information", etc.) with an "Add review item" button inline
+  - Banner treatments for accepted ("Submission accepted, accepted on MM/DD/YYYY at HH:MM PM by [reviewer]") and closed ("Submission closed without acceptance...") states
+  - Confirmation modals on both Accept and Close actions explaining the consequences before commit
+- **Priority:** MEDIUM
+- **Status in this release:** NOT YET STARTED
+  - Figma assets exist (Tribal Plan, Tribal Plan-1 through -4 from the Staff Experience 05 export)
+  - Chrome + inbox have been redesigned; this is the natural next deliverable
+- **Dependencies:** STAFF-MP-09
 
 ---
 

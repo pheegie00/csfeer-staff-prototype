@@ -120,6 +120,123 @@
   .empty-state__icon { font-size: 28px; margin-bottom: 8px; opacity: 0.6; }
   .empty-state__title { font: 600 16px "Public Sans", sans-serif; color: #1f2937; margin: 0 0 4px; }
   .empty-state__sub { font: 400 14px "Public Sans", sans-serif; }
+
+  /* View toggle (Table / Kanban / Card) */
+  .view-toggle {
+    display: inline-flex;
+    border: 1px solid #d6d6d6;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .view-toggle__btn {
+    padding: 8px 14px;
+    border: 0; background: #fff;
+    border-right: 1px solid #d6d6d6;
+    font: 500 13px "Public Sans", sans-serif;
+    color: #6b7280; cursor: pointer;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .view-toggle__btn:last-child { border-right: 0; }
+  .view-toggle__btn:hover { background: #f9fafb; color: #1f2937; }
+  .view-toggle__btn--active { background: #0b3b5c; color: #fff; }
+  .view-toggle__btn--active:hover { background: #08344f; color: #fff; }
+
+  /* Kanban */
+  .kanban {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(220px, 1fr));
+    gap: 12px;
+    overflow-x: auto;
+  }
+  .kanban__col {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    display: flex; flex-direction: column;
+    min-height: 200px;
+  }
+  .kanban__head {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    background: #cce4f3;
+    border-radius: 6px 6px 0 0;
+  }
+  .kanban__head h4 {
+    margin: 0; font: 600 13px "Public Sans", sans-serif; color: #08344f;
+  }
+  .kanban__hint {
+    font: 400 11px "Public Sans", sans-serif; color: #08344f;
+    opacity: 0.7; margin-top: 2px;
+  }
+  .kanban__count {
+    background: #fff; color: #08344f;
+    padding: 2px 8px; border-radius: 999px;
+    font: 600 11px "Public Sans", sans-serif;
+  }
+  .kanban__list { padding: 10px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .kanban__empty {
+    padding: 16px; text-align: center;
+    color: #9ca3af; font-size: 12px;
+  }
+  .kcard {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 10px 12px;
+    display: flex; flex-direction: column; gap: 4px;
+    transition: border-color 0.12s, box-shadow 0.12s;
+  }
+  .kcard:hover { border-color: #2563eb; box-shadow: 0 2px 6px rgba(37,99,235,0.1); }
+  .kcard__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
+  .kcard__org { font: 600 13px "Public Sans", sans-serif; color: #1f2937; }
+  .kcard__form { font: 400 12px "Public Sans", sans-serif; color: #6b7280; }
+  .kcard__bot {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    font: 400 11px "Public Sans", sans-serif; color: #6b7280;
+    margin-top: 4px;
+  }
+  .kcard__r {
+    background: #fef3c7; color: #92400e;
+    padding: 1px 6px; border-radius: 3px;
+    font: 600 10px "Public Sans", sans-serif;
+  }
+  .age-mini {
+    padding: 1px 6px; border-radius: 3px;
+    font: 600 10px "Public Sans", sans-serif;
+    background: #e5e7eb; color: #374151;
+  }
+  .age-mini--warn { background: #fef3c7; color: #92400e; }
+  .age-mini--alert { background: #fde8e8; color: #991b1b; }
+
+  /* Card grid */
+  .cardgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .cardgrid__card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 10px;
+    transition: border-color 0.12s, box-shadow 0.12s;
+  }
+  .cardgrid__card:hover { border-color: #2563eb; box-shadow: 0 4px 12px rgba(37,99,235,0.12); }
+  .cgcard__hd { display: flex; justify-content: space-between; align-items: flex-start; }
+  .cgcard__org { font: 600 15px "Public Sans", sans-serif; color: #1f2937; }
+  .cgcard__form { font: 400 13px "Public Sans", sans-serif; color: #6b7280; }
+  .cgcard__row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+    padding-top: 8px; border-top: 1px solid #f3f4f6;
+  }
+  .cgcard__k { font: 600 10px "Public Sans", sans-serif; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; }
+  .cgcard__v { font: 500 12px "Public Sans", sans-serif; color: #1f2937; margin-top: 2px; }
+  .cgcard__foot { padding-top: 8px; border-top: 1px solid #f3f4f6; text-align: right; }
+  .cgcard__open { color: #2563eb; font: 600 13px "Public Sans", sans-serif; }
 </style>
 {% endblock %}
 
@@ -127,9 +244,10 @@
 
 <h2 class="sub-page__title">{% if bucket == 'completed' %}Completed submissions{% else %}Active submissions{% endif %}</h2>
 
-{# Filter row #}
+{# Filter row -- includes a hidden `view` so toggling view doesn't lose filters #}
 <form method="get" class="sub-filter-row">
   <input type="hidden" name="bucket" value="{{ bucket }}">
+  <input type="hidden" name="view" value="{{ active_view }}">
   <span class="sub-filter-row__label">Filter by</span>
 
   <select name="region" class="sub-filter-row__select">
@@ -164,12 +282,34 @@
 
   <div class="sub-filter-row__spacer"></div>
 
+  {# View toggle (Table / Kanban / Card) -- preserves filters via querystring #}
+  <div class="view-toggle" role="tablist" aria-label="View mode">
+    <a href="?bucket={{ bucket }}&region={{ active_region }}&org={{ active_org }}&form={{ active_form }}&fy={{ active_fy }}&view=table"
+       class="view-toggle__btn {% if active_view == 'table' %}view-toggle__btn--active{% endif %}"
+       title="Table view" aria-pressed="{% if active_view == 'table' %}true{% else %}false{% endif %}">
+      <span aria-hidden="true">&#9776;</span> Table
+    </a>
+    <a href="?bucket={{ bucket }}&region={{ active_region }}&org={{ active_org }}&form={{ active_form }}&fy={{ active_fy }}&view=kanban"
+       class="view-toggle__btn {% if active_view == 'kanban' %}view-toggle__btn--active{% endif %}"
+       title="Kanban view" aria-pressed="{% if active_view == 'kanban' %}true{% else %}false{% endif %}">
+      <span aria-hidden="true">&#9647;</span> Kanban
+    </a>
+    <a href="?bucket={{ bucket }}&region={{ active_region }}&org={{ active_org }}&form={{ active_form }}&fy={{ active_fy }}&view=card"
+       class="view-toggle__btn {% if active_view == 'card' %}view-toggle__btn--active{% endif %}"
+       title="Card view" aria-pressed="{% if active_view == 'card' %}true{% else %}false{% endif %}">
+      <span aria-hidden="true">&#9635;</span> Card
+    </a>
+  </div>
+
   {% if bucket == 'completed' and flags.csv_exports %}
     <a href="{% url 'staff_review:exports' %}" class="sub-filter-row__btn">Export CSV</a>
   {% endif %}
 </form>
 
-{# Results table #}
+{# ============================================================
+   TABLE view (default; matches the Figma "Staff Experience 05" design).
+   ============================================================ #}
+{% if active_view == 'table' or not active_view %}
 <div class="sub-table-wrap">
   <div class="sub-table-band">
     {% if bucket == 'completed' %}Completed{% else %}Needs review{% endif %}
@@ -231,6 +371,99 @@
     <a href="#" class="pagination__page">2</a>
     <a href="#" class="pagination__nav">Next &gt;</a>
   </div>
+{% endif %}
+{% endif %}
+
+{# ============================================================
+   KANBAN view (one column per status bucket).
+   Preserved from pre-redesign; re-styled to match the navy + pale-blue
+   palette so it feels native to the new look.
+   ============================================================ #}
+{% if active_view == 'kanban' %}
+<div class="kanban">
+  {% for col in kanban_columns %}
+    {# Filter columns to match the active bucket so 'Completed' tab doesn't
+       show empty Submitted/Returned lanes (and vice versa). #}
+    {% if bucket == 'completed' and col.status == 'Accepted' or bucket == 'completed' and col.status == 'Closed' or bucket != 'completed' and col.status != 'Accepted' and col.status != 'Closed' %}
+      <div class="kanban__col">
+        <div class="kanban__head">
+          <div>
+            <h4>{{ col.label }}</h4>
+            <div class="kanban__hint">{{ col.hint }}</div>
+          </div>
+          <span class="kanban__count">{{ col.rows|length }}</span>
+        </div>
+        <div class="kanban__list">
+          {% for s in col.rows %}
+            <a href="{% url 'staff_review:submission_detail' sub_id=s.id %}" class="kcard" style="text-decoration:none;color:inherit;">
+              <div class="kcard__top">
+                <div class="kcard__org">{{ s.org_name }}</div>
+                <span class="age-mini {% if s.days_in > 14 %}age-mini--alert{% elif s.days_in > 7 %}age-mini--warn{% endif %}">{{ s.days_in }}d</span>
+              </div>
+              <div class="kcard__form">{{ s.form_short }} &middot; {{ s.fy }}</div>
+              <div class="kcard__bot">
+                <span>{{ s.region }} &middot; {{ s.state_abbr }}</span>
+                <span>{{ s.submitted }}</span>
+                {% if s.returns > 0 %}<span class="kcard__r">R{{ s.returns }}</span>{% endif %}
+              </div>
+            </a>
+          {% empty %}
+            <div class="kanban__empty">No submissions</div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+{# ============================================================
+   CARD view (responsive grid of detail cards).
+   ============================================================ #}
+{% if active_view == 'card' %}
+  {% if rows %}
+  <div class="cardgrid">
+    {% for s in rows %}
+      <a href="{% url 'staff_review:submission_detail' sub_id=s.id %}" class="cardgrid__card" style="text-decoration:none;color:inherit;">
+        <div class="cgcard__hd">
+          {% with sl=s.status|lower|cut:" "|cut:"_" %}
+            <span class="pill pill--{{ sl }}">{{ s.status }}</span>
+          {% endwith %}
+          <span class="age-mini {% if s.days_in > 14 %}age-mini--alert{% elif s.days_in > 7 %}age-mini--warn{% endif %}">{{ s.days_in }}d</span>
+        </div>
+        <div class="cgcard__org">{{ s.org_name }}</div>
+        <div class="cgcard__form">{{ s.form_short }} &middot; {{ s.fy }}</div>
+
+        <div class="cgcard__row">
+          <div>
+            <div class="cgcard__k">Region &middot; State</div>
+            <div class="cgcard__v">{{ s.region }} &middot; {{ s.state_abbr }}</div>
+          </div>
+          <div>
+            <div class="cgcard__k">Submitted</div>
+            <div class="cgcard__v">{{ s.submitted }}</div>
+          </div>
+          <div>
+            <div class="cgcard__k">Returns</div>
+            <div class="cgcard__v">{% if s.returns > 0 %}{{ s.returns }} / 1{% else %}0 / 1{% endif %}</div>
+          </div>
+        </div>
+
+        <div class="cgcard__foot">
+          <span class="cgcard__open">{% if bucket == 'completed' %}View &rarr;{% else %}Review &rarr;{% endif %}</span>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-state__icon">&#9636;</div>
+      <div class="empty-state__title">
+        {% if bucket == 'completed' %}No completed submissions yet{% else %}No submissions yet{% endif %}
+      </div>
+      <div class="empty-state__sub">Submissions will appear here once available.</div>
+    </div>
+  {% endif %}
 {% endif %}
 
 {% endblock %}
