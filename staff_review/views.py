@@ -120,14 +120,28 @@ class InboxView(StaffRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
-        active_status = self.request.GET.get("status", "My queue")
-        active_form = self.request.GET.get("form", "All")
-        active_region = self.request.GET.get("region", "All")
+        # Phase 6 Figma redesign: simplify to Active / Completed buckets.
+        # Active = anything NOT yet resolved (Submitted / In Progress / Returned).
+        # Completed = Accepted / Closed.
+        bucket = self.request.GET.get("bucket", "active").lower()
+        if bucket not in ("active", "completed"):
+            bucket = "active"
+        active_status = "Resolved" if bucket == "completed" else "My queue"
+
+        active_form = self.request.GET.get("form") or "All"
+        active_region = self.request.GET.get("region") or "All"
+        active_org = self.request.GET.get("org") or "All"
+        active_fy = self.request.GET.get("fy") or "All"
         active_state = self.request.GET.get("state", "All")
-        active_view = self.request.GET.get("view", "table")  # table | kanban | card
+        active_view = self.request.GET.get("view", "table")  # legacy
         query = (self.request.GET.get("q") or "").strip().lower()
 
         rows = self._filter(SUBMISSIONS, active_status, active_form, active_region, active_state, query)
+        # Bucket-level filter on org + fy from the new Figma filter row.
+        if active_org and active_org != "All":
+            rows = [r for r in rows if r["data"]["org"].get("name") == active_org]
+        if active_fy and active_fy != "All":
+            rows = [r for r in rows if (r.get("fy") or r["data"]["org"].get("fy")) == active_fy]
         rows = self._enrich(rows)
 
         counts = counts_by_status(SUBMISSIONS)
@@ -155,6 +169,17 @@ class InboxView(StaffRequiredMixin, TemplateView):
              "rows": [r for r in rows if r["status"] == "Closed"]},
         ]
 
+        # Phase 6 redesign: build dropdown option lists from the seeded data
+        # so the Figma filter row (regions, organizations, forms, fiscal years)
+        # always shows real values.
+        organizations = sorted({s["data"]["org"]["name"] for s in SUBMISSIONS})
+        fiscal_years = sorted({
+            (s.get("fy") or s["data"]["org"].get("fy") or "")
+            for s in SUBMISSIONS
+            if (s.get("fy") or s["data"]["org"].get("fy"))
+        })
+        form_options = sorted({FORM_DEFS[s["form_type"]]["short"] for s in SUBMISSIONS})
+
         ctx.update({
             "user": USER,
             "rows": rows,
@@ -163,6 +188,14 @@ class InboxView(StaffRequiredMixin, TemplateView):
             "counts": counts,
             "tabs": tabs,
             "kanban_columns": kanban_columns,
+            # Phase 6 Figma redesign context
+            "bucket": bucket,
+            "active_org": active_org,
+            "active_fy": active_fy,
+            "organizations": organizations,
+            "fiscal_years": fiscal_years,
+            "form_options": form_options,
+            # Legacy / existing
             "active_status": active_status,
             "active_form": active_form,
             "active_region": active_region,

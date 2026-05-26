@@ -17,17 +17,24 @@ Including another URLconf
 
 from django.apps import apps
 from django.contrib import admin
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 from django.urls import include, path
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import TemplateView
 
 from form_manager.api import api as form_api
 
+
+def root_view(request):
+    """Landing page at /. If signed in, send them straight to /staff/.
+    Otherwise render the public landing page with a Sign In CTA."""
+    if request.user.is_authenticated:
+        return redirect("/staff/")
+    return TemplateView.as_view(template_name="landing.html")(request)
+
+
 urlpatterns = [
-    # Root: send everyone to the staff app. Unauthenticated users hit the
-    # OIDC middleware first and get bounced to Keycloak (and back to /staff/
-    # after sign-in). For recipient-side personas who want the old form list,
-    # /forms/ is still routed.
-    path("", RedirectView.as_view(url="/staff/", permanent=False), name="index"),
+    path("", root_view, name="index"),
     path(
         "login-error/", TemplateView.as_view(template_name="login_error.html"), name="login_error"
     ),

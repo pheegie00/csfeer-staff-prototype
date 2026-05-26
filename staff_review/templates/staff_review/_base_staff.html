@@ -3,168 +3,318 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}CORE -- Federal Staff{% endblock %}</title>
+  <title>{% block title %}CORE - Federal Staff{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'staff_prototype/styles.css' %}">
   <style>
-    /* Phase 4 Step 7: View-as dropdown wired into the header avatar.
-       Click the avatar / name to switch persona (demo-admin only). */
-    .viewas-toggle { position: relative; }
-    .viewas-toggle__avatar {
+    /* ===========================================================
+       Phase 6: Figma "Staff Experience 05" design system overrides.
+       Restyles the chrome (header, nav, footer) to match the new
+       brand. Keeps all the inner page templates working.
+       =========================================================== */
+
+    :root {
+      --acf-navy: #0b3b5c;
+      --acf-navy-deep: #08344f;
+      --acf-blue: #2563eb;
+      --acf-blue-hover: #1d4ed8;
+      --acf-section-bg: #cce4f3;
+      --acf-text: #1f2937;
+      --acf-text-muted: #6b7280;
+      --acf-border: #d6d6d6;
+    }
+
+    body {
+      font-family: "Public Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--acf-text);
+      background: #fff;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* US gov banner -- keep existing styling */
+    .usgov-stripe {
+      background: #f0f0f0;
+      padding: 6px 24px;
+      font-size: 12px;
+      color: #1f2937;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .usgov-stripe__flag {
+      background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7410 3900'><rect width='7410' height='3900' fill='%23b22234'/><path d='M0,450H7410M0,750H7410M0,1050H7410M0,1350H7410M0,1650H7410M0,1950H7410M0,2250H7410M0,2550H7410M0,2850H7410M0,3150H7410M0,3450H7410M0,3750H7410' stroke='white' stroke-width='300'/><rect width='2964' height='2100' fill='%233c3b6e'/></svg>") no-repeat center / contain;
+      width: 16px; height: 12px;
+      text-indent: -9999px;
+      overflow: hidden;
+    }
+    .usgov-stripe a { color: #1d4ed8; text-decoration: underline; }
+
+    /* New navy header */
+    .acf-header {
+      background: var(--acf-navy);
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .acf-header__brand {
+      color: #fff;
+      text-decoration: none;
+      display: block;
+    }
+    .acf-header__title {
+      font: 800 28px/1 "Public Sans", sans-serif;
+      letter-spacing: 0.02em;
+      margin-bottom: 4px;
+    }
+    .acf-header__subtitle {
+      font: 400 13px "Public Sans", sans-serif;
+      opacity: 0.85;
+    }
+
+    /* User chip dropdown (replaces the old avatar + iconbtn block).
+       Click "Melanie D. ▼" to open the all-actions menu. */
+    .user-chip { position: relative; }
+    .user-chip__summary {
       cursor: pointer; list-style: none;
-      padding: 4px 8px; border-radius: 6px;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px; border-radius: 4px;
+      color: #fff;
+      font: 500 15px "Public Sans", sans-serif;
       transition: background 0.12s ease;
     }
-    .viewas-toggle__avatar::-webkit-details-marker { display: none; }
-    .viewas-toggle__avatar:hover { background: #f3f4f6; }
-    details[open] > .viewas-toggle__avatar { background: #eef2ff; }
-    .viewas-toggle__chevron {
-      display: inline-block; margin-left: 4px;
-      font-size: 10px; color: #6b7280;
+    .user-chip__summary::-webkit-details-marker { display: none; }
+    .user-chip__summary:hover { background: rgba(255,255,255,0.08); }
+    details[open] > .user-chip__summary { background: rgba(255,255,255,0.12); }
+    .user-chip__chevron {
+      font-size: 10px; opacity: 0.85;
       transition: transform 0.12s ease;
     }
-    details[open] .viewas-toggle__chevron { transform: rotate(180deg); }
+    details[open] .user-chip__chevron { transform: rotate(180deg); }
 
-    .viewas-toggle__panel {
+    .user-chip__menu {
       position: absolute; top: calc(100% + 6px); right: 0;
-      width: 340px; max-height: 520px; overflow-y: auto;
-      background: #fff; border: 1px solid #d1d5db; border-radius: 6px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 100;
-      padding: 6px 0;
+      min-width: 320px; max-height: calc(100vh - 120px); overflow-y: auto;
+      background: #fff; color: var(--acf-text);
+      border: 1px solid #d1d5db; border-radius: 6px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      padding: 6px 0; z-index: 200;
     }
-    .viewas-toggle__hdr {
-      padding: 12px 14px; border-bottom: 1px solid #e5e7eb;
-      font: 600 13px "Public Sans", sans-serif; color: #1f2937;
+    .user-chip__group {
+      padding: 4px 0; border-top: 1px solid #f3f4f6;
     }
-    .viewas-toggle__row { margin: 0; }
-    .viewas-toggle__btn-row {
-      display: block; width: 100%; text-align: left;
-      padding: 10px 14px; border: 0; background: #fff; cursor: pointer;
+    .user-chip__group:first-child { border-top: 0; }
+    .user-chip__group-label {
+      padding: 6px 14px 2px;
+      font: 600 11px "Public Sans", sans-serif;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: #6b7280;
+    }
+    .user-chip__item {
+      display: block; padding: 8px 14px;
+      color: var(--acf-text); text-decoration: none;
       font: 500 13px "Public Sans", sans-serif;
     }
-    .viewas-toggle__btn-row:hover:not(:disabled) { background: #f3f4f6; }
-    .viewas-toggle__btn-row:disabled {
-      cursor: default; background: #f9fafb;
+    .user-chip__item:hover { background: #f3f4f6; color: var(--acf-blue-hover); }
+    .user-chip__item--active { color: var(--acf-blue-hover); }
+    .user-chip__form { margin: 0; }
+    .user-chip__btn {
+      display: block; width: 100%; text-align: left;
+      padding: 8px 14px;
+      border: 0; background: transparent; cursor: pointer;
+      font: 500 13px "Public Sans", sans-serif; color: var(--acf-text);
     }
-    .viewas-toggle__row-name { color: #111827; }
-    .viewas-toggle__row-meta { margin-top: 2px; }
-    .viewas-toggle__more {
-      display: block; padding: 10px 14px; border-top: 1px solid #e5e7eb;
-      color: #1d4ed8; text-decoration: none; font: 500 12px "Public Sans", sans-serif;
+    .user-chip__btn:hover:not(:disabled) { background: #f3f4f6; }
+    .user-chip__btn:disabled { color: #9ca3af; cursor: default; }
+    .user-chip__persona-meta {
+      display: block; font-size: 11px; color: var(--acf-text-muted); margin-top: 2px;
     }
-    .viewas-toggle__more:hover { background: #eff6ff; }
+    .user-chip__current {
+      padding: 10px 14px; background: #f9fafb;
+      font: 500 13px "Public Sans", sans-serif; color: var(--acf-text);
+    }
+    .user-chip__current-meta { font-size: 11px; color: var(--acf-text-muted); margin-top: 2px; }
+
+    /* Tab nav under header (Active / Completed submissions) -- this is the
+       page-level secondary nav. Each main page declares its own tabs via
+       the page subnav block hook. */
+    .acf-subnav {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 32px;
+    }
+    .acf-subnav__list {
+      display: flex; gap: 32px; margin: 0; padding: 0; list-style: none;
+    }
+    .acf-subnav__item {
+      padding: 18px 0;
+      font: 600 14px "Public Sans", sans-serif;
+      color: var(--acf-text-muted);
+      text-decoration: none;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.12s, border-color 0.12s;
+    }
+    .acf-subnav__item:hover { color: var(--acf-text); }
+    .acf-subnav__item--active {
+      color: var(--acf-text);
+      border-bottom-color: var(--acf-blue);
+    }
+
+    /* Main page area */
+    .acf-main {
+      flex: 1 0 auto;
+      padding: 32px;
+      max-width: 1640px;
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    /* Footer */
+    .acf-footer {
+      background: var(--acf-navy);
+      color: #fff;
+      padding: 32px;
+      margin-top: auto;
+    }
+    .acf-footer__wordmark {
+      font: 800 22px "Public Sans", sans-serif;
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+    }
+    .acf-footer__top {
+      font-size: 11px; opacity: 0.85;
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .acf-footer__ampersand {
+      font-family: "Caveat", cursive;
+      font-style: italic;
+      font-weight: 400;
+      opacity: 0.95;
+      padding: 0 2px;
+    }
+
+    /* Toast messages (preserve existing) */
+    .acf-toast-wrap { max-width: 1640px; margin: 8px auto 0; padding: 0 32px; }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
 <body>
-{# Gov banner + App header, ported from prototype's hifi-atoms.jsx #}
+
+{# US government banner #}
 <div class="usgov-stripe">
   <div class="usgov-stripe__flag" aria-hidden="true">US</div>
   <span>An official website of the United States government</span>
+  <a href="#" style="margin-left:6px;">Here's how you know</a>
 </div>
-<header class="app-header">
-  <a href="{% url 'staff_review:inbox' %}" class="app-header__brand" style="text-decoration:none;color:inherit;">
-    <div class="app-header__logo">C</div>
-    <div>
-      <div class="app-header__title">CORE</div>
-      <div class="app-header__subtitle">Community Outcomes Reporting Engine &middot; OCS</div>
-    </div>
+
+{# Navy CORE header (no horizontal nav -- all actions live in the user chip dropdown) #}
+<header class="acf-header">
+  <a href="{% url 'staff_review:inbox' %}" class="acf-header__brand">
+    <div class="acf-header__title">CORE</div>
+    <div class="acf-header__subtitle">ACF &middot; Community Outcomes Reporting Engine</div>
   </a>
-  {% comment %}
-  TODO STAFF-MP-05/07: Form templates nav item leads to Form Builder.
-  When built, the Form Builder UI must be program-scoped per
-  docs/multi_program_architecture.md ("Form Builder is the multi-tenant
-  admin layer"). Each program admin sees + manages only their own
-  program's forms. Shared forms (SF-424 etc.) shown in a separate
-  section, read-only for everyone except platform admins.
-  {% endcomment %}
-  <nav class="app-header__nav">
-    <a href="{% url 'staff_review:inbox' %}" class="{% block nav_inbox_class %}{% endblock %}">Submissions</a>
-    {% if flags.form_builder %}
-      <a href="{% url 'staff_review:form_builder_list' %}" class="{% block nav_form_builder_class %}{% endblock %}">Form templates</a>
-    {% endif %}
-    {% if flags.csv_exports %}
-      <a href="{% url 'staff_review:exports' %}" class="{% block nav_exports_class %}{% endblock %}">Exports</a>
-    {% endif %}
-    {% if flags.audit_log_viewer %}
-      <a href="{% url 'staff_review:audit_log' %}" class="{% block nav_audit_class %}{% endblock %}">Audit log</a>
-    {% endif %}
-    {% if flags.help_section %}
-      <a href="{% url 'staff_review:help_index' %}" class="{% block nav_help_class %}{% endblock %}">Help</a>
-    {% endif %}
-    {% if request.user.is_superuser %}
-      <a href="{% url 'staff_review:feature_flags_admin' %}" class="{% block nav_features_class %}{% endblock %}" title="Toggle features on/off">
-        <span style="opacity: 0.7;">&#9881;</span> Features
-      </a>
-    {% endif %}
-  </nav>
-  <div class="app-header__user">
-    <button class="iconbtn" title="Notifications">&#9993;<span class="iconbtn__dot"></span></button>
-    {% if is_demo_admin %}
-      {# Clickable avatar -> View-as dropdown. Click the avatar/name to switch personas. #}
-      <details class="viewas-toggle">
-        <summary class="viewas-toggle__avatar" title="Click to switch personas">
-          <div class="app-header__avatar">
-            <div class="avatar">{{ staff_persona.initials|default:"??" }}</div>
-            <div class="app-header__meta">
-              <div>
-                {{ staff_persona.name|default:"Guest" }}
-                <span class="viewas-toggle__chevron" aria-hidden="true">&#9662;</span>
-              </div>
-              <div class="t-muted t-xs">{{ staff_persona.role_label|default:"" }}</div>
-            </div>
-          </div>
-        </summary>
-        <div class="viewas-toggle__panel">
-          <div class="viewas-toggle__hdr">
-            Switch persona (testing)
-            <div class="t-muted t-xs" style="margin-top:2px;">
-              Currently: <strong>{{ staff_persona.name }}</strong> -- {{ staff_persona.role_label }}
-            </div>
-          </div>
+
+  <details class="user-chip">
+    <summary class="user-chip__summary">
+      <span>{{ staff_persona.name|default:"Sign in" }}</span>
+      <span class="user-chip__chevron" aria-hidden="true">&#9662;</span>
+    </summary>
+
+    <div class="user-chip__menu">
+      {# Who you currently are #}
+      <div class="user-chip__current">
+        <strong>{{ staff_persona.name|default:"Guest" }}</strong>
+        <div class="user-chip__current-meta">{{ staff_persona.role_label|default:"" }}</div>
+      </div>
+
+      {# Primary navigation (was the horizontal nav before) #}
+      <div class="user-chip__group">
+        <div class="user-chip__group-label">Go to</div>
+        <a href="{% url 'staff_review:inbox' %}" class="user-chip__item {% block menu_inbox %}{% endblock %}">Submissions</a>
+        {% if flags.form_builder %}
+          <a href="{% url 'staff_review:form_builder_list' %}" class="user-chip__item {% block menu_form_builder %}{% endblock %}">Form templates</a>
+        {% endif %}
+        {% if flags.csv_exports %}
+          <a href="{% url 'staff_review:exports' %}" class="user-chip__item {% block menu_exports %}{% endblock %}">Exports</a>
+        {% endif %}
+        {% if flags.audit_log_viewer %}
+          <a href="{% url 'staff_review:audit_log' %}" class="user-chip__item {% block menu_audit %}{% endblock %}">Audit log</a>
+        {% endif %}
+        {% if flags.help_section %}
+          <a href="{% url 'staff_review:help_index' %}" class="user-chip__item {% block menu_help %}{% endblock %}">Help</a>
+        {% endif %}
+      </div>
+
+      {# View-as switcher (demo admin only) -- keeps all existing personas #}
+      {% if is_demo_admin %}
+        <div class="user-chip__group">
+          <div class="user-chip__group-label">View as (testing)</div>
           {% for p in demo_personas %}
-            <form action="{% url 'staff_review:view_as_user' %}" method="post" class="viewas-toggle__row">
+            <form action="{% url 'staff_review:view_as_user' %}" method="post" class="user-chip__form">
               {% csrf_token %}
               <input type="hidden" name="user_id" value="{{ p.user_id }}">
               <input type="hidden" name="next" value="{{ request.get_full_path }}">
-              <button type="submit" class="viewas-toggle__btn-row" {% if p.email == staff_persona.email %}disabled{% endif %}>
-                <div class="viewas-toggle__row-name">
-                  {{ p.display_name }}
-                  {% if p.email == staff_persona.email %}<span class="tag tag--success tag--sm" style="margin-left:6px;">Current</span>{% endif %}
-                </div>
-                <div class="viewas-toggle__row-meta t-muted t-xs">{{ p.label }}</div>
+              <button type="submit" class="user-chip__btn" {% if p.email == staff_persona.email %}disabled{% endif %}>
+                {{ p.display_name }}
+                <span class="user-chip__persona-meta">{{ p.label }}{% if p.email == staff_persona.email %} (current){% endif %}</span>
               </button>
             </form>
           {% endfor %}
-          <a href="{% url 'staff_review:demo_users_index' %}" class="viewas-toggle__more">
-            See all demo personas -></a>
+          <a href="{% url 'staff_review:demo_users_index' %}" class="user-chip__item" style="font-size:12px;color:#1d4ed8;">See all demo personas -&gt;</a>
         </div>
-      </details>
-    {% else %}
-      <div class="app-header__avatar">
-        <div class="avatar">{{ staff_persona.initials|default:"??" }}</div>
-        <div class="app-header__meta">
-          <div>{{ staff_persona.name|default:"Guest" }}</div>
-          <div class="t-muted t-xs">{{ staff_persona.role_label|default:"" }}</div>
+      {% endif %}
+
+      {# Platform admin -- feature flag toggles #}
+      {% if request.user.is_superuser %}
+        <div class="user-chip__group">
+          <div class="user-chip__group-label">Platform</div>
+          <a href="{% url 'staff_review:feature_flags_admin' %}" class="user-chip__item">&#9881; Features</a>
         </div>
-      </div>
-    {% endif %}
-  </div>
+      {% endif %}
+
+      {# Sign out #}
+      {% if request.user.is_authenticated %}
+        <div class="user-chip__group">
+          <a href="/oidc/logout?next=/&fail=/login-error/" class="user-chip__item">Sign out</a>
+        </div>
+      {% endif %}
+    </div>
+  </details>
 </header>
+
+{# Page-level secondary nav (Active / Completed submissions, etc.) -- each page fills in. #}
+{% block subnav %}{% endblock %}
 
 {# Django messages rendered as toasts #}
 {% if messages %}
-  {% for m in messages %}
-    <div class="toast {% if m.tags == 'success' %}toast--success{% else %}toast--info{% endif %}" style="position: static; transform: none; left: auto; bottom: auto; margin: 8px auto; max-width: 1640px;">
-      <span class="toast__icon">{% if m.tags == 'success' %}OK{% else %}i{% endif %}</span>
-      <span>{{ m }}</span>
-    </div>
-  {% endfor %}
+  <div class="acf-toast-wrap">
+    {% for m in messages %}
+      <div class="toast {% if m.tags == 'success' %}toast--success{% else %}toast--info{% endif %}" style="position: static; transform: none; left: auto; bottom: auto; margin: 8px 0;">
+        <span class="toast__icon">{% if m.tags == 'success' %}OK{% else %}i{% endif %}</span>
+        <span>{{ m }}</span>
+      </div>
+    {% endfor %}
+  </div>
 {% endif %}
 
-{% block content %}{% endblock %}
+<main class="acf-main">
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="acf-footer">
+  <div class="acf-footer__wordmark">
+    <div class="acf-footer__top">Administration for</div>
+    <div>CHILDREN <span class="acf-footer__ampersand">&amp;</span> FAMILIES</div>
+  </div>
+</footer>
 
 </body>
 </html>

@@ -1,249 +1,236 @@
 {% extends "staff_review/_base_staff.html" %}
 {% load static %}
 
+{% block title %}Submissions - CORE{% endblock %}
+{% block menu_inbox %}user-chip__item--active{% endblock %}
+
+{% block subnav %}
+{# Active / Completed tabs under the navy header (matches Figma "Staff Experience 05"). #}
+<div class="acf-subnav">
+  <div class="acf-subnav__list">
+    <a href="?bucket=active" class="acf-subnav__item {% if bucket == 'active' %}acf-subnav__item--active{% endif %}">Active submissions</a>
+    <a href="?bucket=completed" class="acf-subnav__item {% if bucket == 'completed' %}acf-subnav__item--active{% endif %}">Completed submissions</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Submissions page styles to match Figma design. */
+  .sub-page__title {
+    font: 600 12px "Public Sans", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #1f2937;
+    margin: 0 0 16px;
+  }
+  .sub-filter-row {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .sub-filter-row__label {
+    font: 500 14px "Public Sans", sans-serif;
+    color: #1f2937;
+    margin-right: 4px;
+  }
+  .sub-filter-row__select {
+    padding: 8px 12px; min-width: 170px;
+    border: 1px solid #d6d6d6; border-radius: 4px;
+    background: #fff;
+    font: 400 14px "Public Sans", sans-serif;
+    color: #1f2937;
+  }
+  .sub-filter-row__btn {
+    padding: 9px 18px;
+    border: 1px solid #2563eb;
+    background: #fff; color: #2563eb;
+    border-radius: 4px;
+    font: 600 14px "Public Sans", sans-serif;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .sub-filter-row__btn:hover { background: #eff6ff; }
+  .sub-filter-row__btn--primary { background: #2563eb; color: #fff; }
+  .sub-filter-row__btn--primary:hover { background: #1d4ed8; }
+  .sub-filter-row__spacer { flex: 1; }
+
+  .sub-table-wrap {
+    border: 1px solid #cce4f3;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .sub-table-band {
+    background: #cce4f3;
+    padding: 10px 14px;
+    font: 600 13px "Public Sans", sans-serif;
+    color: #08344f;
+  }
+  .sub-table {
+    width: 100%; border-collapse: collapse;
+    background: #fff;
+  }
+  .sub-table thead th {
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    font: 600 13px "Public Sans", sans-serif;
+    color: #1f2937;
+  }
+  .sub-table thead th .sort-arrows {
+    color: #9ca3af; margin-left: 4px; font-size: 11px;
+  }
+  .sub-table tbody td {
+    padding: 14px;
+    border-bottom: 1px solid #f3f4f6;
+    font: 400 13px "Public Sans", sans-serif;
+    color: #1f2937;
+    vertical-align: top;
+  }
+  .sub-table tbody tr:last-child td { border-bottom: 0; }
+  .sub-table tbody tr:hover { background: #f9fafb; }
+  .sub-table__meta { color: #6b7280; font-size: 12px; margin-top: 2px; }
+  .sub-table__review-link { color: #2563eb; text-decoration: none; font-weight: 500; }
+  .sub-table__review-link:hover { text-decoration: underline; }
+
+  /* Status pills */
+  .pill { display: inline-block; padding: 4px 10px; border-radius: 4px; font: 500 12px "Public Sans", sans-serif; }
+  .pill--submitted    { background: #cfe2ff; color: #08344f; }
+  .pill--inprogress   { background: #fef3c7; color: #92400e; }
+  .pill--returned     { background: #fde8e8; color: #991b1b; }
+  .pill--accepted     { background: #d1fae5; color: #166534; }
+  .pill--closed       { background: #e5e7eb; color: #374151; }
+
+  /* Pagination */
+  .pagination {
+    display: flex; justify-content: center; align-items: center; gap: 8px;
+    padding: 20px 0;
+  }
+  .pagination__page, .pagination__nav {
+    padding: 6px 12px; border-radius: 4px;
+    color: #1f2937; text-decoration: none;
+    font: 500 13px "Public Sans", sans-serif;
+  }
+  .pagination__page--current { background: #1f2937; color: #fff; }
+  .pagination__page:hover, .pagination__nav:hover { background: #f3f4f6; }
+
+  /* Empty state */
+  .empty-state { padding: 64px 24px; text-align: center; color: #6b7280; }
+  .empty-state__icon { font-size: 28px; margin-bottom: 8px; opacity: 0.6; }
+  .empty-state__title { font: 600 16px "Public Sans", sans-serif; color: #1f2937; margin: 0 0 4px; }
+  .empty-state__sub { font: 400 14px "Public Sans", sans-serif; }
+</style>
+{% endblock %}
+
 {% block content %}
 
-<div class="app__body">
+<h2 class="sub-page__title">{% if bucket == 'completed' %}Completed submissions{% else %}Active submissions{% endif %}</h2>
 
-  {# ===== Page header ===== #}
-  <div class="ph">
-    <div class="ph__row">
-      <div>
-        <h1 class="ph__title">Submissions</h1>
-        <div class="ph__meta">
-          {{ filtered_count }} of {{ total }} submissions
-          &nbsp;&middot;&nbsp; FY26 cycle open
-          &nbsp;&middot;&nbsp; across all regions
-        </div>
-      </div>
-      <div class="ph__actions">
-        <button class="btn btn--ghost">Export CSV</button>
-        <button class="btn btn--outline">Configure forms</button>
-      </div>
-    </div>
-  </div>
+{# Filter row #}
+<form method="get" class="sub-filter-row">
+  <input type="hidden" name="bucket" value="{{ bucket }}">
+  <span class="sub-filter-row__label">Filter by</span>
 
-  {# ===== Toolbar: tabs + view switcher + filters ===== #}
-  <div class="toolbar">
-    <div class="toolbar__row">
-      <div class="tabs">
-        {% for tab in tabs %}
-          <a href="?status={{ tab.id|urlencode }}&view={{ active_view }}"
-             class="tabs__tab {% if active_status == tab.id %}is-active{% endif %}">
-            {{ tab.label }}
-            <span class="tabs__count">{{ tab.count }}</span>
-          </a>
-        {% endfor %}
-      </div>
-
-      {# View switcher: Table / Kanban / Cards (matches prototype) #}
-      <div class="toolbar__viewswitch" role="group" aria-label="View">
-        <a href="?status={{ active_status|urlencode }}&view=table"
-           class="viewbtn {% if active_view == 'table' %}is-active{% endif %}" title="Dense triage">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg>
-          <span>Table</span>
-        </a>
-        <a href="?status={{ active_status|urlencode }}&view=kanban"
-           class="viewbtn {% if active_view == 'kanban' %}is-active{% endif %}" title="By status">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="10" rx="1"/><rect x="17" y="4" width="4" height="13" rx="1"/></svg>
-          <span>Kanban</span>
-        </a>
-        <a href="?status={{ active_status|urlencode }}&view=card"
-           class="viewbtn {% if active_view == 'card' %}is-active{% endif %}" title="Roomy scan">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
-          <span>Cards</span>
-        </a>
-      </div>
-    </div>
-
-    <form method="get" class="toolbar__row toolbar__row--filters">
-      <input type="hidden" name="status" value="{{ active_status }}">
-      <input type="hidden" name="view" value="{{ active_view }}">
-
-      <div class="searchwrap">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" name="q" value="{{ query }}" placeholder="Search organization or UEI...">
-        {% if query %}<a href="?status={{ active_status|urlencode }}&view={{ active_view }}" class="searchwrap__clear">&times;</a>{% endif %}
-      </div>
-
-      <label class="select">
-        <span class="select__lbl">Form</span>
-        <select name="form" onchange="this.form.submit()">
-          {% for f in forms %}<option value="{{ f }}" {% if active_form == f %}selected{% endif %}>{{ f }}</option>{% endfor %}
-        </select>
-      </label>
-
-      <label class="select">
-        <span class="select__lbl">Region</span>
-        <select name="region" onchange="this.form.submit()">
-          {% for r in regions %}<option value="{{ r }}" {% if active_region == r %}selected{% endif %}>{{ r }}</option>{% endfor %}
-        </select>
-      </label>
-
-      <label class="select">
-        <span class="select__lbl">State</span>
-        <select name="state" onchange="this.form.submit()">
-          {% for st in states %}<option value="{{ st }}" {% if active_state == st %}selected{% endif %}>{{ st }}</option>{% endfor %}
-        </select>
-      </label>
-
-      <div class="toolbar__spacer"></div>
-
-      <a href="?view={{ active_view }}" class="linkbtn">Clear filters</a>
-    </form>
-  </div>
-
-  {# ===== TABLE VIEW ===== #}
-  {% if active_view == 'table' %}
-    {% if rows %}
-    <div class="tbl-wrap">
-      <table class="tbl">
-        <thead>
-          <tr>
-            <th>Status</th>
-            <th>Organization</th>
-            <th>Form &middot; FY</th>
-            <th>Region &middot; State</th>
-            <th>Submitted</th>
-            <th>Last update</th>
-            <th>Returns</th>
-            <th class="text-right">Age</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for s in rows %}
-          <tr class="tbl__row--clickable" onclick="window.location='{% url 'staff_review:submission_detail' sub_id=s.id %}'">
-            <td><span class="tag tag--{{ s.status_meta.variant }} tag--dot">{{ s.status }}</span></td>
-            <td>
-              <div class="tbl__org">{{ s.org_name }}</div>
-              <div class="tbl__uei">{{ s.uei }}</div>
-            </td>
-            <td>
-              <div>{{ s.form_short }}</div>
-              <div class="tbl__meta">{{ s.fy }}</div>
-            </td>
-            <td>
-              <span class="region-chip">{{ s.region }}</span>
-              <span class="tbl__state">{{ s.state_abbr }}</span>
-            </td>
-            <td class="tbl__meta">{{ s.submitted }}</td>
-            <td class="tbl__meta">{{ s.updated }}</td>
-            <td>
-              {% if s.returns > 0 %}
-                <span class="tag tag--warning tag--sm">{{ s.returns }} / 1</span>
-              {% else %}
-                <span class="tag tag--neutral tag--sm">0 / 1</span>
-              {% endif %}
-            </td>
-            <td class="text-right">
-              <span class="age-badge {{ s.age_class }}">{{ s.days_in }}d</span>
-            </td>
-            <td class="text-right">
-              <a href="{% url 'staff_review:submission_detail' sub_id=s.id %}" class="tbl__open" onclick="event.stopPropagation()">Open &rarr;</a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-      <div class="empty">
-        <div class="empty__icon">&#8981;</div>
-        <h3>No submissions match your filters</h3>
-        <p>Try clearing filters or adjusting your search.</p>
-        <a href="?view={{ active_view }}" class="btn btn--outline">Clear filters</a>
-      </div>
-    {% endif %}
-  {% endif %}
-
-  {# ===== KANBAN VIEW ===== #}
-  {% if active_view == 'kanban' %}
-  <div class="kanban">
-    {% for col in kanban_columns %}
-      <div class="kanban__col">
-        <div class="kanban__head">
-          <div>
-            <h4>{{ col.label }}</h4>
-            <div class="kanban__hint">{{ col.hint }}</div>
-          </div>
-          <span class="kanban__count">{{ col.rows|length }}</span>
-        </div>
-        <div class="kanban__list">
-          {% if col.rows %}
-            {% for s in col.rows %}
-            <a href="{% url 'staff_review:submission_detail' sub_id=s.id %}" class="kcard" style="text-decoration:none;color:inherit;">
-              <div class="kcard__top">
-                <div class="kcard__org">{{ s.org_name }}</div>
-                <span class="age-badge {{ s.age_class }}">{{ s.days_in }}d</span>
-              </div>
-              <div class="kcard__form">{{ s.form_short }} &middot; {{ s.fy }}</div>
-              <div class="kcard__bot">
-                <span class="region-chip region-chip--sm">{{ s.region }}</span>
-                <span class="kcard__state">{{ s.state_abbr }}</span>
-                <span class="kcard__sub">{{ s.submitted }}</span>
-                {% if s.returns > 0 %}<span class="kcard__r">R{{ s.returns }}</span>{% endif %}
-              </div>
-            </a>
-            {% endfor %}
-          {% else %}
-            <div class="kanban__empty">No submissions</div>
-          {% endif %}
-        </div>
-      </div>
+  <select name="region" class="sub-filter-row__select">
+    <option value="">All regions</option>
+    {% for r in regions %}
+      <option value="{{ r }}" {% if r == active_region %}selected{% endif %}>{{ r }}</option>
     {% endfor %}
+  </select>
+
+  <select name="org" class="sub-filter-row__select">
+    <option value="">All organizations</option>
+    {% for o in organizations %}
+      <option value="{{ o }}" {% if o == active_org %}selected{% endif %}>{{ o }}</option>
+    {% endfor %}
+  </select>
+
+  <select name="form" class="sub-filter-row__select">
+    <option value="">All forms</option>
+    {% for f in form_options %}
+      <option value="{{ f }}" {% if f == active_form %}selected{% endif %}>{{ f }}</option>
+    {% endfor %}
+  </select>
+
+  <select name="fy" class="sub-filter-row__select">
+    <option value="">All fiscal years</option>
+    {% for y in fiscal_years %}
+      <option value="{{ y }}" {% if y == active_fy %}selected{% endif %}>{{ y }}</option>
+    {% endfor %}
+  </select>
+
+  <button type="submit" class="sub-filter-row__btn sub-filter-row__btn--primary">Apply filter</button>
+
+  <div class="sub-filter-row__spacer"></div>
+
+  {% if bucket == 'completed' and flags.csv_exports %}
+    <a href="{% url 'staff_review:exports' %}" class="sub-filter-row__btn">Export CSV</a>
+  {% endif %}
+</form>
+
+{# Results table #}
+<div class="sub-table-wrap">
+  <div class="sub-table-band">
+    {% if bucket == 'completed' %}Completed{% else %}Needs review{% endif %}
   </div>
-  {% endif %}
-
-  {# ===== CARD VIEW ===== #}
-  {% if active_view == 'card' %}
-    {% if rows %}
-    <div class="cardgrid">
-      {% for s in rows %}
-      <a href="{% url 'staff_review:submission_detail' sub_id=s.id %}" class="cardgrid__card" style="text-decoration:none;color:inherit;">
-        <div class="cgcard__hd">
-          <span class="tag tag--{{ s.status_meta.variant }} tag--dot">{{ s.status }}</span>
-          <span class="age-badge {{ s.age_class }}">{{ s.days_in }}d</span>
-        </div>
-        <div class="cgcard__org">{{ s.org_name }}</div>
-        <div class="cgcard__form">{{ s.form_short }} &middot; {{ s.fy }}</div>
-
-        <div class="cgcard__row">
-          <div>
-            <div class="cgcard__k">Region &middot; State</div>
-            <div class="cgcard__v">{{ s.region }} &middot; {{ s.state_abbr }}</div>
-          </div>
-          <div>
-            <div class="cgcard__k">Submitted</div>
-            <div class="cgcard__v">{{ s.submitted }}</div>
-          </div>
-          <div>
-            <div class="cgcard__k">Returns</div>
-            <div class="cgcard__v">
-              {% if s.returns > 0 %}
-                <span class="tag tag--warning tag--sm">{{ s.returns }} / 1</span>
-              {% else %}
-                <span class="tag tag--neutral tag--sm">0 / 1</span>
-              {% endif %}
+  <table class="sub-table">
+    <thead>
+      <tr>
+        <th>Organization <span class="sort-arrows">&#8645;</span></th>
+        <th>Forms <span class="sort-arrows">&#8645;</span></th>
+        <th>Period <span class="sort-arrows">&#8645;</span></th>
+        <th>Status <span class="sort-arrows">&#8645;</span></th>
+        <th>Last action by <span class="sort-arrows">&#8645;</span></th>
+        <th>Last updated <span class="sort-arrows">&#8645;</span></th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+        <tr>
+          <td>{{ r.org_name }}</td>
+          <td>
+            {{ r.form_short }}
+            {% if r.uei %}<div class="sub-table__meta">OMB no. {{ r.uei|slice:":4" }}-{{ r.uei|slice:"4:8" }}</div>{% endif %}
+          </td>
+          <td>{{ r.fy|default:"-" }}</td>
+          <td>
+            {% with s=r.status|lower|cut:" "|cut:"_" %}
+              <span class="pill pill--{{ s }}">{{ r.status }}</span>
+            {% endwith %}
+          </td>
+          <td>{% if r.events %}{{ r.events.0.who|default:"-" }}{% else %}-{% endif %}</td>
+          <td>{{ r.updated|default:r.submitted|default:"-" }}</td>
+          <td>
+            <a href="{% url 'staff_review:submission_detail' sub_id=r.id %}" class="sub-table__review-link">
+              {% if bucket == 'completed' %}View{% else %}Review{% endif %}
+            </a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="7">
+            <div class="empty-state">
+              <div class="empty-state__icon">&#9636;</div>
+              <div class="empty-state__title">
+                {% if bucket == 'completed' %}No completed submissions yet{% else %}No submissions yet{% endif %}
+              </div>
+              <div class="empty-state__sub">Submissions will appear here once available.</div>
             </div>
-          </div>
-        </div>
-
-        <div class="cgcard__foot">
-          <span class="cgcard__open">Open &rarr;</span>
-        </div>
-      </a>
+          </td>
+        </tr>
       {% endfor %}
-    </div>
-    {% else %}
-      <div class="empty">
-        <div class="empty__icon">&#8981;</div>
-        <h3>No submissions match your filters</h3>
-        <p>Try clearing filters or adjusting your search.</p>
-        <a href="?view={{ active_view }}" class="btn btn--outline">Clear filters</a>
-      </div>
-    {% endif %}
-  {% endif %}
-
+    </tbody>
+  </table>
 </div>
+
+{% if rows %}
+  <div class="pagination">
+    <span class="pagination__page pagination__page--current">1</span>
+    <a href="#" class="pagination__page">2</a>
+    <a href="#" class="pagination__nav">Next &gt;</a>
+  </div>
+{% endif %}
+
 {% endblock %}

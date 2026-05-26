@@ -1,0 +1,308 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CORE - Community Outcomes Reporting Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --acf-navy: #0b3b5c;
+      --acf-blue: #2563eb;
+      --acf-blue-hover: #1d4ed8;
+      --acf-text: #1f2937;
+      --acf-text-muted: #6b7280;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Public Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--acf-text);
+      background: #fff;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* US gov banner */
+    .usgov-stripe {
+      background: #f0f0f0;
+      padding: 6px 24px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .usgov-stripe__flag {
+      background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7410 3900'><rect width='7410' height='3900' fill='%23b22234'/><path d='M0,450H7410M0,750H7410M0,1050H7410M0,1350H7410M0,1650H7410M0,1950H7410M0,2250H7410M0,2550H7410M0,2850H7410M0,3150H7410M0,3450H7410M0,3750H7410' stroke='white' stroke-width='300'/><rect width='2964' height='2100' fill='%233c3b6e'/></svg>") no-repeat center / contain;
+      width: 16px; height: 12px;
+      text-indent: -9999px;
+      overflow: hidden;
+    }
+    .usgov-stripe a { color: #1d4ed8; }
+
+    /* Header */
+    .header {
+      background: var(--acf-navy);
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header__title { font: 800 28px/1 "Public Sans", sans-serif; letter-spacing: 0.02em; margin-bottom: 4px; }
+    .header__subtitle { font: 400 13px "Public Sans", sans-serif; opacity: 0.85; }
+    .header__sign-in {
+      background: #fff; color: var(--acf-navy);
+      padding: 10px 22px; border-radius: 4px;
+      font: 600 14px "Public Sans", sans-serif;
+      text-decoration: none;
+      transition: background 0.12s ease, color 0.12s ease;
+    }
+    .header__sign-in:hover { background: #e5e7eb; }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(180deg, #f3f6fa 0%, #ffffff 100%);
+      padding: 80px 32px 64px;
+      text-align: center;
+    }
+    .hero__inner { max-width: 880px; margin: 0 auto; }
+    .hero__eyebrow {
+      font: 600 12px "Public Sans", sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--acf-blue);
+      margin-bottom: 16px;
+    }
+    .hero__title {
+      font: 800 48px/1.1 "Public Sans", sans-serif;
+      color: var(--acf-text);
+      margin: 0 0 16px;
+    }
+    .hero__lede {
+      font: 400 18px/1.5 "Public Sans", sans-serif;
+      color: var(--acf-text-muted);
+      max-width: 640px;
+      margin: 0 auto 32px;
+    }
+    .hero__cta {
+      display: inline-block;
+      background: var(--acf-blue); color: #fff;
+      padding: 14px 32px;
+      border-radius: 4px;
+      font: 600 15px "Public Sans", sans-serif;
+      text-decoration: none;
+      transition: background 0.12s ease;
+    }
+    .hero__cta:hover { background: var(--acf-blue-hover); }
+
+    /* Feature grid */
+    .features {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 64px 32px;
+    }
+    .features__title {
+      font: 700 24px "Public Sans", sans-serif;
+      text-align: center;
+      margin: 0 0 8px;
+    }
+    .features__sub {
+      text-align: center;
+      color: var(--acf-text-muted);
+      margin: 0 0 40px;
+    }
+    .features__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .feature {
+      padding: 24px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .feature__icon {
+      width: 40px; height: 40px;
+      background: #e0edff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: var(--acf-blue);
+      margin-bottom: 16px;
+    }
+    .feature__title {
+      font: 600 16px "Public Sans", sans-serif;
+      margin: 0 0 8px;
+    }
+    .feature__text {
+      font: 400 14px/1.5 "Public Sans", sans-serif;
+      color: var(--acf-text-muted);
+      margin: 0;
+    }
+
+    /* Programs strip */
+    .programs {
+      background: #f9fafb;
+      padding: 48px 32px;
+    }
+    .programs__inner { max-width: 1100px; margin: 0 auto; }
+    .programs__title {
+      font: 700 18px "Public Sans", sans-serif;
+      text-align: center;
+      margin: 0 0 24px;
+    }
+    .programs__list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+    .programs__chip {
+      padding: 8px 16px;
+      background: #fff;
+      border: 1px solid #d6d6d6;
+      border-radius: 999px;
+      font: 500 13px "Public Sans", sans-serif;
+      color: var(--acf-text);
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--acf-navy);
+      color: #fff;
+      padding: 32px;
+      margin-top: auto;
+    }
+    .footer__inner { max-width: 1100px; margin: 0 auto; }
+    .footer__wordmark { font: 800 22px "Public Sans", sans-serif; letter-spacing: 0.02em; line-height: 1.2; }
+    .footer__top { font-size: 11px; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.08em; }
+    .footer__amp { font-family: "Caveat", cursive; font-style: italic; font-weight: 400; opacity: 0.95; padding: 0 2px; }
+
+    @media (max-width: 640px) {
+      .hero__title { font-size: 34px; }
+      .hero { padding: 48px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="usgov-stripe">
+  <div class="usgov-stripe__flag" aria-hidden="true">US</div>
+  <span>An official website of the United States government</span>
+  <a href="#" style="margin-left:6px;">Here's how you know</a>
+</div>
+
+<header class="header">
+  <div>
+    <div class="header__title">CORE</div>
+    <div class="header__subtitle">ACF &middot; Community Outcomes Reporting Engine</div>
+  </div>
+  <a href="/oidc/authenticate?next=/staff/&fail=/login-error/" class="header__sign-in">Sign in</a>
+</header>
+
+<section class="hero">
+  <div class="hero__inner">
+    <div class="hero__eyebrow">Federal Staff Portal</div>
+    <h1 class="hero__title">One place to review every program submission</h1>
+    <p class="hero__lede">
+      CORE is the Administration for Children and Families' grant reporting platform.
+      Federal staff use it to review, return, and close submissions across CSBG, LIHEAP,
+      TANF, and every other ACF program in one consistent workflow.
+    </p>
+    <a href="/oidc/authenticate?next=/staff/&fail=/login-error/" class="hero__cta">Sign in to continue</a>
+  </div>
+</section>
+
+<section class="features">
+  <h2 class="features__title">What CORE handles for you</h2>
+  <p class="features__sub">Built so program admins can self-serve and reviewers can move fast.</p>
+
+  <div class="features__grid">
+    <div class="feature">
+      <div class="feature__icon">&#9636;</div>
+      <h3 class="feature__title">Program-scoped inbox</h3>
+      <p class="feature__text">
+        Your inbox shows only the submissions for programs you're assigned to.
+        OCS reviewers never see OFA work, and vice versa.
+      </p>
+    </div>
+    <div class="feature">
+      <div class="feature__icon">&#10003;</div>
+      <h3 class="feature__title">Return and determine in one click</h3>
+      <p class="feature__text">
+        Send forms back for revision with itemized review comments, or record
+        an Accept or Close determination with a rationale.
+      </p>
+    </div>
+    <div class="feature">
+      <div class="feature__icon">&#9881;</div>
+      <h3 class="feature__title">Per-program Form Builder</h3>
+      <p class="feature__text">
+        Program admins set submission windows, scope forms by org type,
+        and publish new versions without a deploy.
+      </p>
+    </div>
+    <div class="feature">
+      <div class="feature__icon">&#9776;</div>
+      <h3 class="feature__title">Audit log and CSV exports</h3>
+      <p class="feature__text">
+        Every action is tamper-evident and FISMA-aligned. Pull resolved
+        submissions to CSV any time.
+      </p>
+    </div>
+    <div class="feature">
+      <div class="feature__icon">&#9432;</div>
+      <h3 class="feature__title">Role-filtered help</h3>
+      <p class="feature__text">
+        Quick start guides and a knowledge base scoped to your role,
+        plus a search assistant that points you to the right article.
+      </p>
+    </div>
+    <div class="feature">
+      <div class="feature__icon">&#10148;</div>
+      <h3 class="feature__title">Window and scope enforcement</h3>
+      <p class="feature__text">
+        Recipients only see forms their org is eligible for, and only when
+        the submission window is open. No more guessing.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="programs">
+  <div class="programs__inner">
+    <h2 class="programs__title">Programs onboarded</h2>
+    <div class="programs__list">
+      <span class="programs__chip">CSBG</span>
+      <span class="programs__chip">LIHEAP</span>
+      <span class="programs__chip">LIHWAP</span>
+      <span class="programs__chip">SSBG</span>
+      <span class="programs__chip">CED</span>
+      <span class="programs__chip">RCD</span>
+      <span class="programs__chip">AFI</span>
+      <span class="programs__chip">TANF</span>
+      <span class="programs__chip">Tribal TANF</span>
+      <span class="programs__chip">HMRF</span>
+      <span class="programs__chip">HPOG</span>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__wordmark">
+      <div class="footer__top">Administration for</div>
+      <div>CHILDREN <span class="footer__amp">&amp;</span> FAMILIES</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
