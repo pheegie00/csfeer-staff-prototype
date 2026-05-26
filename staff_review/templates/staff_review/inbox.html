@@ -306,9 +306,7 @@
   {% endif %}
 </form>
 
-{# ============================================================
-   TABLE view (default; matches the Figma "Staff Experience 05" design).
-   ============================================================ #}
+{% comment %}TABLE view (default; matches the Figma "Staff Experience 05" design).{% endcomment %}
 {% if active_view == 'table' or not active_view %}
 <div class="sub-table-wrap">
   <div class="sub-table-band">
@@ -374,16 +372,11 @@
 {% endif %}
 {% endif %}
 
-{# ============================================================
-   KANBAN view (one column per status bucket).
-   Preserved from pre-redesign; re-styled to match the navy + pale-blue
-   palette so it feels native to the new look.
-   ============================================================ #}
+{% comment %}KANBAN view (one column per status bucket). Restyled to match the navy + pale-blue palette.{% endcomment %}
 {% if active_view == 'kanban' %}
 <div class="kanban">
   {% for col in kanban_columns %}
-    {# Filter columns to match the active bucket so 'Completed' tab doesn't
-       show empty Submitted/Returned lanes (and vice versa). #}
+    {% comment %}Filter columns to match the active bucket so the Completed tab doesn't show empty Submitted/Returned lanes (and vice versa).{% endcomment %}
     {% if bucket == 'completed' and col.status == 'Accepted' or bucket == 'completed' and col.status == 'Closed' or bucket != 'completed' and col.status != 'Accepted' and col.status != 'Closed' %}
       <div class="kanban__col">
         <div class="kanban__head">
@@ -417,9 +410,7 @@
 </div>
 {% endif %}
 
-{# ============================================================
-   CARD view (responsive grid of detail cards).
-   ============================================================ #}
+{% comment %}CARD view (responsive grid of detail cards).{% endcomment %}
 {% if active_view == 'card' %}
   {% if rows %}
   <div class="cardgrid">
