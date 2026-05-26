@@ -136,7 +136,15 @@ class InboxView(StaffRequiredMixin, TemplateView):
         active_view = self.request.GET.get("view", "table")  # legacy
         query = (self.request.GET.get("q") or "").strip().lower()
 
-        rows = self._filter(SUBMISSIONS, active_status, active_form, active_region, active_state, query)
+        # Overlay current DB state onto the mock SUBMISSIONS list BEFORE we
+        # filter. The mock dict was historically the source of truth for
+        # this screen, but Accept / Return / Close actions write to the
+        # FormEntry DB row, so the inbox would otherwise show stale status
+        # forever. Look up each mock row's deterministic FormEntry UUID
+        # (matches what seed_demo_data uses) and overlay status + updated.
+        submissions = self._with_live_db_status(SUBMISSIONS)
+
+        rows = self._filter(submissions, active_status, active_form, active_region, active_state, query)
         # Bucket-level filter on org + fy from the new Figma filter row.
         if active_org and active_org != "All":
             rows = [r for r in rows if r["data"]["org"].get("name") == active_org]
@@ -144,7 +152,7 @@ class InboxView(StaffRequiredMixin, TemplateView):
             rows = [r for r in rows if (r.get("fy") or r["data"]["org"].get("fy")) == active_fy]
         rows = self._enrich(rows)
 
-        counts = counts_by_status(SUBMISSIONS)
+        counts = counts_by_status(submissions)
         # Pre-compose tabs with counts so templates don't need branching.
         tabs = [
             {"id": "My queue",    "label": "My queue",    "count": counts["my_queue"]},
@@ -172,18 +180,18 @@ class InboxView(StaffRequiredMixin, TemplateView):
         # Phase 6 redesign: build dropdown option lists from the seeded data
         # so the Figma filter row (regions, organizations, forms, fiscal years)
         # always shows real values.
-        organizations = sorted({s["data"]["org"]["name"] for s in SUBMISSIONS})
+        organizations = sorted({s["data"]["org"]["name"] for s in submissions})
         fiscal_years = sorted({
             (s.get("fy") or s["data"]["org"].get("fy") or "")
-            for s in SUBMISSIONS
+            for s in submissions
             if (s.get("fy") or s["data"]["org"].get("fy"))
         })
-        form_options = sorted({FORM_DEFS[s["form_type"]]["short"] for s in SUBMISSIONS})
+        form_options = sorted({FORM_DEFS[s["form_type"]]["short"] for s in submissions})
 
         ctx.update({
             "user": USER,
             "rows": rows,
-            "total": len(SUBMISSIONS),
+            "total": len(submissions),
             "filtered_count": len(rows),
             "counts": counts,
             "tabs": tabs,
@@ -207,6 +215,51 @@ class InboxView(StaffRequiredMixin, TemplateView):
             "states":  ["All", "AK", "AZ", "ND", "OK"],
         })
         return ctx
+
+    @staticmethod
+    def _with_live_db_status(submissions):
+        """Overlay current FormEntry status from the DB onto each mock row.
+
+        Tech-debt bridge: the inbox was built against the SUBMISSIONS Python
+        dict before the DB layer was wired, so accepting / returning /
+        closing a submission (which writes to FormEntry) didn't change what
+        the inbox displayed. This overlay looks up the deterministic
+        FormEntry UUID for each mock row (matches seed_demo_data) and
+        replaces status / determination / timestamps with the live values.
+
+        Returns a shallow-copied list so the module-level SUBMISSIONS isn't
+        mutated (would cause cross-request state bleed).
+        """
+        # DB enum -> mock display label (inverse of seed_demo_data.STATUS_MAPPING)
+        db_to_display = {
+            "submitted": "Submitted",
+            "in_progress": "In Progress",
+            "returned": "Returned",
+            "accepted": "Accepted",
+            "closed": "Closed",
+        }
+        ids = [stable_uuid("form_entry", s["id"]) for s in submissions]
+        entries_by_id = {
+            e.id: e for e in FormEntry.objects.filter(id__in=ids).only(
+                "id", "status", "determination_outcome", "determined_at",
+            )
+        }
+        out = []
+        for s in submissions:
+            entry = entries_by_id.get(stable_uuid("form_entry", s["id"]))
+            row = dict(s)  # shallow copy so we don't mutate the module-level dict
+            if entry is None:
+                out.append(row)
+                continue
+            display = db_to_display.get(entry.status)
+            if display:
+                row["status"] = display
+            # If the DB has a determination, use determined_at for the
+            # 'last updated' column; otherwise keep the mock 'updated'.
+            if entry.determined_at:
+                row["updated"] = entry.determined_at.strftime("%Y-%m-%d")
+            out.append(row)
+        return out
 
     @staticmethod
     def _filter(subs, status, form, region, state, query):
