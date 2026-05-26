@@ -14,6 +14,7 @@
       --acf-blue-hover: #1d4ed8;
       --acf-text: #1f2937;
       --acf-text-muted: #6b7280;
+      --acf-border: #d6d6d6;
     }
     * { box-sizing: border-box; }
     body {
@@ -43,7 +44,7 @@
     }
     .usgov-stripe a { color: #1d4ed8; }
 
-    /* Header (matches the same navy treatment as the staff app pages) */
+    /* Header */
     .header {
       background: var(--acf-navy);
       color: #fff;
@@ -63,35 +64,102 @@
     }
     .header__sign-in:hover { background: #e5e7eb; }
 
-    /* Centered sign-in body */
+    /* Body grid: left text column + right sign-in card */
     .body {
       flex: 1 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 64px 32px;
+      padding: 64px 48px;
     }
-    .body__inner { text-align: center; max-width: 480px; }
+    .body__inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 380px;
+      gap: 64px;
+      align-items: start;
+    }
+    @media (max-width: 880px) {
+      .body { padding: 40px 24px; }
+      .body__inner { grid-template-columns: 1fr; gap: 32px; }
+    }
+
     .body__title {
-      font: 700 28px/1.2 "Public Sans", sans-serif;
+      font: 700 36px/1.2 "Public Sans", sans-serif;
       color: var(--acf-text);
-      margin: 0 0 12px;
+      margin: 0 0 16px;
     }
-    .body__sub {
-      font: 400 15px/1.5 "Public Sans", sans-serif;
-      color: var(--acf-text-muted);
-      margin: 0 0 28px;
+    .body__lede {
+      font: 400 16px/1.5 "Public Sans", sans-serif;
+      color: var(--acf-text);
+      margin: 0 0 36px;
+      max-width: 580px;
     }
-    .body__cta {
-      display: inline-block;
+
+    /* Numbered steps */
+    .steps { list-style: none; padding: 0; margin: 0; }
+    .step { display: flex; gap: 16px; margin-bottom: 28px; }
+    .step__num {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--acf-text);
+      display: flex; align-items: center; justify-content: center;
+      font: 600 16px "Public Sans", sans-serif;
+      color: var(--acf-text);
+    }
+    .step__body { padding-top: 4px; max-width: 480px; }
+    .step__title {
+      font: 600 16px "Public Sans", sans-serif;
+      color: var(--acf-text);
+      margin: 0 0 4px;
+    }
+    .step__text {
+      font: 400 14px/1.5 "Public Sans", sans-serif;
+      color: var(--acf-text);
+      margin: 0;
+    }
+
+    /* Sign-in card (right column) */
+    .signcard {
+      border: 1px solid var(--acf-border);
+      border-radius: 8px;
+      padding: 28px;
+      background: #fff;
+    }
+    .signcard__title {
+      font: 700 20px "Public Sans", sans-serif;
+      color: var(--acf-text);
+      margin: 0 0 10px;
+    }
+    .signcard__sub {
+      font: 400 14px/1.5 "Public Sans", sans-serif;
+      color: var(--acf-text);
+      margin: 0 0 20px;
+    }
+    .signcard__btn {
+      display: block; width: 100%;
       background: var(--acf-blue); color: #fff;
-      padding: 12px 28px;
-      border-radius: 4px;
+      padding: 12px 16px; border-radius: 4px;
+      text-align: center;
       font: 600 14px "Public Sans", sans-serif;
       text-decoration: none;
+      margin-bottom: 16px;
       transition: background 0.12s ease;
     }
-    .body__cta:hover { background: var(--acf-blue-hover); }
+    .signcard__btn:hover { background: var(--acf-blue-hover); }
+    .signcard__contact {
+      font: 400 13px "Public Sans", sans-serif;
+      color: var(--acf-text);
+      margin: 0 0 16px;
+    }
+    .signcard__contact a { color: var(--acf-blue); }
+    .signcard__secured {
+      font: 400 12px "Public Sans", sans-serif;
+      color: var(--acf-text-muted);
+      display: flex; align-items: center; gap: 6px;
+      padding-top: 14px;
+      border-top: 1px solid #f3f4f6;
+    }
+    .signcard__secured-lock { font-size: 14px; }
 
     /* Footer */
     .footer {
@@ -99,7 +167,7 @@
       color: #fff;
       padding: 32px;
     }
-    .footer__inner { max-width: 1100px; margin: 0 auto; }
+    .footer__inner { max-width: 1200px; margin: 0 auto; }
     .footer__wordmark { font: 800 22px "Public Sans", sans-serif; letter-spacing: 0.02em; line-height: 1.2; }
     .footer__top { font-size: 11px; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.08em; }
     .footer__amp { font-family: "Caveat", cursive; font-style: italic; font-weight: 400; opacity: 0.95; padding: 0 2px; }
@@ -123,9 +191,66 @@
 
 <main class="body">
   <div class="body__inner">
-    <h1 class="body__title">Welcome to CORE</h1>
-    <p class="body__sub">Sign in to continue.</p>
-    <a href="/oidc/authenticate?next=/staff/&fail=/login-error/" class="body__cta">Sign in</a>
+
+    <div>
+      <h1 class="body__title">Submit your forms in one place</h1>
+      <p class="body__lede">
+        CORE is the federal reporting platform for OCS recipients. Sign in to access,
+        complete, and submit your annual forms to the Office of Community Services (OCS).
+      </p>
+
+      <ol class="steps">
+        <li class="step">
+          <div class="step__num">1</div>
+          <div class="step__body">
+            <div class="step__title">Sign in</div>
+            <p class="step__text">
+              Sign in to your Login.gov account. Once you sign in, you will have access
+              to the forms you need to complete.
+            </p>
+          </div>
+        </li>
+
+        <li class="step">
+          <div class="step__num">2</div>
+          <div class="step__body">
+            <div class="step__title">Fill out your forms</div>
+            <p class="step__text">
+              Fill out your forms at your own pace. You can save your progress and
+              return at any time.
+            </p>
+          </div>
+        </li>
+
+        <li class="step">
+          <div class="step__num">3</div>
+          <div class="step__body">
+            <div class="step__title">Submit your form</div>
+            <p class="step__text">
+              Once complete, review and submit your forms to OCS.
+            </p>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <aside class="signcard">
+      <h2 class="signcard__title">Sign in to CORE</h2>
+      <p class="signcard__sub">
+        Access is limited to authorized tribal recipients and CSBG program staff.
+      </p>
+      <a href="/oidc/authenticate?next=/staff/&fail=/login-error/" class="signcard__btn">
+        Sign in with Login.acf.gov
+      </a>
+      <p class="signcard__contact">
+        Don't have access? <a href="#">Contact your program officer</a>
+      </p>
+      <div class="signcard__secured">
+        <span class="signcard__secured-lock" aria-hidden="true">&#128274;</span>
+        <span>Secured via Login.gov &middot; MFA required</span>
+      </div>
+    </aside>
+
   </div>
 </main>
 

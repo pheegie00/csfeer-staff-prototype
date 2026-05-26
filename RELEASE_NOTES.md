@@ -244,15 +244,17 @@ The 7 STAFF-MP tickets shipped in this release were created in the project's int
 
 ### STAFF-MP-08: Pre-sign-in landing page
 
-- **Story:** As an unauthenticated visitor, when I open the root URL I want a clean branded sign-in page that matches the rest of the app's chrome, instead of being dumped into the auth flow without context.
+- **Story:** As an unauthenticated visitor (recipient or staff), when I open the root URL I want a branded landing page that explains the 3-step submission flow and gives me a clear path to sign in, matching the Figma "Cover" page design.
 - **Acceptance criteria:**
   - Public page at `/` (no auth required)
   - US government banner at the top
-  - Navy CORE header with "Sign in" button top-right (same chrome treatment as the staff app pages)
-  - Centered sign-in prompt with a primary "Sign in" CTA
+  - Navy CORE header with subtitle + "Sign in" button top-right
+  - Two-column body layout:
+    - Left: H1 "Submit your forms in one place" + intro paragraph + numbered 1-2-3 steps (Sign in / Fill out your forms / Submit your form)
+    - Right: bordered "Sign in to CORE" card with access description, primary blue "Sign in with Login.acf.gov" CTA, contact-officer link, and "Secured via Login.gov - MFA required" footer line
   - ACF "Children & Families" navy footer
-  - Signed-in users still redirect straight to `/staff/` on `/` so logged-in flow isn't slowed down
-  - No marketing copy or feature descriptions; content stays minimal to match the design treatment
+  - Signed-in users still redirect straight to `/staff/` so logged-in flow isn't slowed down
+  - Layout collapses to a single column under 880px wide
 - **Priority:** MEDIUM (customer-facing first impression)
 - **Status in this release:** SHIPPED
 - **Dependencies:** none
