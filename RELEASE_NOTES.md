@@ -70,6 +70,8 @@ Each ticket below has a one-paragraph "how to verify" the PM can run against the
 
 ### Foundation tickets (STAFF-MP series)
 
+> **Note for the PM:** STAFF-MP-* tickets are NOT in Jira. They were created in the project's internal backlog at [`docs/backlog.md`](https://github.com/pheegie00/csfeer-staff-prototype/blob/staff-prototype/docs/backlog.md) when we identified multi-program scaling work that was prerequisite to extending the prototype beyond CSBG-only. You may want to file these 7 as new Jira tickets (titles + acceptance criteria are all in `docs/backlog.md`).
+
 #### STAFF-MP-01 — Multi-program data model + seed
 **Verify:** Sign in as Platform Admin (`root@acf.hhs.gov`). Open https://acf-core.fly.dev/staff/form-builder/. Click any program chip in the "Your programs" strip. The list should narrow to that program's forms only. Switch to Sam Patel (OFA Program Admin) via the avatar dropdown; you should see OFA programs (TANF, Tribal TANF, HMRF, HPOG), not OCS ones.
 
