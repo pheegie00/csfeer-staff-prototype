@@ -244,15 +244,15 @@ The 7 STAFF-MP tickets shipped in this release were created in the project's int
 
 ### STAFF-MP-08: Pre-sign-in landing page
 
-- **Story:** As an unauthenticated visitor, when I open the root URL I want a branded landing page that explains what CORE does and gives me a clear Sign In CTA, instead of being dumped into the auth flow without context.
+- **Story:** As an unauthenticated visitor, when I open the root URL I want a clean branded sign-in page that matches the rest of the app's chrome, instead of being dumped into the auth flow without context.
 - **Acceptance criteria:**
-  - Public marketing page at `/` (no auth required)
-  - Navy CORE header with "Sign in" button top-right
-  - Hero with product description + primary "Sign in to continue" CTA
-  - Feature grid (6 cards) summarizing the major capabilities (program scoping, return/determine, Form Builder, audit + exports, help, window enforcement)
-  - "Programs onboarded" chip strip listing all 11 seeded programs
+  - Public page at `/` (no auth required)
+  - US government banner at the top
+  - Navy CORE header with "Sign in" button top-right (same chrome treatment as the staff app pages)
+  - Centered sign-in prompt with a primary "Sign in" CTA
   - ACF "Children & Families" navy footer
   - Signed-in users still redirect straight to `/staff/` on `/` so logged-in flow isn't slowed down
+  - No marketing copy or feature descriptions; content stays minimal to match the design treatment
 - **Priority:** MEDIUM (customer-facing first impression)
 - **Status in this release:** SHIPPED
 - **Dependencies:** none
