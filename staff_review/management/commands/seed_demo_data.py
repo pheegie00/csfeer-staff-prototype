@@ -308,7 +308,14 @@ class Command(BaseCommand):
             determined_at = parse_iso(d.get("when"))
             determined_by = staff_user
 
-        entry, created = FormEntry.objects.update_or_create(
+        # IMPORTANT: split the defaults into "always overwrite" (form_def,
+        # org, base data) vs "initial only" (status, determination, locked).
+        # Re-running seed on a deploy must NOT clobber user-initiated
+        # status changes -- e.g. if a tester Accepted or Returned a
+        # submission via the UI, the next deploy was previously resetting
+        # them back to the mock status. Now we use get_or_create for the
+        # whole row, then sync only the non-volatile fields if it existed.
+        entry, created = FormEntry.objects.get_or_create(
             id=entry_id,
             defaults={
                 "form_definition": form_def,
@@ -326,6 +333,18 @@ class Command(BaseCommand):
                 "determined_by": determined_by,
             },
         )
+        if not created:
+            # Row exists -- only resync non-volatile fields so we don't
+            # wipe out user-initiated state. Form definition + org are
+            # treated as stable demo-shape fields; data is kept fresh in
+            # case the mock_data structure was extended in code.
+            dirty = False
+            if entry.form_definition_id != form_def.id:
+                entry.form_definition = form_def; dirty = True
+            if entry.organization_id != org.id:
+                entry.organization = org; dirty = True
+            if dirty:
+                entry.save(update_fields=["form_definition", "organization"])
 
         # FormReturns + FormReturnItems
         if sub.get("return_items"):
