@@ -154,6 +154,95 @@ Each ticket below has a one-paragraph "how to verify" the PM can run against the
 
 ---
 
+## Appendix: STAFF-MP ticket drafts for Jira
+
+The 7 STAFF-MP tickets shipped in this release were created in the project's internal backlog (`docs/backlog.md`) rather than in Jira. Below is a copy-paste-ready draft for each one so the product team can file them. Format mirrors what the CORE tickets use (Story / Acceptance / Priority).
+
+### STAFF-MP-01: Add Program + ACFOffice models
+
+- **Story:** As a platform owner, I want every form and submission attributable to a specific ACF program and office so that staff permissions, queues, and reporting can be scoped per program.
+- **Acceptance criteria:**
+  - `programs` Django app exists with `ACFOffice` and `Program` models
+  - `FormDefinition.program` FK added
+  - Seed data for OCS->CSBG and OFA->TANF / Tribal_TANF / HMRF / HPOG (HPOG marked inactive)
+  - Existing FormDefinitions backfilled to CSBG
+- **Priority:** HIGH (blocks every multi-program scenario)
+- **Status in this release:** SHIPPED
+- **Dependencies:** none
+
+### STAFF-MP-02: Add org_type to OrganizationProfile
+
+- **Story:** As a federal staff member, I want to filter and group recipients by organization type (Tribe / State / Territory / Higher Ed / CBO / Faith-Based / Workforce Agency) so that program-specific queues match program-specific recipient mixes.
+- **Acceptance criteria:**
+  - `OrganizationProfile.org_type` field added with 8 choices: Tribe, Tribal_Org, State, Territory, Higher_Ed, Workforce_Agency, CBO, Faith_Based
+  - Existing orgs backfilled to "Tribe"
+  - Staff Inbox supports filtering by org_type
+- **Priority:** MEDIUM (needed before HMRF or TANF programs go live)
+- **Status in this release:** SHIPPED
+- **Dependencies:** none
+
+### STAFF-MP-03: Add cycle_type to FormDefinition
+
+- **Story:** As a federal staff member, I want each form to declare whether it's annual / quarterly / monthly / ad-hoc so that submission windows and reporting reflect the real cycle.
+- **Acceptance criteria:**
+  - `FormDefinition.cycle_type` choices field added (annual / quarterly / monthly / ad_hoc)
+  - SubmissionWindow (CORE-25) honors the cycle when computing per-cycle deadlines
+- **Priority:** MEDIUM (ACF-196R is quarterly; misclassifying as annual surfaces bad data)
+- **Status in this release:** SHIPPED
+- **Dependencies:** none
+
+### STAFF-MP-04: Scope staff permissions to assigned programs
+
+- **Story:** As an OCS staff member, I should not see OFA submissions, and vice versa.
+- **Acceptance criteria:**
+  - `UserProgramAssignment(user, program, role)` model added
+  - `staff_review.views.InboxView.get_queryset()` filters by the user's assigned programs
+  - Permissions reusable across programs (not hardcoded per program)
+  - Verified end-to-end: an OCS-only reviewer never sees a TANF submission in their inbox
+- **Priority:** HIGH (required as soon as program #2 lands)
+- **Status in this release:** SHIPPED
+- **Dependencies:** STAFF-MP-01
+
+### STAFF-MP-05: Program-scoped Form Builder permissions
+
+- **Story:** As an OCS form admin, I want to see and manage only CSBG forms. As an OFA TANF form admin, I want to see and manage only TANF forms. Each program self-manages without bleeding into others.
+- **Acceptance criteria:**
+  - 7 new FormDefinition permissions added (form_builder_view, form_builder_create, form_builder_edit_draft, form_builder_publish, form_builder_archive, form_builder_window_edit, form_builder_scope_edit)
+  - Form Templates Manager UI filters templates by the user's assigned programs
+  - Cross-program leakage tested (an OCS admin POSTing to an OFA template ID returns 403)
+- **Priority:** HIGH (blocks program self-service)
+- **Status in this release:** SHIPPED
+- **Dependencies:** STAFF-MP-01, STAFF-MP-04
+
+### STAFF-MP-06: Shared forms (SF-424 etc.) governance
+
+- **Story:** As a platform admin, I want to manage cross-program shared forms like SF-424 from one place, while program admins reference but cannot edit them.
+- **Acceptance criteria:**
+  - `FormDefinition.is_shared` boolean added
+  - Shared forms surface in their own section in the Form Builder UI
+  - Only users with `form_builder_manage_shared` permission can edit shared forms
+  - Program admins see shared forms as read-only references
+- **Priority:** MEDIUM (needed when first non-CSBG program lands)
+- **Status in this release:** PARTIAL
+  - Model + `is_shared` flag exist and work
+  - Shared-forms section renders in Form Builder list
+  - Dedicated Platform Admin edit UI for shared forms is still TODO
+- **Dependencies:** STAFF-MP-05
+
+### STAFF-MP-07: Form Builder UI per-program views
+
+- **Story:** As a form admin, when I open Form Builder I see a list scoped to my program(s). I never see other programs' forms unless I'm explicitly assigned.
+- **Acceptance criteria:**
+  - Form Templates Manager screen filters by the user's assigned programs
+  - Shared-forms section shown separately from the user's own program forms
+  - Publish + Edit actions only render on forms the user has permission for
+  - Clickable program filter chips at the top of the list (one per assigned program, plus "All")
+- **Priority:** HIGH (shipping Form Builder without this would teach users a global-admin pattern we'd have to retrain)
+- **Status in this release:** SHIPPED
+- **Dependencies:** STAFF-MP-05
+
+---
+
 ## Technical reference
 
 **Test suite:** 170 tests, all passing on the deployed branch.
