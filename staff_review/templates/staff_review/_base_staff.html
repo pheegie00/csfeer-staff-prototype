@@ -62,11 +62,13 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 32px;
     }
     .acf-header__brand {
       color: #fff;
       text-decoration: none;
       display: block;
+      flex-shrink: 0;
     }
     .acf-header__title {
       font: 800 28px/1 "Public Sans", sans-serif;
@@ -76,6 +78,25 @@
     .acf-header__subtitle {
       font: 400 13px "Public Sans", sans-serif;
       opacity: 0.85;
+    }
+
+    /* Horizontal primary nav in the navy header. */
+    .acf-header__nav {
+      display: flex; gap: 28px; align-items: center;
+      flex: 1; justify-content: center;
+    }
+    .acf-header__nav-link {
+      color: #fff; text-decoration: none;
+      font: 500 15px "Public Sans", sans-serif;
+      padding: 6px 0;
+      border-bottom: 2px solid transparent;
+      transition: opacity 0.12s ease, border-color 0.12s ease;
+      opacity: 0.9;
+    }
+    .acf-header__nav-link:hover { opacity: 1; }
+    .acf-header__nav-link--active {
+      opacity: 1;
+      border-bottom-color: #6db4ff;
     }
 
     /* User chip dropdown (replaces the old avatar + iconbtn block).
@@ -97,6 +118,18 @@
       transition: transform 0.12s ease;
     }
     details[open] .user-chip__chevron { transform: rotate(180deg); }
+
+    /* Avatar circle for the persona chip */
+    .user-chip__avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #e0edff; color: var(--acf-navy);
+      display: inline-flex; align-items: center; justify-content: center;
+      font: 600 12px "Public Sans", sans-serif;
+      flex-shrink: 0;
+    }
+    .user-chip__meta { display: flex; flex-direction: column; line-height: 1.2; }
+    .user-chip__meta-name { font: 500 14px "Public Sans", sans-serif; color: #fff; }
+    .user-chip__meta-role { font: 400 11px "Public Sans", sans-serif; color: rgba(255,255,255,0.75); margin-top: 2px; }
 
     .user-chip__menu {
       position: absolute; top: calc(100% + 6px); right: 0;
@@ -166,6 +199,19 @@
       color: var(--acf-text);
       border-bottom-color: var(--acf-blue);
     }
+    .acf-subnav__count {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 1px 8px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-radius: 999px;
+      font: 600 11px "Public Sans", sans-serif;
+      min-width: 14px; text-align: center;
+    }
+    .acf-subnav__item--active .acf-subnav__count {
+      background: #1d4ed8; color: #fff;
+    }
 
     /* Main page area */
     .acf-main {
@@ -222,38 +268,46 @@
     <div class="acf-header__subtitle">ACF &middot; Community Outcomes Reporting Engine</div>
   </a>
 
+  {# Primary horizontal nav. Each child template marks its active item via the
+     menu_* block hooks below. #}
+  <nav class="acf-header__nav">
+    <a href="{% url 'staff_review:inbox' %}"
+       class="acf-header__nav-link {% block menu_inbox %}{% endblock %}">Submissions</a>
+    {% if flags.form_builder %}
+      <a href="{% url 'staff_review:form_builder_list' %}"
+         class="acf-header__nav-link {% block menu_form_builder %}{% endblock %}">Form templates</a>
+    {% endif %}
+    {% if flags.csv_exports %}
+      <a href="{% url 'staff_review:exports' %}"
+         class="acf-header__nav-link {% block menu_exports %}{% endblock %}">Exports</a>
+    {% endif %}
+    {% if flags.audit_log_viewer %}
+      <a href="{% url 'staff_review:audit_log' %}"
+         class="acf-header__nav-link {% block menu_audit %}{% endblock %}">Audit log</a>
+    {% endif %}
+    {% if flags.help_section %}
+      <a href="{% url 'staff_review:help_index' %}"
+         class="acf-header__nav-link {% block menu_help %}{% endblock %}">Help</a>
+    {% endif %}
+  </nav>
+
+  {# Persona chip -- avatar + name + role, dropdown for View-as / Features / Sign out. #}
   <details class="user-chip">
     <summary class="user-chip__summary">
-      <span>{{ staff_persona.name|default:"Sign in" }}</span>
+      <span class="user-chip__avatar">{{ staff_persona.initials|default:"??" }}</span>
+      <span class="user-chip__meta">
+        <span class="user-chip__meta-name">{{ staff_persona.name|default:"Sign in" }}</span>
+        <span class="user-chip__meta-role">{{ staff_persona.role_label|default:"" }}</span>
+      </span>
       <span class="user-chip__chevron" aria-hidden="true">&#9662;</span>
     </summary>
 
     <div class="user-chip__menu">
-      {# Who you currently are #}
       <div class="user-chip__current">
         <strong>{{ staff_persona.name|default:"Guest" }}</strong>
         <div class="user-chip__current-meta">{{ staff_persona.role_label|default:"" }}</div>
       </div>
 
-      {# Primary navigation (was the horizontal nav before) #}
-      <div class="user-chip__group">
-        <div class="user-chip__group-label">Go to</div>
-        <a href="{% url 'staff_review:inbox' %}" class="user-chip__item {% block menu_inbox %}{% endblock %}">Submissions</a>
-        {% if flags.form_builder %}
-          <a href="{% url 'staff_review:form_builder_list' %}" class="user-chip__item {% block menu_form_builder %}{% endblock %}">Form templates</a>
-        {% endif %}
-        {% if flags.csv_exports %}
-          <a href="{% url 'staff_review:exports' %}" class="user-chip__item {% block menu_exports %}{% endblock %}">Exports</a>
-        {% endif %}
-        {% if flags.audit_log_viewer %}
-          <a href="{% url 'staff_review:audit_log' %}" class="user-chip__item {% block menu_audit %}{% endblock %}">Audit log</a>
-        {% endif %}
-        {% if flags.help_section %}
-          <a href="{% url 'staff_review:help_index' %}" class="user-chip__item {% block menu_help %}{% endblock %}">Help</a>
-        {% endif %}
-      </div>
-
-      {# View-as switcher (demo admin only) -- keeps all existing personas #}
       {% if is_demo_admin %}
         <div class="user-chip__group">
           <div class="user-chip__group-label">View as (testing)</div>
@@ -272,7 +326,6 @@
         </div>
       {% endif %}
 
-      {# Platform admin -- feature flag toggles #}
       {% if request.user.is_superuser %}
         <div class="user-chip__group">
           <div class="user-chip__group-label">Platform</div>
@@ -280,7 +333,6 @@
         </div>
       {% endif %}
 
-      {# Sign out #}
       {% if request.user.is_authenticated %}
         <div class="user-chip__group">
           <a href="/oidc/logout?next=/&fail=/login-error/" class="user-chip__item">Sign out</a>

@@ -120,13 +120,17 @@ class InboxView(StaffRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
-        # Phase 6 Figma redesign: simplify to Active / Completed buckets.
-        # Active = anything NOT yet resolved (Submitted / In Progress / Returned).
-        # Completed = Accepted / Closed.
-        bucket = self.request.GET.get("bucket", "active").lower()
-        if bucket not in ("active", "completed"):
-            bucket = "active"
-        active_status = "Resolved" if bucket == "completed" else "My queue"
+        # Status-tab driven filtering: My queue / All / Submitted / In Progress
+        # / Returned / Resolved. Restored after the Figma chrome update so
+        # the inbox keeps the granularity reviewers actually use day to day.
+        # Old `?bucket=active|completed` URLs still work via the back-compat
+        # shim below.
+        active_status = self.request.GET.get("status") or "My queue"
+        legacy_bucket = (self.request.GET.get("bucket") or "").lower()
+        if legacy_bucket == "completed":
+            active_status = "Resolved"
+        elif legacy_bucket == "active":
+            active_status = "My queue"
 
         active_form = self.request.GET.get("form") or "All"
         active_region = self.request.GET.get("region") or "All"
@@ -197,7 +201,6 @@ class InboxView(StaffRequiredMixin, TemplateView):
             "tabs": tabs,
             "kanban_columns": kanban_columns,
             # Phase 6 Figma redesign context
-            "bucket": bucket,
             "active_org": active_org,
             "active_fy": active_fy,
             "organizations": organizations,

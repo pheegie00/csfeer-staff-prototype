@@ -2,14 +2,20 @@
 {% load static %}
 
 {% block title %}Submissions - CORE{% endblock %}
-{% block menu_inbox %}user-chip__item--active{% endblock %}
+{% block menu_inbox %}acf-header__nav-link--active{% endblock %}
 
 {% block subnav %}
-{# Active / Completed tabs under the navy header (matches Figma "Staff Experience 05"). #}
+{# Granular status tabs with counts -- richer than just Active/Completed.
+   Each links back to the inbox with ?status=<id>&view=<current>. #}
 <div class="acf-subnav">
   <div class="acf-subnav__list">
-    <a href="?bucket=active" class="acf-subnav__item {% if bucket == 'active' %}acf-subnav__item--active{% endif %}">Active submissions</a>
-    <a href="?bucket=completed" class="acf-subnav__item {% if bucket == 'completed' %}acf-subnav__item--active{% endif %}">Completed submissions</a>
+    {% for t in tabs %}
+      <a href="?status={{ t.id|urlencode }}&view={{ active_view }}"
+         class="acf-subnav__item {% if t.id == active_status %}acf-subnav__item--active{% endif %}">
+        {{ t.label }}
+        <span class="acf-subnav__count">{{ t.count }}</span>
+      </a>
+    {% endfor %}
   </div>
 </div>
 {% endblock %}
@@ -242,11 +248,11 @@
 
 {% block content %}
 
-<h2 class="sub-page__title">{% if bucket == 'completed' %}Completed submissions{% else %}Active submissions{% endif %}</h2>
+<h2 class="sub-page__title">Submissions &middot; {{ filtered_count }} of {{ total }}</h2>
 
-{# Filter row -- includes a hidden `view` so toggling view doesn't lose filters #}
+{# Filter row -- includes a hidden `status` + `view` so toggling either doesn't lose filters #}
 <form method="get" class="sub-filter-row">
-  <input type="hidden" name="bucket" value="{{ bucket }}">
+  <input type="hidden" name="status" value="{{ active_status }}">
   <input type="hidden" name="view" value="{{ active_view }}">
   <span class="sub-filter-row__label">Filter by</span>
 
@@ -282,26 +288,26 @@
 
   <div class="sub-filter-row__spacer"></div>
 
-  {# View toggle (Table / Kanban / Card) -- preserves filters via querystring #}
+  {# View toggle (Table / Kanban / Card) -- preserves status + filters via querystring #}
   <div class="view-toggle" role="tablist" aria-label="View mode">
-    <a href="?bucket={{ bucket }}&region={{ active_region }}&org={{ active_org }}&form={{ active_form }}&fy={{ active_fy }}&view=table"
+    <a href="?status={{ active_status|urlencode }}&region={{ active_region }}&org={{ active_org }}&form={{ active_form }}&fy={{ active_fy }}&view=table"
        class="view-toggle__btn {% if active_view == 'table' %}view-toggle__btn--active{% endif %}"
        title="Table view" aria-pressed="{% if active_view == 'table' %}true{% else %}false{% endif %}">
       <span aria-hidden="true">&#9776;</span> Table
     </a>
-    <a href="?bucket={{ bucket }}&region={{ active_region }}&org={{ active_org }}&form={{ active_form }}&fy={{ active_fy }}&view=kanban"
+    <a href="?status={{ active_status|urlencode }}&region={{ active_region }}&org={{ active_org }}&form={{ active_form }}&fy={{ active_fy }}&view=kanban"
        class="view-toggle__btn {% if active_view == 'kanban' %}view-toggle__btn--active{% endif %}"
        title="Kanban view" aria-pressed="{% if active_view == 'kanban' %}true{% else %}false{% endif %}">
       <span aria-hidden="true">&#9647;</span> Kanban
     </a>
-    <a href="?bucket={{ bucket }}&region={{ active_region }}&org={{ active_org }}&form={{ active_form }}&fy={{ active_fy }}&view=card"
+    <a href="?status={{ active_status|urlencode }}&region={{ active_region }}&org={{ active_org }}&form={{ active_form }}&fy={{ active_fy }}&view=card"
        class="view-toggle__btn {% if active_view == 'card' %}view-toggle__btn--active{% endif %}"
        title="Card view" aria-pressed="{% if active_view == 'card' %}true{% else %}false{% endif %}">
       <span aria-hidden="true">&#9635;</span> Card
     </a>
   </div>
 
-  {% if bucket == 'completed' and flags.csv_exports %}
+  {% if active_status == 'Resolved' and flags.csv_exports %}
     <a href="{% url 'staff_review:exports' %}" class="sub-filter-row__btn">Export CSV</a>
   {% endif %}
 </form>
@@ -310,7 +316,7 @@
 {% if active_view == 'table' or not active_view %}
 <div class="sub-table-wrap">
   <div class="sub-table-band">
-    {% if bucket == 'completed' %}Completed{% else %}Needs review{% endif %}
+    {% if active_status == 'Resolved' %}Resolved{% else %}{{ active_status }}{% endif %}
   </div>
   <table class="sub-table">
     <thead>
@@ -342,7 +348,7 @@
           <td>{{ r.updated|default:r.submitted|default:"-" }}</td>
           <td>
             <a href="{% url 'staff_review:submission_detail' sub_id=r.id %}" class="sub-table__review-link">
-              {% if bucket == 'completed' %}View{% else %}Review{% endif %}
+              {% if r.status == 'Accepted' or r.status == 'Closed' %}View{% else %}Review{% endif %}
             </a>
           </td>
         </tr>
@@ -352,7 +358,7 @@
             <div class="empty-state">
               <div class="empty-state__icon">&#9636;</div>
               <div class="empty-state__title">
-                {% if bucket == 'completed' %}No completed submissions yet{% else %}No submissions yet{% endif %}
+                No submissions match the current filters
               </div>
               <div class="empty-state__sub">Submissions will appear here once available.</div>
             </div>
@@ -376,8 +382,8 @@
 {% if active_view == 'kanban' %}
 <div class="kanban">
   {% for col in kanban_columns %}
-    {% comment %}Filter columns to match the active bucket so the Completed tab doesn't show empty Submitted/Returned lanes (and vice versa).{% endcomment %}
-    {% if bucket == 'completed' and col.status == 'Accepted' or bucket == 'completed' and col.status == 'Closed' or bucket != 'completed' and col.status != 'Accepted' and col.status != 'Closed' %}
+    {% comment %}Show all 5 status columns when viewing 'All', otherwise filter to the relevant set so we don't show empty lanes.{% endcomment %}
+    {% if active_status == 'All' or active_status == 'Resolved' and col.status == 'Accepted' or active_status == 'Resolved' and col.status == 'Closed' or active_status != 'Resolved' and col.status == active_status or active_status == 'My queue' and col.status != 'Accepted' and col.status != 'Closed' %}
       <div class="kanban__col">
         <div class="kanban__head">
           <div>
@@ -441,7 +447,7 @@
         </div>
 
         <div class="cgcard__foot">
-          <span class="cgcard__open">{% if bucket == 'completed' %}View &rarr;{% else %}Review &rarr;{% endif %}</span>
+          <span class="cgcard__open">{% if s.status == 'Accepted' or s.status == 'Closed' %}View &rarr;{% else %}Review &rarr;{% endif %}</span>
         </div>
       </a>
     {% endfor %}
@@ -450,7 +456,7 @@
     <div class="empty-state">
       <div class="empty-state__icon">&#9636;</div>
       <div class="empty-state__title">
-        {% if bucket == 'completed' %}No completed submissions yet{% else %}No submissions yet{% endif %}
+        No submissions match the current filters
       </div>
       <div class="empty-state__sub">Submissions will appear here once available.</div>
     </div>
