@@ -61,6 +61,34 @@
   .sub-filter-row__btn--primary { background: #2563eb; color: #fff; }
   .sub-filter-row__btn--primary:hover { background: #1d4ed8; }
   .sub-filter-row__spacer { flex: 1; }
+  .sub-filter-row__clear {
+    color: #6b7280; text-decoration: none;
+    font: 500 13px "Public Sans", sans-serif;
+    padding: 9px 4px;
+  }
+  .sub-filter-row__clear:hover { color: #2563eb; text-decoration: underline; }
+
+  /* Search input with leading icon */
+  .sub-search {
+    position: relative;
+    flex: 0 1 280px; min-width: 220px;
+  }
+  .sub-search__icon {
+    position: absolute; left: 10px; top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af; font-size: 14px;
+    pointer-events: none;
+  }
+  .sub-search__input {
+    width: 100%; padding: 8px 12px 8px 32px;
+    border: 1px solid #d6d6d6; border-radius: 4px;
+    font: 400 14px "Public Sans", sans-serif;
+    color: #1f2937; background: #fff;
+  }
+  .sub-search__input:focus {
+    outline: none; border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+  }
 
   .sub-table-wrap {
     border: 1px solid #cce4f3;
@@ -250,34 +278,46 @@
 
 <h2 class="sub-page__title">Submissions &middot; {{ filtered_count }} of {{ total }}</h2>
 
-{# Filter row -- includes a hidden `status` + `view` so toggling either doesn't lose filters #}
+{# Filter row -- includes hidden `status` + `view` so changing filters doesn't lose them. #}
 <form method="get" class="sub-filter-row">
   <input type="hidden" name="status" value="{{ active_status }}">
   <input type="hidden" name="view" value="{{ active_view }}">
-  <span class="sub-filter-row__label">Filter by</span>
 
-  <select name="region" class="sub-filter-row__select">
-    <option value="">All regions</option>
-    {% for r in regions %}
+  {# Free-text search across org name + UEI. Submits the form on enter. #}
+  <div class="sub-search">
+    <span class="sub-search__icon" aria-hidden="true">&#128269;</span>
+    <input type="text" name="q" value="{{ query }}" placeholder="Search organization or UEI..." class="sub-search__input">
+  </div>
+
+  <select name="region" class="sub-filter-row__select" title="Region">
+    <option value="All">All regions</option>
+    {% for r in regions %}{% if r != 'All' %}
       <option value="{{ r }}" {% if r == active_region %}selected{% endif %}>{{ r }}</option>
-    {% endfor %}
+    {% endif %}{% endfor %}
   </select>
 
-  <select name="org" class="sub-filter-row__select">
+  <select name="state" class="sub-filter-row__select" title="State">
+    <option value="All">All states</option>
+    {% for st in states %}{% if st != 'All' %}
+      <option value="{{ st }}" {% if st == active_state %}selected{% endif %}>{{ st }}</option>
+    {% endif %}{% endfor %}
+  </select>
+
+  <select name="org" class="sub-filter-row__select" title="Organization">
     <option value="">All organizations</option>
     {% for o in organizations %}
       <option value="{{ o }}" {% if o == active_org %}selected{% endif %}>{{ o }}</option>
     {% endfor %}
   </select>
 
-  <select name="form" class="sub-filter-row__select">
-    <option value="">All forms</option>
+  <select name="form" class="sub-filter-row__select" title="Form">
+    <option value="All">All forms</option>
     {% for f in form_options %}
       <option value="{{ f }}" {% if f == active_form %}selected{% endif %}>{{ f }}</option>
     {% endfor %}
   </select>
 
-  <select name="fy" class="sub-filter-row__select">
+  <select name="fy" class="sub-filter-row__select" title="Fiscal year">
     <option value="">All fiscal years</option>
     {% for y in fiscal_years %}
       <option value="{{ y }}" {% if y == active_fy %}selected{% endif %}>{{ y }}</option>
@@ -285,6 +325,7 @@
   </select>
 
   <button type="submit" class="sub-filter-row__btn sub-filter-row__btn--primary">Apply filter</button>
+  <a href="?status={{ active_status|urlencode }}&view={{ active_view }}" class="sub-filter-row__clear">Clear filters</a>
 
   <div class="sub-filter-row__spacer"></div>
 

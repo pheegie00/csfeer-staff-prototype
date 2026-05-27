@@ -119,6 +119,24 @@
     }
     details[open] .user-chip__chevron { transform: rotate(180deg); }
 
+    /* Right-cluster: notification bell + persona chip */
+    .acf-header__right { display: flex; align-items: center; gap: 14px; }
+
+    .acf-header__bell {
+      position: relative; cursor: pointer;
+      background: transparent; border: 0;
+      color: #fff; opacity: 0.85;
+      padding: 6px; border-radius: 4px;
+      transition: opacity 0.12s, background 0.12s;
+      font-size: 18px; line-height: 1;
+    }
+    .acf-header__bell:hover { opacity: 1; background: rgba(255,255,255,0.08); }
+    .acf-header__bell-dot {
+      position: absolute; top: 4px; right: 4px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #ef4444; border: 1.5px solid var(--acf-navy);
+    }
+
     /* Avatar circle for the persona chip */
     .user-chip__avatar {
       width: 32px; height: 32px; border-radius: 50%;
@@ -291,7 +309,13 @@
     {% endif %}
   </nav>
 
-  {# Persona chip -- avatar + name + role, dropdown for View-as / Features / Sign out. #}
+  {# Right cluster: notification bell + persona chip dropdown. #}
+  <div class="acf-header__right">
+    <button class="acf-header__bell" title="Notifications" type="button" aria-label="Notifications">
+      &#9993;
+      <span class="acf-header__bell-dot" aria-hidden="true"></span>
+    </button>
+
   <details class="user-chip">
     <summary class="user-chip__summary">
       <span class="user-chip__avatar">{{ staff_persona.initials|default:"??" }}</span>
@@ -340,6 +364,7 @@
       {% endif %}
     </div>
   </details>
+  </div>
 </header>
 
 {# Page-level secondary nav (Active / Completed submissions, etc.) -- each page fills in. #}
