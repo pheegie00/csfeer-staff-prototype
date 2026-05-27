@@ -130,6 +130,7 @@
 
   /* Status pills */
   .pill { display: inline-block; padding: 4px 10px; border-radius: 4px; font: 500 12px "Public Sans", sans-serif; }
+  .pill--sm { padding: 2px 8px; font-size: 11px; }
   .pill--submitted    { background: #cfe2ff; color: #08344f; }
   .pill--inprogress   { background: #fef3c7; color: #92400e; }
   .pill--returned     { background: #fde8e8; color: #991b1b; }
@@ -437,9 +438,12 @@
           {% for s in col.rows %}
             <a href="{% url 'staff_review:submission_detail' sub_id=s.id %}" class="kcard" style="text-decoration:none;color:inherit;">
               <div class="kcard__top">
-                <div class="kcard__org">{{ s.org_name }}</div>
+                {% with sl=s.status|lower|cut:" "|cut:"_" %}
+                  <span class="pill pill--{{ sl }} pill--sm">{{ s.status }}</span>
+                {% endwith %}
                 <span class="age-mini {% if s.days_in > 14 %}age-mini--alert{% elif s.days_in > 7 %}age-mini--warn{% endif %}">{{ s.days_in }}d</span>
               </div>
+              <div class="kcard__org">{{ s.org_name }}</div>
               <div class="kcard__form">{{ s.form_short }} &middot; {{ s.fy }}</div>
               <div class="kcard__bot">
                 <span>{{ s.region }} &middot; {{ s.state_abbr }}</span>
