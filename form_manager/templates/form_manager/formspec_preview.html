@@ -1,0 +1,179 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ form_def.name }} - Formspec preview - CORE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --acf-navy: #0b3b5c; --acf-blue: #2563eb; }
+    body {
+      font-family: "Public Sans", -apple-system, sans-serif;
+      margin: 0; background: #f6f8fb; color: #1f2937;
+    }
+    .topbar {
+      background: var(--acf-navy); color: #fff;
+      padding: 14px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar__title { font: 800 18px "Public Sans", sans-serif; letter-spacing: 0.02em; }
+    .topbar__sub   { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+    .topbar__crumb { font-size: 12px; opacity: 0.85; }
+    .topbar__crumb a { color: #cce4f3; text-decoration: none; }
+
+    .shell { max-width: 1100px; margin: 24px auto; padding: 0 24px; }
+
+    .stripe {
+      background: #e0edff; color: #08344f;
+      padding: 10px 14px; border-radius: 6px;
+      font: 500 13px "Public Sans", sans-serif;
+      margin-bottom: 16px;
+      display: flex; gap: 10px; align-items: center;
+    }
+    .stripe__chip {
+      background: #fff; color: #08344f;
+      padding: 2px 8px; border-radius: 999px;
+      font: 600 11px "Public Sans", sans-serif;
+    }
+
+    .canvas {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 32px;
+      min-height: 400px;
+    }
+
+    .canvas__placeholder {
+      padding: 48px 24px; text-align: center;
+      color: #6b7280; font-size: 14px;
+    }
+    .canvas__placeholder strong { color: #1f2937; }
+
+    .footer-bar {
+      margin-top: 16px;
+      display: flex; gap: 12px; justify-content: flex-end; align-items: center;
+    }
+    .btn {
+      padding: 10px 20px; border-radius: 4px;
+      font: 600 14px "Public Sans", sans-serif;
+      text-decoration: none; cursor: pointer; border: 0;
+    }
+    .btn--primary { background: var(--acf-blue); color: #fff; }
+    .btn--primary:hover { background: #1d4ed8; }
+    .btn--ghost { background: transparent; color: var(--acf-blue); border: 1px solid #d6d6d6; }
+
+    .savestatus {
+      font-size: 13px; color: #6b7280;
+    }
+    .savestatus--ok { color: #166534; }
+    .savestatus--warn { color: #92400e; }
+
+    .lint-alert {
+      background: #fde8e8; border: 1px solid #fca5a5;
+      border-radius: 6px; padding: 10px 14px;
+      font-size: 13px; color: #991b1b;
+      margin-bottom: 16px;
+    }
+    .lint-alert ul { margin: 6px 0 0; padding-left: 20px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="topbar__title">CORE</div>
+    <div class="topbar__sub">{{ form_def.name }} - {{ entry.organization.name }}</div>
+  </div>
+  <div class="topbar__crumb">
+    <a href="/forms/">&larr; Back to my forms</a>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="stripe">
+    <span class="stripe__chip">Formspec runtime</span>
+    <span>Rendered from the JSON spec stored in <code>FormDefinition.schema</code> using the Formspec web component (v{{ form_def.schema.version|default:"1.0.0" }}).</span>
+  </div>
+
+  {% if not lint_clean %}
+    <div class="lint-alert">
+      <strong>This spec has lint errors</strong> -- the form may not render fully.
+      <ul>
+        {% for d in lint_errors|slice:":3" %}
+          <li><code>{{ d.code }}</code> at <code>{{ d.path }}</code>: {{ d.message }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <div class="canvas">
+    <div id="formspec-mount">
+      <div class="canvas__placeholder">
+        <strong>Loading Formspec renderer...</strong>
+        <div style="margin-top: 8px;">Pulling <code>@formspec-org/webcomponent</code> + <code>@formspec-org/adapters</code> from JSDelivr.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+    <span id="savestatus" class="savestatus">Not yet saved this session.</span>
+    <button id="save-btn" type="button" class="btn btn--primary">Save draft</button>
+  </div>
+</div>
+
+{# Formspec runtime via JSDelivr. Apache-2.0, no npm build step. #}
+<script type="module">
+  import "https://cdn.jsdelivr.net/npm/@formspec-org/engine@1.0.0/+esm";
+  import "https://cdn.jsdelivr.net/npm/@formspec-org/webcomponent@1.0.0/+esm";
+  import { uswdsAdapter } from "https://cdn.jsdelivr.net/npm/@formspec-org/adapters@0.1.0/+esm";
+  import { globalRegistry } from "https://cdn.jsdelivr.net/npm/@formspec-org/engine@1.0.0/+esm";
+
+  const SPEC = {{ spec_json|safe }};
+  const SAVED = {{ saved_data_json|safe }};
+  const SUBMIT_URL = "{{ submit_url|escapejs }}";
+
+  // Register the USWDS adapter so fields render with the federal design language.
+  try { globalRegistry.registerAdapter(uswdsAdapter); } catch (e) { console.warn("USWDS adapter skipped:", e); }
+
+  // Replace the placeholder with the web component.
+  const mount = document.getElementById("formspec-mount");
+  mount.innerHTML = "";
+  const fsEl = document.createElement("formspec-render");
+  fsEl.setAttribute("id", "fs");
+  // Attach the spec + saved data via properties (web component reads them on connect).
+  fsEl.spec = SPEC;
+  fsEl.data = SAVED;
+  mount.appendChild(fsEl);
+
+  // Wire the Save draft button to post the current response to Django.
+  const saveBtn = document.getElementById("save-btn");
+  const status = document.getElementById("savestatus");
+  saveBtn.addEventListener("click", async () => {
+    saveBtn.disabled = true;
+    status.textContent = "Saving...";
+    status.className = "savestatus";
+    try {
+      const payload = (typeof fsEl.getResponse === "function") ? fsEl.getResponse() : (fsEl.data || {});
+      const r = await fetch(SUBMIT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: payload }),
+      });
+      const json = await r.json();
+      status.textContent = json.message || (json.ok ? "Saved." : "Save failed.");
+      status.className = "savestatus " + (json.valid ? "savestatus--ok" : "savestatus--warn");
+    } catch (err) {
+      console.error(err);
+      status.textContent = "Save failed: " + err.message;
+      status.className = "savestatus savestatus--warn";
+    } finally {
+      saveBtn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>

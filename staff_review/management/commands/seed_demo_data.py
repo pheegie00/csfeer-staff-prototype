@@ -267,6 +267,16 @@ class Command(BaseCommand):
                 defaults={"scope_to_org_types": ["tribe"]},
             )
 
+            # STAFF-MP-13: load the packaged formspec doc into FormDefinition.schema
+            # so the Form Builder + recipient renderer have a real spec to work with.
+            # Only the Tribal Plan has a ported spec today.
+            if form_type == "tribal-plan":
+                from form_manager.services.formspec_service import load_builtin_spec
+                spec = load_builtin_spec("csbg_tribal_plan")
+                if spec and fd.schema != spec:
+                    fd.schema = spec
+                    fd.save(update_fields=["schema"])
+
             defs[form_type] = fd
         return defs
 

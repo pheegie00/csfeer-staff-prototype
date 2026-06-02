@@ -1,0 +1,390 @@
+{
+  "$formspec": "1.0",
+  "url": "https://core.acf.gov/forms/csbg-tribal-plan",
+  "version": "1.0.0",
+  "versionAlgorithm": "semver",
+  "status": "active",
+  "title": "CSBG Model Tribal Plan & Application",
+  "description": "Tribal Plan submitted by tribal CSBG recipients. Models the eight sections used by OCS today: organization info, contact, programmatic plan, service areas, budget, narrative, attestation, and authorized official signature.",
+  "name": "csbg-tribal-plan",
+  "nonRelevantBehavior": "remove",
+  "extensions": {
+    "x-acf-program": "CSBG",
+    "x-omb-control-number": "0970-0635"
+  },
+  "formPresentation": {
+    "pageMode": "wizard",
+    "labelPosition": "top",
+    "density": "comfortable",
+    "defaultCurrency": "USD"
+  },
+  "optionSets": {
+    "usStates": {
+      "options": [
+        {
+          "value": "AK",
+          "label": "Alaska"
+        },
+        {
+          "value": "AZ",
+          "label": "Arizona"
+        },
+        {
+          "value": "ND",
+          "label": "North Dakota"
+        },
+        {
+          "value": "OK",
+          "label": "Oklahoma"
+        },
+        {
+          "value": "SD",
+          "label": "South Dakota"
+        }
+      ]
+    },
+    "acfRegions": {
+      "options": [
+        {
+          "value": "VI",
+          "label": "VI (Dallas)"
+        },
+        {
+          "value": "VIII",
+          "label": "VIII (Denver)"
+        },
+        {
+          "value": "IX",
+          "label": "IX (San Francisco)"
+        },
+        {
+          "value": "X",
+          "label": "X (Seattle)"
+        }
+      ]
+    },
+    "fiscalYears": {
+      "options": [
+        {
+          "value": "FY25",
+          "label": "FY 2025"
+        },
+        {
+          "value": "FY26",
+          "label": "FY 2026"
+        },
+        {
+          "value": "FY27",
+          "label": "FY 2027"
+        }
+      ]
+    }
+  },
+  "items": [
+    {
+      "type": "group",
+      "key": "org",
+      "label": "Organization Information",
+      "extensions": {
+        "x-section-number": 1,
+        "x-auto-populated-from": "UEI"
+      },
+      "children": [
+        {
+          "type": "field",
+          "key": "name",
+          "label": "Organization legal name",
+          "dataType": "string"
+        },
+        {
+          "type": "field",
+          "key": "uei",
+          "label": "UEI",
+          "dataType": "string",
+          "extensions": {
+            "x-help": "12-character SAM.gov Unique Entity Identifier"
+          }
+        },
+        {
+          "type": "field",
+          "key": "duns",
+          "label": "DUNS (legacy, optional)",
+          "dataType": "string"
+        },
+        {
+          "type": "field",
+          "key": "state",
+          "label": "State",
+          "dataType": "choice",
+          "optionSet": "usStates"
+        },
+        {
+          "type": "field",
+          "key": "region",
+          "label": "ACF Region",
+          "dataType": "choice",
+          "optionSet": "acfRegions"
+        },
+        {
+          "type": "field",
+          "key": "fy",
+          "label": "Fiscal Year",
+          "dataType": "choice",
+          "optionSet": "fiscalYears"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "key": "contact",
+      "label": "Primary Contact",
+      "extensions": {
+        "x-section-number": 2
+      },
+      "children": [
+        {
+          "type": "field",
+          "key": "contactName",
+          "label": "Name",
+          "dataType": "string"
+        },
+        {
+          "type": "field",
+          "key": "contactTitle",
+          "label": "Title",
+          "dataType": "string"
+        },
+        {
+          "type": "field",
+          "key": "contactEmail",
+          "label": "Email",
+          "dataType": "string",
+          "semanticType": "email"
+        },
+        {
+          "type": "field",
+          "key": "contactPhone",
+          "label": "Phone",
+          "dataType": "string",
+          "semanticType": "phone"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "key": "plan",
+      "label": "Programmatic Plan",
+      "extensions": {
+        "x-section-number": 3
+      },
+      "children": [
+        {
+          "type": "field",
+          "key": "mission",
+          "label": "Mission statement",
+          "dataType": "text",
+          "extensions": {
+            "x-help": "What is the tribal CSBG program's mission for this plan period?"
+          }
+        },
+        {
+          "type": "field",
+          "key": "goals",
+          "label": "Annual goals",
+          "dataType": "text",
+          "extensions": {
+            "x-help": "List measurable goals (e.g. clients served, households stabilized)."
+          }
+        },
+        {
+          "type": "field",
+          "key": "coordination",
+          "label": "Coordination with other programs",
+          "dataType": "text",
+          "extensions": {
+            "x-help": "How does CSBG coordinate with other tribal programs to deliver wraparound services?"
+          }
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "key": "services",
+      "label": "Service Areas",
+      "extensions": {
+        "x-section-number": 4
+      },
+      "children": [
+        {
+          "type": "field",
+          "key": "description",
+          "label": "Service area description",
+          "dataType": "text",
+          "extensions": {
+            "x-help": "Geographic area and eligible populations served by this plan."
+          }
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "key": "budget",
+      "label": "Proposed Budget",
+      "extensions": {
+        "x-section-number": 5
+      },
+      "children": [
+        {
+          "type": "field",
+          "key": "employment",
+          "label": "Employment & training",
+          "dataType": "money"
+        },
+        {
+          "type": "field",
+          "key": "education",
+          "label": "Education",
+          "dataType": "money"
+        },
+        {
+          "type": "field",
+          "key": "emergency",
+          "label": "Emergency services",
+          "dataType": "money"
+        },
+        {
+          "type": "field",
+          "key": "housing",
+          "label": "Housing",
+          "dataType": "money"
+        },
+        {
+          "type": "field",
+          "key": "nutrition",
+          "label": "Nutrition",
+          "dataType": "money"
+        },
+        {
+          "type": "field",
+          "key": "admin",
+          "label": "Administration",
+          "dataType": "money"
+        },
+        {
+          "type": "field",
+          "key": "other",
+          "label": "Other",
+          "dataType": "money"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "key": "narrative",
+      "label": "Programmatic Narrative",
+      "extensions": {
+        "x-section-number": 6
+      },
+      "children": [
+        {
+          "type": "field",
+          "key": "narrativeEmployment",
+          "label": "Employment narrative",
+          "dataType": "text"
+        },
+        {
+          "type": "field",
+          "key": "narrativeHousing",
+          "label": "Housing narrative",
+          "dataType": "text"
+        },
+        {
+          "type": "field",
+          "key": "narrativeEmergency",
+          "label": "Emergency services narrative",
+          "dataType": "text"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "key": "attestation",
+      "label": "Attestation of Assurances",
+      "extensions": {
+        "x-section-number": 7
+      },
+      "children": [
+        {
+          "type": "display",
+          "key": "attestationText",
+          "label": "By acknowledging below, the tribal CSBG program attests to compliance with 42 U.S.C. 9909 assurances and all applicable federal regulations."
+        },
+        {
+          "type": "field",
+          "key": "ackBy",
+          "label": "Acknowledged by (name)",
+          "dataType": "string"
+        },
+        {
+          "type": "field",
+          "key": "ackAt",
+          "label": "Acknowledged on",
+          "dataType": "date"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "key": "ao",
+      "label": "Authorized Official Signature",
+      "extensions": {
+        "x-section-number": 8
+      },
+      "children": [
+        {
+          "type": "field",
+          "key": "aoName",
+          "label": "Authorized Official name",
+          "dataType": "string"
+        },
+        {
+          "type": "field",
+          "key": "aoTitle",
+          "label": "Title",
+          "dataType": "string"
+        },
+        {
+          "type": "field",
+          "key": "aoEmail",
+          "label": "Email",
+          "dataType": "string",
+          "semanticType": "email"
+        },
+        {
+          "type": "field",
+          "key": "aoSigned",
+          "label": "Signed",
+          "dataType": "boolean"
+        },
+        {
+          "type": "field",
+          "key": "aoSignedAt",
+          "label": "Signed at",
+          "dataType": "date"
+        },
+        {
+          "type": "field",
+          "key": "aoCleared",
+          "label": "Signature cleared after return",
+          "dataType": "boolean"
+        },
+        {
+          "type": "field",
+          "key": "aoClearedAt",
+          "label": "Cleared at",
+          "dataType": "date"
+        }
+      ]
+    }
+  ]
+}

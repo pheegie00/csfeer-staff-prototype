@@ -275,6 +275,81 @@
         </div>
       </div>
       {% endif %}
+
+      {# STAFF-MP-13: Formspec runtime status + View spec modal. #}
+      {% if formspec_runtime_on %}
+      <div class="rail">
+        <div class="rail__head">Formspec runtime</div>
+        <div class="rail__body">
+          {% if has_formspec %}
+            <div class="rail__item">
+              <div class="rail__k">Status</div>
+              <div class="rail__v">
+                {% if formspec_lint.is_clean %}
+                  <span class="tag tag--success tag--sm">Clean</span>
+                {% elif formspec_lint.error_count %}
+                  <span class="tag tag--danger tag--sm">{{ formspec_lint.error_count }} error{{ formspec_lint.error_count|pluralize }}</span>
+                {% endif %}
+                {% if formspec_lint.warning_count %}
+                  <span class="tag tag--warning tag--sm">{{ formspec_lint.warning_count }} warning{{ formspec_lint.warning_count|pluralize }}</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="rail__item">
+              <div class="rail__k">Spec version</div>
+              <div class="rail__v">{{ form_def.schema.version|default:"-" }} ({{ form_def.schema.versionAlgorithm|default:"semver" }})</div>
+            </div>
+            <div class="rail__item">
+              <div class="rail__k">Items</div>
+              <div class="rail__v">{{ form_def.schema.items|length }} top-level sections</div>
+            </div>
+            <div style="margin-top: 12px; display: flex; gap: 8px;">
+              <button class="btn btn--ghost btn--sm" onclick="document.getElementById('formspec-modal').showModal()" type="button">
+                View spec
+              </button>
+              {% if first_entry_id %}
+                <a class="btn btn--ghost btn--sm" href="/forms/entry/{{ first_entry_id }}/formspec-preview/" target="_blank" rel="noopener">
+                  Preview as recipient &rarr;
+                </a>
+              {% endif %}
+            </div>
+
+            {% if formspec_lint.errors %}
+              <div class="alert alert--danger" style="margin-top:12px;">
+                <div class="alert__body" style="padding: 8px 12px;">
+                  <strong style="font-size:12px;">Lint errors:</strong>
+                  <ul style="margin:6px 0 0; padding-left:18px; font-size:12px;">
+                    {% for d in formspec_lint.errors|slice:":5" %}
+                      <li><code>{{ d.code }}</code> at <code>{{ d.path }}</code>: {{ d.message }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            {% endif %}
+          {% else %}
+            <div class="rail__item t-sm">
+              No Formspec definition loaded for this form yet. Run
+              <code>seed_demo_data</code> to populate, or use the publish flow
+              to upload one.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if has_formspec %}
+        <dialog id="formspec-modal" style="max-width: 900px; width: 90vw; padding: 0; border: 1px solid #d6d6d6; border-radius: 8px;">
+          <div style="padding: 16px 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font: 600 16px 'Public Sans', sans-serif;">
+              Formspec definition - {{ form_def.name }} v{{ form_def.variant }}
+            </h3>
+            <button onclick="document.getElementById('formspec-modal').close()" style="background: none; border: 0; font-size: 24px; cursor: pointer; line-height: 1;" aria-label="Close" type="button">&times;</button>
+          </div>
+          <div style="padding: 16px 20px; max-height: 70vh; overflow-y: auto;">
+            <pre style="margin: 0; font: 400 12px 'IBM Plex Mono', monospace; background: #f9fafb; padding: 16px; border-radius: 4px; line-height: 1.5; overflow-x: auto;">{{ formspec_pretty }}</pre>
+          </div>
+        </dialog>
+      {% endif %}
+      {% endif %}
     </div>
   </div>
 </div>

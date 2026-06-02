@@ -309,6 +309,30 @@ The 7 STAFF-MP tickets shipped in this release were created in the project's int
 - **Status in this release:** SHIPPED
 - **Dependencies:** STAFF-MP-10
 
+### STAFF-MP-13: Adopt Formspec runtime (Phases 1+2+3)
+
+- **Story:** As a Program Admin I want each form template to be a real JSON specification with structural lint, computed-field validation, and a USWDS-aligned renderer, instead of a hand-coded HTML template. As a recipient I want forms rendered from that spec so the same definition powers both the staff Form Builder and what I see when I fill out the form.
+- **Acceptance criteria:**
+  - Adopt `focusconsulting/formspec` (Apache-2.0) as the form definition format
+  - `formspec-py` 0.1.0 pinned; manylinux wheel verified for Fly's image (no Rust toolchain in Docker)
+  - Service wrapper `form_manager/services/formspec_service.py` isolates every call to the alpha lib
+  - Bundled CSBG Tribal Plan spec at `form_manager/formspec_docs/csbg_tribal_plan.json` (8 sections, lints clean)
+  - `seed_demo_data` loads the packaged spec into `FormDefinition.schema` for the Tribal Plan row
+  - Form Builder Detail surfaces lint status (Clean / N errors / N warnings), spec version, item count, and a "View spec" modal that pretty-prints the JSON
+  - "Preview as recipient (Formspec)" button on Form Builder Detail links to a real Formspec-rendered version of the form
+  - New recipient route `/forms/entry/<id>/formspec-preview/` mounts the `@formspec-org/webcomponent` (loaded via JSDelivr; no npm vendoring) with the USWDS adapter, hydrated with the spec + any saved FormEntry data
+  - POST to the same URL accepts the response payload, re-validates server-side via `formspec-py`, and persists to `FormEntry.data`
+  - Everything gated by the new `formspec_runtime` feature flag (default on) so demo presenters can disable it
+  - 16 new tests covering service wrapper, lint behavior, Form Builder integration, preview view rendering, flag gating, and POST persistence
+- **Priority:** HIGH (replaces our `{}` placeholder schemas with a real form runtime; unblocks STAFF-MP-12 and several CORE tickets)
+- **Status in this release:** SHIPPED (Phases 1+2+3 of the integration plan in `docs/formspec_integration.md`)
+- **Dependencies:** none (additive)
+- **Follow-ups not in this release:**
+  - Phase 3b: auto-suggest semver bump via `generate_changelog` in the publish flow
+  - Phase 4: visual editor (BSL-encumbered; deferred)
+  - Port additional forms (LIHEAP, TANF, etc.) by adding `formspec_docs/<slug>.json` files
+  - Graduate the parallel `/forms/entry/<id>/formspec-preview/` route to the canonical `/forms/entry/<id>/edit/` once the team is happy with how Formspec renders
+
 ### STAFF-MP-12: Apply Figma look to Submission Detail (Tribal Plan) page
 
 - **Story:** As a federal staff member reviewing a submission, I want the detail page to match the new Figma design: clean breadcrumb, big "Review and Submit" heading, collapsible section accordions, "Add review item" buttons per section, and confirmation modals on Accept / Close.
