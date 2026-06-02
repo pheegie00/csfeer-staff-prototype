@@ -7,6 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  {# Formspec layout + default field stylesheets, served straight from JSDelivr. #}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@formspec-org/webcomponent@1.0.0/dist/formspec-layout.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@formspec-org/webcomponent@1.0.0/dist/formspec-default.css">
   <style>
     :root { --acf-navy: #0b3b5c; --acf-blue: #2563eb; }
     body {
@@ -124,55 +127,92 @@
   </div>
 </div>
 
-{# Formspec runtime via JSDelivr. Apache-2.0, no npm build step. #}
+{# Formspec runtime via esm.sh (resolves all bare-specifier peer deps automatically). #}
 <script type="module">
-  import "https://cdn.jsdelivr.net/npm/@formspec-org/engine@1.0.0/+esm";
-  import "https://cdn.jsdelivr.net/npm/@formspec-org/webcomponent@1.0.0/+esm";
-  import { uswdsAdapter } from "https://cdn.jsdelivr.net/npm/@formspec-org/adapters@0.1.0/+esm";
-  import { globalRegistry } from "https://cdn.jsdelivr.net/npm/@formspec-org/engine@1.0.0/+esm";
-
   const SPEC = {{ spec_json|safe }};
   const SAVED = {{ saved_data_json|safe }};
   const SUBMIT_URL = "{{ submit_url|escapejs }}";
 
-  // Register the USWDS adapter so fields render with the federal design language.
-  try { globalRegistry.registerAdapter(uswdsAdapter); } catch (e) { console.warn("USWDS adapter skipped:", e); }
-
-  // Replace the placeholder with the web component.
   const mount = document.getElementById("formspec-mount");
-  mount.innerHTML = "";
-  const fsEl = document.createElement("formspec-render");
-  fsEl.setAttribute("id", "fs");
-  // Attach the spec + saved data via properties (web component reads them on connect).
-  fsEl.spec = SPEC;
-  fsEl.data = SAVED;
-  mount.appendChild(fsEl);
+  const setError = (msg) => {
+    mount.innerHTML = '<div class="canvas__placeholder" style="color:#991b1b;"><strong>Formspec failed to load.</strong><div style="margin-top: 8px;">' + msg + '</div><div style="margin-top: 8px; font-size: 12px;">Check the browser console for details.</div></div>';
+  };
 
-  // Wire the Save draft button to post the current response to Django.
-  const saveBtn = document.getElementById("save-btn");
-  const status = document.getElementById("savestatus");
-  saveBtn.addEventListener("click", async () => {
-    saveBtn.disabled = true;
-    status.textContent = "Saving...";
-    status.className = "savestatus";
-    try {
-      const payload = (typeof fsEl.getResponse === "function") ? fsEl.getResponse() : (fsEl.data || {});
-      const r = await fetch(SUBMIT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: payload }),
-      });
-      const json = await r.json();
-      status.textContent = json.message || (json.ok ? "Saved." : "Save failed.");
-      status.className = "savestatus " + (json.valid ? "savestatus--ok" : "savestatus--warn");
-    } catch (err) {
-      console.error(err);
-      status.textContent = "Save failed: " + err.message;
-      status.className = "savestatus savestatus--warn";
-    } finally {
-      saveBtn.disabled = false;
+  try {
+    // esm.sh resolves @formspec-org/engine + @formspec-org/layout + preact signals
+    // peer deps automatically, which JSDelivr's bare specifiers cannot.
+    const wc = await import("https://esm.sh/@formspec-org/webcomponent@1.0.0");
+    const ad = await import("https://esm.sh/@formspec-org/adapters@0.1.0");
+    const eng = await import("https://esm.sh/@formspec-org/engine@1.0.0");
+
+    // 1. Boot the WASM engine (must be awaited before constructing the element).
+    await (wc.initFormspecEngine || eng.initFormspecEngine)();
+
+    // 2. Manually define the custom element (the package does not auto-register).
+    if (!customElements.get("formspec-render")) {
+      customElements.define("formspec-render", wc.FormspecRender);
     }
-  });
+
+    // 3. Register the USWDS adapter and make it the active one.
+    wc.globalRegistry.registerAdapter(ad.uswdsAdapter);
+    wc.globalRegistry.setAdapter("uswds");
+
+    // 4. Mount the element and feed it the spec + saved response.
+    mount.innerHTML = "";
+    const fsEl = document.createElement("formspec-render");
+    fsEl.id = "fs";
+    mount.appendChild(fsEl);
+    fsEl.definition = SPEC;
+    if (SAVED && Object.keys(SAVED).length) {
+      try {
+        // hydrate after definition; engine is exposed via getEngine() once mounted
+        if (typeof wc.applyResponseDataToEngine === "function" && typeof fsEl.getEngine === "function") {
+          const engine = fsEl.getEngine();
+          if (engine) wc.applyResponseDataToEngine(engine, SAVED);
+        }
+      } catch (e) {
+        console.warn("Could not hydrate saved data:", e);
+      }
+    }
+
+    // 5. Wire Save draft -> POST to Django.
+    const saveBtn = document.getElementById("save-btn");
+    const status = document.getElementById("savestatus");
+    saveBtn.addEventListener("click", async () => {
+      saveBtn.disabled = true;
+      status.textContent = "Saving...";
+      status.className = "savestatus";
+      try {
+        // Try several ways to read the current response, depending on engine version.
+        let payload = {};
+        try {
+          const engine = typeof fsEl.getEngine === "function" ? fsEl.getEngine() : null;
+          if (engine) {
+            if (typeof engine.getResponseData === "function") payload = engine.getResponseData();
+            else if (typeof engine.getResponse === "function") payload = engine.getResponse();
+            else if (engine.responseData) payload = engine.responseData;
+          }
+        } catch (e) { console.warn("could not read engine response:", e); }
+        const r = await fetch(SUBMIT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: payload }),
+        });
+        const json = await r.json();
+        status.textContent = json.message || (json.ok ? "Saved." : "Save failed.");
+        status.className = "savestatus " + (json.valid ? "savestatus--ok" : "savestatus--warn");
+      } catch (err) {
+        console.error(err);
+        status.textContent = "Save failed: " + err.message;
+        status.className = "savestatus savestatus--warn";
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
+  } catch (err) {
+    console.error("Formspec init failed:", err);
+    setError(String(err && err.message ? err.message : err));
+  }
 </script>
 
 </body>
