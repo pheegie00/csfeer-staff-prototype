@@ -7,8 +7,8 @@ urlpatterns = [
     path("", views.form_list, name="form_list"),
     path("start/<uuid:form_id>/", views.form_start, name="form_start"),
     path("entry/<uuid:pk>/edit/", views.form_edit, name="form_edit"),
-    # STAFF-MP-13: Formspec-rendered parallel route (gated by formspec_runtime flag).
-    path("entry/<uuid:pk>/formspec-preview/", formspec_preview, name="formspec_preview"),
+    # STAFF-MP-13: schema-driven parallel render route (gated by form_runtime flag).
+    path("entry/<uuid:pk>/render/", formspec_preview, name="form_render"),
     path("entry/<uuid:pk>/review/", views.form_review, name="form_review"),
     path("entry/<uuid:pk>/finalize/", views.form_finalize, name="form_finalize"),
     path("entry/<uuid:pk>/preview/", views.FormPreviewView.as_view(), name="form_preview"),

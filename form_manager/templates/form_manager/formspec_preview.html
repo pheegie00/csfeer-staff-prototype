@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ form_def.name }} - Formspec preview - CORE</title>
+  <title>{{ form_def.name }} - Preview - CORE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -97,8 +97,8 @@
 
 <div class="shell">
   <div class="stripe">
-    <span class="stripe__chip">Formspec runtime</span>
-    <span>Rendered from the JSON spec stored in <code>FormDefinition.schema</code> using the Formspec web component (v{{ form_def.schema.version|default:"1.0.0" }}).</span>
+    <span class="stripe__chip">Live preview</span>
+    <span>Rendered from this form's JSON definition (v{{ form_def.schema.version|default:"1.0.0" }}). Save draft to persist your work.</span>
   </div>
 
   {% if not lint_clean %}
@@ -115,8 +115,8 @@
   <div class="canvas">
     <div id="formspec-mount">
       <div class="canvas__placeholder">
-        <strong>Loading Formspec renderer...</strong>
-        <div style="margin-top: 8px;">Pulling <code>@formspec-org/webcomponent</code> + <code>@formspec-org/adapters</code> from JSDelivr.</div>
+        <strong>Loading form...</strong>
+        <div style="margin-top: 8px;">First load fetches the renderer and may take a couple of seconds.</div>
       </div>
     </div>
   </div>
@@ -127,7 +127,7 @@
   </div>
 </div>
 
-{# Formspec runtime via esm.sh (resolves all bare-specifier peer deps automatically). #}
+{# Renderer modules + WASM kernel served via esm.sh (resolves peer deps automatically). #}
 <script type="module">
   const SPEC = {{ spec_json|safe }};
   const SAVED = {{ saved_data_json|safe }};
@@ -135,7 +135,7 @@
 
   const mount = document.getElementById("formspec-mount");
   const setError = (msg) => {
-    mount.innerHTML = '<div class="canvas__placeholder" style="color:#991b1b;"><strong>Formspec failed to load.</strong><div style="margin-top: 8px;">' + msg + '</div><div style="margin-top: 8px; font-size: 12px;">Check the browser console for details.</div></div>';
+    mount.innerHTML = '<div class="canvas__placeholder" style="color:#991b1b;"><strong>Form failed to load.</strong><div style="margin-top: 8px;">' + msg + '</div><div style="margin-top: 8px; font-size: 12px;">Check the browser console for details.</div></div>';
   };
 
   try {

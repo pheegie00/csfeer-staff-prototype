@@ -136,16 +136,16 @@ REGISTERED_FLAGS: tuple[FlagDefinition, ...] = (
         category="Recipient experience",
     ),
 
-    # Formspec runtime (Phase 7 / STAFF-MP-13)
+    # Schema-driven form runtime (STAFF-MP-13)
     FlagDefinition(
-        key="formspec_runtime",
-        label="Formspec runtime",
+        key="form_runtime",
+        label="Form runtime",
         description=(
-            "Master switch for the Formspec integration: View spec button + "
-            "lint badge on Form Builder Detail, JSON-spec-driven recipient "
-            "rendering (replaces the hardcoded Tribal Plan template), and "
-            "server-side response validation on FormEntry submit. Disable "
-            "to fall back to the pre-Formspec behavior everywhere."
+            "Master switch for the schema-driven form runtime: View spec "
+            "button + lint badge on Form Builder Detail, JSON-spec-driven "
+            "recipient rendering, and server-side response validation on "
+            "FormEntry submit. Disable to hide spec tooling and the live "
+            "render preview from all users."
         ),
         category="Form runtime",
     ),

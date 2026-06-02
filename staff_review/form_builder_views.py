@@ -199,14 +199,13 @@ class FormBuilderDetailView(FeatureRequiredMixin, StaffRequiredMixin, TemplateVi
             type_dict = {c[0]: c[1] for c in OrgType.choices}
             org_type_labels = [type_dict.get(t, t) for t in scoping.scope_to_org_types]
 
-        # STAFF-MP-13 (Formspec): if a real spec lives in form_def.schema, lint it
-        # and pretty-print for the View spec modal. Gated by feature flag so
-        # demos can turn it off.
+        # STAFF-MP-13: if a real schema lives in form_def.schema, lint it
+        # and pretty-print for the View spec modal. Gated by feature flag.
         import json as _json
         from form_manager.services.formspec_service import lint_definition
         from staff_review.feature_flags import is_enabled
-        formspec_on = is_enabled("formspec_runtime")
-        has_spec = formspec_on and isinstance(form_def.schema, dict) and bool(form_def.schema) and form_def.schema.get("$formspec")
+        runtime_on = is_enabled("form_runtime")
+        has_spec = runtime_on and isinstance(form_def.schema, dict) and bool(form_def.schema) and form_def.schema.get("$formspec")
         spec_pretty = ""
         lint_report = None
         first_entry_id = None
@@ -233,11 +232,11 @@ class FormBuilderDetailView(FeatureRequiredMixin, StaffRequiredMixin, TemplateVi
             "scoped_org_count": scoped_org_count,
             "org_type_labels": org_type_labels,
             "all_org_types": OrgType.choices,
-            # STAFF-MP-13 (Formspec)
-            "has_formspec": has_spec,
-            "formspec_pretty": spec_pretty,
-            "formspec_lint": lint_report,
-            "formspec_runtime_on": formspec_on,
+            # STAFF-MP-13 schema-driven runtime
+            "has_spec": has_spec,
+            "spec_pretty": spec_pretty,
+            "spec_lint": lint_report,
+            "form_runtime_on": runtime_on,
             "first_entry_id": first_entry_id,
         })
         return ctx

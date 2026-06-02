@@ -46,16 +46,16 @@ from staff_review.feature_flags import is_enabled
 @login_required
 def formspec_preview(request, pk):
     """Render the Formspec web component for a FormEntry, or accept a submit."""
-    if not is_enabled("formspec_runtime"):
-        raise Http404("Formspec runtime is disabled.")
+    if not is_enabled("form_runtime"):
+        raise Http404("Form runtime is disabled.")
 
     entry = get_object_or_404(FormEntry.objects.select_related("form_definition", "organization"), pk=pk)
     spec = entry.form_definition.schema or {}
 
     if not isinstance(spec, dict) or not spec.get("$formspec"):
         raise Http404(
-            "This form does not have a Formspec definition yet. "
-            "Only forms with a real spec in FormDefinition.schema can use the Formspec preview."
+            "This form does not have a schema-driven definition yet. "
+            "Only forms with a real spec in FormDefinition.schema can be rendered live."
         )
 
     # POST = submit the response payload

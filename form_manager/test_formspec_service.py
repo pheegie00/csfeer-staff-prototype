@@ -119,32 +119,32 @@ class FormBuilderFormspecIntegrationTest(TestCase):
         self.assertEqual(self.tribal_plan.schema.get("$formspec"), "1.0")
         self.assertEqual(self.tribal_plan.schema.get("name"), "csbg-tribal-plan")
 
-    def test_form_builder_detail_shows_formspec_card_when_flag_on(self):
+    def test_form_builder_detail_shows_runtime_card_when_flag_on(self):
         c = self._client()
         resp = c.get(f"/staff/form-builder/{self.tribal_plan.id}/")
         self.assertEqual(resp.status_code, 200)
         body = resp.content.decode()
-        self.assertIn("Formspec runtime", body)
+        self.assertIn("Form runtime", body)
         self.assertIn("View spec", body)
         self.assertIn("Clean", body, "Tribal Plan should show 'Clean' lint badge.")
         # And the pretty-printed JSON should be in the page (inside the dialog).
         self.assertIn("$formspec", body)
 
-    def test_form_builder_detail_hides_formspec_card_when_flag_off(self):
+    def test_form_builder_detail_hides_runtime_card_when_flag_off(self):
         from staff_review.feature_flags import FeatureFlag, flags_enabled_map
         flags_enabled_map()  # materialize rows
-        FeatureFlag.objects.filter(key="formspec_runtime").update(is_enabled=False)
+        FeatureFlag.objects.filter(key="form_runtime").update(is_enabled=False)
         c = self._client()
         resp = c.get(f"/staff/form-builder/{self.tribal_plan.id}/")
         self.assertEqual(resp.status_code, 200)
         body = resp.content.decode()
-        self.assertNotIn("Formspec runtime", body)
+        self.assertNotIn("Form runtime", body)
         self.assertNotIn("View spec", body)
 
 
 @override_settings(MIDDLEWARE=_TEST_MIDDLEWARE)
 class FormspecPreviewViewTest(TestCase):
-    """The /forms/entry/<id>/formspec-preview/ recipient-side route."""
+    """The /forms/entry/<id>/render/ recipient-side route."""
 
     @classmethod
     def setUpTestData(cls):
@@ -165,7 +165,7 @@ class FormspecPreviewViewTest(TestCase):
     def test_preview_returns_html_when_spec_present_and_flag_on(self):
         self.assertTrue(self.assertions_ready, "Need a seeded Tribal Plan FormEntry.")
         c = self._client()
-        resp = c.get(f"/forms/entry/{self.entry.id}/formspec-preview/")
+        resp = c.get(f"/forms/entry/{self.entry.id}/render/")
         self.assertEqual(resp.status_code, 200)
         body = resp.content.decode()
         # Should embed the spec + the web component script
@@ -176,9 +176,9 @@ class FormspecPreviewViewTest(TestCase):
     def test_preview_404s_when_flag_off(self):
         from staff_review.feature_flags import FeatureFlag, flags_enabled_map
         flags_enabled_map()
-        FeatureFlag.objects.filter(key="formspec_runtime").update(is_enabled=False)
+        FeatureFlag.objects.filter(key="form_runtime").update(is_enabled=False)
         c = self._client()
-        resp = c.get(f"/forms/entry/{self.entry.id}/formspec-preview/")
+        resp = c.get(f"/forms/entry/{self.entry.id}/render/")
         self.assertEqual(resp.status_code, 404)
 
     def test_preview_404s_when_form_has_no_spec(self):
@@ -201,13 +201,13 @@ class FormspecPreviewViewTest(TestCase):
                 data={}, status="submitted",
             )
         c = self._client()
-        resp = c.get(f"/forms/entry/{entry.id}/formspec-preview/")
+        resp = c.get(f"/forms/entry/{entry.id}/render/")
         self.assertEqual(resp.status_code, 404)
 
     def test_preview_post_saves_data_and_returns_json(self):
         import json
         c = self._client()
-        url = f"/forms/entry/{self.entry.id}/formspec-preview/"
+        url = f"/forms/entry/{self.entry.id}/render/"
         payload = {
             "data": {
                 "org": {"name": "Test Tribe Updated", "uei": "TST1234ABCD"},
