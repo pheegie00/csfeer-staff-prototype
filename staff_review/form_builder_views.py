@@ -217,6 +217,13 @@ class FormBuilderDetailView(FeatureRequiredMixin, StaffRequiredMixin, TemplateVi
             first = FormEntry.objects.filter(form_definition=form_def).first()
             first_entry_id = first.id if first else None
 
+        # STAFF-MP-14: visual field editor. Only schema-driven forms can be
+        # edited field-by-field; legacy pydantic forms fall back to the
+        # existing read-only detail page.
+        from form_manager.services import schema_editor as se
+        editor_available = bool(has_spec)
+        draft_pending = editor_available and se.has_draft(form_def)
+
         ctx.update({
             "user": USER,
             "form_def": form_def,
@@ -235,6 +242,9 @@ class FormBuilderDetailView(FeatureRequiredMixin, StaffRequiredMixin, TemplateVi
             # STAFF-MP-13 schema-driven runtime (just the bits the page header needs)
             "form_runtime_on": runtime_on,
             "first_entry_id": first_entry_id,
+            # STAFF-MP-14 visual field editor
+            "editor_available": editor_available,
+            "draft_pending": draft_pending,
         })
         return ctx
 
@@ -376,6 +386,8 @@ class PublishNewVersionView(FeatureRequiredMixin, StaffRequiredMixin, TemplateVi
         has_scoping = hasattr(form_def, "scoping")
         has_current_fy_window = form_def.submission_windows.filter(fiscal_year="FY26").exists()
 
+        from form_manager.services import schema_editor as se
+
         ctx.update({
             "user": USER,
             "form_def": form_def,
@@ -385,6 +397,8 @@ class PublishNewVersionView(FeatureRequiredMixin, StaffRequiredMixin, TemplateVi
             "affected_count": affected_count,
             "has_scoping": has_scoping,
             "has_current_fy_window": has_current_fy_window,
+            # STAFF-MP-14: flag that publishing will consume an unpublished draft.
+            "has_draft": se.has_draft(form_def),
         })
         return ctx
 
@@ -425,3 +439,148 @@ class PublishNewVersionView(FeatureRequiredMixin, StaffRequiredMixin, TemplateVi
         return redirect(reverse(
             "staff_review:form_builder_detail", kwargs={"form_def_id": new_fd.id},
         ))
+
+
+# ============================================================
+# VISUAL FIELD EDITOR (STAFF-MP-14)
+# ============================================================
+class FormBuilderEditView(FeatureRequiredMixin, StaffRequiredMixin, View):
+    """Non-technical drag-free field editor for schema-driven forms.
+
+    GET  -> render the editor against the current draft (seeded from the
+            published schema on first visit).
+    POST -> dispatch on `action`, mutate the draft via schema_editor, lint,
+            persist, and redirect back (post/redirect/get).
+
+    All edits land on `FormDefinition.draft_schema`; the published `schema`
+    (and therefore every existing submission) is untouched until the staff
+    user clicks "Publish new version".
+    """
+
+    feature_key = "form_builder"
+
+    def _load(self, request, form_def_id):
+        form_def = get_object_or_404(FormDefinition, pk=form_def_id)
+        if not _user_can_manage(request.user, form_def):
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied()
+        # Editor only applies to schema-driven (formspec) forms.
+        if not (isinstance(form_def.schema, dict) and form_def.schema.get("$formspec")):
+            raise Http404("This form is not schema-driven and can't be edited field-by-field.")
+        return form_def
+
+    def get(self, request, form_def_id):
+        from form_manager.services import schema_editor as se
+
+        form_def = self._load(request, form_def_id)
+        draft = se.get_draft_schema(form_def)
+
+        # Build a display model so the template stays logic-light.
+        sections = []
+        for s in se.sections(draft):
+            fields = []
+            for child in s.get("children", []) or []:
+                if child.get("type") == "field":
+                    fields.append({
+                        "key": child["key"],
+                        "label": child.get("label", ""),
+                        "type_key": se.field_type_of(child),
+                        "type_label": se.field_type_label(se.field_type_of(child)),
+                        "help": se.field_help(child),
+                        "option_set": child.get("optionSet", ""),
+                        "is_field": True,
+                    })
+                else:
+                    # display / non-field items rendered read-only.
+                    fields.append({
+                        "key": child.get("key", ""),
+                        "label": child.get("label", ""),
+                        "type_label": "Instructional text",
+                        "is_field": False,
+                    })
+            sections.append({
+                "key": s["key"],
+                "label": s.get("label", ""),
+                "fields": fields,
+            })
+
+        ctx = {
+            "user": USER,
+            "form_def": form_def,
+            "sections": sections,
+            "field_types": se.FIELD_TYPES,
+            "option_sets": se.option_set_keys(draft),
+            "draft_pending": se.has_draft(form_def),
+            "draft_updated_at": form_def.draft_updated_at,
+            "can_manage": _user_can_manage(request.user, form_def),
+        }
+        from django.shortcuts import render
+        return render(request, "staff_review/form_builder_edit.html", ctx)
+
+    def post(self, request, form_def_id):
+        from form_manager.services import schema_editor as se
+
+        form_def = self._load(request, form_def_id)
+        action = (request.POST.get("action") or "").strip()
+        p = request.POST.get
+        back = redirect(reverse(
+            "staff_review:form_builder_edit", kwargs={"form_def_id": form_def.id},
+        ))
+
+        # Discard short-circuits -- no schema mutation.
+        if action == "discard_draft":
+            se.discard_draft(form_def)
+            messages.success(request, "Draft changes discarded. Back to the published form.")
+            return back
+
+        draft = se.get_draft_schema(form_def)
+        section_key = (p("section_key") or "").strip()
+        field_key = (p("field_key") or "").strip()
+
+        if action == "add_field":
+            draft = se.add_field(
+                draft, section_key,
+                label=p("label") or "Untitled field",
+                type_key=p("field_type") or "short_text",
+                help_text=p("help") or "",
+                option_set=p("option_set") or "",
+            )
+            note = "Field added."
+        elif action == "update_field":
+            draft = se.update_field(
+                draft, section_key, field_key,
+                label=p("label") or "Untitled field",
+                type_key=p("field_type") or "short_text",
+                help_text=p("help") or "",
+                option_set=p("option_set") or "",
+            )
+            note = "Field updated."
+        elif action == "remove_field":
+            draft = se.remove_field(draft, section_key, field_key)
+            note = "Field removed."
+        elif action == "move_field":
+            draft = se.move_field(draft, section_key, field_key, p("direction") or "up")
+            note = "Field moved."
+        elif action == "add_section":
+            draft = se.add_section(draft, p("label") or "New section")
+            note = "Section added."
+        elif action == "update_section":
+            draft = se.update_section(draft, section_key, p("label") or "")
+            note = "Section renamed."
+        elif action == "remove_section":
+            draft = se.remove_section(draft, section_key)
+            note = "Section removed."
+        elif action == "move_section":
+            draft = se.move_section(draft, section_key, p("direction") or "up")
+            note = "Section moved."
+        else:
+            messages.error(request, f"Unknown action: {action!r}")
+            return back
+
+        ok, report = se.save_draft(form_def, draft, user=request.user)
+        if not ok:
+            first = report.errors[0].message if report.errors else "unknown error"
+            messages.error(request, f"Couldn't save that change: {first}")
+        else:
+            messages.success(request, note)
+        return back

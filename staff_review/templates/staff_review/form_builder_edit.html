@@ -1,0 +1,377 @@
+{% extends "staff_review/_base_staff.html" %}
+{% load static %}
+
+{% comment %}
+STAFF-MP-14: Visual field editor.
+
+Non-technical staff add / edit / remove / reorder sections and fields.
+Every change posts back to FormBuilderEditView, which mutates the DRAFT
+schema only -- the published form (and existing submissions) are untouched
+until "Publish new version". The whole page is server-rendered; each control
+is a tiny POST form using the post/redirect/get pattern, so there's no
+client-side state to keep in sync.
+{% endcomment %}
+
+{% block content %}
+<style>
+  .fe-banner {
+    background: #fff8e1; border: 1px solid #f3d27a; border-radius: 8px;
+    padding: 12px 16px; margin-bottom: 18px; font-size: 13px; color: #6b4e00;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .fe-banner--published {
+    background: #e8f3ff; border-color: #a8cdf5; color: #08344f;
+  }
+  .fe-banner strong { display: block; margin-bottom: 2px; }
+
+  .fe-section { margin-bottom: 16px; }
+  .fe-section__head {
+    display: flex; align-items: center; gap: 10px;
+    justify-content: space-between;
+  }
+  .fe-section__title { font: 700 16px "Public Sans", sans-serif; margin: 0; }
+  .fe-section__num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #0b3b5c; color: #fff; font: 600 11px "Public Sans"; flex-shrink: 0;
+  }
+  .fe-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-top: 1px solid var(--line-soft, #eef1f4);
+  }
+  .fe-row__main { flex: 1; min-width: 0; }
+  .fe-row__label { font: 600 14px "Public Sans", sans-serif; }
+  .fe-row__meta { font-size: 12px; color: #6b7280; margin-top: 2px; }
+  .fe-row__actions { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
+
+  .fe-iconbtn {
+    border: 1px solid var(--line, #d6d6d6); background: #fff; cursor: pointer;
+    border-radius: 4px; padding: 4px 8px; font: 600 12px "Public Sans"; color: #374151;
+  }
+  .fe-iconbtn:hover { background: #f3f4f6; }
+  .fe-iconbtn--danger { color: #b42318; border-color: #f3c0bb; }
+  .fe-iconbtn--danger:hover { background: #fef2f1; }
+
+  .fe-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+  .fe-form-grid .fe-col-span { grid-column: 1 / -1; }
+  .fe-inp, .fe-sel {
+    width: 100%; box-sizing: border-box; padding: 8px 10px;
+    border: 1px solid var(--line, #d6d6d6); border-radius: 4px;
+    font: 400 13px "Public Sans", sans-serif;
+  }
+  .fe-lbl { font: 600 12px "Public Sans", sans-serif; color: #374151; display: block; margin-bottom: 4px; }
+  .fe-edit-panel {
+    margin-top: 8px; padding: 14px; background: #f9fafb;
+    border: 1px solid var(--line-soft, #eef1f4); border-radius: 6px;
+  }
+  details.fe-edit > summary { list-style: none; cursor: pointer; }
+  details.fe-edit > summary::-webkit-details-marker { display: none; }
+  .fe-addrow { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line, #d6d6d6); }
+  .fe-type-pill {
+    display: inline-block; padding: 1px 8px; border-radius: 999px;
+    background: #eef2ff; color: #3730a3; font: 600 11px "Public Sans";
+  }
+  .fe-type-pill--display { background: #f3f4f6; color: #6b7280; }
+</style>
+
+<div class="app__body">
+
+  {# ===== Page header ===== #}
+  <div class="ph">
+    <div class="ph__crumbs">
+      <a href="{% url 'staff_review:form_builder_list' %}">Form templates</a>
+      <span class="ph__sep">&rsaquo;</span>
+      <a href="{% url 'staff_review:form_builder_detail' form_def_id=form_def.id %}">{{ form_def.name }}</a>
+      <span class="ph__sep">&rsaquo;</span>
+      <span>Edit fields</span>
+    </div>
+    <div class="ph__row">
+      <div>
+        <h1 class="ph__title">Edit fields</h1>
+        <div class="ph__meta">
+          {{ form_def.name }} &middot; published v{{ form_def.variant }}
+          {% if draft_pending %}
+            &middot; <span class="tag tag--warning tag--sm">Unpublished draft</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="ph__actions">
+        <a href="/forms/draft-preview/{{ form_def.id }}/" id="preview-draft-link"
+           class="btn btn--ghost" target="_blank" rel="noopener" style="display:none;">
+          Preview draft &rarr;
+        </a>
+        <a href="{% url 'staff_review:form_builder_detail' form_def_id=form_def.id %}" class="btn btn--ghost">
+          Done
+        </a>
+        {% if form_def.is_active %}
+          <a href="{% url 'staff_review:form_builder_publish' form_def_id=form_def.id %}" class="btn">
+            Publish new version
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {# ===== Draft status banner ===== #}
+  {% if draft_pending %}
+    <div class="fe-banner">
+      <span>&#9998;</span>
+      <div style="flex:1;">
+        <strong>You have unpublished changes.</strong>
+        Recipients still see the published version (v{{ form_def.variant }}). Use
+        <em>Preview draft</em> to see your edits, then <em>Publish new version</em> to make them live.
+        {% if draft_updated_at %}<span class="t-muted"> Last edited {{ draft_updated_at|date:"M j, Y g:i a" }}.</span>{% endif %}
+      </div>
+      <form method="post" style="margin:0;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="discard_draft">
+        <button type="submit" class="fe-iconbtn fe-iconbtn--danger"
+                onclick="return confirm('Discard all unpublished changes and revert to the published form?');">
+          Discard draft
+        </button>
+      </form>
+    </div>
+  {% else %}
+    <div class="fe-banner fe-banner--published">
+      <span>&#10003;</span>
+      <div>
+        <strong>This form matches the published version.</strong>
+        Any change you make below starts a draft. Nothing recipients see changes until you publish.
+      </div>
+    </div>
+  {% endif %}
+
+  {# ===== Sections ===== #}
+  {% for section in sections %}
+    <div class="card fe-section">
+      <div class="card__head">
+        <div class="fe-section__head" style="flex:1;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="fe-section__num">{{ forloop.counter }}</span>
+            <h3 class="fe-section__title">{{ section.label }}</h3>
+          </div>
+          <div class="fe-row__actions">
+            {% if not forloop.first %}
+              <form method="post" style="margin:0;">{% csrf_token %}
+                <input type="hidden" name="action" value="move_section">
+                <input type="hidden" name="section_key" value="{{ section.key }}">
+                <input type="hidden" name="direction" value="up">
+                <button class="fe-iconbtn" title="Move section up">&uarr;</button>
+              </form>
+            {% endif %}
+            {% if not forloop.last %}
+              <form method="post" style="margin:0;">{% csrf_token %}
+                <input type="hidden" name="action" value="move_section">
+                <input type="hidden" name="section_key" value="{{ section.key }}">
+                <input type="hidden" name="direction" value="down">
+                <button class="fe-iconbtn" title="Move section down">&darr;</button>
+              </form>
+            {% endif %}
+            <details class="fe-edit">
+              <summary class="fe-iconbtn">Rename</summary>
+            </details>
+            <form method="post" style="margin:0;">{% csrf_token %}
+              <input type="hidden" name="action" value="remove_section">
+              <input type="hidden" name="section_key" value="{{ section.key }}">
+              <button class="fe-iconbtn fe-iconbtn--danger" title="Delete section"
+                      onclick="return confirm('Delete the section &quot;{{ section.label|escapejs }}&quot; and all its fields?');">
+                Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="card__body">
+        {# Rename section (collapsed) #}
+        <details class="fe-edit" style="margin-bottom:8px;">
+          <summary style="font-size:12px; color:#2563eb; cursor:pointer;">Rename this section</summary>
+          <div class="fe-edit-panel">
+            <form method="post" style="margin:0; display:flex; gap:8px; align-items:flex-end;">{% csrf_token %}
+              <input type="hidden" name="action" value="update_section">
+              <input type="hidden" name="section_key" value="{{ section.key }}">
+              <div style="flex:1;">
+                <label class="fe-lbl">Section name</label>
+                <input class="fe-inp" type="text" name="label" value="{{ section.label }}" required>
+              </div>
+              <button type="submit" class="btn btn--sm">Save name</button>
+            </form>
+          </div>
+        </details>
+
+        {# Field rows #}
+        {% for f in section.fields %}
+          <div class="fe-row">
+            <div class="fe-row__main">
+              <div class="fe-row__label">{{ f.label|default:"(no label)" }}</div>
+              <div class="fe-row__meta">
+                {% if f.is_field %}
+                  <span class="fe-type-pill">{{ f.type_label }}</span>
+                  {% if f.option_set %}<span class="t-muted">&middot; options: {{ f.option_set }}</span>{% endif %}
+                  {% if f.help %}<span class="t-muted">&middot; {{ f.help }}</span>{% endif %}
+                {% else %}
+                  <span class="fe-type-pill fe-type-pill--display">{{ f.type_label }}</span>
+                  <span class="t-muted">&middot; read-only text, edit via version code</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="fe-row__actions">
+              {% if not forloop.first %}
+                <form method="post" style="margin:0;">{% csrf_token %}
+                  <input type="hidden" name="action" value="move_field">
+                  <input type="hidden" name="section_key" value="{{ section.key }}">
+                  <input type="hidden" name="field_key" value="{{ f.key }}">
+                  <input type="hidden" name="direction" value="up">
+                  <button class="fe-iconbtn" title="Move up">&uarr;</button>
+                </form>
+              {% endif %}
+              {% if not forloop.last %}
+                <form method="post" style="margin:0;">{% csrf_token %}
+                  <input type="hidden" name="action" value="move_field">
+                  <input type="hidden" name="section_key" value="{{ section.key }}">
+                  <input type="hidden" name="field_key" value="{{ f.key }}">
+                  <input type="hidden" name="direction" value="down">
+                  <button class="fe-iconbtn" title="Move down">&darr;</button>
+                </form>
+              {% endif %}
+              {% if f.is_field %}
+                <details class="fe-edit">
+                  <summary class="fe-iconbtn">Edit</summary>
+                </details>
+              {% endif %}
+              <form method="post" style="margin:0;">{% csrf_token %}
+                <input type="hidden" name="action" value="remove_field">
+                <input type="hidden" name="section_key" value="{{ section.key }}">
+                <input type="hidden" name="field_key" value="{{ f.key }}">
+                <button class="fe-iconbtn fe-iconbtn--danger" title="Remove field"
+                        onclick="return confirm('Remove the field &quot;{{ f.label|escapejs }}&quot;?');">
+                  Remove
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {# Inline edit panel for this field #}
+          {% if f.is_field %}
+            <details class="fe-edit">
+              <summary style="font-size:12px; color:#2563eb; cursor:pointer; padding:4px 0 4px 0;">Edit &ldquo;{{ f.label }}&rdquo;</summary>
+              <div class="fe-edit-panel">
+                <form method="post" style="margin:0;">{% csrf_token %}
+                  <input type="hidden" name="action" value="update_field">
+                  <input type="hidden" name="section_key" value="{{ section.key }}">
+                  <input type="hidden" name="field_key" value="{{ f.key }}">
+                  <div class="fe-form-grid">
+                    <div>
+                      <label class="fe-lbl">Question / label</label>
+                      <input class="fe-inp" type="text" name="label" value="{{ f.label }}" required>
+                    </div>
+                    <div>
+                      <label class="fe-lbl">Field type</label>
+                      <select class="fe-sel" name="field_type">
+                        {% for ft in field_types %}
+                          <option value="{{ ft.key }}" {% if ft.key == f.type_key %}selected{% endif %}>{{ ft.label }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="fe-col-span">
+                      <label class="fe-lbl">Help text (optional)</label>
+                      <input class="fe-inp" type="text" name="help" value="{{ f.help }}" placeholder="Shown under the field to guide the recipient">
+                    </div>
+                    {% if option_sets %}
+                      <div>
+                        <label class="fe-lbl">Dropdown options (only for Dropdown type)</label>
+                        <select class="fe-sel" name="option_set">
+                          {% for os in option_sets %}
+                            <option value="{{ os }}" {% if os == f.option_set %}selected{% endif %}>{{ os }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div style="margin-top:10px; text-align:right;">
+                    <button type="submit" class="btn btn--sm">Save changes</button>
+                  </div>
+                </form>
+              </div>
+            </details>
+          {% endif %}
+        {% empty %}
+          <div class="t-sm t-muted" style="padding:10px 0;">No fields yet. Add the first one below.</div>
+        {% endfor %}
+
+        {# Add field to this section #}
+        <div class="fe-addrow">
+          <details class="fe-edit">
+            <summary class="btn btn--sm btn--ghost" style="display:inline-block;">+ Add field to this section</summary>
+            <div class="fe-edit-panel" style="margin-top:10px;">
+              <form method="post" style="margin:0;">{% csrf_token %}
+                <input type="hidden" name="action" value="add_field">
+                <input type="hidden" name="section_key" value="{{ section.key }}">
+                <div class="fe-form-grid">
+                  <div>
+                    <label class="fe-lbl">Question / label</label>
+                    <input class="fe-inp" type="text" name="label" placeholder="e.g. Mobile phone" required>
+                  </div>
+                  <div>
+                    <label class="fe-lbl">Field type</label>
+                    <select class="fe-sel" name="field_type">
+                      {% for ft in field_types %}
+                        <option value="{{ ft.key }}">{{ ft.label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="fe-col-span">
+                    <label class="fe-lbl">Help text (optional)</label>
+                    <input class="fe-inp" type="text" name="help" placeholder="Shown under the field to guide the recipient">
+                  </div>
+                  {% if option_sets %}
+                    <div>
+                      <label class="fe-lbl">Dropdown options (only for Dropdown type)</label>
+                      <select class="fe-sel" name="option_set">
+                        {% for os in option_sets %}
+                          <option value="{{ os }}">{{ os }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  {% endif %}
+                </div>
+                <div style="margin-top:10px; text-align:right;">
+                  <button type="submit" class="btn btn--sm">Add field</button>
+                </div>
+              </form>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
+  {# ===== Add section ===== #}
+  <div class="card">
+    <div class="card__body">
+      <details class="fe-edit">
+        <summary class="btn btn--ghost" style="display:inline-block;">+ Add a new section</summary>
+        <div class="fe-edit-panel" style="margin-top:10px;">
+          <form method="post" style="margin:0; display:flex; gap:8px; align-items:flex-end;">{% csrf_token %}
+            <input type="hidden" name="action" value="add_section">
+            <div style="flex:1;">
+              <label class="fe-lbl">Section name</label>
+              <input class="fe-inp" type="text" name="label" placeholder="e.g. Performance Measures" required>
+            </div>
+            <button type="submit" class="btn btn--sm">Add section</button>
+          </form>
+        </div>
+      </details>
+    </div>
+  </div>
+
+</div>
+
+{# The "Preview draft" link only makes sense when a draft exists; reveal it
+   client-side so the button doesn't appear on a clean (published) form. #}
+{% if draft_pending %}
+<script>
+  document.getElementById("preview-draft-link").style.display = "";
+</script>
+{% endif %}
+{% endblock %}

@@ -4,6 +4,7 @@ from staff_review.admin_views import FeatureFlagAdminView, FeatureFlagToggleView
 from staff_review.demo_views import DemoUsersIndexView, ViewAsUserView
 from staff_review.form_builder_views import (
     FormBuilderDetailView,
+    FormBuilderEditView,
     FormBuilderListView,
     FormScopingEditView,
     PublishNewVersionView,
@@ -63,6 +64,8 @@ urlpatterns = [
     path("form-builder/<uuid:form_def_id>/scope/", FormScopingEditView.as_view(), name="form_builder_scope_edit"),
     # Batch G -- CORE-23/24 (publish new version + auto-close deprecated)
     path("form-builder/<uuid:form_def_id>/publish/", PublishNewVersionView.as_view(), name="form_builder_publish"),
+    # STAFF-MP-14 -- visual field editor (draft -> publish)
+    path("form-builder/<uuid:form_def_id>/edit/", FormBuilderEditView.as_view(), name="form_builder_edit"),
 
     # Phase 4 Step 7 -- View-as impersonation for demo / testing (superuser-only)
     path("demo-users/", DemoUsersIndexView.as_view(), name="demo_users_index"),

@@ -91,17 +91,26 @@
 <div class="topbar">
   <div>
     <div class="topbar__title">CORE</div>
-    <div class="topbar__sub">{{ form_def.name }} - {{ entry.organization.name }}</div>
+    <div class="topbar__sub">{{ form_def.name }}{% if entry %} - {{ entry.organization.name }}{% endif %}</div>
   </div>
   <div class="topbar__crumb">
-    <a href="/forms/">&larr; Back to my forms</a>
+    {% if draft_preview %}
+      <a href="/staff/form-builder/{{ form_def.id }}/edit/">&larr; Back to editor</a>
+    {% else %}
+      <a href="/forms/">&larr; Back to my forms</a>
+    {% endif %}
   </div>
 </div>
 
 <div class="shell">
   <div class="stripe">
-    <span class="stripe__chip">Live preview</span>
-    <span>Rendered from this form's JSON definition (v{{ form_def.schema.version|default:"1.0.0" }}). Save draft to persist your work.</span>
+    {% if draft_preview %}
+      <span class="stripe__chip">Draft preview</span>
+      <span>This is your unpublished draft, shown the way a recipient would see it. Changes aren't live until you publish a new version.</span>
+    {% else %}
+      <span class="stripe__chip">Live preview</span>
+      <span>Rendered from this form's JSON definition (v{{ form_def.schema.version|default:"1.0.0" }}). Save draft to persist your work.</span>
+    {% endif %}
   </div>
 
   {% if not lint_clean %}
@@ -124,10 +133,12 @@
     </div>
   </div>
 
+  {% if not draft_preview %}
   <div class="footer-bar">
     <span id="savestatus" class="savestatus">Not yet saved this session.</span>
     <button id="save-btn" type="button" class="btn btn--primary">Save draft</button>
   </div>
+  {% endif %}
 </div>
 
 {# Renderer modules + WASM kernel served from Django staticfiles.
@@ -188,10 +199,10 @@
       }
     }
 
-    // 5. Wire Save draft -> POST to Django.
+    // 5. Wire Save draft -> POST to Django. (Absent in read-only draft preview.)
     const saveBtn = document.getElementById("save-btn");
     const status = document.getElementById("savestatus");
-    saveBtn.addEventListener("click", async () => {
+    if (saveBtn) saveBtn.addEventListener("click", async () => {
       saveBtn.disabled = true;
       status.textContent = "Saving...";
       status.className = "savestatus";

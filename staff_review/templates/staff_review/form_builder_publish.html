@@ -35,6 +35,20 @@
     </div>
   {% endif %}
 
+  {% if has_draft %}
+    <div class="alert alert--info">
+      <div class="alert__icon">&#9998;</div>
+      <div class="alert__body">
+        <h4 class="alert__title">Publishing your draft field changes</h4>
+        <div class="alert__text">
+          This form has unpublished edits from the field editor. Publishing a new
+          version makes those edits live and clears the draft. To review them
+          first, go back and use <strong>Preview draft</strong>.
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
   {% if affected_count > 0 %}
     <div class="alert alert--danger">
       <div class="alert__icon">!</div>

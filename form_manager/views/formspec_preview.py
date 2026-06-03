@@ -35,7 +35,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-from form_manager.models import FormEntry
+from form_manager.models import FormDefinition, FormEntry
 from form_manager.services.formspec_service import (
     lint_definition,
     validate_response,
@@ -72,6 +72,37 @@ def formspec_preview(request, pk):
         "lint_clean": lint_report.is_clean,
         "lint_errors": lint_report.errors,
         "submit_url": request.build_absolute_uri(),
+    })
+
+
+@login_required
+def formspec_draft_preview(request, form_def_id):
+    """Render the DRAFT schema of a FormDefinition (STAFF-MP-14).
+
+    Read-only preview so staff can see in-progress field edits the way a
+    recipient would, before publishing. No FormEntry exists, so there's
+    nothing to save -- the template hides the save button when
+    `draft_preview` is set.
+    """
+    if not is_enabled("form_runtime"):
+        raise Http404("Form runtime is disabled.")
+
+    form_def = get_object_or_404(FormDefinition, pk=form_def_id)
+
+    # Prefer the draft; fall back to the published schema if no draft yet.
+    spec = form_def.draft_schema if form_def.draft_schema is not None else (form_def.schema or {})
+    if not isinstance(spec, dict) or not spec.get("$formspec"):
+        raise Http404("This form does not have a schema-driven definition yet.")
+
+    return render(request, "form_manager/formspec_preview.html", {
+        "entry": None,
+        "form_def": form_def,
+        "spec_json": json.dumps(spec),
+        "saved_data_json": json.dumps({}),
+        "lint_clean": True,
+        "lint_errors": [],
+        "submit_url": "",
+        "draft_preview": True,
     })
 
 

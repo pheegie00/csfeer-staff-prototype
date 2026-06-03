@@ -73,6 +73,13 @@ class FormDefinition(BaseModel):
     )
     description = models.TextField(blank=True, null=True)
     schema = models.JSONField(default=dict)
+    # STAFF-MP-14: structural edits made in the visual Form Builder accumulate
+    # here without touching `schema`. Existing submissions keep rendering the
+    # published `schema` until a staff user clicks "Publish new version", at
+    # which point the draft becomes the new version's schema and this clears.
+    # None means "no unpublished draft"; a dict means edits are pending.
+    draft_schema = models.JSONField(null=True, blank=True, default=None)
+    draft_updated_at = models.DateTimeField(null=True, blank=True)
     schema_class = models.CharField(
         max_length=255,
         help_text="The name of the pydantic form schema class",

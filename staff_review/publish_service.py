@@ -78,9 +78,18 @@ def publish_new_version(
     Returns (new_form_def, affected_count) where affected_count is the
     number of in-progress FormEntries that were auto-closed.
 
+    STAFF-MP-14: if the source has an unpublished draft (draft_schema), the
+    new version is created from the DRAFT (that's the whole point of the
+    draft -> publish workflow). The draft is then cleared on the source so
+    it doesn't linger on the now-deprecated row. If there's no draft, the
+    new version is a faithful clone of the published schema (the original
+    CORE-23 behaviour).
+
     Raises PublishError on invalid input (bad variant, version conflict).
     Caller is responsible for permission checks.
     """
+    import copy
+
     if not new_variant or not SEMVER_RE.match(new_variant):
         raise PublishError(
             f"New variant {new_variant!r} is not a valid semver (expect e.g. '1.1.0')."
@@ -97,19 +106,34 @@ def publish_new_version(
             f"FormDefinition '{source_form_def.name}' v{new_variant} already exists."
         )
 
+    # Source schema for the new version: the draft if one exists, else the
+    # published schema. Bump the spec's own `version` field to match the new
+    # FormDefinition variant so the rendered "v1.1.0" stays in sync.
+    published_from_draft = source_form_def.draft_schema is not None
+    base_schema = source_form_def.draft_schema if published_from_draft else source_form_def.schema
+    new_schema = copy.deepcopy(base_schema or {})
+    if isinstance(new_schema, dict) and new_schema.get("$formspec"):
+        new_schema["version"] = new_variant
+
     # 1. Create the new version (clone the schema-bearing fields).
     new_fd = FormDefinition.objects.create(
         name=source_form_def.name,
         variant=new_variant,
         family=source_form_def.family,
         description=source_form_def.description,
-        schema=dict(source_form_def.schema or {}),
+        schema=new_schema,
         schema_class=source_form_def.schema_class,
         is_active=True,
         program=source_form_def.program,
         cycle_type=source_form_def.cycle_type,
         is_shared=source_form_def.is_shared,
     )
+
+    # Clear the draft on the (about-to-be-deprecated) source -- it's now
+    # baked into new_fd.schema.
+    if published_from_draft:
+        source_form_def.draft_schema = None
+        source_form_def.draft_updated_at = None
 
     # 2. Clone scoping if requested.
     if clone_scoping and hasattr(source_form_def, "scoping"):
@@ -133,9 +157,12 @@ def publish_new_version(
                 closes_at=src_window.closes_at,
             )
 
-    # 4. Deprecate the source.
+    # 4. Deprecate the source (and persist the cleared draft if we consumed one).
     source_form_def.is_active = False
-    source_form_def.save(update_fields=["is_active", "updated_at"])
+    _src_update_fields = ["is_active", "updated_at"]
+    if published_from_draft:
+        _src_update_fields += ["draft_schema", "draft_updated_at"]
+    source_form_def.save(update_fields=_src_update_fields)
 
     # 5. Auto-close in-progress FormEntries on the source (CORE-24).
     affected = list(

@@ -28,6 +28,13 @@
       </div>
       <div class="ph__actions">
         {% if not can_manage %}<span class="t-sm t-muted">Read-only</span>{% endif %}
+        {% if editor_available and can_manage and form_def.is_active %}
+          <a href="{% url 'staff_review:form_builder_edit' form_def_id=form_def.id %}"
+             class="btn btn--ghost">
+            Edit fields
+            {% if draft_pending %}<span class="tag tag--warning tag--sm" style="margin-left:6px;">Draft</span>{% endif %}
+          </a>
+        {% endif %}
         {% if form_runtime_on and first_entry_id %}
           <a href="/forms/entry/{{ first_entry_id }}/render/"
              target="_blank" rel="noopener"
