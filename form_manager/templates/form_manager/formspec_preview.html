@@ -7,9 +7,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  {# Formspec layout + default field stylesheets, served straight from JSDelivr. #}
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@formspec-org/webcomponent@1.0.0/dist/formspec-layout.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@formspec-org/webcomponent@1.0.0/dist/formspec-default.css">
+  {# Layout + default field stylesheets, plus the CSS imports esbuild extracted
+     from the renderer source. All three live in Django staticfiles and are
+     produced by `tools/formspec-bundle/build.mjs`. #}
+  <link rel="stylesheet" href="{% static 'form_manager/formspec/formspec-layout.css' %}">
+  <link rel="stylesheet" href="{% static 'form_manager/formspec/formspec-default.css' %}">
+  <link rel="stylesheet" href="{% static 'form_manager/formspec/bundle.css' %}">
   <style>
     :root { --acf-navy: #0b3b5c; --acf-blue: #2563eb; }
     body {
@@ -127,15 +130,18 @@
   </div>
 </div>
 
-{# Renderer modules + WASM kernel served via JSDelivr's /+esm bundler.
-   We previously routed through esm.sh, but esm.sh injects a synthetic
-   `.css.mjs` shim for every package-level `import "./*.css"` statement,
-   then 301-redirects that shim to a raw .css file. Modern browsers refuse
-   to execute `text/css` as a JS module ("strict MIME checks"), so the
-   dynamic import of the webcomponent module fails before any code runs.
-   JSDelivr's `/+esm` endpoint inlines CSS imports into the JS bundle and
-   resolves peer-dep specifiers (@formspec-org/engine, @formspec-org/layout,
-   @preact/signals-core) into sibling /+esm URLs that all serve correctly. #}
+{# Renderer modules + WASM kernel served from Django staticfiles.
+   We tried both esm.sh and JSDelivr's /+esm and both failed for the same
+   reason: each peer-dep (@formspec-org/engine, .../layout, .../render) is
+   served as its OWN ESM bundle, and the WASM-bridge module that holds the
+   `_wasmReady` flag is bundled inside *each* of them separately. Calling
+   `initFormspecEngine()` in one bundle leaves the render bundle's copy
+   uninitialised -- the element then throws "Formspec runtime WASM is not
+   initialized" the moment we set `.definition`. We sidestep that by
+   bundling all four packages locally with esbuild
+   (see tools/formspec-bundle/), which produces a single ESM file with
+   exactly one WASM-bridge module instance shared between the engine, the
+   render side, and the webcomponent. #}
 <script type="module">
   const SPEC = {{ spec_json|safe }};
   const SAVED = {{ saved_data_json|safe }};
@@ -147,20 +153,22 @@
   };
 
   try {
-    const wc  = await import("https://cdn.jsdelivr.net/npm/@formspec-org/webcomponent@1.0.0/+esm");
-    const ad  = await import("https://cdn.jsdelivr.net/npm/@formspec-org/adapters@0.1.0/+esm");
-    const eng = await import("https://cdn.jsdelivr.net/npm/@formspec-org/engine@1.0.0/+esm");
+    // Single deduplicated bundle -- see tools/formspec-bundle/build.mjs.
+    const wc = await import("{% static 'form_manager/formspec/bundle.js' %}");
 
-    // 1. Boot the WASM engine (must be awaited before constructing the element).
-    await (wc.initFormspecEngine || eng.initFormspecEngine)();
+    // 1. Boot the WASM engine (one module instance, so this initialises
+    //    the same state the webcomponent reads from).
+    await wc.initFormspecEngine();
 
     // 2. Manually define the custom element (the package does not auto-register).
     if (!customElements.get("formspec-render")) {
       customElements.define("formspec-render", wc.FormspecRender);
     }
 
-    // 3. Register the USWDS adapter and make it the active one.
-    wc.globalRegistry.registerAdapter(ad.uswdsAdapter);
+    // 3. Register the USWDS adapter and make it the active one. The
+    //    bundle re-exports adapters under a namespace to avoid name
+    //    collisions with the webcomponent's own exports.
+    wc.globalRegistry.registerAdapter(wc.adapters.uswdsAdapter);
     wc.globalRegistry.setAdapter("uswds");
 
     // 4. Mount the element and feed it the spec + saved response.
@@ -171,7 +179,6 @@
     fsEl.definition = SPEC;
     if (SAVED && Object.keys(SAVED).length) {
       try {
-        // hydrate after definition; engine is exposed via getEngine() once mounted
         if (typeof wc.applyResponseDataToEngine === "function" && typeof fsEl.getEngine === "function") {
           const engine = fsEl.getEngine();
           if (engine) wc.applyResponseDataToEngine(engine, SAVED);

@@ -170,10 +170,13 @@ class FormspecPreviewViewTest(TestCase):
         resp = c.get(f"/forms/entry/{self.entry.id}/render/")
         self.assertEqual(resp.status_code, 200)
         body = resp.content.decode()
-        # Should embed the spec + the web component script
+        # Should embed the spec + load the locally-bundled web component script.
+        # We bundle all four @formspec-org/* packages into one ESM file via
+        # tools/formspec-bundle/ so the renderer shares a single WASM-bridge
+        # module instance with the engine -- see STAFF-MP-13 follow-up.
         self.assertIn("formspec-render", body)
         self.assertIn("$formspec", body)
-        self.assertIn("@formspec-org/webcomponent", body)
+        self.assertIn("form_manager/formspec/bundle.js", body)
 
     def test_preview_404s_when_flag_off(self):
         from staff_review.feature_flags import FeatureFlag, flags_enabled_map

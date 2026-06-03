@@ -420,12 +420,16 @@
 {% endif %}
 {% endif %}
 
-{% comment %}KANBAN view (one column per status bucket). Restyled to match the navy + pale-blue palette.{% endcomment %}
+{% comment %}KANBAN view (one column per status bucket). Restyled to match the navy + pale-blue palette.
+
+Always shows all 5 status columns (Submitted / In Progress / Returned /
+Accepted / Closed) regardless of which tab is active. The row list itself
+is already filtered upstream by the active_status, so each column's count
+naturally reflects the current filter -- empty columns just render the
+"No submissions" placeholder, which is more legible than hiding lanes.{% endcomment %}
 {% if active_view == 'kanban' %}
 <div class="kanban">
   {% for col in kanban_columns %}
-    {% comment %}Show all 5 status columns when viewing 'All', otherwise filter to the relevant set so we don't show empty lanes.{% endcomment %}
-    {% if active_status == 'All' or active_status == 'Resolved' and col.status == 'Accepted' or active_status == 'Resolved' and col.status == 'Closed' or active_status != 'Resolved' and col.status == active_status or active_status == 'My queue' and col.status != 'Accepted' and col.status != 'Closed' %}
       <div class="kanban__col">
         <div class="kanban__head">
           <div>
@@ -456,7 +460,6 @@
           {% endfor %}
         </div>
       </div>
-    {% endif %}
   {% endfor %}
 </div>
 {% endif %}
