@@ -119,18 +119,20 @@ class FormBuilderFormspecIntegrationTest(TestCase):
         self.assertEqual(self.tribal_plan.schema.get("$formspec"), "1.0")
         self.assertEqual(self.tribal_plan.schema.get("name"), "csbg-tribal-plan")
 
-    def test_form_builder_detail_shows_runtime_card_when_flag_on(self):
+    def test_form_builder_detail_shows_preview_button_when_flag_on(self):
         c = self._client()
         resp = c.get(f"/staff/form-builder/{self.tribal_plan.id}/")
         self.assertEqual(resp.status_code, 200)
         body = resp.content.decode()
-        self.assertIn("Form runtime", body)
-        self.assertIn("View spec", body)
-        self.assertIn("Clean", body, "Tribal Plan should show 'Clean' lint badge.")
-        # And the pretty-printed JSON should be in the page (inside the dialog).
-        self.assertIn("$formspec", body)
+        # Page header includes the "Preview as recipient" link pointing at /render/
+        self.assertIn("Preview as recipient", body)
+        self.assertIn("/render/", body)
+        # No raw spec, no lint diagnostics, no "View spec" button -- those
+        # were technical details we intentionally stripped for non-technical users.
+        self.assertNotIn("View spec", body)
+        self.assertNotIn("$formspec", body)
 
-    def test_form_builder_detail_hides_runtime_card_when_flag_off(self):
+    def test_form_builder_detail_hides_preview_button_when_flag_off(self):
         from staff_review.feature_flags import FeatureFlag, flags_enabled_map
         flags_enabled_map()  # materialize rows
         FeatureFlag.objects.filter(key="form_runtime").update(is_enabled=False)
@@ -138,8 +140,8 @@ class FormBuilderFormspecIntegrationTest(TestCase):
         resp = c.get(f"/staff/form-builder/{self.tribal_plan.id}/")
         self.assertEqual(resp.status_code, 200)
         body = resp.content.decode()
-        self.assertNotIn("Form runtime", body)
-        self.assertNotIn("View spec", body)
+        self.assertNotIn("Preview as recipient", body)
+        self.assertNotIn("/render/", body)
 
 
 @override_settings(MIDDLEWARE=_TEST_MIDDLEWARE)

@@ -127,7 +127,15 @@
   </div>
 </div>
 
-{# Renderer modules + WASM kernel served via esm.sh (resolves peer deps automatically). #}
+{# Renderer modules + WASM kernel served via JSDelivr's /+esm bundler.
+   We previously routed through esm.sh, but esm.sh injects a synthetic
+   `.css.mjs` shim for every package-level `import "./*.css"` statement,
+   then 301-redirects that shim to a raw .css file. Modern browsers refuse
+   to execute `text/css` as a JS module ("strict MIME checks"), so the
+   dynamic import of the webcomponent module fails before any code runs.
+   JSDelivr's `/+esm` endpoint inlines CSS imports into the JS bundle and
+   resolves peer-dep specifiers (@formspec-org/engine, @formspec-org/layout,
+   @preact/signals-core) into sibling /+esm URLs that all serve correctly. #}
 <script type="module">
   const SPEC = {{ spec_json|safe }};
   const SAVED = {{ saved_data_json|safe }};
@@ -139,11 +147,9 @@
   };
 
   try {
-    // esm.sh resolves @formspec-org/engine + @formspec-org/layout + preact signals
-    // peer deps automatically, which JSDelivr's bare specifiers cannot.
-    const wc = await import("https://esm.sh/@formspec-org/webcomponent@1.0.0");
-    const ad = await import("https://esm.sh/@formspec-org/adapters@0.1.0");
-    const eng = await import("https://esm.sh/@formspec-org/engine@1.0.0");
+    const wc  = await import("https://cdn.jsdelivr.net/npm/@formspec-org/webcomponent@1.0.0/+esm");
+    const ad  = await import("https://cdn.jsdelivr.net/npm/@formspec-org/adapters@0.1.0/+esm");
+    const eng = await import("https://cdn.jsdelivr.net/npm/@formspec-org/engine@1.0.0/+esm");
 
     // 1. Boot the WASM engine (must be awaited before constructing the element).
     await (wc.initFormspecEngine || eng.initFormspecEngine)();

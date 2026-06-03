@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import RedirectView
 
 from form_manager import views
 from form_manager.views.formspec_preview import formspec_preview
@@ -9,6 +10,11 @@ urlpatterns = [
     path("entry/<uuid:pk>/edit/", views.form_edit, name="form_edit"),
     # STAFF-MP-13: schema-driven parallel render route (gated by form_runtime flag).
     path("entry/<uuid:pk>/render/", formspec_preview, name="form_render"),
+    # Back-compat: the route used to be /formspec-preview/; redirect to /render/.
+    path(
+        "entry/<uuid:pk>/formspec-preview/",
+        RedirectView.as_view(url="/forms/entry/%(pk)s/render/", permanent=False),
+    ),
     path("entry/<uuid:pk>/review/", views.form_review, name="form_review"),
     path("entry/<uuid:pk>/finalize/", views.form_finalize, name="form_finalize"),
     path("entry/<uuid:pk>/preview/", views.FormPreviewView.as_view(), name="form_preview"),

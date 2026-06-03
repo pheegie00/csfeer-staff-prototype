@@ -28,6 +28,13 @@
       </div>
       <div class="ph__actions">
         {% if not can_manage %}<span class="t-sm t-muted">Read-only</span>{% endif %}
+        {% if form_runtime_on and first_entry_id %}
+          <a href="/forms/entry/{{ first_entry_id }}/render/"
+             target="_blank" rel="noopener"
+             class="btn btn--ghost">
+            Preview as recipient &rarr;
+          </a>
+        {% endif %}
         {% if form_def.is_active %}
           <a href="{% url 'staff_review:form_builder_publish' form_def_id=form_def.id %}"
              class="btn {% if not can_manage %}is-disabled{% endif %}"
@@ -276,80 +283,10 @@
       </div>
       {% endif %}
 
-      {# STAFF-MP-13: form runtime status + View spec modal. #}
-      {% if form_runtime_on %}
-      <div class="rail">
-        <div class="rail__head">Form runtime</div>
-        <div class="rail__body">
-          {% if has_spec %}
-            <div class="rail__item">
-              <div class="rail__k">Status</div>
-              <div class="rail__v">
-                {% if spec_lint.is_clean %}
-                  <span class="tag tag--success tag--sm">Clean</span>
-                {% elif spec_lint.error_count %}
-                  <span class="tag tag--danger tag--sm">{{ spec_lint.error_count }} error{{ spec_lint.error_count|pluralize }}</span>
-                {% endif %}
-                {% if spec_lint.warning_count %}
-                  <span class="tag tag--warning tag--sm">{{ spec_lint.warning_count }} warning{{ spec_lint.warning_count|pluralize }}</span>
-                {% endif %}
-              </div>
-            </div>
-            <div class="rail__item">
-              <div class="rail__k">Spec version</div>
-              <div class="rail__v">{{ form_def.schema.version|default:"-" }} ({{ form_def.schema.versionAlgorithm|default:"semver" }})</div>
-            </div>
-            <div class="rail__item">
-              <div class="rail__k">Items</div>
-              <div class="rail__v">{{ form_def.schema.items|length }} top-level sections</div>
-            </div>
-            <div style="margin-top: 12px; display: flex; gap: 8px;">
-              <button class="btn btn--ghost btn--sm" onclick="document.getElementById('spec-modal').showModal()" type="button">
-                View spec
-              </button>
-              {% if first_entry_id %}
-                <a class="btn btn--ghost btn--sm" href="/forms/entry/{{ first_entry_id }}/render/" target="_blank" rel="noopener">
-                  Preview as recipient &rarr;
-                </a>
-              {% endif %}
-            </div>
-
-            {% if spec_lint.errors %}
-              <div class="alert alert--danger" style="margin-top:12px;">
-                <div class="alert__body" style="padding: 8px 12px;">
-                  <strong style="font-size:12px;">Lint errors:</strong>
-                  <ul style="margin:6px 0 0; padding-left:18px; font-size:12px;">
-                    {% for d in spec_lint.errors|slice:":5" %}
-                      <li><code>{{ d.code }}</code> at <code>{{ d.path }}</code>: {{ d.message }}</li>
-                    {% endfor %}
-                  </ul>
-                </div>
-              </div>
-            {% endif %}
-          {% else %}
-            <div class="rail__item t-sm">
-              No spec loaded for this form yet. Run
-              <code>seed_demo_data</code> to populate, or use the publish flow
-              to upload one.
-            </div>
-          {% endif %}
-        </div>
-      </div>
-
-      {% if has_spec %}
-        <dialog id="spec-modal" style="max-width: 900px; width: 90vw; padding: 0; border: 1px solid #d6d6d6; border-radius: 8px;">
-          <div style="padding: 16px 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font: 600 16px 'Public Sans', sans-serif;">
-              Form definition - {{ form_def.name }} v{{ form_def.variant }}
-            </h3>
-            <button onclick="document.getElementById('spec-modal').close()" style="background: none; border: 0; font-size: 24px; cursor: pointer; line-height: 1;" aria-label="Close" type="button">&times;</button>
-          </div>
-          <div style="padding: 16px 20px; max-height: 70vh; overflow-y: auto;">
-            <pre style="margin: 0; font: 400 12px 'IBM Plex Mono', monospace; background: #f9fafb; padding: 16px; border-radius: 4px; line-height: 1.5; overflow-x: auto;">{{ spec_pretty }}</pre>
-          </div>
-        </dialog>
-      {% endif %}
-      {% endif %}
+      {% comment %}
+        STAFF-MP-13: Lint runs silently. Non-technical users see only the
+        "Preview as recipient" action in the page header.
+      {% endcomment %}
     </div>
   </div>
 </div>
