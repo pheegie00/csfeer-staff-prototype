@@ -7,9 +7,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  {# Layout + default field stylesheets, plus the CSS imports esbuild extracted
-     from the renderer source. All three live in Django staticfiles and are
-     produced by `tools/formspec-bundle/build.mjs`. #}
+  {% comment %}
+    Layout + default field stylesheets, plus the CSS imports esbuild extracted
+    from the renderer source. All three live in Django staticfiles and are
+    produced by `tools/formspec-bundle/build.mjs`.
+  {% endcomment %}
   <link rel="stylesheet" href="{% static 'form_manager/formspec/formspec-layout.css' %}">
   <link rel="stylesheet" href="{% static 'form_manager/formspec/formspec-default.css' %}">
   <link rel="stylesheet" href="{% static 'form_manager/formspec/bundle.css' %}">
@@ -141,18 +143,20 @@
   {% endif %}
 </div>
 
-{# Renderer modules + WASM kernel served from Django staticfiles.
-   We tried both esm.sh and JSDelivr's /+esm and both failed for the same
-   reason: each peer-dep (@formspec-org/engine, .../layout, .../render) is
-   served as its OWN ESM bundle, and the WASM-bridge module that holds the
-   `_wasmReady` flag is bundled inside *each* of them separately. Calling
-   `initFormspecEngine()` in one bundle leaves the render bundle's copy
-   uninitialised -- the element then throws "Formspec runtime WASM is not
-   initialized" the moment we set `.definition`. We sidestep that by
-   bundling all four packages locally with esbuild
-   (see tools/formspec-bundle/), which produces a single ESM file with
-   exactly one WASM-bridge module instance shared between the engine, the
-   render side, and the webcomponent. #}
+{% comment %}
+  Renderer modules + WASM kernel served from Django staticfiles.
+  We tried both esm.sh and JSDelivr's /+esm and both failed for the same
+  reason: each peer-dep (@formspec-org/engine, .../layout, .../render) is
+  served as its OWN ESM bundle, and the WASM-bridge module that holds the
+  `_wasmReady` flag is bundled inside *each* of them separately. Calling
+  `initFormspecEngine()` in one bundle leaves the render bundle's copy
+  uninitialised -- the element then throws "Formspec runtime WASM is not
+  initialized" the moment we set `.definition`. We sidestep that by
+  bundling all four packages locally with esbuild
+  (see tools/formspec-bundle/), which produces a single ESM file with
+  exactly one WASM-bridge module instance shared between the engine, the
+  render side, and the webcomponent.
+{% endcomment %}
 <script type="module">
   const SPEC = {{ spec_json|safe }};
   const SAVED = {{ saved_data_json|safe }};

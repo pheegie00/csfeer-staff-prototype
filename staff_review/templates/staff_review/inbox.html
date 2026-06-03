@@ -5,8 +5,10 @@
 {% block menu_inbox %}acf-header__nav-link--active{% endblock %}
 
 {% block subnav %}
-{# Granular status tabs with counts -- richer than just Active/Completed.
-   Each links back to the inbox with ?status=<id>&view=<current>. #}
+{% comment %}
+  Granular status tabs with counts -- richer than just Active/Completed.
+  Each links back to the inbox with ?status=<id>&view=<current>.
+{% endcomment %}
 <div class="acf-subnav">
   <div class="acf-subnav__list">
     {% for t in tabs %}

@@ -367,8 +367,10 @@ client-side state to keep in sync.
 
 </div>
 
-{# The "Preview draft" link only makes sense when a draft exists; reveal it
-   client-side so the button doesn't appear on a clean (published) form. #}
+{% comment %}
+  The "Preview draft" link only makes sense when a draft exists; reveal it
+  client-side so the button doesn't appear on a clean (published) form.
+{% endcomment %}
 {% if draft_pending %}
 <script>
   document.getElementById("preview-draft-link").style.display = "";

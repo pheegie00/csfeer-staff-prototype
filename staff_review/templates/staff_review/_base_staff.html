@@ -286,8 +286,10 @@
     <div class="acf-header__subtitle">ACF &middot; Community Outcomes Reporting Engine</div>
   </a>
 
-  {# Primary horizontal nav. Each child template marks its active item via the
-     menu_* block hooks below. #}
+  {% comment %}
+    Primary horizontal nav. Each child template marks its active item via the
+    menu_* block hooks below.
+  {% endcomment %}
   <nav class="acf-header__nav">
     <a href="{% url 'staff_review:inbox' %}"
        class="acf-header__nav-link {% block menu_inbox %}{% endblock %}">Submissions</a>
